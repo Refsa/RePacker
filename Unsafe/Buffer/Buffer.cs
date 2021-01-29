@@ -86,8 +86,8 @@ namespace Refsa.Repacker.Buffers
 
         public void Flush()
         {
-            buffer.Span.Clear();
-            offset = 0;
+            buffer.Span.Slice(cursor, Length()).Clear();
+            Reset();
         }
 
         public int Count()

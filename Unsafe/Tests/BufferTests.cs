@@ -1,5 +1,6 @@
 using Xunit;
 using Refsa.Repacker.Buffers;
+using System.Runtime.InteropServices;
 
 namespace Refsa.Repacker.Buffers.Tests
 {
@@ -30,6 +31,121 @@ namespace Refsa.Repacker.Buffers.Tests
             (byte[] buf, Buffer buffer) = MakeBuffer(1024);
 
             Assert.Equal(buf, buffer.GetArray().array);
+        }
+
+        [Fact]
+        public void length_gives_active_elements_length()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
+
+            int testVal = 10;
+
+            for (int i = 0; i < 6; i++)
+                buffer.Push<int>(ref testVal);
+
+            Assert.Equal(sizeof(int) * 6, buffer.Length());
+
+            buffer.Pop<int>(out int fromBuf);
+            buffer.Pop<int>(out fromBuf);
+            buffer.Pop<int>(out fromBuf);
+
+            Assert.Equal(sizeof(int) * 3, buffer.Length());
+        }
+
+        [Fact]
+        public void count_gives_total_size_used()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
+
+            int testVal = 10;
+
+            for (int i = 0; i < 6; i++)
+                buffer.Push<int>(ref testVal);
+
+            Assert.Equal(sizeof(int) * 6, buffer.Count());
+
+            buffer.Pop<int>(out int fromBuf);
+            buffer.Pop<int>(out fromBuf);
+            buffer.Pop<int>(out fromBuf);
+
+            Assert.Equal(sizeof(int) * 6, buffer.Count());
+        }
+
+        [Fact]
+        public void cursor_gives_active_first_element_index()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
+
+            int testVal = 10;
+
+            for (int i = 0; i < 6; i++)
+                buffer.Push<int>(ref testVal);
+
+            Assert.Equal(0, buffer.Cursor());
+
+            buffer.Pop<int>(out int fromBuf);
+            buffer.Pop<int>(out fromBuf);
+            buffer.Pop<int>(out fromBuf);
+
+            Assert.Equal(sizeof(int) * 3, buffer.Cursor());
+        }
+
+        [Fact]
+        public void flush_zeroes_out_used_memory()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+
+            int testVal = 10;
+            for (int i = 0; i < 10; i++)
+                buffer.Push<int>(ref testVal);
+
+            buffer.Flush();
+
+            for (int i = 0; i < 10; i++)
+            {
+                buffer.Pop<int>(out int val);
+                Assert.Equal(0, val);
+            }
+        }
+
+        [Fact]
+        public void flush_clears_cursor_and_offset()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+
+            int testVal = 10;
+            for (int i = 0; i < 10; i++)
+                buffer.Push<int>(ref testVal);
+
+            buffer.Pop<int>(out int _);
+            buffer.Pop<int>(out int _);
+            buffer.Pop<int>(out int _);
+
+            buffer.Flush();
+
+            Assert.Equal(0, buffer.Cursor());
+            Assert.Equal(0, buffer.Count());
+            Assert.Equal(0, buffer.Length());
+        }
+
+        [Fact]
+        public void reset_clears_cursor_and_offset()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+
+            int testVal = 10;
+            for (int i = 0; i < 10; i++)
+                buffer.Push<int>(ref testVal);
+
+            buffer.Pop<int>(out int _);
+            buffer.Pop<int>(out int _);
+            buffer.Pop<int>(out int _);
+
+            buffer.Reset();
+
+            Assert.Equal(0, buffer.Cursor());
+            Assert.Equal(0, buffer.Count());
+            Assert.Equal(0, buffer.Length());
         }
 
         [Fact]
@@ -113,6 +229,118 @@ namespace Refsa.Repacker.Buffers.Tests
                 buffer.Pop<int>(out int fromBuf);
                 Assert.Equal(data, fromBuf);
             }
+        }
+
+        [Theory]
+        [InlineData(1.2345f)]
+        [InlineData(12.345f)]
+        [InlineData(123.45f)]
+        [InlineData(1234.5f)]
+        public void push_float_pop_float_1(float data)
+        {
+            byte[] buf = new byte[sizeof(float)];
+            Buffer buffer = new Buffer(buf, 0);
+
+            buffer.Push<float>(ref data);
+
+            buffer.Pop<float>(out float fromBuf);
+
+            Assert.Equal(data, fromBuf);
+        }
+
+        [Theory]
+        [InlineData(1.2345f)]
+        [InlineData(12.345f)]
+        [InlineData(123.45f)]
+        [InlineData(1234.5f)]
+        public void push_float_pop_float_100(float data)
+        {
+            byte[] buf = new byte[sizeof(float) * 100];
+            Buffer buffer = new Buffer(buf, 0);
+
+            for (float i = 0; i < 100; i++)
+                buffer.Push<float>(ref data);
+
+            for (float i = 0; i < 100; i++)
+            {
+                buffer.Pop<float>(out float fromBuf);
+                Assert.Equal(data, fromBuf);
+            }
+        }
+
+        public struct TestBlittableStruct
+        {
+            public float Float;
+            public int Int;
+        }
+
+        [Fact]
+        public void push_and_pop_blittable_struct()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+
+            var testStruct = new TestBlittableStruct { Float = 1.234f, Int = 1234 };
+
+            buffer.Push(ref testStruct);
+
+            buffer.Pop<TestBlittableStruct>(out var fromBuf);
+
+            Assert.Equal(testStruct.Float, fromBuf.Float);
+            Assert.Equal(testStruct.Int, fromBuf.Int);
+        }
+
+        [Fact]
+        public void push_and_pop_blittable_struct_100()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(800);
+
+            var testStruct = new TestBlittableStruct { Float = 1.234f, Int = 1234 };
+
+            for (int i = 0; i < 100; i++)
+            {
+                buffer.Push(ref testStruct);
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                buffer.Pop<TestBlittableStruct>(out var fromBuf);
+                Assert.Equal(testStruct.Float, fromBuf.Float);
+                Assert.Equal(testStruct.Int, fromBuf.Int);
+            }
+        }
+
+        public struct TestNonBlittableStruct
+        {
+            public string String;
+        }
+
+        [Fact]
+        public void push_and_pop_non_blittable_struct_throws()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(800);
+
+            var testStruct = new TestNonBlittableStruct { String = "ABCD" };
+
+            Assert.Throws<System.ArgumentException>(() => buffer.Push(ref testStruct));
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+        public struct TestPaddingStruct
+        {
+            public ushort TwoBytes;
+            public byte OneByte;
+        }
+
+        [Fact]
+        public void struct_with_pack_1_has_no_padding()
+        {
+            (byte[] buf, Buffer buffer) = MakeBuffer(800);
+
+            var testStruct = new TestPaddingStruct { TwoBytes = 1234, OneByte = 128 };
+
+            buffer.Push(ref testStruct);
+
+            Assert.Equal(3, buffer.Count());
         }
     }
 }
