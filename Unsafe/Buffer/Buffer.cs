@@ -19,7 +19,7 @@ namespace Refsa.Repacker.Buffers
             this.readCursor = 0;
         }
 
-        public void Push<T>(ref T value) where T : struct
+        public void Push<T>(ref T value) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
             var span = buffer.Span.Slice(writeCursor, size);
@@ -27,7 +27,7 @@ namespace Refsa.Repacker.Buffers
             writeCursor += size;
         }
 
-        public void Push<T>(ref T value, int index) where T : struct
+        public void Push<T>(ref T value, int index) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
             var span = buffer.Span.Slice(index, size);
@@ -36,7 +36,7 @@ namespace Refsa.Repacker.Buffers
             // TODO: Make sure offset aligns with new length
         }
 
-        public void Pop<T>(out T value) where T : struct
+        public void Pop<T>(out T value) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
             value = MemoryMarshal.Read<T>(buffer.Span.Slice(readCursor, size));

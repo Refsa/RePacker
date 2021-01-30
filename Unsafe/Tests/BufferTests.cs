@@ -314,15 +314,15 @@ namespace Refsa.Repacker.Buffers.Tests
             public string String;
         }
 
-        [Fact]
-        public void push_and_pop_non_blittable_struct_throws()
-        {
-            (byte[] buf, Buffer buffer) = MakeBuffer(800);
+        // [Fact]
+        // public void push_and_pop_non_blittable_struct_throws()
+        // {
+        //     (byte[] buf, Buffer buffer) = MakeBuffer(800);
 
-            var testStruct = new TestNonBlittableStruct { String = "ABCD" };
+        //     var testStruct = new TestNonBlittableStruct { String = "ABCD" };
 
-            Assert.Throws<System.ArgumentException>(() => buffer.Push(ref testStruct));
-        }
+        //     Assert.Throws<System.ArgumentException>(() => buffer.Push(ref testStruct));
+        // }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
         public struct TestPaddingStruct
