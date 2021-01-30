@@ -6,7 +6,7 @@ namespace Refsa.Repacker.Buffers
     public struct ReadOnlyBuffer
     {
         ReadOnlyMemory<byte> buffer;
-        int offset;
+        int size;
         int cursor;
         public int Index;
 
@@ -15,7 +15,7 @@ namespace Refsa.Repacker.Buffers
             this.buffer = buffer;
             Index = index;
 
-            this.offset = offset;
+            this.size = offset;
             this.cursor = 0;
         }
 
@@ -24,7 +24,7 @@ namespace Refsa.Repacker.Buffers
             this.buffer = buffer.Read();
             Index = 0;
 
-            this.offset = buffer.Length();
+            this.size = buffer.Length();
             this.cursor = 0;
         }
 
@@ -37,7 +37,7 @@ namespace Refsa.Repacker.Buffers
 
         public ReadOnlyMemory<byte> Read()
         {
-            return buffer.Slice(cursor, offset);
+            return buffer.Slice(cursor, size);
         }
 
         public ReadOnlyMemory<byte> Read(int count)
@@ -49,17 +49,22 @@ namespace Refsa.Repacker.Buffers
 
         public int Count()
         {
-            return offset;
+            return size;
         }
 
         public int Length()
         {
-            return offset - cursor;
+            return size - cursor;
         }
 
         public int Cursor()
         {
             return cursor;
+        }
+
+        public void Reset()
+        {
+            cursor = 0;
         }
     }
 }

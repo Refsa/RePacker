@@ -6,8 +6,8 @@ namespace Refsa.Repacker.Buffers
     public struct Buffer
     {
         Memory<byte> buffer;
-        int offset;
-        int cursor;
+        int writeCursor;
+        int readCursor;
         public int Index;
 
         public Buffer(Memory<byte> buffer, int index, int offset = 0)
@@ -15,16 +15,16 @@ namespace Refsa.Repacker.Buffers
             this.buffer = buffer;
             Index = index;
 
-            this.offset = offset;
-            this.cursor = 0;
+            this.writeCursor = offset;
+            this.readCursor = 0;
         }
 
         public void Push<T>(ref T value) where T : struct
         {
             int size = Marshal.SizeOf<T>();
-            var span = buffer.Span.Slice(offset, size);
+            var span = buffer.Span.Slice(writeCursor, size);
             MemoryMarshal.Write(span, ref value);
-            offset += size;
+            writeCursor += size;
         }
 
         public void Push<T>(ref T value, int index) where T : struct
@@ -39,32 +39,32 @@ namespace Refsa.Repacker.Buffers
         public void Pop<T>(out T value) where T : struct
         {
             int size = Marshal.SizeOf<T>();
-            value = MemoryMarshal.Read<T>(buffer.Span.Slice(cursor, size));
-            cursor += size;
+            value = MemoryMarshal.Read<T>(buffer.Span.Slice(readCursor, size));
+            readCursor += size;
         }
 
         public void Write(ReadOnlySpan<byte> data)
         {
-            var span = buffer.Span.Slice(offset, data.Length);
+            var span = buffer.Span.Slice(writeCursor, data.Length);
             data.CopyTo(span);
-            offset += data.Length;
+            writeCursor += data.Length;
         }
 
         public void Write(Memory<byte> data)
         {
-            var mem = buffer.Slice(offset, data.Length);
+            var mem = buffer.Slice(writeCursor, data.Length);
             data.CopyTo(mem);
-            offset += data.Length;
+            writeCursor += data.Length;
         }
 
         public void Write(Buffer data)
         {
             int len = data.Length();
 
-            var mem = buffer.Slice(offset, len);
+            var mem = buffer.Slice(writeCursor, len);
             data.Read().CopyTo(mem);
 
-            offset += len;
+            writeCursor += len;
         }
 
         public Memory<byte> Write()
@@ -74,67 +74,67 @@ namespace Refsa.Repacker.Buffers
 
         public ReadOnlyMemory<byte> Read()
         {
-            return buffer.Slice(cursor, offset);
+            return buffer.Slice(readCursor, writeCursor);
         }
 
         public ReadOnlyMemory<byte> Read(int count)
         {
-            var slice = buffer.Slice(cursor, count);
-            cursor += count;
+            var slice = buffer.Slice(readCursor, count);
+            readCursor += count;
             return slice;
         }
 
         public void Flush()
         {
-            buffer.Span.Slice(cursor, Length()).Clear();
+            buffer.Span.Slice(readCursor, Length()).Clear();
             Reset();
         }
 
         public int Count()
         {
-            return offset;
+            return writeCursor;
         }
 
         public int Length()
         {
-            return offset - cursor;
+            return writeCursor - readCursor;
         }
 
         public int Cursor()
         {
-            return cursor;
+            return readCursor;
         }
 
         public int FreeSpace()
         {
-            return buffer.Length - offset;
+            return buffer.Length - writeCursor;
         }
 
         public void Reset()
         {
-            cursor = 0;
-            offset = 0;
+            readCursor = 0;
+            writeCursor = 0;
         }
 
         public void SetCount(int count)
         {
-            offset = count;
+            writeCursor = count;
         }
 
         public void MoveOffset(int amount)
         {
-            offset += amount;
+            writeCursor += amount;
             // TODO: Make sure cursor doesnt move outside of buffer
         }
 
         public bool CanFit(int count)
         {
-            return offset + count <= buffer.Length;
+            return writeCursor + count <= buffer.Length;
         }
 
         public bool CanFit<T>(int count)
         {
-            return offset + (count * Marshal.SizeOf<T>()) <= buffer.Length;
+            return writeCursor + (count * Marshal.SizeOf<T>()) <= buffer.Length;
         }
 
         public (byte[] array, int length) GetArray()
