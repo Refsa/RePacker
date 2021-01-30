@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Refsa.Repacker.Buffers;
-
+using Refsa.Repacker.Unsafe;
 using Buffer = Refsa.Repacker.Buffers.Buffer;
 using ReadOnlyBuffer = Refsa.Repacker.Buffers.ReadOnlyBuffer;
 
@@ -52,31 +52,31 @@ namespace Refsa.Repacker
             switch (enumType)
             {
                 case TypeCode.Byte:
-                    byte bval = (byte)Convert.ChangeType(target, enumType);
+                    byte bval = target.ToUnderlyingType<TEnum, byte>();
                     buffer.Push<byte>(ref bval);
                     break;
                 case TypeCode.Int16:
-                    short i16 = (short)Convert.ChangeType(target, enumType);
+                    short i16 = target.ToUnderlyingType<TEnum, short>();
                     buffer.Push<short>(ref i16);
                     break;
                 case TypeCode.Int32:
-                    int i32 = (int)Convert.ChangeType(target, enumType);
+                    int i32 = target.ToUnderlyingType<TEnum, int>();
                     buffer.Push<int>(ref i32);
                     break;
                 case TypeCode.Int64:
-                    long i64 = (long)Convert.ChangeType(target, enumType);
+                    long i64 = target.ToUnderlyingType<TEnum, long>();
                     buffer.Push<long>(ref i64);
                     break;
                 case TypeCode.UInt16:
-                    ushort u16 = (ushort)Convert.ChangeType(target, enumType);
+                    ushort u16 = target.ToUnderlyingType<TEnum, ushort>();
                     buffer.Push<ushort>(ref u16);
                     break;
                 case TypeCode.UInt32:
-                    uint u32 = (uint)Convert.ChangeType(target, enumType);
+                    uint u32 = target.ToUnderlyingType<TEnum, uint>();
                     buffer.Push<uint>(ref u32);
                     break;
                 case TypeCode.UInt64:
-                    ulong u64 = (ulong)Convert.ChangeType(target, enumType);
+                    ulong u64 = target.ToUnderlyingType<TEnum, ulong>();
                     buffer.Push<ulong>(ref u64);
                     break;
             }
@@ -90,25 +90,25 @@ namespace Refsa.Repacker
             {
                 case TypeCode.Byte:
                     buffer.Pop<byte>(out byte bval);
-                    return (TEnum)(object)(bval);
+                    return EnumHelper.ToEnum<byte, TEnum>(ref bval);
                 case TypeCode.Int16:
                     buffer.Pop<short>(out short i16);
-                    return (TEnum)(object)(i16);
+                    return EnumHelper.ToEnum<short, TEnum>(ref i16);
                 case TypeCode.Int32:
                     buffer.Pop<int>(out int i32);
-                    return (TEnum)(object)(i32);
+                    return EnumHelper.ToEnum<int, TEnum>(ref i32);
                 case TypeCode.Int64:
                     buffer.Pop<long>(out long i64);
-                    return (TEnum)(object)(i64);
+                    return EnumHelper.ToEnum<long, TEnum>(ref i64);
                 case TypeCode.UInt16:
                     buffer.Pop<ushort>(out ushort u16);
-                    return (TEnum)(object)(u16);
+                    return EnumHelper.ToEnum<ushort, TEnum>(ref u16);
                 case TypeCode.UInt32:
                     buffer.Pop<uint>(out uint u32);
-                    return (TEnum)(object)(u32);
+                    return EnumHelper.ToEnum<uint, TEnum>(ref u32);
                 case TypeCode.UInt64:
                     buffer.Pop<ulong>(out ulong u64);
-                    return (TEnum)(object)(u64);
+                    return EnumHelper.ToEnum<ulong, TEnum>(ref u64);
             }
 
             return default(TEnum);

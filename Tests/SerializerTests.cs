@@ -39,17 +39,41 @@ namespace Refsa.Repacker.Tests
         }
 
         [Fact]
-        public void can_encode_and_decode_enum()
+        public void can_encode_and_decode_byte_enum()
         {
             Buffer buffer = CreateBuffer();
             TestByteEnum testEnum = TestByteEnum.One;
 
             buffer.EncodeEnum<TestByteEnum>(ref testEnum);
 
-            Assert.Equal(1, buffer.Count());
+            Assert.Equal(sizeof(byte), buffer.Count());
 
             var readBuffer = new ReadOnlyBuffer(ref buffer);
             TestByteEnum fromBuf = readBuffer.DecodeEnum<TestByteEnum>();
+
+            Assert.Equal(testEnum, fromBuf);
+        }
+
+        public enum TestULongEnum : ulong
+        {
+            Zero = 0,
+            One = 1,
+            Two = 2,
+            Three = 3,
+        }
+
+        [Fact]
+        public void can_encode_and_decode_ulong_enum()
+        {
+            Buffer buffer = CreateBuffer();
+            TestULongEnum testEnum = TestULongEnum.One;
+
+            buffer.EncodeEnum<TestULongEnum>(ref testEnum);
+
+            Assert.Equal(sizeof(ulong), buffer.Count());
+
+            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            TestULongEnum fromBuf = readBuffer.DecodeEnum<TestULongEnum>();
 
             Assert.Equal(testEnum, fromBuf);
         }
@@ -146,6 +170,25 @@ namespace Refsa.Repacker.Tests
         }
 
         [Fact]
+        public void can_encode_decode_iserializer_struct()
+        {
+            Buffer buffer = CreateBuffer();
+
+            var testData = new TestManagedStruct
+            {
+                Int = 1337,
+                String = "1.234567f",
+            };
+
+            buffer.Encode(testData);
+
+            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var fromBuf = (TestManagedStruct)Serializer.Decode(ref readBuffer, typeof(TestManagedStruct));
+            Assert.Equal(testData.Int, fromBuf.Int);
+            Assert.Equal(testData.String, fromBuf.String);
+        }
+
+        [Fact]
         public void can_encode_managed_struct_array()
         {
             Buffer buffer = CreateBuffer();
@@ -189,6 +232,25 @@ namespace Refsa.Repacker.Tests
         }
 
         [Fact]
+        public void can_encode_decode_iserializer_class()
+        {
+            Buffer buffer = CreateBuffer();
+
+            var testData = new TestManagedClass
+            {
+                Int = 1337,
+                String = "1.234567f",
+            };
+
+            buffer.Encode(testData);
+
+            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var fromBuf = (TestManagedClass)Serializer.Decode(ref readBuffer, typeof(TestManagedClass));
+            Assert.Equal(testData.Int, fromBuf.Int);
+            Assert.Equal(testData.String, fromBuf.String);
+        }
+
+        [Fact]
         public void can_encode_managed_class_array()
         {
             Buffer buffer = CreateBuffer();
@@ -212,44 +274,6 @@ namespace Refsa.Repacker.Tests
                 Assert.Equal(testData[i].Int, fromBuf[i].Int);
                 Assert.Equal(testData[i].String, fromBuf[i].String);
             }
-        }
-
-        [Fact]
-        public void can_encode_decode_iserializer_struct()
-        {
-            Buffer buffer = CreateBuffer();
-
-            var testData = new TestManagedStruct
-            {
-                Int = 1337,
-                String = "1.234567f",
-            };
-
-            buffer.Encode(testData);
-
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
-            var fromBuf = (TestManagedStruct)Serializer.Decode(ref readBuffer, typeof(TestManagedStruct));
-            Assert.Equal(testData.Int, fromBuf.Int);
-            Assert.Equal(testData.String, fromBuf.String);
-        }
-
-        [Fact]
-        public void can_encode_decode_iserializer_class()
-        {
-            Buffer buffer = CreateBuffer();
-
-            var testData = new TestManagedClass
-            {
-                Int = 1337,
-                String = "1.234567f",
-            };
-
-            buffer.Encode(testData);
-
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
-            var fromBuf = (TestManagedClass)Serializer.Decode(ref readBuffer, typeof(TestManagedClass));
-            Assert.Equal(testData.Int, fromBuf.Int);
-            Assert.Equal(testData.String, fromBuf.String);
         }
     }
 }
