@@ -6,32 +6,22 @@ namespace Refsa.RePacker.Utils
 {
     public static class TypeExt
     {
-        struct BlittableTester<T> where T : unmanaged { }
+        ref struct UnmanagedProxy<T> where T : unmanaged { }
 
-        public static bool IsBlittable(this Type self)
+        public static bool IsUnmanaged(this Type self)
         {
-            if (self.BaseType == typeof(ValueType))
+            try
             {
-                try
-                {
-                    object instance = Activator.CreateInstance(
-                        typeof(BlittableTester<>).MakeGenericType(self));
+                typeof(UnmanagedProxy<>).MakeGenericType(self);
 
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            else
-            {
                 if (!self.IsValueType) return false;
                 if (Nullable.GetUnderlyingType(self) != null) return true;
                 return false;
             }
+            catch
+            {
+                return false;
+            }
         }
-
-
     }
 }

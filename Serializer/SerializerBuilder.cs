@@ -67,7 +67,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.DeclareLocal(info.Type);
                 // ilGen.EmitWriteLine($"Deserializing {info.Type.Name}");
 
-                if (info.IsBlittable)
+                if (info.IsUnmanaged)
                 {
                     goto Blittable;
                 }
@@ -121,6 +121,29 @@ namespace Refsa.RePacker.Builder
 
                     switch (Type.GetTypeCode(field.FieldType))
                     {
+                        // MANAGED DATA
+                        case TypeCode.Empty:
+                            ilGen.EmitWriteLine("RePacker - Unpack: Empty is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
+                            break;
+                        case TypeCode.Object:
+                            ilGen.EmitWriteLine("RePacker - Unpack: Objects is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
+                            break;
+                        case TypeCode.DateTime:
+                            ilGen.EmitWriteLine("RePacker - Unpack: DateTime is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
+                            break;
+                        case TypeCode.String:
+                            ilGen.EmitWriteLine("RePacker - Unpack: String is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
+                            break;
+
+                        // UNMANAGED
                         case TypeCode.Boolean:
                             parameters[0] = typeof(bool);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
@@ -247,7 +270,7 @@ namespace Refsa.RePacker.Builder
             {
                 // ilGen.EmitWriteLine($"Serializing {info.Type.Name}");
 
-                if (info.IsBlittable)
+                if (info.IsUnmanaged)
                 {
                     goto Blittable;
                 }
@@ -295,12 +318,24 @@ namespace Refsa.RePacker.Builder
                     {
                         // MANAGED DATA
                         case TypeCode.Empty:
+                            ilGen.EmitWriteLine("RePacker - Pack: Empty is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Object:
+                            ilGen.EmitWriteLine("RePacker - Pack: Objects is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.DateTime:
+                            ilGen.EmitWriteLine("RePacker - Pack: DateTime is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.String:
+                            ilGen.EmitWriteLine("RePacker - Pack: String is currently unsupported");
+                            ilGen.Emit(OpCodes.Pop);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
 
                         // UNMANAGED DATA

@@ -18,7 +18,7 @@ namespace Refsa.RePacker
         {
             public Type Type;
             public bool HasCustomSerializer;
-            public bool IsBlittable;
+            public bool IsUnmanaged;
             public FieldInfo[] SerializedFields;
         }
 
@@ -120,7 +120,7 @@ namespace Refsa.RePacker
                 var tci = new Info
                 {
                     Type = type,
-                    IsBlittable = type.IsBlittable(),
+                    IsUnmanaged = type.IsUnmanaged(),
                     HasCustomSerializer = type.GetInterface(nameof(ISerializer)) != null,
                 };
 

@@ -238,7 +238,7 @@ namespace Refsa.RePacker.Benchmarks
         const int RUNS = 100_000;
 
         [Benchmark]
-        public void TestILGen()
+        public void BenchStructILGen()
         {
             var ts2 = new Program.TestStruct2
             {
@@ -269,7 +269,7 @@ namespace Refsa.RePacker.Benchmarks
         }
 
         [Benchmark]
-        public void TestNonILGen()
+        public void BenchStructNonILGen()
         {
             var ts2 = new Program.TestStruct2
             {
@@ -296,6 +296,37 @@ namespace Refsa.RePacker.Benchmarks
                 buffer.Pop<Program.TestStruct2>(out var _);
 
                 buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void BenchClassILGen()
+        {
+            var ts2 = new Program.TestClass2
+            {
+                Bool = true,
+                // Char = 'X',
+                Sbyte = 10,
+                Byte = 20,
+                Short = 30,
+                Ushort = 40,
+                Int = 50,
+                Uint = 60,
+                Long = 70,
+                Ulong = 80,
+                Float = 90,
+                Double = 100,
+                Decimal = 1000,
+            };
+
+            BoxedBuffer boxedBuffer = new BoxedBuffer(1024);
+
+            for (int i = 0; i < RUNS; i++)
+            {
+                TypeCache.Serialize<Program.TestClass2>(boxedBuffer, ref ts2);
+                var _ = TypeCache.Deserialize<Program.TestClass2>(boxedBuffer);
+
+                boxedBuffer.Buffer.Reset();
             }
         }
     }
@@ -374,6 +405,15 @@ namespace Refsa.RePacker.Benchmarks
             }
         }
 
+        [RePacker]
+        public struct StructWithString
+        {
+            public float Float;
+            public string String1;
+            public string String2;
+            public int Int;
+        }
+
         public static void Main(string[] args)
         {
             TypeCache.Init();
@@ -387,8 +427,8 @@ namespace Refsa.RePacker.Benchmarks
             // Program.TestStruct test = (Program.TestStruct)TypeCache.CreateInstance(typeof(Program.TestStruct), param);
             // Console.WriteLine($"{test.Value1} - {test.Value2} - {test.Value3}");
 
-            
-            TestClass2 ts2 = new TestClass2
+
+            /* TestClass2 ts2 = new TestClass2
             {
                 Bool = true,
                 // Char = 'X',
@@ -414,7 +454,21 @@ namespace Refsa.RePacker.Benchmarks
             // Deserialize
             TestClass2 des = TypeCache.Deserialize<TestClass2>(boxedBuffer);
             Console.WriteLine($"{des}");
-            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}");
+            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}"); */
+
+            StructWithString sws = new StructWithString
+            {
+                Float = 1.337f,
+                String1 = "Hello",
+                String2 = "World",
+                Int = 1337,
+            };
+
+            BoxedBuffer buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<StructWithString>(buffer, ref sws);
+
+            var fromBuf = RePacker.Unpack<StructWithString>(buffer);
         }
     }
 }
