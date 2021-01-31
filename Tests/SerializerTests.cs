@@ -1,13 +1,13 @@
 using Xunit;
-using Refsa.Repacker.Buffers;
-using Refsa.Repacker;
+using Refsa.RePacker.Buffers;
+using Refsa.RePacker;
 using System.Runtime.InteropServices;
 using System;
 
-using Buffer = Refsa.Repacker.Buffers.Buffer;
-using ReadOnlyBuffer = Refsa.Repacker.Buffers.ReadOnlyBuffer;
+using Buffer = Refsa.RePacker.Buffers.Buffer;
+using ReadOnlyBuffer = Refsa.RePacker.Buffers.ReadOnlyBuffer;
 
-namespace Refsa.Repacker.Tests
+namespace Refsa.RePacker.Tests
 {
     public class SerializerTests
     {
@@ -275,5 +275,62 @@ namespace Refsa.Repacker.Tests
                 Assert.Equal(testData[i].String, fromBuf[i].String);
             }
         }
+
+        #region Complex Type
+        public enum Sex : sbyte
+        {
+            Unknown, Male, Female,
+        }
+
+        class Person : ISerializer
+        {
+            public int Age;
+            public string FirstName;
+            public string LastName;
+            public Sex Sex;
+
+            public void FromBuffer(ref ReadOnlyBuffer buffer)
+            {
+                buffer.Pop<int>(out Age);
+                FirstName = buffer.DecodeString();
+                LastName = buffer.DecodeString();
+                Sex = buffer.DecodeEnum<Sex>();
+            }
+
+            public void ToBuffer(ref Buffer buffer)
+            {
+                buffer.Push<int>(ref Age);
+                buffer.EncodeString(ref FirstName);
+                buffer.EncodeString(ref LastName);
+                buffer.EncodeEnum<Sex>(ref Sex);
+            }
+        }
+
+        [Fact]
+        public void complex_type_person_encode_decode()
+        {
+            var buf = new byte[1024];
+            var buffer = new Buffer(buf, 0);
+
+            Person p = new Person
+            {
+                Age = 99999,
+                FirstName = "Windows",
+                LastName = "Server",
+                Sex = Sex.Male,
+            };
+
+            buffer.Encode(p);
+
+            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var fromBuf = readBuffer.Decode<Person>();
+
+            Assert.Equal(p.Age, fromBuf.Age);
+            Assert.Equal(p.FirstName, fromBuf.FirstName);
+            Assert.Equal(p.LastName, fromBuf.LastName);
+            Assert.Equal(p.Sex, fromBuf.Sex);
+        }
+
+        #endregion
     }
 }

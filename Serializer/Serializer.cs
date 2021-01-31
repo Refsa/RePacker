@@ -1,11 +1,11 @@
 using System;
 using System.Runtime.InteropServices;
-using Refsa.Repacker.Buffers;
-using Refsa.Repacker.Unsafe;
-using Buffer = Refsa.Repacker.Buffers.Buffer;
-using ReadOnlyBuffer = Refsa.Repacker.Buffers.ReadOnlyBuffer;
+using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Unsafe;
+using Buffer = Refsa.RePacker.Buffers.Buffer;
+using ReadOnlyBuffer = Refsa.RePacker.Buffers.ReadOnlyBuffer;
 
-namespace Refsa.Repacker
+namespace Refsa.RePacker
 {
     public static class Serializer
     {
@@ -14,13 +14,22 @@ namespace Refsa.Repacker
             target.ToBuffer(ref buffer);
         }
 
-        public static object Decode(ref ReadOnlyBuffer buffer, Type type)
+        public static object Decode(this ref ReadOnlyBuffer buffer, Type type)
         {
             ISerializer instance = Activator.CreateInstance(type) as ISerializer;
 
             instance.FromBuffer(ref buffer);
 
             return instance;
+        }
+
+        public static T Decode<T>(this ref ReadOnlyBuffer buffer)
+        {
+            ISerializer instance = Activator.CreateInstance(typeof(T)) as ISerializer;
+
+            instance.FromBuffer(ref buffer);
+
+            return (T)instance;
         }
 
         public static void EncodeString(this ref Buffer buffer, ref string str)
@@ -54,6 +63,10 @@ namespace Refsa.Repacker
                 case TypeCode.Byte:
                     byte bval = target.ToUnderlyingType<TEnum, byte>();
                     buffer.Push<byte>(ref bval);
+                    break;
+                case TypeCode.SByte:
+                    sbyte sbval = target.ToUnderlyingType<TEnum, sbyte>();
+                    buffer.Push<sbyte>(ref sbval);
                     break;
                 case TypeCode.Int16:
                     short i16 = target.ToUnderlyingType<TEnum, short>();
@@ -91,6 +104,9 @@ namespace Refsa.Repacker
                 case TypeCode.Byte:
                     buffer.Pop<byte>(out byte bval);
                     return EnumHelper.ToEnum<byte, TEnum>(ref bval);
+                case TypeCode.SByte:
+                    buffer.Pop<sbyte>(out sbyte sbval);
+                    return EnumHelper.ToEnum<sbyte, TEnum>(ref sbval);
                 case TypeCode.Int16:
                     buffer.Pop<short>(out short i16);
                     return EnumHelper.ToEnum<short, TEnum>(ref i16);

@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace Refsa.Repacker.Unsafe
+namespace Refsa.RePacker.Unsafe
 {
     public static class EnumHelper
     {

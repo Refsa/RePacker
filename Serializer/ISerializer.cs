@@ -1,8 +1,8 @@
 
 
-using Refsa.Repacker.Buffers;
+using Refsa.RePacker.Buffers;
 
-namespace Refsa.Repacker
+namespace Refsa.RePacker
 {
     public interface ISerializer
     {

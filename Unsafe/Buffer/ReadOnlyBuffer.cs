@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System;
 
-namespace Refsa.Repacker.Buffers
+namespace Refsa.RePacker.Buffers
 {
     public struct ReadOnlyBuffer
     {

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System;
 
-namespace Refsa.Repacker.Buffers
+namespace Refsa.RePacker.Buffers
 {
     public struct Buffer
     {
@@ -19,28 +19,33 @@ namespace Refsa.Repacker.Buffers
             this.readCursor = 0;
         }
 
-        public void Push<T>(ref T value) where T : unmanaged
+        public Buffer Push<T>(ref T value) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
             var span = buffer.Span.Slice(writeCursor, size);
             MemoryMarshal.Write(span, ref value);
             writeCursor += size;
+
+            return this;
         }
 
-        public void Push<T>(ref T value, int index) where T : unmanaged
+        public Buffer Push<T>(ref T value, int index) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
             var span = buffer.Span.Slice(index, size);
             MemoryMarshal.Write(span, ref value);
 
+            return this;
             // TODO: Make sure offset aligns with new length
         }
 
-        public void Pop<T>(out T value) where T : unmanaged
+        public Buffer Pop<T>(out T value) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
             value = MemoryMarshal.Read<T>(buffer.Span.Slice(readCursor, size));
             readCursor += size;
+
+            return this;
         }
 
         public void Write(ReadOnlySpan<byte> data)

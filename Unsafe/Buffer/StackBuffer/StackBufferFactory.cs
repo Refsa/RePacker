@@ -1,6 +1,6 @@
-using Refsa.Repacker.Buffers;
+using Refsa.RePacker.Buffers;
 
-namespace Refsa.Repacker.Buffers
+namespace Refsa.RePacker.Buffers
 {
     public static class StackBufferFactory
     {

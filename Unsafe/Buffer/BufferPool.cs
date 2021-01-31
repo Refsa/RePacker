@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Refsa.Repacker.Buffers
+namespace Refsa.RePacker.Buffers
 {
     public class BufferPool
     {

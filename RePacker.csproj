@@ -19,6 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Benchmark\**" />
+    <Compile Remove="Benchmark\**" />
+    <EmbeddedResource Remove="Benchmark\**" />
+    <None Remove="Benchmark\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="Unsafe\Unsafe.csproj" />
   </ItemGroup>
 </Project>
