@@ -102,7 +102,7 @@ namespace Refsa.RePacker.Builder
             {
                 ilGen.DeclareLocal(info.Type);
 
-                ilGen.EmitWriteLine($"Deserializing {info.Type.Name}");
+                // ilGen.EmitWriteLine($"Deserializing {info.Type.Name}");
 
                 for (int i = 0; i < info.SerializedFields.Length; i++)
                 {
@@ -198,6 +198,7 @@ namespace Refsa.RePacker.Builder
                     }
                 }
 
+                // ilGen.EmitWriteLine($"{info.Type.Name} is Deserialized");
                 ilGen.Emit(OpCodes.Ldloc_0);
                 ilGen.Emit(OpCodes.Ret);
             }
@@ -210,37 +211,45 @@ namespace Refsa.RePacker.Builder
             };
         }
 
-        public static Func<Delegate> CreateSerializer(TypeCache.Info info)
+        public static Func<MethodInfo> CreateSerializer(TypeCache.Info info)
         {
             // Type[] typeParams = info.SerializedFields.Select(e => e.FieldType).ToArray();
-            Type[] typeParams = new Type[] { typeof(Refsa.RePacker.Buffers.Buffer), info.Type };
+            Type[] typeParams = new Type[] { typeof(BoxedBuffer), info.Type };
 
             var serBuilder = moduleBuilder.DefineGlobalMethod(
                 $"{info.Type.Name}_Serialize",
                 MethodAttributes.Public | MethodAttributes.Static |
                 MethodAttributes.HideBySig,
-                typeof(Buffer),
+                null,
                 typeParams
             );
             serBuilder.SetImplementationFlags(MethodImplAttributes.Managed);
 
-            serBuilder.DefineParameter(0, ParameterAttributes.In, "buffer");
+            serBuilder.DefineParameter(0, ParameterAttributes.None, "buffer");
             serBuilder.DefineParameter(1, ParameterAttributes.In, info.Type.Name.ToLower());
 
             MethodInfo bufferPush = typeof(Buffer)
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
 
+            FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
+
+            var parameters = new Type[1];
             MethodInfo bufferPushGeneric = null;
+
             var ilGen = serBuilder.GetILGenerator();
             {
-                ilGen.DeclareLocal(typeof(Buffer));
-
-                ilGen.EmitWriteLine($"Serializing {info.Type.Name}");
+                // ilGen.EmitWriteLine($"Serializing {info.Type.Name}");
 
                 for (int i = 0; i < info.SerializedFields.Length; i++)
                 {
                     var field = info.SerializedFields[i];
+
+                    ilGen.Emit(OpCodes.Ldarg_0);
+                    ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                    ilGen.Emit(OpCodes.Ldarga_S, 1);
+                    ilGen.Emit(OpCodes.Ldflda, field);
 
                     switch (Type.GetTypeCode(field.FieldType))
                     {
@@ -256,47 +265,87 @@ namespace Refsa.RePacker.Builder
 
                         // UNMANAGED DATA
                         case TypeCode.Boolean:
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(new Type[] { typeof(bool) });
+                            parameters[0] = typeof(bool);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Char:
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(new Type[] { typeof(char) });
+                            parameters[0] = typeof(char);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.SByte:
+                            parameters[0] = typeof(sbyte);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Byte:
-                            var byteParams = new Type[] { typeof(byte) };
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(byteParams);
-
-                            ilGen.Emit(OpCodes.Ldarga_S, 0);
-                            ilGen.Emit(OpCodes.Ldarga_S, 1);
-                            ilGen.Emit(OpCodes.Ldflda, field);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, byteParams);
-                            ilGen.Emit(OpCodes.Stloc_0);
+                            parameters[0] = typeof(byte);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int16:
+                            parameters[0] = typeof(short);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt16:
+                            parameters[0] = typeof(ushort);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int32:
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(new Type[] { typeof(int) });
+                            parameters[0] = typeof(int);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt32:
+                            parameters[0] = typeof(uint);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int64:
+                            parameters[0] = typeof(long);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt64:
+                            parameters[0] = typeof(ulong);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Single:
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(new Type[] { typeof(float) });
+                            parameters[0] = typeof(float);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Double:
+                            parameters[0] = typeof(double);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Decimal:
+                            parameters[0] = typeof(decimal);
+                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.Emit(OpCodes.Pop);
                             break;
                     }
                 }
 
-                ilGen.Emit(OpCodes.Ldloc_0);
+                // ilGen.EmitWriteLine($"{info.Type.Name} is Serialized");
                 ilGen.Emit(OpCodes.Ret);
             }
 
@@ -304,7 +353,8 @@ namespace Refsa.RePacker.Builder
             return () =>
             {
                 MethodInfo asGlobal = moduleBuilder.GetMethod(serBuilder.Name);
-                return asGlobal.CreateDelegate(CreateFunc(typeof(Buffer), typeParams));
+                return asGlobal;
+                // return asGlobal.CreateDelegate(CreateFunc(typeof(Buffer), typeParams));
             };
         }
 

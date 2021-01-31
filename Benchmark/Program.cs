@@ -235,14 +235,67 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class ILGenerated
     {
+        const int RUNS = 100_000;
+
         [Benchmark]
         public void TestILGen()
         {
-            object[] param = new object[] { 1.234f, 15, (byte)127 };
-
-            for (int i = 0; i < 1_000_000; i++)
+            var ts2 = new Program.TestStruct2
             {
-                // Program.TestStruct test = (Program.TestStruct)TypeCache.CreateInstance(typeof(Program.TestStruct), param);
+                Bool = true,
+                // Char = 'X',
+                Sbyte = 10,
+                Byte = 20,
+                Short = 30,
+                Ushort = 40,
+                Int = 50,
+                Uint = 60,
+                Long = 70,
+                Ulong = 80,
+                Float = 90,
+                Double = 100,
+                Decimal = 1000,
+            };
+
+            BoxedBuffer boxedBuffer = new BoxedBuffer(1024);
+
+            for (int i = 0; i < RUNS; i++)
+            {
+                TypeCache.Serialize<Program.TestStruct2>(boxedBuffer, ref ts2);
+                var _ = TypeCache.Deserialize<Program.TestStruct2>(boxedBuffer);
+
+                boxedBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void TestNonILGen()
+        {
+            var ts2 = new Program.TestStruct2
+            {
+                Bool = true,
+                // Char = 'X',
+                Sbyte = 10,
+                Byte = 20,
+                Short = 30,
+                Ushort = 40,
+                Int = 50,
+                Uint = 60,
+                Long = 70,
+                Ulong = 80,
+                Float = 90,
+                Double = 100,
+                Decimal = 1000,
+            };
+
+            Buffer buffer = new Buffer(new byte[1024], 0);
+
+            for (int i = 0; i < RUNS; i++)
+            {
+                buffer.Push(ref ts2);
+                buffer.Pop<Program.TestStruct2>(out var _);
+
+                buffer.Reset();
             }
         }
     }
@@ -260,7 +313,33 @@ namespace Refsa.RePacker.Benchmarks
         [RePacker]
         public struct TestStruct2
         {
-            public byte Value;
+            public bool Bool;
+            // public char Char;
+            public sbyte Sbyte;
+            public byte Byte;
+            public short Short;
+            public ushort Ushort;
+            public int Int;
+            public uint Uint;
+            public long Long;
+            public ulong Ulong;
+            public float Float;
+            public double Double;
+            public decimal Decimal;
+
+            public override string ToString()
+            {
+                string val = "TestStruct2 {";
+
+                foreach (var field in typeof(TestStruct2).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+                {
+                    val += $"{field.Name}: {field.GetValue(this)}, ";
+                }
+
+                val += "}";
+
+                return val;
+            }
         }
 
         public static void Main(string[] args)
@@ -269,24 +348,41 @@ namespace Refsa.RePacker.Benchmarks
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
             // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
-            // var summary2 = BenchmarkRunner.Run<ILGenerated>();
+            var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             // object[] param = new object[] { 1.234f, 15, (byte)127 };
             // Program.TestStruct test = (Program.TestStruct)TypeCache.CreateInstance(typeof(Program.TestStruct), param);
             // Console.WriteLine($"{test.Value1} - {test.Value2} - {test.Value3}");
 
-            TypeCache.Init();
-            // TypeCache.RunTestMethod<TestStruct2>();
+            /* TypeCache.Init();
 
-            TestStruct2 ts2 = new TestStruct2 { Value = 128 };
-            Buffer buffer = new Buffer(new byte[16], 0);
-            buffer = TypeCache.Serialize<TestStruct2>(ref buffer, ref ts2);
-            Console.WriteLine($"Buffer Size: {buffer.Length()}");
-
+            TestStruct2 ts2 = new TestStruct2
+            {
+                Bool = true,
+                // Char = 'X',
+                Sbyte = 10,
+                Byte = 20,
+                Short = 30,
+                Ushort = 40,
+                Int = 50,
+                Uint = 60,
+                Long = 70,
+                Ulong = 80,
+                Float = 90,
+                Double = 100,
+                Decimal = 1000,
+            };
+            Buffer buffer = new Buffer(new byte[1024], 0);
             BoxedBuffer boxedBuffer = new BoxedBuffer(ref buffer);
-            TestStruct2 des = TypeCache.Deserialize<TestStruct2>(boxedBuffer);
-            Console.WriteLine($"{des.Value}");
+
+            // Serialize
+            TypeCache.Serialize<TestStruct2>(boxedBuffer, ref ts2);
             Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}");
+
+            // Deserialize
+            TestStruct2 des = TypeCache.Deserialize<TestStruct2>(boxedBuffer);
+            Console.WriteLine($"{des}");
+            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}"); */
         }
     }
 }

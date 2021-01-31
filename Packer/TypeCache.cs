@@ -22,7 +22,7 @@ namespace Refsa.RePacker
         }
 
         static Dictionary<Type, Info> typeCache;
-        static Dictionary<Type, Delegate> serializerLookup;
+        static Dictionary<Type, MethodInfo> serializerLookup;
         static Dictionary<Type, MethodInfo> deserializerLookup;
 
         static Dictionary<Type, Delegate> testLookup;
@@ -38,20 +38,21 @@ namespace Refsa.RePacker
 
         static void BuildSerializers()
         {
-            serializerLookup = new Dictionary<Type, Delegate>();
+            serializerLookup = new Dictionary<Type, MethodInfo>();
             deserializerLookup = new Dictionary<Type, MethodInfo>();
 
             testLookup = new Dictionary<Type, Delegate>();
 
-            List<(Type, Func<Delegate>)> testMethodCreators = new List<(Type, Func<Delegate>)>();
-            List<(Type, Func<Delegate>)> serMethodCreators = new List<(Type, Func<Delegate>)>();
+            var testMethodCreators = new List<(Type, Func<Delegate>)>();
+
+            var serMethodCreators = new List<(Type, Func<MethodInfo>)>();
             var deserMethodCreators = new List<(Type, Func<MethodInfo>)>();
 
             SerializerBuilder.Setup();
 
             foreach ((Type type, Info info) in typeCache)
             {
-                if (SerializerBuilder.CreateSerializer(info) is Func<Delegate> deserDelegate)
+                if (SerializerBuilder.CreateSerializer(info) is Func<MethodInfo> deserDelegate)
                 {
                     serMethodCreators.Add((type, deserDelegate));
                 }
@@ -136,25 +137,25 @@ namespace Refsa.RePacker
             return false;
         }
 
-        public static Buffer Serialize<T>(ref Buffer buffer, ref T value)
+        static object[] serializeParameters = new object[2];
+        public static void Serialize<T>(BoxedBuffer buffer, ref T value)
         {
             if (serializerLookup.TryGetValue(typeof(T), out var serializer))
             {
-                return (Buffer)serializer.DynamicInvoke(buffer, value);
-            }
+                serializeParameters[0] = buffer;
+                serializeParameters[1] = value;
 
-            return buffer;
+                serializer.Invoke(null, serializeParameters);
+            }
         }
 
-        static object[] parameters = new object[1];
+        static object[] deserializeParameters = new object[1];
         public static T Deserialize<T>(BoxedBuffer buffer)
         {
             if (deserializerLookup.TryGetValue(typeof(T), out var deserializer))
             {
-                parameters[0] = buffer;
-                T val = (T)deserializer.Invoke(null, parameters);
-                // buffer = (BoxedBuffer)parameters[0];
-
+                deserializeParameters[0] = buffer;
+                T val = (T)deserializer.Invoke(null, deserializeParameters);
                 return val;
             }
 
