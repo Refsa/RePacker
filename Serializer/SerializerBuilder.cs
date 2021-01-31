@@ -73,6 +73,13 @@ namespace Refsa.RePacker.Builder
                 }
                 else
                 {
+                    if (!info.Type.IsValueType)
+                    {
+                        var ci = info.Type.GetConstructor(Type.EmptyTypes);
+                        ilGen.Emit(OpCodes.Newobj, ci);
+                        ilGen.Emit(OpCodes.Stloc_0);
+                    }
+
                     goto PerField;
                 }
 
@@ -101,7 +108,15 @@ namespace Refsa.RePacker.Builder
                     ilGen.Emit(OpCodes.Ldarg_0);
                     ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
                     // Byte -> output field
-                    ilGen.Emit(OpCodes.Ldloca_S, 0);
+
+                    if (info.Type.IsValueType)
+                    {
+                        ilGen.Emit(OpCodes.Ldloca_S, 0);
+                    }
+                    else
+                    {
+                        ilGen.Emit(OpCodes.Ldloc_S, 0);
+                    }
                     ilGen.Emit(OpCodes.Ldflda, field);
 
                     switch (Type.GetTypeCode(field.FieldType))
@@ -266,7 +281,14 @@ namespace Refsa.RePacker.Builder
                     ilGen.Emit(OpCodes.Ldarg_0);
                     ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
-                    ilGen.Emit(OpCodes.Ldarga_S, 1);
+                    if (info.Type.IsValueType)
+                    {
+                        ilGen.Emit(OpCodes.Ldarga_S, 1);
+                    }
+                    else
+                    {
+                        ilGen.Emit(OpCodes.Ldarg_S, 1);
+                    }
                     ilGen.Emit(OpCodes.Ldflda, field);
 
                     switch (Type.GetTypeCode(field.FieldType))
