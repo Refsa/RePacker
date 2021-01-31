@@ -60,8 +60,8 @@ namespace Refsa.RePacker.Builder
                 .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
 
             var parameters = new Type[1];
-
             MethodInfo bufferPopGeneric = null;
+
             var ilGen = deserBuilder.GetILGenerator();
             {
                 ilGen.DeclareLocal(info.Type);
@@ -73,6 +73,7 @@ namespace Refsa.RePacker.Builder
                 }
                 else
                 {
+                    // Create class instance
                     if (!info.Type.IsValueType)
                     {
                         var ci = info.Type.GetConstructor(Type.EmptyTypes);
@@ -104,11 +105,12 @@ namespace Refsa.RePacker.Builder
                 {
                     var field = info.SerializedFields[i];
 
+                    // PERF: Do we need to push/pop this from the stack??
                     // BoxedBuffer -> buffer -> caller
                     ilGen.Emit(OpCodes.Ldarg_0);
                     ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-                    // Byte -> output field
 
+                    // Byte -> output field
                     if (info.Type.IsValueType)
                     {
                         ilGen.Emit(OpCodes.Ldloca_S, 0);
@@ -138,88 +140,90 @@ namespace Refsa.RePacker.Builder
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.String:
-                            ilGen.EmitWriteLine("RePacker - Unpack: String is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
+                            var serDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
+                            var decodeString = typeof(Serializer).GetMethod(nameof(Serializer.DecodeString), serDecParams);
+
+                            parameters[0] = typeof(string);
+                            ilGen.EmitCall(OpCodes.Call, decodeString, Type.EmptyTypes);
                             break;
 
                         // UNMANAGED
                         case TypeCode.Boolean:
                             parameters[0] = typeof(bool);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Char:
                             parameters[0] = typeof(char);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.SByte:
                             parameters[0] = typeof(sbyte);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Byte:
                             parameters[0] = typeof(byte);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int16:
                             parameters[0] = typeof(short);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt16:
                             parameters[0] = typeof(ushort);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int32:
                             parameters[0] = typeof(int);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt32:
                             parameters[0] = typeof(uint);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int64:
                             parameters[0] = typeof(long);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt64:
                             parameters[0] = typeof(ulong);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Single:
                             parameters[0] = typeof(float);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Double:
                             parameters[0] = typeof(double);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Decimal:
                             parameters[0] = typeof(decimal);
                             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                     }
@@ -333,88 +337,89 @@ namespace Refsa.RePacker.Builder
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.String:
-                            ilGen.EmitWriteLine("RePacker - Pack: String is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
+                            var encodeString = typeof(Serializer).GetMethod(nameof(Serializer.EncodeString));
+                            var encodeStringParams = new Type[] { typeof(string) };
+                            ilGen.EmitCall(OpCodes.Call, encodeString, Type.EmptyTypes);
+                            // ilGen.Emit(OpCodes.Pop);
                             break;
 
                         // UNMANAGED DATA
                         case TypeCode.Boolean:
                             parameters[0] = typeof(bool);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Char:
                             parameters[0] = typeof(char);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.SByte:
                             parameters[0] = typeof(sbyte);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Byte:
                             parameters[0] = typeof(byte);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int16:
                             parameters[0] = typeof(short);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt16:
                             parameters[0] = typeof(ushort);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int32:
                             parameters[0] = typeof(int);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt32:
                             parameters[0] = typeof(uint);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Int64:
                             parameters[0] = typeof(long);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.UInt64:
                             parameters[0] = typeof(ulong);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Single:
                             parameters[0] = typeof(float);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Double:
                             parameters[0] = typeof(double);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.Decimal:
                             parameters[0] = typeof(decimal);
                             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                             ilGen.Emit(OpCodes.Pop);
                             break;
                     }

@@ -54,6 +54,20 @@ namespace Refsa.RePacker
             return "";
         }
 
+        public static void DecodeString(ref Buffer buffer, out string value)
+        {
+            buffer.Pop<ulong>(out ulong length);
+            int start = buffer.Cursor();
+
+            if (MemoryMarshal.TryGetArray(buffer.Read((int)length), out var seg))
+            {
+                value = System.Text.Encoding.UTF8.GetString(seg.Array, start, (int)length);
+                return;
+            }
+
+            value = "";
+        }
+
         public static void EncodeEnum<TEnum>(this ref Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));

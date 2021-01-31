@@ -467,8 +467,10 @@ namespace Refsa.RePacker.Benchmarks
             BoxedBuffer buffer = new BoxedBuffer(1024);
 
             RePacker.Pack<StructWithString>(buffer, ref sws);
+            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
 
             var fromBuf = RePacker.Unpack<StructWithString>(buffer);
+            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
         }
     }
 }

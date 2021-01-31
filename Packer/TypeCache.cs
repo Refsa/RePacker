@@ -23,11 +23,7 @@ namespace Refsa.RePacker
         }
 
         static Dictionary<Type, Info> typeCache;
-        static Dictionary<Type, MethodInfo> serializerLookup;
-        static Dictionary<Type, MethodInfo> deserializerLookup;
-
         static Dictionary<Type, Delegate> testLookup;
-
         static Dictionary<Type, TypePacker> packerLookup;
 
         public static void Init() { }
@@ -41,11 +37,10 @@ namespace Refsa.RePacker
 
         static void BuildSerializers()
         {
-            serializerLookup = new Dictionary<Type, MethodInfo>();
-            deserializerLookup = new Dictionary<Type, MethodInfo>();
+            var serializerLookup = new Dictionary<Type, MethodInfo>();
+            var deserializerLookup = new Dictionary<Type, MethodInfo>();
 
             packerLookup = new Dictionary<Type, TypePacker>();
-
             testLookup = new Dictionary<Type, Delegate>();
 
             var testMethodCreators = new List<(Type, Func<Delegate>)>();
@@ -159,37 +154,20 @@ namespace Refsa.RePacker
             return false;
         }
 
-        static object[] serializeParameters = new object[2];
         public static void Serialize<T>(BoxedBuffer buffer, ref T value)
         {
-            // if (serializerLookup.TryGetValue(typeof(T), out var serializer))
-            // {
-            //     serializeParameters[0] = buffer;
-            //     serializeParameters[1] = value;
-
-            //     serializer.Invoke(null, serializeParameters);
-            // }
-
             if (packerLookup.TryGetValue(typeof(T), out var typePacker))
             {
                 typePacker.Pack<T>(buffer, ref value);
             }
         }
 
-        static object[] deserializeParameters = new object[1];
         public static T Deserialize<T>(BoxedBuffer buffer)
         {
             if (packerLookup.TryGetValue(typeof(T), out var typePacker))
             {
                 return typePacker.Unpack<T>(buffer);
             }
-
-            // if (deserializerLookup.TryGetValue(typeof(T), out var deserializer))
-            // {
-            //     deserializeParameters[0] = buffer;
-            //     T val = (T)deserializer.Invoke(null, deserializeParameters);
-            //     return val;
-            // }
 
             return default(T);
         }
