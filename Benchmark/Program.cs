@@ -342,21 +342,53 @@ namespace Refsa.RePacker.Benchmarks
             }
         }
 
+        [RePacker]
+        public class TestClass2
+        {
+            public bool Bool;
+            // public char Char;
+            public sbyte Sbyte;
+            public byte Byte;
+            public short Short;
+            public ushort Ushort;
+            public int Int;
+            public uint Uint;
+            public long Long;
+            public ulong Ulong;
+            public float Float;
+            public double Double;
+            public decimal Decimal;
+
+            public override string ToString()
+            {
+                string val = "TestClass2 {";
+
+                foreach (var field in typeof(TestClass2).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+                {
+                    val += $"{field.Name}: {field.GetValue(this)}, ";
+                }
+
+                val += "}";
+
+                return val;
+            }
+        }
+
         public static void Main(string[] args)
         {
+            TypeCache.Init();
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
             // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
-            var summary2 = BenchmarkRunner.Run<ILGenerated>();
+            // var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             // object[] param = new object[] { 1.234f, 15, (byte)127 };
             // Program.TestStruct test = (Program.TestStruct)TypeCache.CreateInstance(typeof(Program.TestStruct), param);
             // Console.WriteLine($"{test.Value1} - {test.Value2} - {test.Value3}");
 
-            /* TypeCache.Init();
-
-            TestStruct2 ts2 = new TestStruct2
+            
+            TestClass2 ts2 = new TestClass2
             {
                 Bool = true,
                 // Char = 'X',
@@ -376,13 +408,13 @@ namespace Refsa.RePacker.Benchmarks
             BoxedBuffer boxedBuffer = new BoxedBuffer(ref buffer);
 
             // Serialize
-            TypeCache.Serialize<TestStruct2>(boxedBuffer, ref ts2);
+            TypeCache.Serialize<TestClass2>(boxedBuffer, ref ts2);
             Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}");
 
             // Deserialize
-            TestStruct2 des = TypeCache.Deserialize<TestStruct2>(boxedBuffer);
+            TestClass2 des = TypeCache.Deserialize<TestClass2>(boxedBuffer);
             Console.WriteLine($"{des}");
-            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}"); */
+            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}");
         }
     }
 }

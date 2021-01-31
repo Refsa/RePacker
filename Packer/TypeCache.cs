@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 using Refsa.RePacker;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Builder;
-
+using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker
@@ -18,6 +18,7 @@ namespace Refsa.RePacker
         {
             public Type Type;
             public bool HasCustomSerializer;
+            public bool IsBlittable;
             public FieldInfo[] SerializedFields;
         }
 
@@ -26,6 +27,8 @@ namespace Refsa.RePacker
         static Dictionary<Type, MethodInfo> deserializerLookup;
 
         static Dictionary<Type, Delegate> testLookup;
+
+        static Dictionary<Type, TypePacker> packerLookup;
 
         public static void Init() { }
 
@@ -40,6 +43,8 @@ namespace Refsa.RePacker
         {
             serializerLookup = new Dictionary<Type, MethodInfo>();
             deserializerLookup = new Dictionary<Type, MethodInfo>();
+
+            packerLookup = new Dictionary<Type, TypePacker>();
 
             testLookup = new Dictionary<Type, Delegate>();
 
@@ -84,6 +89,22 @@ namespace Refsa.RePacker
             {
                 deserializerLookup.Add(tmc.Item1, tmc.Item2.Invoke());
             }
+
+            foreach ((Type type, Info info) in typeCache)
+            {
+                var deser = deserializerLookup[type];
+                var ser = serializerLookup[type];
+
+                var packer = new TypePacker(info);
+
+                var mi = typeof(TypePacker).GetMethod(nameof(TypePacker.Setup)).MakeGenericMethod(type);
+                mi.Invoke(packer, new object[] { ser, deser });
+
+                packerLookup.Add(
+                    type,
+                    packer
+                );
+            }
         }
 
         static void BuildTypeCache()
@@ -99,6 +120,7 @@ namespace Refsa.RePacker
                 var tci = new Info
                 {
                     Type = type,
+                    IsBlittable = type.IsBlittable(),
                     HasCustomSerializer = type.GetInterface(nameof(ISerializer)) != null,
                 };
 
@@ -140,24 +162,34 @@ namespace Refsa.RePacker
         static object[] serializeParameters = new object[2];
         public static void Serialize<T>(BoxedBuffer buffer, ref T value)
         {
-            if (serializerLookup.TryGetValue(typeof(T), out var serializer))
-            {
-                serializeParameters[0] = buffer;
-                serializeParameters[1] = value;
+            // if (serializerLookup.TryGetValue(typeof(T), out var serializer))
+            // {
+            //     serializeParameters[0] = buffer;
+            //     serializeParameters[1] = value;
 
-                serializer.Invoke(null, serializeParameters);
+            //     serializer.Invoke(null, serializeParameters);
+            // }
+
+            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
+            {
+                typePacker.Pack<T>(buffer, ref value);
             }
         }
 
         static object[] deserializeParameters = new object[1];
         public static T Deserialize<T>(BoxedBuffer buffer)
         {
-            if (deserializerLookup.TryGetValue(typeof(T), out var deserializer))
+            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
             {
-                deserializeParameters[0] = buffer;
-                T val = (T)deserializer.Invoke(null, deserializeParameters);
-                return val;
+                return typePacker.Unpack<T>(buffer);
             }
+
+            // if (deserializerLookup.TryGetValue(typeof(T), out var deserializer))
+            // {
+            //     deserializeParameters[0] = buffer;
+            //     T val = (T)deserializer.Invoke(null, deserializeParameters);
+            //     return val;
+            // }
 
             return default(T);
         }

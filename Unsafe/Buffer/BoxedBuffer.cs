@@ -16,4 +16,19 @@ namespace Refsa.RePacker.Buffers
             Buffer = buffer;
         }
     }
+
+    public class BoxedReadBuffer
+    {
+        public ReadOnlyBuffer Buffer;
+
+        public BoxedReadBuffer(int size)
+        {
+            Buffer = new ReadOnlyBuffer(new byte[size], 0);
+        }
+
+        public BoxedReadBuffer(ref ReadOnlyBuffer buffer)
+        {
+            Buffer = buffer;
+        }
+    }
 }

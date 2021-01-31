@@ -37,42 +37,6 @@ namespace Refsa.RePacker.Builder
             moduleBuilder.CreateGlobalFunctions();
         }
 
-        public static Delegate CreateGenerator(TypeCache.Info info)
-        {
-            Type[] typeParams = info.SerializedFields.Select(e => e.FieldType).ToArray();
-
-            var generator = new DynamicMethod(
-                $"{info.Type.Name}_Generator",
-                info.Type,
-                typeParams
-            );
-
-            for (int i = 0; i < info.SerializedFields.Length; i++)
-            {
-                generator.DefineParameter(0, ParameterAttributes.In, info.SerializedFields[i].Name);
-            }
-
-            var ilGen = generator.GetILGenerator();
-            {
-                ilGen.DeclareLocal(info.Type);
-
-                ilGen.Emit(OpCodes.Ldloca_S, 0);
-                ilGen.Emit(OpCodes.Initobj, info.Type);
-
-                for (int i = 0; i < info.SerializedFields.Length; i++)
-                {
-                    ilGen.Emit(OpCodes.Ldloca_S, 0);
-                    ilGen.Emit(OpCodes.Ldarg, i);
-                    ilGen.Emit(OpCodes.Stfld, info.SerializedFields[i]);
-                }
-
-                ilGen.Emit(OpCodes.Ldloc_0);
-                ilGen.Emit(OpCodes.Ret);
-            }
-
-            return generator.CreateDelegate(CreateFunc(info.Type, typeParams));
-        }
-
         public static Func<MethodInfo> CreateDeserializer(TypeCache.Info info)
         {
             // TODO: MakeByRefType ??
@@ -101,9 +65,34 @@ namespace Refsa.RePacker.Builder
             var ilGen = deserBuilder.GetILGenerator();
             {
                 ilGen.DeclareLocal(info.Type);
-
                 // ilGen.EmitWriteLine($"Deserializing {info.Type.Name}");
 
+                if (info.IsBlittable)
+                {
+                    goto Blittable;
+                }
+                else
+                {
+                    goto PerField;
+                }
+
+            Blittable:
+                // BoxedBuffer -> buffer -> caller
+                ilGen.Emit(OpCodes.Ldarg_0);
+                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                // Load output target
+                ilGen.Emit(OpCodes.Ldloca_S, 0);
+
+                parameters[0] = info.Type;
+                bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
+
+                ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
+                ilGen.Emit(OpCodes.Pop);
+
+                goto Finished;
+
+            PerField:
                 for (int i = 0; i < info.SerializedFields.Length; i++)
                 {
                     var field = info.SerializedFields[i];
@@ -197,7 +186,9 @@ namespace Refsa.RePacker.Builder
                             break;
                     }
                 }
+                goto Finished;
 
+            Finished:
                 // ilGen.EmitWriteLine($"{info.Type.Name} is Deserialized");
                 ilGen.Emit(OpCodes.Ldloc_0);
                 ilGen.Emit(OpCodes.Ret);
@@ -241,6 +232,33 @@ namespace Refsa.RePacker.Builder
             {
                 // ilGen.EmitWriteLine($"Serializing {info.Type.Name}");
 
+                if (info.IsBlittable)
+                {
+                    goto Blittable;
+                }
+                else
+                {
+                    goto PerField;
+                }
+
+            Blittable:
+                parameters[0] = info.Type;
+                bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+
+                // Load Buffer
+                ilGen.Emit(OpCodes.Ldarg_0);
+                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                // Load target for serialization
+                ilGen.Emit(OpCodes.Ldarga_S, 1);
+
+                // Call serializer
+                ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
+                ilGen.Emit(OpCodes.Pop);
+
+                goto Finished;
+
+            PerField:
                 for (int i = 0; i < info.SerializedFields.Length; i++)
                 {
                     var field = info.SerializedFields[i];
@@ -344,11 +362,12 @@ namespace Refsa.RePacker.Builder
                             break;
                     }
                 }
+                goto Finished;
 
-                // ilGen.EmitWriteLine($"{info.Type.Name} is Serialized");
+            // ilGen.EmitWriteLine($"{info.Type.Name} is Serialized");
+            Finished:
                 ilGen.Emit(OpCodes.Ret);
             }
-
 
             return () =>
             {
@@ -381,23 +400,6 @@ namespace Refsa.RePacker.Builder
                 var del = Expression.GetActionType(new Type[0] { });
                 return moduleBuilder.GetMethod(name).CreateDelegate(del);
             };
-        }
-
-        static Type CreateFunc(Type returnType, Type[] typeParams)
-        {
-            Type[] funcParams = new Type[typeParams.Length + 1];
-            for (int i = 0; i < typeParams.Length; i++)
-            {
-                funcParams[i] = typeParams[i];
-            }
-            funcParams[typeParams.Length] = returnType;
-
-            return Expression.GetFuncType(funcParams);
-        }
-
-        static Type CreateAction(Type[] typeParams)
-        {
-            return Expression.GetActionType(typeParams);
         }
     }
 }
