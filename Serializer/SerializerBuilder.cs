@@ -1,6 +1,7 @@
 
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -59,6 +60,8 @@ namespace Refsa.RePacker.Builder
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
 
+            MethodInfo deserializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.DeserializeOut));
+
             var parameters = new Type[1];
             MethodInfo bufferPopGeneric = null;
 
@@ -108,7 +111,10 @@ namespace Refsa.RePacker.Builder
                     // PERF: Do we need to push/pop this from the stack??
                     // BoxedBuffer -> buffer -> caller
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+                    if (Type.GetTypeCode(field.FieldType) != TypeCode.Object)
+                    {
+                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+                    }
 
                     // Byte -> output field
                     if (info.Type.IsValueType)
@@ -129,15 +135,24 @@ namespace Refsa.RePacker.Builder
                             ilGen.Emit(OpCodes.Pop);
                             ilGen.Emit(OpCodes.Pop);
                             break;
-                        case TypeCode.Object:
-                            ilGen.EmitWriteLine("RePacker - Unpack: Objects is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
                         case TypeCode.DateTime:
                             ilGen.EmitWriteLine("RePacker - Unpack: DateTime is currently unsupported");
                             ilGen.Emit(OpCodes.Pop);
                             ilGen.Emit(OpCodes.Pop);
+                            break;
+                        case TypeCode.Object:
+                            if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))
+                            {
+                                var genericSerializer = deserializeTypeMethod.MakeGenericMethod(field.FieldType);
+                                ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+                                ilGen.Emit(OpCodes.Pop);
+                            }
+                            else
+                            {
+                                ilGen.EmitWriteLine($"RePacker - Unpack: Object of type {field.FieldType.Name} is not supported");
+                                ilGen.Emit(OpCodes.Pop);
+                                ilGen.Emit(OpCodes.Pop);
+                            }
                             break;
                         case TypeCode.String:
                             var stringDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
@@ -266,6 +281,8 @@ namespace Refsa.RePacker.Builder
 
             FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
+            MethodInfo serializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.Serialize));
+
             var parameters = new Type[1];
             MethodInfo bufferPushGeneric = null;
 
@@ -305,7 +322,10 @@ namespace Refsa.RePacker.Builder
                     var field = info.SerializedFields[i];
 
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+                    if (Type.GetTypeCode(field.FieldType) != TypeCode.Object)
+                    {
+                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+                    }
 
                     if (info.Type.IsValueType)
                     {
@@ -319,14 +339,9 @@ namespace Refsa.RePacker.Builder
 
                     switch (Type.GetTypeCode(field.FieldType))
                     {
-                        // MANAGED DATA
+                        // MANAGED DATA AND STRUCTS
                         case TypeCode.Empty:
                             ilGen.EmitWriteLine("RePacker - Pack: Empty is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Object:
-                            ilGen.EmitWriteLine("RePacker - Pack: Objects is currently unsupported");
                             ilGen.Emit(OpCodes.Pop);
                             ilGen.Emit(OpCodes.Pop);
                             break;
@@ -334,6 +349,19 @@ namespace Refsa.RePacker.Builder
                             ilGen.EmitWriteLine("RePacker - Pack: DateTime is currently unsupported");
                             ilGen.Emit(OpCodes.Pop);
                             ilGen.Emit(OpCodes.Pop);
+                            break;
+                        case TypeCode.Object:
+                            if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))
+                            {
+                                var genericSerializer = serializeTypeMethod.MakeGenericMethod(field.FieldType);
+                                ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+                            }
+                            else
+                            {
+                                ilGen.EmitWriteLine($"RePacker - Pack: Object of type {field.FieldType.Name} is not supported");
+                                ilGen.Emit(OpCodes.Pop);
+                                ilGen.Emit(OpCodes.Pop);
+                            }
                             break;
                         case TypeCode.String:
                             var encodeString = typeof(Serializer).GetMethod(nameof(Serializer.EncodeString));
@@ -490,7 +518,7 @@ namespace Refsa.RePacker.Builder
                 // Separator
                 ilGen.Emit(OpCodes.Ldstr, ", ");
 
-                // Gather all fields in boxed array
+                // Gather all fields info in string array
                 ilGen.Emit(OpCodes.Ldc_I4, info.SerializedFields.Length);
                 ilGen.Emit(OpCodes.Newarr, typeof(string));
                 ilGen.Emit(OpCodes.Dup);
@@ -506,7 +534,7 @@ namespace Refsa.RePacker.Builder
                     ilGen.Emit(OpCodes.Ldfld, field);
 
                     // Box our data
-                    if (field.FieldType.IsValueType)    
+                    if (field.FieldType.IsValueType)
                     {
                         ilGen.Emit(OpCodes.Box, field.FieldType);
                     }
@@ -564,9 +592,38 @@ namespace Refsa.RePacker.Builder
             };
         }
 
+        static object[] genericParams = new object[1];
         public static string BuildFieldString(string name, object data)
         {
-            return $"{name}: {data.ToString()}";
+            string text = "";
+
+            if (data == null)
+            {
+                return $"{name}: Unsupported";
+            }
+
+            if (TypeCache.TryGetTypeInfo(data.GetType(), out var _))
+            {
+                using (var reader = new StringWriter())
+                {
+                    var defaultOut = Console.Out;
+                    Console.SetOut(reader);
+
+                    MethodInfo toGeneric = typeof(TypeCache).GetMethod(nameof(TypeCache.LogData)).MakeGenericMethod(data.GetType());
+                    genericParams[0] = data;
+                    toGeneric.Invoke(null, genericParams);
+
+                    text = name + ": " + reader.ToString().TrimEnd();
+
+                    Console.SetOut(defaultOut);
+                }
+            }
+            else
+            {
+                text = $"{name}: {data.ToString()}";
+            }
+
+            return text;
         }
 
         public static string AddStrings(string sep, params string[] data)

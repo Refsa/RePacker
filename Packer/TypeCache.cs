@@ -191,6 +191,18 @@ namespace Refsa.RePacker
             return default(T);
         }
 
+        public static bool DeserializeOut<T>(BoxedBuffer buffer, out T value)
+        {
+            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
+            {
+                value = typePacker.Unpack<T>(buffer);
+                return true;
+            }
+
+            value = default(T);
+            return false;
+        }
+
         public static void LogData<T>(ref T value)
         {
             if (packerLookup.TryGetValue(typeof(T), out var typePacker))

@@ -39,7 +39,7 @@ namespace Refsa.RePacker
     {
         public TypeCache.Info Info;
 
-        ITypeSerializer Serializer;
+        ITypeSerializer serializer;
 
         public TypePacker(TypeCache.Info info)
         {
@@ -50,12 +50,12 @@ namespace Refsa.RePacker
         {
             var ts = new TypeSerializer<T>(packer, unpacker);
             ts.SetLogger(logger);
-            this.Serializer = ts;
+            this.serializer = ts;
         }
 
         public void SetLogger<T>(MethodInfo logger)
         {
-            if (this.Serializer is TypeSerializer<T> serializer)
+            if (this.serializer is TypeSerializer<T> serializer)
             {
                 serializer.SetLogger(logger);
             }
@@ -63,7 +63,7 @@ namespace Refsa.RePacker
 
         public void RunLogger<T>(ref T target)
         {
-            if (this.Serializer is TypeSerializer<T> serializer)
+            if (this.serializer is TypeSerializer<T> serializer)
             {
                 serializer.logger.Invoke(target);
             }
@@ -72,7 +72,7 @@ namespace Refsa.RePacker
         public void Pack<T>(BoxedBuffer buffer, ref T target)
         {
             // packer.Invoke(buffer, target);
-            if (this.Serializer is TypeSerializer<T> serializer)
+            if (this.serializer is TypeSerializer<T> serializer)
             {
                 serializer.packer.Invoke(buffer, target);
             }
@@ -81,7 +81,7 @@ namespace Refsa.RePacker
         public T Unpack<T>(BoxedBuffer buffer)
         {
             // return unpacker.Invoke(buffer);
-            if (this.Serializer is TypeSerializer<T> serializer)
+            if (this.serializer is TypeSerializer<T> serializer)
             {
                 return serializer.unpacker.Invoke(buffer);
             }
