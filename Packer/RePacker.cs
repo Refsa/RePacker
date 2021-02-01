@@ -15,5 +15,10 @@ namespace Refsa.RePacker
         {
             return TypeCache.Deserialize<T>(buffer);
         }
+
+        public static void Log<T>(ref T source)
+        {
+            TypeCache.LogData<T>(ref source);
+        }
     }
 }

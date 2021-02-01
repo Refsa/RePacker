@@ -31,19 +31,24 @@ namespace Refsa.RePacker
         static TypeCache()
         {
             Console.WriteLine("Setting up TypeCache");
+            var sw = new System.Diagnostics.Stopwatch(); sw.Restart();
             BuildTypeCache();
             BuildSerializers();
+            sw.Stop();
+            Console.WriteLine($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
         }
 
         static void BuildSerializers()
         {
             var serializerLookup = new Dictionary<Type, MethodInfo>();
             var deserializerLookup = new Dictionary<Type, MethodInfo>();
+            var loggerLookup = new Dictionary<Type, MethodInfo>();
 
             packerLookup = new Dictionary<Type, TypePacker>();
             testLookup = new Dictionary<Type, Delegate>();
 
             var testMethodCreators = new List<(Type, Func<Delegate>)>();
+            var loggerMethodCreators = new List<(Type, Func<MethodInfo>)>();
 
             var serMethodCreators = new List<(Type, Func<MethodInfo>)>();
             var deserMethodCreators = new List<(Type, Func<MethodInfo>)>();
@@ -66,6 +71,11 @@ namespace Refsa.RePacker
                 {
                     testMethodCreators.Add((type, testDelegate));
                 }
+
+                if (SerializerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
+                {
+                    loggerMethodCreators.Add((type, loggerDelegate));
+                }
             }
 
             SerializerBuilder.Complete();
@@ -85,15 +95,24 @@ namespace Refsa.RePacker
                 deserializerLookup.Add(tmc.Item1, tmc.Item2.Invoke());
             }
 
+            foreach (var lmc in loggerMethodCreators)
+            {
+                loggerLookup.Add(lmc.Item1, lmc.Item2.Invoke());
+            }
+
             foreach ((Type type, Info info) in typeCache)
             {
                 var deser = deserializerLookup[type];
                 var ser = serializerLookup[type];
+                var logger = loggerLookup[type];
 
                 var packer = new TypePacker(info);
 
                 var mi = typeof(TypePacker).GetMethod(nameof(TypePacker.Setup)).MakeGenericMethod(type);
-                mi.Invoke(packer, new object[] { ser, deser });
+                mi.Invoke(packer, new object[] { ser, deser, logger });
+
+                // var setLogger = typeof(TypePacker).GetMethod(nameof(TypePacker.SetLogger)).MakeGenericMethod(type);
+                // mi.Invoke(packer, new object[] { logger });
 
                 packerLookup.Add(
                     type,
@@ -170,6 +189,14 @@ namespace Refsa.RePacker
             }
 
             return default(T);
+        }
+
+        public static void LogData<T>(ref T value)
+        {
+            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
+            {
+                typePacker.RunLogger<T>(ref value);
+            }
         }
 
         public static void RunTestMethod<T>()

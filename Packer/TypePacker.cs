@@ -6,12 +6,17 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker
 {
-    interface ITypeSerializer { }
+    interface ITypeSerializer
+    {
+
+    }
 
     class TypeSerializer<T> : ITypeSerializer
     {
         public System.Action<BoxedBuffer, T> packer;
         public System.Func<BoxedBuffer, T> unpacker;
+
+        public System.Action<T> logger;
 
         public TypeSerializer(MethodInfo packer, MethodInfo unpacker)
         {
@@ -22,6 +27,11 @@ namespace Refsa.RePacker
             this.unpacker =
                 (System.Func<BoxedBuffer, T>)unpacker
                     .CreateDelegate(typeof(System.Func<BoxedBuffer, T>));
+        }
+
+        public void SetLogger(MethodInfo logger)
+        {
+            this.logger = (System.Action<T>)logger.CreateDelegate(typeof(System.Action<T>));
         }
     }
 
@@ -36,9 +46,27 @@ namespace Refsa.RePacker
             this.Info = info;
         }
 
-        public void Setup<T>(MethodInfo packer, MethodInfo unpacker)
+        public void Setup<T>(MethodInfo packer, MethodInfo unpacker, MethodInfo logger)
         {
-            this.Serializer = new TypeSerializer<T>(packer, unpacker);
+            var ts = new TypeSerializer<T>(packer, unpacker);
+            ts.SetLogger(logger);
+            this.Serializer = ts;
+        }
+
+        public void SetLogger<T>(MethodInfo logger)
+        {
+            if (this.Serializer is TypeSerializer<T> serializer)
+            {
+                serializer.SetLogger(logger);
+            }
+        }
+
+        public void RunLogger<T>(ref T target)
+        {
+            if (this.Serializer is TypeSerializer<T> serializer)
+            {
+                serializer.logger.Invoke(target);
+            }
         }
 
         public void Pack<T>(BoxedBuffer buffer, ref T target)

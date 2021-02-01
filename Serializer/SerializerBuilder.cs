@@ -140,10 +140,9 @@ namespace Refsa.RePacker.Builder
                             ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.String:
-                            var serDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
-                            var decodeString = typeof(Serializer).GetMethod(nameof(Serializer.DecodeString), serDecParams);
+                            var stringDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
+                            var decodeString = typeof(Serializer).GetMethod(nameof(Serializer.DecodeString), stringDecParams);
 
-                            parameters[0] = typeof(string);
                             ilGen.EmitCall(OpCodes.Call, decodeString, Type.EmptyTypes);
                             break;
 
@@ -462,6 +461,127 @@ namespace Refsa.RePacker.Builder
                 var del = Expression.GetActionType(new Type[0] { });
                 return moduleBuilder.GetMethod(name).CreateDelegate(del);
             };
+        }
+
+        public static Func<MethodInfo> CreateDataLogger(TypeCache.Info info)
+        {
+            Type[] typeParams = new Type[] { info.Type };
+
+            string name = $"{info.Type.Name}_Logger";
+
+            var loggerBuilder = moduleBuilder.DefineGlobalMethod(
+                name,
+                MethodAttributes.Public | MethodAttributes.Static,
+                null,
+                typeParams
+            );
+            loggerBuilder.SetImplementationFlags(MethodImplAttributes.Managed);
+
+            MethodInfo stringAdder = typeof(SerializerBuilder).GetMethod(
+                nameof(SerializerBuilder.AddStrings));
+
+            MethodInfo fieldString = typeof(SerializerBuilder).GetMethod(
+                nameof(SerializerBuilder.BuildFieldString));
+
+            var ilGen = loggerBuilder.GetILGenerator();
+            {
+                var lb = ilGen.DeclareLocal(typeof(string));
+
+                // Separator
+                ilGen.Emit(OpCodes.Ldstr, ", ");
+
+                // Gather all fields in boxed array
+                ilGen.Emit(OpCodes.Ldc_I4, info.SerializedFields.Length);
+                ilGen.Emit(OpCodes.Newarr, typeof(string));
+                ilGen.Emit(OpCodes.Dup);
+                for (int i = 0; i < info.SerializedFields.Length; i++)
+                {
+                    var field = info.SerializedFields[i];
+
+                    // Set array element
+                    ilGen.Emit(OpCodes.Ldc_I4, i);
+                    ilGen.Emit(OpCodes.Ldstr, field.Name);
+
+                    ilGen.Emit(OpCodes.Ldarg_0);
+                    ilGen.Emit(OpCodes.Ldfld, field);
+
+                    // Box our data
+                    if (field.FieldType.IsValueType)    
+                    {
+                        ilGen.Emit(OpCodes.Box, field.FieldType);
+                    }
+                    else
+                    {
+                        ilGen.Emit(OpCodes.Castclass, typeof(object));
+                    }
+
+                    // Create string of Field Name + Field Value
+                    ilGen.EmitCall(OpCodes.Call, fieldString, Type.EmptyTypes);
+
+                    ilGen.Emit(OpCodes.Stelem_Ref);
+
+                    if (i != info.SerializedFields.Length - 1)
+                        ilGen.Emit(OpCodes.Dup);
+                }
+
+                // Create string from data
+                ilGen.EmitCall(OpCodes.Call, stringAdder, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Stloc_0);
+
+                // Separator
+                ilGen.Emit(OpCodes.Ldstr, "");
+
+                // Create Array to hold final string
+                ilGen.Emit(OpCodes.Ldc_I4_4);
+                ilGen.Emit(OpCodes.Newarr, typeof(string));
+                ilGen.Emit(OpCodes.Dup);
+
+                ilGen.Emit(OpCodes.Ldc_I4_0);
+                ilGen.Emit(OpCodes.Ldstr, $"{info.Type.Name} {{ ");
+                ilGen.Emit(OpCodes.Stelem_Ref);
+                ilGen.Emit(OpCodes.Dup);
+
+                ilGen.Emit(OpCodes.Ldc_I4_1);
+                ilGen.Emit(OpCodes.Ldloc_0);
+                ilGen.Emit(OpCodes.Stelem_Ref);
+                ilGen.Emit(OpCodes.Dup);
+
+                ilGen.Emit(OpCodes.Ldc_I4_2);
+                ilGen.Emit(OpCodes.Ldstr, $" }}");
+                ilGen.Emit(OpCodes.Stelem_Ref);
+
+                ilGen.EmitCall(OpCodes.Call, stringAdder, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Stloc_0);
+
+                ilGen.EmitWriteLine(lb);
+
+                ilGen.Emit(OpCodes.Ret);
+            }
+
+            return () =>
+            {
+                return moduleBuilder.GetMethod(loggerBuilder.Name);
+            };
+        }
+
+        public static string BuildFieldString(string name, object data)
+        {
+            return $"{name}: {data.ToString()}";
+        }
+
+        public static string AddStrings(string sep, params string[] data)
+        {
+            string result = "";
+            // result += s1 + s2 + s3;
+            for (int i = 0; i < data.Length; i++)
+            {
+                result += data[i];
+                if (i != data.Length - 1)
+                {
+                    result += sep;
+                }
+            }
+            return result;
         }
     }
 }
