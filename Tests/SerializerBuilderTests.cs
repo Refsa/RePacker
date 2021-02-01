@@ -341,5 +341,44 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(p.Child.Float, fromBuf.Child.Float);
             Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
         }
+
+        [Fact]
+        public void can_handle_unmanaged_nested_struct()
+        {
+            var rt = new RootType
+            {
+                Float = 13.37f,
+                Double = 9876.54321,
+                UnmanagedStruct = new UnmanagedStruct
+                {
+                    Int = 1337,
+                    ULong = 9876543210,
+                },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<RootType>(buffer, ref rt);
+            var fromBuf = RePacker.Unpack<RootType>(buffer);
+
+            Assert.Equal(rt.Float, fromBuf.Float);
+            Assert.Equal(rt.Double, fromBuf.Double);
+            Assert.Equal(rt.UnmanagedStruct.Int, fromBuf.UnmanagedStruct.Int);
+            Assert.Equal(rt.UnmanagedStruct.ULong, fromBuf.UnmanagedStruct.ULong);
+        }
+
+        [RePacker]
+        public struct RootType
+        {
+            public float Float;
+            public UnmanagedStruct UnmanagedStruct;
+            public double Double;
+        }
+
+        public struct UnmanagedStruct
+        {
+            public int Int;
+            public ulong ULong;
+        }
     }
 }

@@ -493,7 +493,7 @@ namespace Refsa.RePacker.Benchmarks
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
             // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
-            var summary2 = BenchmarkRunner.Run<ILGenerated>();
+            // var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             // object[] param = new object[] { 1.234f, 15, (byte)127 };
             // Program.TestStruct test = (Program.TestStruct)TypeCache.CreateInstance(typeof(Program.TestStruct), param);
@@ -528,39 +528,39 @@ namespace Refsa.RePacker.Benchmarks
             Console.WriteLine($"{des}");
             Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}"); */
 
-            // StructWithString sws = new StructWithString
-            // {
-            //     Float = 1.337f,
-            //     String1 = "Hello",
-            //     String2 = "World",
-            //     Int = 1337,
-            // };
+            /* StructWithString sws = new StructWithString
+            {
+                Float = 1.337f,
+                String1 = "Hello",
+                String2 = "World",
+                Int = 1337,
+            };
 
-            // BoxedBuffer buffer = new BoxedBuffer(1024);
+            BoxedBuffer buffer = new BoxedBuffer(1024);
 
-            // RePacker.Pack<StructWithString>(buffer, ref sws);
-            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            RePacker.Pack<StructWithString>(buffer, ref sws);
+            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
 
-            // var fromBuf = RePacker.Unpack<StructWithString>(buffer);
-            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            var fromBuf = RePacker.Unpack<StructWithString>(buffer);
+            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}"); */
 
-            // StructWithEnum sws = new StructWithEnum
-            // {
-            //     Float = 1.337f,
-            //     ByteEnum = ByteEnum.Ten,
-            //     LongEnum = LongEnum.High,
-            //     Int = 1337,
-            // };
+            /* StructWithEnum sws = new StructWithEnum
+            {
+                Float = 1.337f,
+                ByteEnum = ByteEnum.Ten,
+                LongEnum = LongEnum.High,
+                Int = 1337,
+            };
 
-            // BoxedBuffer buffer = new BoxedBuffer(1024);
+            BoxedBuffer buffer = new BoxedBuffer(1024);
 
-            // RePacker.Pack<StructWithEnum>(buffer, ref sws);
-            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            RePacker.Pack<StructWithEnum>(buffer, ref sws);
+            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
 
-            // var fromBuf = RePacker.Unpack<StructWithEnum>(buffer);
-            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            var fromBuf = RePacker.Unpack<StructWithEnum>(buffer);
+            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
 
-            // RePacker.Log<StructWithEnum>(ref fromBuf);
+            RePacker.Log<StructWithEnum>(ref fromBuf); */
 
             /* var p = new Parent
             {
@@ -579,6 +579,24 @@ namespace Refsa.RePacker.Benchmarks
 
             var fromBuf = RePacker.Unpack<Parent>(buffer);
             RePacker.Log<Parent>(ref fromBuf); */
+
+            var rt = new RootType
+            {
+                Float = 13.37f,
+                Double = 9876.54321,
+                UnmanagedStruct = new UnmanagedStruct
+                {
+                    Int = 1337,
+                    ULong = 9876543210,
+                },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<RootType>(buffer, ref rt);
+            var fromBuf = RePacker.Unpack<RootType>(buffer);
+
+            RePacker.Log<RootType>(ref fromBuf);
         }
 
         [RePacker]
@@ -594,6 +612,25 @@ namespace Refsa.RePacker.Benchmarks
         {
             public double Float;
             public byte Byte;
+        }
+
+        [RePacker]
+        public struct RootType
+        {
+            public float Float;
+            public UnmanagedStruct UnmanagedStruct;
+            public double Double;
+        }
+
+        public struct UnmanagedStruct
+        {
+            public int Int;
+            public ulong ULong;
+
+            public override string ToString()
+            {
+                return $"UnmanagedStruct {{ Int: {Int}, ULong: {ULong} }}";
+            }
         }
     }
 }

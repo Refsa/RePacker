@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 using System.Threading;
 
 using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
@@ -145,6 +146,23 @@ namespace Refsa.RePacker.Builder
                             {
                                 var genericSerializer = deserializeTypeMethod.MakeGenericMethod(field.FieldType);
                                 ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+                                ilGen.Emit(OpCodes.Pop);
+                            }
+                            else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
+                            {
+                                // We need to recreate stack with references to value type and Buffer
+                                ilGen.Emit(OpCodes.Pop);
+                                ilGen.Emit(OpCodes.Pop);
+
+                                ilGen.Emit(OpCodes.Ldarg_0);
+                                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                                ilGen.Emit(OpCodes.Ldloca_S, 0);
+                                ilGen.Emit(OpCodes.Ldflda, field);
+
+                                parameters[0] = field.FieldType;
+                                bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
+                                ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                                 ilGen.Emit(OpCodes.Pop);
                             }
                             else
@@ -355,6 +373,23 @@ namespace Refsa.RePacker.Builder
                             {
                                 var genericSerializer = serializeTypeMethod.MakeGenericMethod(field.FieldType);
                                 ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+                            }
+                            else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
+                            {
+                                // We need to recreate stack with references to value type and Buffer
+                                ilGen.Emit(OpCodes.Pop);
+                                ilGen.Emit(OpCodes.Pop);
+
+                                ilGen.Emit(OpCodes.Ldarg_0);
+                                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                                ilGen.Emit(OpCodes.Ldarga_S, 1);
+                                ilGen.Emit(OpCodes.Ldflda, field);
+
+                                parameters[0] = field.FieldType;
+                                bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                                ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+                                ilGen.Emit(OpCodes.Pop);
                             }
                             else
                             {
