@@ -148,19 +148,23 @@ namespace Refsa.RePacker
         {
             ulong dataLen = (ulong)(data.Length * Marshal.SizeOf<T>());
             buffer.Push<ulong>(ref dataLen);
-            for (int i = 0; i < data.Length; i++)
-            {
-                buffer.Push<T>(ref data[i]);
-            }
+
+            var span = MemoryMarshal.Cast<T, byte>(new Span<T>(data));
+            buffer.Write(span);
         }
 
         public static T[] DecodeBlittableArray<T>(this ref ReadOnlyBuffer buffer) where T : unmanaged
         {
             buffer.Pop<ulong>(out ulong length);
-
             var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
-
             return span.ToArray();
+        }
+
+        public static void DecodeBlittableArrayOut<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
+        {
+            buffer.Pop<ulong>(out ulong length);
+            var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
+            data = span.ToArray();
         }
 
         public static void EncodeArray<T>(this ref Buffer buffer, T[] data) where T : ISerializer
@@ -185,6 +189,38 @@ namespace Refsa.RePacker
             }
 
             return data;
+        }
+
+        public static void PackArray<T>(this BoxedBuffer buffer, T[] data)
+        {
+            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            {
+                ulong dataLen = (ulong)data.Length;
+                buffer.Buffer.Push<ulong>(ref dataLen);
+
+                for (int i = 0; i < data.Length; i++)
+                {
+                    packer.Pack<T>(buffer, ref data[i]);
+                }
+            }
+        }
+
+        public static void UnpackArray<T>(this BoxedBuffer buffer, out T[] data)
+        {
+            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            {
+                buffer.Buffer.Pop<ulong>(out ulong len);
+                data = new T[(int)len];
+
+                for (int i = 0; i < data.Length; i++)
+                {
+                    data[i] = packer.Unpack<T>(buffer);
+                }
+            }
+            else
+            {
+                data = null;
+            }
         }
     }
 }

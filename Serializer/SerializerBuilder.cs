@@ -62,6 +62,8 @@ namespace Refsa.RePacker.Builder
                 .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
 
             MethodInfo deserializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.DeserializeOut));
+            MethodInfo deserializeBlittableArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.DecodeBlittableArrayOut));
+            MethodInfo deserializeArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackArray));
 
             var parameters = new Type[1];
             MethodInfo bufferPopGeneric = null;
@@ -150,7 +152,7 @@ namespace Refsa.RePacker.Builder
                             }
                             else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
                             {
-                                // We need to recreate stack with references to value type and Buffer
+                                // We need to recreate stack with references to value type and Buffer inside BoxedBuffer
                                 ilGen.Emit(OpCodes.Pop);
                                 ilGen.Emit(OpCodes.Pop);
 
@@ -167,9 +169,46 @@ namespace Refsa.RePacker.Builder
                             }
                             else
                             {
-                                ilGen.EmitWriteLine($"RePacker - Unpack: Object of type {field.FieldType.Name} is not supported");
-                                ilGen.Emit(OpCodes.Pop);
-                                ilGen.Emit(OpCodes.Pop);
+                                if (field.FieldType.IsArray)
+                                {
+                                    ilGen.Emit(OpCodes.Pop);
+                                    ilGen.Emit(OpCodes.Pop);
+
+                                    var elementType = field.FieldType.GetElementType();
+
+                                    if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
+                                    {
+                                        ilGen.Emit(OpCodes.Ldarg_0);
+                                        ilGen.Emit(OpCodes.Ldloca_S, 0);
+                                        ilGen.Emit(OpCodes.Ldflda, field);
+
+                                        var arraySerializer = deserializeArrayMethod.MakeGenericMethod(elementType);
+                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                                    }
+                                    else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
+                                    {
+                                        ilGen.Emit(OpCodes.Ldarg_0);
+                                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                                        ilGen.Emit(OpCodes.Ldloca_S, 0);
+                                        ilGen.Emit(OpCodes.Ldflda, field);
+
+                                        var arraySerializer = deserializeBlittableArrayMethod.MakeGenericMethod(elementType);
+                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                                    }
+                                    else
+                                    {
+                                        ilGen.EmitWriteLine($"RePacker - Unpack: Array of type {field.FieldType.Name} is not supported");
+                                        ilGen.Emit(OpCodes.Pop);
+                                        ilGen.Emit(OpCodes.Pop);
+                                    }
+                                }
+                                else
+                                {
+                                    ilGen.EmitWriteLine($"RePacker - Unpack: Object of type {field.FieldType.Name} is not supported");
+                                    ilGen.Emit(OpCodes.Pop);
+                                    ilGen.Emit(OpCodes.Pop);
+                                }
                             }
                             break;
                         case TypeCode.String:
@@ -301,6 +340,9 @@ namespace Refsa.RePacker.Builder
 
             MethodInfo serializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.Serialize));
 
+            MethodInfo serializeBlittableArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.EncodeBlittableArray));
+            MethodInfo serializeArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackArray));
+
             var parameters = new Type[1];
             MethodInfo bufferPushGeneric = null;
 
@@ -393,9 +435,46 @@ namespace Refsa.RePacker.Builder
                             }
                             else
                             {
-                                ilGen.EmitWriteLine($"RePacker - Pack: Object of type {field.FieldType.Name} is not supported");
-                                ilGen.Emit(OpCodes.Pop);
-                                ilGen.Emit(OpCodes.Pop);
+                                if (field.FieldType.IsArray)
+                                {
+                                    ilGen.Emit(OpCodes.Pop);
+                                    ilGen.Emit(OpCodes.Pop);
+
+                                    var elementType = field.FieldType.GetElementType();
+
+                                    if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
+                                    {
+                                        ilGen.Emit(OpCodes.Ldarg_0);
+                                        ilGen.Emit(OpCodes.Ldarga_S, 1);
+                                        ilGen.Emit(OpCodes.Ldfld, field);
+
+                                        var arraySerializer = serializeArrayMethod.MakeGenericMethod(elementType);
+                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                                    }
+                                    else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
+                                    {
+                                        ilGen.Emit(OpCodes.Ldarg_0);
+                                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
+
+                                        ilGen.Emit(OpCodes.Ldarga_S, 1);
+                                        ilGen.Emit(OpCodes.Ldfld, field);
+
+                                        var arraySerializer = serializeBlittableArrayMethod.MakeGenericMethod(elementType);
+                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                                    }
+                                    else
+                                    {
+                                        ilGen.EmitWriteLine($"RePacker - Pack: Array of type {field.FieldType.Name} is not supported");
+                                        ilGen.Emit(OpCodes.Pop);
+                                        ilGen.Emit(OpCodes.Pop);
+                                    }
+                                }
+                                else
+                                {
+                                    ilGen.EmitWriteLine($"RePacker - Pack: Object of type {field.FieldType.Name} is not supported");
+                                    ilGen.Emit(OpCodes.Pop);
+                                    ilGen.Emit(OpCodes.Pop);
+                                }
                             }
                             break;
                         case TypeCode.String:
@@ -651,6 +730,26 @@ namespace Refsa.RePacker.Builder
                     text = name + ": " + reader.ToString().TrimEnd();
 
                     Console.SetOut(defaultOut);
+                }
+            }
+            else if (data.GetType().IsArray)
+            {
+                if (data.GetType().GetElementType().IsValueType)
+                {
+                    text += $"{name}: [ ";
+                    int index = 0;
+                    foreach (var element in (Array)data)
+                    {
+                        text += $"{element.ToString()}";
+                        if (index++ != ((Array)data).Length - 1)
+                        {
+                            text += ", ";
+                        }
+                        else
+                        {
+                            text += " ]";
+                        }
+                    }
                 }
             }
             else
