@@ -129,11 +129,12 @@ namespace Refsa.RePacker.Benchmarks
     {
         static byte[] backingBuffer;
         static Buffer buffer;
+        static BoxedBuffer boxedBuffer;
+
         Person[] personArray;
-
         ReadOnlyBuffer personBuffer;
+        BoxedBuffer personBoxedBuffer;
         ReadOnlyBuffer personArrayBuffer;
-
         Person p = new Person
         {
             Age = 99999,
@@ -142,19 +143,42 @@ namespace Refsa.RePacker.Benchmarks
             Sex = Sex.Male,
         };
 
+        Vector vector = new Vector { X = 1.234f, Y = 2.345f, Z = 3.456f };
+        BoxedBuffer vectorBuffer;
+
+        BoxedBuffer intBuffer;
+
         public ZeroFormatterBench()
         {
             backingBuffer = new byte[1024];
             buffer = new Buffer(backingBuffer, 0);
-            personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
+            boxedBuffer = new BoxedBuffer(1024);
 
-            var _personBuffer = new Buffer(new byte[1024], 0);
-            _personBuffer.Encode(p);
-            personBuffer = new ReadOnlyBuffer(ref buffer);
+            {
+                personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
 
-            var _personArrayBuffer = new Buffer(new byte[1 << 16], 0);
-            _personArrayBuffer.EncodeArray<Person>(personArray);
-            personArrayBuffer = new ReadOnlyBuffer(ref _personArrayBuffer);
+                var _personBuffer = new Buffer(new byte[1024], 0);
+                _personBuffer.Encode(p);
+                personBuffer = new ReadOnlyBuffer(ref _personBuffer);
+
+                personBoxedBuffer = new BoxedBuffer(1024);
+                RePacker.Pack<Person>(personBoxedBuffer, ref p);
+
+                var _personArrayBuffer = new Buffer(new byte[1 << 16], 0);
+                _personArrayBuffer.EncodeArray<Person>(personArray);
+                personArrayBuffer = new ReadOnlyBuffer(ref _personArrayBuffer);
+            }
+
+            {
+                vectorBuffer = new BoxedBuffer(1024);
+                RePacker.Pack<Vector>(vectorBuffer, ref vector);
+            }
+
+            {
+                int val = 123456789;
+                intBuffer = new BoxedBuffer(1024);
+                RePacker.Pack<int>(intBuffer, ref val);
+            }
         }
 
         public enum Sex : sbyte
@@ -162,7 +186,7 @@ namespace Refsa.RePacker.Benchmarks
             Unknown, Male, Female,
         }
 
-        // [RePacker]
+        [RePacker]
         public class Person : ISerializer
         {
             public int Age;
@@ -187,12 +211,17 @@ namespace Refsa.RePacker.Benchmarks
             }
         }
 
+        [RePacker]
+        public struct Vector
+        {
+            public float X;
+            public float Y;
+            public float Z;
+        }
+
         [Benchmark]
         public void SmallObjectSerialize10K()
         {
-            byte[] backBuf = new byte[1024];
-            Buffer buffer = new Buffer(backBuf, 0);
-
             for (int i = 0; i < 10_000; i++)
             {
                 buffer.Encode(p);
@@ -203,12 +232,10 @@ namespace Refsa.RePacker.Benchmarks
         [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
-            var buffer = new BoxedBuffer(1024);
-
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack<Person>(buffer, ref p);
-                buffer.Buffer.Reset();
+                RePacker.Pack<Person>(boxedBuffer, ref p);
+                boxedBuffer.Buffer.Reset();
             }
         }
 
@@ -217,7 +244,7 @@ namespace Refsa.RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = personBuffer.Decode(typeof(Person));
+                var _ = (Person)personBuffer.Decode(typeof(Person));
                 personBuffer.Reset();
             }
         }
@@ -225,12 +252,52 @@ namespace Refsa.RePacker.Benchmarks
         [Benchmark]
         public void ILGen_SmallObjectDeserialize10K()
         {
-            var buffer = new BoxedBuffer(ref personBuffer);
+            for (int i = 0; i < 10_000; i++)
+            {
+                var _ = RePacker.Unpack<Person>(personBoxedBuffer);
+                personBoxedBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_VectorSerialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacker.Pack<Vector>(boxedBuffer, ref vector);
+                boxedBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_VectorDeserialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                var _ = RePacker.Unpack<Vector>(vectorBuffer);
+                vectorBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_IntSerialize10K()
+        {
+            int val = 123456789;
 
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacker.Unpack<Person>(buffer);
-                buffer.Buffer.Reset();
+                RePacker.Pack<int>(boxedBuffer, ref val);
+                boxedBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_IntDeserialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                var _ = RePacker.Unpack<int>(intBuffer);
+                intBuffer.Buffer.Reset();
             }
         }
 
@@ -486,13 +553,55 @@ namespace Refsa.RePacker.Benchmarks
             public int Int;
         }
 
+        [RePacker]
+        public struct Parent
+        {
+            public float Float;
+            public Child Child;
+            public ulong ULong;
+        }
+
+        [RePacker]
+        public struct Child
+        {
+            public double Float;
+            public byte Byte;
+        }
+
+        [RePacker]
+        public struct RootType
+        {
+            public float Float;
+            public UnmanagedStruct UnmanagedStruct;
+            public double Double;
+        }
+
+        public struct UnmanagedStruct
+        {
+            public int Int;
+            public ulong ULong;
+
+            public override string ToString()
+            {
+                return $"UnmanagedStruct {{ Int: {Int}, ULong: {ULong} }}";
+            }
+        }
+
+        [RePacker]
+        public struct StructWithArray
+        {
+            public int Int;
+            public float[] Floats;
+            public long Long;
+        }
+
         public static void Main(string[] args)
         {
             TypeCache.Init();
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             // object[] param = new object[] { 1.234f, 15, (byte)127 };
@@ -580,7 +689,7 @@ namespace Refsa.RePacker.Benchmarks
             var fromBuf = RePacker.Unpack<Parent>(buffer);
             RePacker.Log<Parent>(ref fromBuf); */
 
-            var rt = new RootType
+            /* var rt = new RootType
             {
                 Float = 13.37f,
                 Double = 9876.54321,
@@ -596,41 +705,23 @@ namespace Refsa.RePacker.Benchmarks
             RePacker.Pack<RootType>(buffer, ref rt);
             var fromBuf = RePacker.Unpack<RootType>(buffer);
 
-            RePacker.Log<RootType>(ref fromBuf);
-        }
+            RePacker.Log<RootType>(ref fromBuf); */
 
-        [RePacker]
-        public struct Parent
-        {
-            public float Float;
-            public Child Child;
-            public ulong ULong;
-        }
-
-        [RePacker]
-        public struct Child
-        {
-            public double Float;
-            public byte Byte;
-        }
-
-        [RePacker]
-        public struct RootType
-        {
-            public float Float;
-            public UnmanagedStruct UnmanagedStruct;
-            public double Double;
-        }
-
-        public struct UnmanagedStruct
-        {
-            public int Int;
-            public ulong ULong;
-
-            public override string ToString()
+            /* var swa = new StructWithArray
             {
-                return $"UnmanagedStruct {{ Int: {Int}, ULong: {ULong} }}";
-            }
+                Int = 1337,
+                Long = -123456789,
+                Floats = new float[] {
+                    0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<StructWithArray>(buffer, ref swa);
+            var fromBuf = RePacker.Unpack<StructWithArray>(buffer);
+
+            RePacker.Log<StructWithArray>(ref fromBuf); */
         }
     }
 }

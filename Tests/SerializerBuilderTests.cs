@@ -342,6 +342,20 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
         }
 
+        [RePacker]
+        public struct RootType
+        {
+            public float Float;
+            public UnmanagedStruct UnmanagedStruct;
+            public double Double;
+        }
+
+        public struct UnmanagedStruct
+        {
+            public int Int;
+            public ulong ULong;
+        }
+
         [Fact]
         public void can_handle_unmanaged_nested_struct()
         {
@@ -368,17 +382,30 @@ namespace Refsa.RePacker.Tests
         }
 
         [RePacker]
-        public struct RootType
-        {
-            public float Float;
-            public UnmanagedStruct UnmanagedStruct;
-            public double Double;
-        }
-
-        public struct UnmanagedStruct
+        public struct HasUnsupportedField
         {
             public int Int;
-            public ulong ULong;
+            public Type Type;
+            public float Float;
+        }
+
+        [Fact]
+        public void unsupported_type_does_not_break_functonality()
+        {
+            var data = new HasUnsupportedField
+            {
+                Int = 1234,
+                Type = typeof(HasUnsupportedField),
+                Float = 4321.1234f,
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref data);
+            var fromBuf = RePacker.Unpack<HasUnsupportedField>(buffer);
+
+            Assert.Equal(data.Int, fromBuf.Int);
+            Assert.Equal(data.Float, fromBuf.Float);
         }
     }
 }
