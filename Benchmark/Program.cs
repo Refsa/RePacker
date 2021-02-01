@@ -130,18 +130,18 @@ namespace Refsa.RePacker.Benchmarks
         /* @commit b11167496426aa69b63ea2b8bcb3cc83209a0c20
                               Method |           Mean |        Error |       StdDev |       Gen 0 |       Gen 1 | Gen 2 |    Allocated |
 ------------------------------------ |---------------:|-------------:|-------------:|------------:|------------:|------:|-------------:|
-             SmallObjectSerialize10K |     2,632.0 us |      8.39 us |      7.44 us |    203.1250 |           - |     - |     640036 B |
-       ILGen_SmallObjectSerialize10K |     2,479.2 us |     17.65 us |     16.51 us |    203.1250 |           - |     - |     640002 B |
-           SmallObjectDeserialize10K |     2,711.0 us |      7.88 us |      7.37 us |    378.9063 |           - |     - |    1200064 B |
-     ILGen_SmallObjectDeserialize10K |     2,589.0 us |     18.09 us |     16.92 us |    378.9063 |           - |     - |    1200002 B |
-            ILGen_VectorSerialize10K |     1,168.4 us |      3.19 us |      2.98 us |           - |           - |     - |         14 B |
-          ILGen_VectorDeserialize10K |     1,181.2 us |      5.69 us |      5.04 us |           - |           - |     - |          1 B |
-               ILGen_IntSerialize10K |       160.7 us |      0.31 us |      0.29 us |           - |           - |     - |            - |
-             ILGen_IntDeserialize10K |       141.9 us |      0.34 us |      0.31 us |           - |           - |     - |            - |
-        SmallObjectArraySerialize10K | 2,932,271.6 us | 12,787.97 us | 11,961.88 us | 204000.0000 |           - |     - |  640096720 B |
-      SmallObjectArrayDeserialize10K | 3,202,393.6 us | 17,691.45 us | 15,683.01 us | 408000.0000 |           - |     - | 1280302168 B |
-  ILGen_SmallObjectArraySerialize10K | 2,077,662.6 us | 13,372.43 us | 12,508.58 us | 204000.0000 |           - |     - |  640065608 B |
-ILGen_SmallObjectArrayDeserialize10K | 2,421,800.7 us | 19,713.62 us | 18,440.13 us | 308000.0000 | 101000.0000 |     - | 1280240000 B |
+             SmallObjectSerialize10K | 2,632.0 us |      8.39 us |      7.44 us |    203.1250 |           - |     - |     640036 B |
+       ILGen_SmallObjectSerialize10K | 2,479.2 us |     17.65 us |     16.51 us |    203.1250 |           - |     - |     640002 B |
+           SmallObjectDeserialize10K | 2,711.0 us |      7.88 us |      7.37 us |    378.9063 |           - |     - |    1200064 B |
+     ILGen_SmallObjectDeserialize10K | 2,589.0 us |     18.09 us |     16.92 us |    378.9063 |           - |     - |    1200002 B |
+            ILGen_VectorSerialize10K | 1,168.4 us |      3.19 us |      2.98 us |           - |           - |     - |         14 B |
+          ILGen_VectorDeserialize10K | 1,181.2 us |      5.69 us |      5.04 us |           - |           - |     - |          1 B |
+               ILGen_IntSerialize10K |   160.7 us |      0.31 us |      0.29 us |           - |           - |     - |            - |
+             ILGen_IntDeserialize10K |   141.9 us |      0.34 us |      0.31 us |           - |           - |     - |            - |
+        SmallObjectArraySerialize10K | 2,932.0 ms | 12,787.97 us | 11,961.88 us | 204000.0000 |           - |     - |  640096720 B |
+      SmallObjectArrayDeserialize10K | 3,202.0 ms | 17,691.45 us | 15,683.01 us | 408000.0000 |           - |     - | 1280302168 B |
+  ILGen_SmallObjectArraySerialize10K | 2,077.0 ms | 13,372.43 us | 12,508.58 us | 204000.0000 |           - |     - |  640065608 B |
+ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us | 308000.0000 | 101000.0000 |     - | 1280240000 B |
         */
 
         static byte[] backingBuffer;
@@ -651,13 +651,21 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421,800.7 us | 19,713.62 us | 18,440.13
             public long Long;
         }
 
+        [RePacker]
+        public struct HasUnmanagedIList
+        {
+            public float Float;
+            public IList<int> Ints;
+            public double Double;
+        }
+
         public static void Main(string[] args)
         {
             TypeCache.Init();
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             /* var personArray = Enumerable.Range(0, 1000).Select(e => new ZeroFormatterBench.Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = ZeroFormatterBench.Sex.Female }).ToArray();
@@ -803,6 +811,20 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421,800.7 us | 19,713.62 us | 18,440.13
             
             var fromBuf = RePacker.Unpack<StructWithArray>(buffer);
             RePacker.Log<StructWithArray>(ref fromBuf); */
+
+            var hml = new HasUnmanagedIList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List<int>{1,2,3,4,5,6,7,8,9,0},
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+            var fromBuf = RePacker.Unpack<HasUnmanagedIList>(buffer);
+
+            RePacker.Log<HasUnmanagedIList>(ref fromBuf);
         }
     }
 }

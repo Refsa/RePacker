@@ -6,6 +6,7 @@ using System;
 
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 using ReadOnlyBuffer = Refsa.RePacker.Buffers.ReadOnlyBuffer;
+using System.Collections.Generic;
 
 namespace Refsa.RePacker.Tests
 {
@@ -594,6 +595,41 @@ namespace Refsa.RePacker.Tests
             {
                 Assert.Equal(iac.ArrayOfClass[i].Float, fromBuf.ArrayOfClass[i].Float);
                 Assert.Equal(iac.ArrayOfClass[i].Int, fromBuf.ArrayOfClass[i].Int);
+            }
+        }
+
+        [RePacker]
+        public struct HasUnmanagedIList
+        {
+            public float Float;
+            public IList<int> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void ilist_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedIList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List<int>{1,2,3,4,5,6,7,8,9,0},
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasUnmanagedIList>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i], fromBuf.Ints[i]);
             }
         }
     }

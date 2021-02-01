@@ -49,5 +49,32 @@ namespace Refsa.RePacker.Utils
                 return false;
             }
         }
+
+        public static bool HasInterface<T>(this Type type)
+        {
+            foreach (var interfaceType in type.GetInterfaces())
+            {
+                if (interfaceType == type)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool HasInterface(this Type type, Type interfaceType)
+        {
+            Console.WriteLine(type + " - " + interfaceType.MakeGenericType(type.GenericTypeArguments[0]));
+            foreach (var it in type.GetInterfaces())
+            {
+                if (interfaceType == it)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

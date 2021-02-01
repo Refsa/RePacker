@@ -1,0 +1,33 @@
+General:
+- Clean up project structure making proper sub-projects for everything
+- Clean up the IL and code gen mess in SerializerBuilder.cs
+- Clean up interfacing with Buffer in Serializer.cs
+- Remove ReadOnlyBuffer altogether? 
+- Figure out a way around using BoxedBuffer for IL generated stuff, not a huge deal since buffers should be pooled
+- Allow ISerializer to override all other types of serialization in code gen
+- Allow Identifier attribute to control ordering
+- Meta data? insert version, type name, etc. so it's easier to deserialize in other languages.
+    Should move this to user settings so they can be toggled on/off for better performance
+    The cost of inserting a header is fairly low though, so might be worth it
+
+Base Serializer:
+    Still missing support for a lot of standard types
+
+    Sort of sorted by importance:
+    - ICollection<T>
+        - IList<T>
+        - IEnumerable<T>
+        - ISet<T>
+    - IDictionary<K, V>
+    - Tuples
+
+
+Handling of 3rd part types:
+    Need a good way to handle types we cant attach an attribute to or inherit from
+    Idea:
+        - Make a [RePackerWrapper(Type)] attribute to put above a class
+        - Make an interface to create Serialize and Deserialize methods (already have ISerializer, but need a boxed version)
+        - Create a cache over these classes and redirect the calls to serialize
+
+        Main problem is dealing with deseralizing into the right context. We need a type that will receive this data
+        and we might not be able to create that in a safe way.

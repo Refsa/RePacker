@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Unsafe;
@@ -54,7 +56,7 @@ namespace Refsa.RePacker
             return "";
         }
 
-        public static void DecodeString(this ref Buffer buffer, out string value)
+        public static void UnpackString(this ref Buffer buffer, out string value)
         {
             buffer.Pop<ulong>(out ulong length);
             int start = buffer.Cursor();
@@ -160,7 +162,7 @@ namespace Refsa.RePacker
             return span.ToArray();
         }
 
-        public static void DecodeBlittableArrayOut<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
+        public static void UnpackBlittableArray<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
         {
             buffer.Pop<ulong>(out ulong length);
             var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
@@ -220,6 +222,63 @@ namespace Refsa.RePacker
             else
             {
                 data = null;
+            }
+        }
+
+        public static void PackIList<T>(this BoxedBuffer buffer, IList<T> data)
+        {
+            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            {
+                ulong dataLen = (ulong)data.Count;
+                buffer.Buffer.Push<ulong>(ref dataLen);
+
+                for (int i = 0; i < data.Count; i++)
+                {
+                    var ele = data[i];
+                    packer.Pack<T>(buffer, ref ele);
+                }
+            }
+        }
+
+        public static void UnpackIList<T>(this BoxedBuffer buffer, out IList<T> data)
+        {
+            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            {
+                buffer.Buffer.Pop<ulong>(out ulong len);
+
+                data = new List<T>();
+                for (int i = 0; i < (int)len; i++)
+                {
+                    data.Add(RePacker.Unpack<T>(buffer));
+                }
+            }
+            else
+            {
+                data = null;
+            }
+        }
+
+        public static void PackIListBlittable<T>(this BoxedBuffer buffer, IList<T> data) where T : unmanaged
+        {
+            ulong dataLen = (ulong)data.Count;
+            buffer.Buffer.Push<ulong>(ref dataLen);
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                var ele = data[i];
+                buffer.Buffer.Push<T>(ref ele);
+            }
+        }
+
+        public static void UnpackIListBlittable<T>(this BoxedBuffer buffer, out IList<T> data) where T : unmanaged
+        {
+            buffer.Buffer.Pop<ulong>(out ulong len);
+
+            data = new List<T>();
+            for (int i = 0; i < (int)len; i++)
+            {
+                buffer.Buffer.Pop<T>(out T value);
+                data.Add(value);
             }
         }
     }
