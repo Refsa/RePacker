@@ -127,6 +127,19 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class ZeroFormatterBench
     {
+/* @commit d9f8f04e70e77cb4ed3515be032a2bf6e6147a44
+|                          Method |       Mean |    Error |   StdDev |    Gen 0 | Gen 1 | Gen 2 | Allocated |
+|-------------------------------- |-----------:|---------:|---------:|---------:|------:|------:|----------:|
+|         SmallObjectSerialize10K | 2,971.5 us |  7.25 us |  6.43 us | 203.1250 |     - |     - |  640034 B |
+|   ILGen_SmallObjectSerialize10K | 2,309.6 us | 11.45 us | 10.71 us | 203.1250 |     - |     - |  640005 B |
+|       SmallObjectDeserialize10K | 2,703.4 us |  5.05 us |  4.72 us | 378.9063 |     - |     - | 1200064 B |
+| ILGen_SmallObjectDeserialize10K | 2,572.5 us | 16.65 us | 15.58 us | 378.9063 |     - |     - | 1200005 B |
+|        ILGen_VectorSerialize10K | 1,142.6 us |  1.72 us |  1.61 us |        - |     - |     - |       6 B |
+|      ILGen_VectorDeserialize10K | 1,156.5 us |  6.52 us |  6.10 us |        - |     - |     - |       1 B |
+|           ILGen_IntSerialize10K |   162.9 us |  0.32 us |  0.30 us |        - |     - |     - |         - |
+|         ILGen_IntDeserialize10K |   150.0 us |  0.48 us |  0.45 us |        - |     - |     - |         - |
+*/
+
         static byte[] backingBuffer;
         static Buffer buffer;
         static BoxedBuffer boxedBuffer;
@@ -601,7 +614,7 @@ namespace Refsa.RePacker.Benchmarks
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             // object[] param = new object[] { 1.234f, 15, (byte)127 };
@@ -707,7 +720,7 @@ namespace Refsa.RePacker.Benchmarks
 
             RePacker.Log<RootType>(ref fromBuf); */
 
-            /* var swa = new StructWithArray
+            var swa = new StructWithArray
             {
                 Int = 1337,
                 Long = -123456789,
@@ -719,9 +732,9 @@ namespace Refsa.RePacker.Benchmarks
             var buffer = new BoxedBuffer(1024);
 
             RePacker.Pack<StructWithArray>(buffer, ref swa);
+            
             var fromBuf = RePacker.Unpack<StructWithArray>(buffer);
-
-            RePacker.Log<StructWithArray>(ref fromBuf); */
+            RePacker.Log<StructWithArray>(ref fromBuf);
         }
     }
 }

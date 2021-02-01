@@ -26,8 +26,6 @@ namespace Refsa.RePacker.Buffers
             MemoryMarshal.Write(span, ref value);
             writeCursor += size;
 
-            // Console.WriteLine(typeof(T).Name + ": " + value);
-
             return this;
         }
 

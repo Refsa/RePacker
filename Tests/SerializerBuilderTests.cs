@@ -303,28 +303,28 @@ namespace Refsa.RePacker.Tests
 
 
         [RePacker]
-        public struct Parent
+        public struct ParentWithNestedStruct
         {
             public float Float;
-            public Child Child;
+            public ChildStruct Child;
             public ulong ULong;
         }
 
         [RePacker]
-        public struct Child
+        public struct ChildStruct
         {
             public float Float;
             public byte Byte;
         }
 
         [Fact]
-        public void can_handle_nested_hierarchies()
+        public void can_handle_nested_struct_hierarchies()
         {
-            var p = new Parent
+            var p = new ParentWithNestedStruct
             {
                 Float = 1.337f,
                 ULong = 987654321,
-                Child = new Child
+                Child = new ChildStruct
                 {
                     Float = 10f,
                     Byte = 120,
@@ -333,13 +333,53 @@ namespace Refsa.RePacker.Tests
 
             var buffer = new BoxedBuffer(1024);
 
-            RePacker.Pack<Parent>(buffer, ref p);
-            var fromBuf = RePacker.Unpack<Parent>(buffer);
+            RePacker.Pack<ParentWithNestedStruct>(buffer, ref p);
+            var fromBuf = RePacker.Unpack<ParentWithNestedStruct>(buffer);
 
             Assert.Equal(p.Float, fromBuf.Float);
             Assert.Equal(p.ULong, fromBuf.ULong);
             Assert.Equal(p.Child.Float, fromBuf.Child.Float);
             Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
+        }
+
+        [RePacker]
+        public struct ParentWithNestedClass
+        {
+            public float Float;
+            public ChildClass Child;
+            public ulong ULong;
+        }
+
+        [Fact]
+        public void can_handle_nested_class_hierarchies()
+        {
+            var p = new ParentWithNestedClass
+            {
+                Float = 1.337f,
+                ULong = 987654321,
+                Child = new ChildClass
+                {
+                    Float = 10f,
+                    Byte = 120,
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<ParentWithNestedClass>(buffer, ref p);
+            var fromBuf = RePacker.Unpack<ParentWithNestedClass>(buffer);
+
+            Assert.Equal(p.Float, fromBuf.Float);
+            Assert.Equal(p.ULong, fromBuf.ULong);
+            Assert.Equal(p.Child.Float, fromBuf.Child.Float);
+            Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
+        }
+
+        [RePacker]
+        public class ChildClass
+        {
+            public float Float;
+            public byte Byte;
         }
 
         [RePacker]
@@ -406,6 +446,155 @@ namespace Refsa.RePacker.Tests
 
             Assert.Equal(data.Int, fromBuf.Int);
             Assert.Equal(data.Float, fromBuf.Float);
+        }
+
+        [RePacker]
+        public struct StructWithUnmanagedArray
+        {
+            public int Int;
+            public float[] Floats;
+            public long Long;
+        }
+
+        [Fact]
+        public void struct_with_array_of_unmanaged_types()
+        {
+            var swa = new StructWithUnmanagedArray
+            {
+                Int = 1337,
+                Long = -123456789,
+                Floats = new float[] {
+                    0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<StructWithUnmanagedArray>(buffer, ref swa);
+            var fromBuf = RePacker.Unpack<StructWithUnmanagedArray>(buffer);
+
+            Assert.Equal(swa.Int, fromBuf.Int);
+            Assert.Equal(swa.Long, fromBuf.Long);
+
+            for (int i = 0; i < swa.Floats.Length; i++)
+            {
+                Assert.Equal(swa.Floats[i], fromBuf.Floats[i]);
+            }
+        }
+
+        [RePacker]
+        public struct StructWithBlittableArray
+        {
+            public int Int;
+            public ChildStruct[] Blittable;
+            public long Long;
+        }
+
+        [Fact]
+        public void struct_with_array_of_blittable_types()
+        {
+            var swa = new StructWithBlittableArray
+            {
+                Int = 1337,
+                Long = -123456789,
+                Blittable = new ChildStruct[] {
+                    new ChildStruct
+                    {
+                        Float = 10f,
+                        Byte = 120,
+                    },
+                    new ChildStruct
+                    {
+                        Float = 10f,
+                        Byte = 120,
+                    }
+                    ,
+                    new ChildStruct
+                    {
+                        Float = 10f,
+                        Byte = 120,
+                    },
+                    new ChildStruct
+                    {
+                        Float = 10f,
+                        Byte = 120,
+                    }
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<StructWithBlittableArray>(buffer, ref swa);
+            var fromBuf = RePacker.Unpack<StructWithBlittableArray>(buffer);
+
+            Assert.Equal(swa.Int, fromBuf.Int);
+            Assert.Equal(swa.Long, fromBuf.Long);
+
+            for (int i = 0; i < swa.Blittable.Length; i++)
+            {
+                Assert.Equal(swa.Blittable[i].Float, fromBuf.Blittable[i].Float);
+                Assert.Equal(swa.Blittable[i].Byte, fromBuf.Blittable[i].Byte);
+            }
+        }
+
+
+        [RePacker]
+        public class InArrayClass
+        {
+            public float Float;
+            public int Int;
+        }
+
+        [RePacker]
+        public struct HasClassArray
+        {
+            public long Long;
+            public InArrayClass[] ArrayOfClass;
+            public byte Byte;
+        }
+
+        [Fact]
+        public void type_with_array_of_supported_class()
+        {
+            var iac = new HasClassArray{
+                Long = 123412341234,
+                Byte = 23,
+                ArrayOfClass = new InArrayClass[]
+                {
+                    new InArrayClass{
+                        Float = 1234f,
+                        Int = 82345,
+                    },
+                    new InArrayClass{
+                        Float = 1234f,
+                        Int = 82345,
+                    },
+                    new InArrayClass{
+                        Float = 1234f,
+                        Int = 82345,
+                    },
+                    new InArrayClass{
+                        Float = 1234f,
+                        Int = 82345,
+                    }
+                }  
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<HasClassArray>(buffer, ref iac);
+            var fromBuf = RePacker.Unpack<HasClassArray>(buffer);
+
+            Assert.Equal(iac.Byte, fromBuf.Byte);
+            Assert.Equal(iac.Long, fromBuf.Long);
+
+            Assert.Equal(iac.ArrayOfClass.Length, fromBuf.ArrayOfClass.Length);
+
+            for (int i = 0; i < iac.ArrayOfClass.Length; i++)
+            {
+                Assert.Equal(iac.ArrayOfClass[i].Float, fromBuf.ArrayOfClass[i].Float);
+                Assert.Equal(iac.ArrayOfClass[i].Int, fromBuf.ArrayOfClass[i].Int);
+            }
         }
     }
 }
