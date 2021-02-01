@@ -11,6 +11,11 @@ namespace Refsa.RePacker.Buffers
             Buffer = new Buffer(new byte[size], 0);
         }
 
+        public BoxedBuffer(byte[] buffer)
+        {
+            Buffer = new Buffer(buffer, 0);
+        }
+
         public BoxedBuffer(ref Buffer buffer)
         {
             Buffer = buffer;
