@@ -162,7 +162,8 @@ namespace Refsa.RePacker.Benchmarks
             Unknown, Male, Female,
         }
 
-        class Person : ISerializer
+        // [RePacker]
+        public class Person : ISerializer
         {
             public int Age;
             public string FirstName;
@@ -200,6 +201,18 @@ namespace Refsa.RePacker.Benchmarks
         }
 
         [Benchmark]
+        public void ILGen_SmallObjectSerialize10K()
+        {
+            var buffer = new BoxedBuffer(1024);
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacker.Pack<Person>(buffer, ref p);
+                buffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
         public void SmallObjectDeserialize10K()
         {
             for (int i = 0; i < 10_000; i++)
@@ -210,6 +223,18 @@ namespace Refsa.RePacker.Benchmarks
         }
 
         [Benchmark]
+        public void ILGen_SmallObjectDeserialize10K()
+        {
+            var buffer = new BoxedBuffer(ref personBuffer);
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                var p = RePacker.Unpack<Person>(buffer);
+                buffer.Buffer.Reset();
+            }
+        }
+
+        /* [Benchmark]
         public void SmallObjectArraySerialize10K()
         {
             Buffer buffer = new Buffer(new byte[1 << 16], 0);
@@ -229,7 +254,7 @@ namespace Refsa.RePacker.Benchmarks
                 var p = Serializer.DecodeArray<Person>(ref personArrayBuffer);
                 personArrayBuffer.Reset();
             }
-        }
+        } */
     }
 
     [MemoryDiagnoser]
@@ -414,6 +439,28 @@ namespace Refsa.RePacker.Benchmarks
             public int Int;
         }
 
+        public enum ByteEnum : byte
+        {
+            One = 1,
+            Ten = 10,
+            Hundred = 100,
+        }
+
+        public enum LongEnum : long
+        {
+            Low = -123456789,
+            High = 987654321,
+        }
+
+        [RePacker]
+        public struct StructWithEnum
+        {
+            public float Float;
+            public ByteEnum ByteEnum;
+            public LongEnum LongEnum;
+            public int Int;
+        }
+
         public static void Main(string[] args)
         {
             TypeCache.Init();
@@ -456,21 +503,39 @@ namespace Refsa.RePacker.Benchmarks
             Console.WriteLine($"{des}");
             Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}"); */
 
-            StructWithString sws = new StructWithString
-            {
-                Float = 1.337f,
-                String1 = "Hello",
-                String2 = "World",
-                Int = 1337,
-            };
+            // StructWithString sws = new StructWithString
+            // {
+            //     Float = 1.337f,
+            //     String1 = "Hello",
+            //     String2 = "World",
+            //     Int = 1337,
+            // };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            // BoxedBuffer buffer = new BoxedBuffer(1024);
 
-            RePacker.Pack<StructWithString>(buffer, ref sws);
-            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            // RePacker.Pack<StructWithString>(buffer, ref sws);
+            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
 
-            var fromBuf = RePacker.Unpack<StructWithString>(buffer);
-            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            // var fromBuf = RePacker.Unpack<StructWithString>(buffer);
+            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+
+            // StructWithEnum sws = new StructWithEnum
+            // {
+            //     Float = 1.337f,
+            //     ByteEnum = ByteEnum.Ten,
+            //     LongEnum = LongEnum.High,
+            //     Int = 1337,
+            // };
+
+            // BoxedBuffer buffer = new BoxedBuffer(1024);
+
+            // RePacker.Pack<StructWithEnum>(buffer, ref sws);
+            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+
+            // var fromBuf = RePacker.Unpack<StructWithEnum>(buffer);
+            // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+
+            // RePacker.Log<StructWithEnum>(ref fromBuf);
         }
     }
 }
