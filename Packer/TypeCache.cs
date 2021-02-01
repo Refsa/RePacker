@@ -67,10 +67,10 @@ namespace Refsa.RePacker
                     deserMethodCreators.Add((type, serDelegate));
                 }
 
-                if (SerializerBuilder.CreateTestMethod(info) is Func<Delegate> testDelegate)
-                {
-                    testMethodCreators.Add((type, testDelegate));
-                }
+                // if (SerializerBuilder.CreateTestMethod(info) is Func<Delegate> testDelegate)
+                // {
+                //     testMethodCreators.Add((type, testDelegate));
+                // }
 
                 if (SerializerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
                 {

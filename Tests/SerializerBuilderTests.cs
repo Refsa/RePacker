@@ -500,24 +500,24 @@ namespace Refsa.RePacker.Tests
                 Blittable = new ChildStruct[] {
                     new ChildStruct
                     {
-                        Float = 10f,
+                        Float = 123f,
                         Byte = 120,
                     },
                     new ChildStruct
                     {
-                        Float = 10f,
-                        Byte = 120,
+                        Float = 63456f,
+                        Byte = 14,
                     }
                     ,
                     new ChildStruct
                     {
-                        Float = 10f,
-                        Byte = 120,
+                        Float = 465f,
+                        Byte = 2,
                     },
                     new ChildStruct
                     {
-                        Float = 10f,
-                        Byte = 120,
+                        Float = 6345f,
+                        Byte = 239,
                     }
                 }
             };
@@ -566,16 +566,16 @@ namespace Refsa.RePacker.Tests
                         Int = 82345,
                     },
                     new InArrayClass{
-                        Float = 1234f,
-                        Int = 82345,
+                        Float = 7645f,
+                        Int = 1234356,
                     },
                     new InArrayClass{
-                        Float = 1234f,
-                        Int = 82345,
+                        Float = 74f,
+                        Int = 43,
                     },
                     new InArrayClass{
-                        Float = 1234f,
-                        Int = 82345,
+                        Float = 4567f,
+                        Int = 46723,
                     }
                 }  
             };
