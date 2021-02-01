@@ -138,7 +138,7 @@ namespace Refsa.RePacker
                     HasCustomSerializer = type.GetInterface(nameof(ISerializer)) != null,
                 };
 
-                if (!tci.HasCustomSerializer)
+                // if (!tci.HasCustomSerializer)
                 {
                     var fields =
                         type
@@ -166,6 +166,16 @@ namespace Refsa.RePacker
         public static bool TryGetTypeInfo(Type type, out Info typeCacheInfo)
         {
             if (typeCache.TryGetValue(type, out typeCacheInfo))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool TryGetTypePacker(Type type, out TypePacker packer)
+        {
+            if (packerLookup.TryGetValue(type, out packer))
             {
                 return true;
             }
