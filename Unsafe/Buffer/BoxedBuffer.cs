@@ -15,6 +15,11 @@ namespace Refsa.RePacker.Buffers
         {
             Buffer = buffer;
         }
+
+        public BoxedBuffer(ref ReadOnlyBuffer buffer)
+        {
+            Buffer = buffer.ToRegular();
+        }
     }
 
     public class BoxedReadBuffer

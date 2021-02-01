@@ -66,5 +66,10 @@ namespace Refsa.RePacker.Buffers
         {
             cursor = 0;
         }
+
+        public Buffer ToRegular()
+        {
+            return new Buffer(MemoryMarshal.AsMemory<byte>(buffer), Index);
+        }
     }
 }
