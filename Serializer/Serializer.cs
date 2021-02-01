@@ -54,7 +54,7 @@ namespace Refsa.RePacker
             return "";
         }
 
-        public static void DecodeString(ref Buffer buffer, out string value)
+        public static void DecodeString(this ref Buffer buffer, out string value)
         {
             buffer.Pop<ulong>(out ulong length);
             int start = buffer.Cursor();
