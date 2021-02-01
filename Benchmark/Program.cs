@@ -260,6 +260,7 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class ILGenerated
     {
+        static byte[] backingBuffer = new byte[1024];
         const int RUNS = 100_000;
 
         [Benchmark]
@@ -282,12 +283,12 @@ namespace Refsa.RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            BoxedBuffer boxedBuffer = new BoxedBuffer(1024);
+            BoxedBuffer boxedBuffer = new BoxedBuffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
-                TypeCache.Serialize<Program.TestStruct2>(boxedBuffer, ref ts2);
-                var _ = TypeCache.Deserialize<Program.TestStruct2>(boxedBuffer);
+                RePacker.Pack<Program.TestStruct2>(boxedBuffer, ref ts2);
+                var _ = RePacker.Unpack<Program.TestStruct2>(boxedBuffer);
 
                 boxedBuffer.Buffer.Reset();
             }
@@ -313,7 +314,7 @@ namespace Refsa.RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            Buffer buffer = new Buffer(new byte[1024], 0);
+            Buffer buffer = new Buffer(backingBuffer, 0);
 
             for (int i = 0; i < RUNS; i++)
             {
@@ -344,7 +345,7 @@ namespace Refsa.RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            BoxedBuffer boxedBuffer = new BoxedBuffer(1024);
+            BoxedBuffer boxedBuffer = new BoxedBuffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
@@ -352,6 +353,30 @@ namespace Refsa.RePacker.Benchmarks
                 var _ = TypeCache.Deserialize<Program.TestClass2>(boxedBuffer);
 
                 boxedBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void BenchNestedTypesILGen()
+        {
+            var p = new Program.Parent
+            {
+                Float = 1.337f,
+                ULong = 987654321,
+                Child = new Program.Child
+                {
+                    Float = 10f,
+                    Byte = 120,
+                },
+            };
+
+            var buffer = new BoxedBuffer(backingBuffer);
+
+            for (int i = 0; i < 100_000; i++)
+            {
+                RePacker.Pack<Program.Parent>(buffer, ref p);
+                var fromBuf = RePacker.Unpack<Program.Parent>(buffer);
+                buffer.Buffer.Reset();
             }
         }
     }
@@ -468,7 +493,7 @@ namespace Refsa.RePacker.Benchmarks
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
             // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
-            // var summary2 = BenchmarkRunner.Run<ILGenerated>();
+            var summary2 = BenchmarkRunner.Run<ILGenerated>();
 
             // object[] param = new object[] { 1.234f, 15, (byte)127 };
             // Program.TestStruct test = (Program.TestStruct)TypeCache.CreateInstance(typeof(Program.TestStruct), param);
@@ -536,6 +561,39 @@ namespace Refsa.RePacker.Benchmarks
             // Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
 
             // RePacker.Log<StructWithEnum>(ref fromBuf);
+
+            /* var p = new Parent
+            {
+                Float = 1.337f,
+                ULong = 987654321,
+                Child = new Child
+                {
+                    Float = 10f,
+                    Byte = 120,
+                },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<Parent>(buffer, ref p);
+
+            var fromBuf = RePacker.Unpack<Parent>(buffer);
+            RePacker.Log<Parent>(ref fromBuf); */
+        }
+
+        [RePacker]
+        public struct Parent
+        {
+            public float Float;
+            public Child Child;
+            public ulong ULong;
+        }
+
+        [RePacker]
+        public struct Child
+        {
+            public double Float;
+            public byte Byte;
         }
     }
 }

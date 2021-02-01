@@ -300,5 +300,46 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(p.LastName, fromBuf.LastName);
             Assert.Equal(p.Sex, fromBuf.Sex);
         }
+
+
+        [RePacker]
+        public struct Parent
+        {
+            public float Float;
+            public Child Child;
+            public ulong ULong;
+        }
+
+        [RePacker]
+        public struct Child
+        {
+            public float Float;
+            public byte Byte;
+        }
+
+        [Fact]
+        public void can_handle_nested_hierarchies()
+        {
+            var p = new Parent
+            {
+                Float = 1.337f,
+                ULong = 987654321,
+                Child = new Child
+                {
+                    Float = 10f,
+                    Byte = 120,
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<Parent>(buffer, ref p);
+            var fromBuf = RePacker.Unpack<Parent>(buffer);
+
+            Assert.Equal(p.Float, fromBuf.Float);
+            Assert.Equal(p.ULong, fromBuf.ULong);
+            Assert.Equal(p.Child.Float, fromBuf.Child.Float);
+            Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
+        }
     }
 }
