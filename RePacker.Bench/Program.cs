@@ -149,9 +149,9 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
         static BoxedBuffer boxedBuffer;
 
         Person[] personArray;
-        ReadOnlyBuffer personBuffer;
+        Buffer personBuffer;
         BoxedBuffer personBoxedBuffer;
-        ReadOnlyBuffer personArrayBuffer;
+        Buffer personArrayBuffer;
 
         BoxedBuffer personArrayBoxedBuffer;
         PersonArrayContainer personArrayContainer;
@@ -180,14 +180,14 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
 
                 var _personBuffer = new Buffer(new byte[1024], 0);
                 _personBuffer.Encode(p);
-                personBuffer = new ReadOnlyBuffer(ref _personBuffer);
+                personBuffer = new Buffer(ref _personBuffer);
 
                 personBoxedBuffer = new BoxedBuffer(1024);
                 RePacker.Pack<Person>(personBoxedBuffer, ref p);
 
                 var _personArrayBuffer = new Buffer(new byte[1 << 16], 0);
                 _personArrayBuffer.EncodeArray<Person>(personArray);
-                personArrayBuffer = new ReadOnlyBuffer(ref _personArrayBuffer);
+                personArrayBuffer = new Buffer(ref _personArrayBuffer);
 
                 personArrayBoxedBuffer = new BoxedBuffer(1 << 16);
                 personArrayContainer = new PersonArrayContainer
@@ -222,7 +222,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             public string LastName;
             public Sex Sex;
 
-            public void FromBuffer(ref ReadOnlyBuffer buffer)
+            public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Age);
                 FirstName = buffer.DecodeString();

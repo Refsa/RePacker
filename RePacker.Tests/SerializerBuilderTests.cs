@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System;
 
 using Buffer = Refsa.RePacker.Buffers.Buffer;
-using ReadOnlyBuffer = Refsa.RePacker.Buffers.ReadOnlyBuffer;
 using System.Collections.Generic;
 
 namespace Refsa.RePacker.Tests

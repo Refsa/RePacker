@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System;
 
 using Buffer = Refsa.RePacker.Buffers.Buffer;
-using ReadOnlyBuffer = Refsa.RePacker.Buffers.ReadOnlyBuffer;
 
 namespace Refsa.RePacker.Tests
 {
@@ -24,7 +23,7 @@ namespace Refsa.RePacker.Tests
 
             buffer.EncodeString(ref testString);
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             string fromBuf = readBuffer.DecodeString();
 
             Assert.Equal(testString, fromBuf);
@@ -48,7 +47,7 @@ namespace Refsa.RePacker.Tests
 
             Assert.Equal(sizeof(byte), buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             TestByteEnum fromBuf = readBuffer.DecodeEnum<TestByteEnum>();
 
             Assert.Equal(testEnum, fromBuf);
@@ -72,7 +71,7 @@ namespace Refsa.RePacker.Tests
 
             Assert.Equal(sizeof(ulong), buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             TestULongEnum fromBuf = readBuffer.DecodeEnum<TestULongEnum>();
 
             Assert.Equal(testEnum, fromBuf);
@@ -89,7 +88,7 @@ namespace Refsa.RePacker.Tests
             buffer.EncodeBlittableArray<byte>(testArray);
             Assert.Equal(64 + sizeof(ulong), buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             byte[] fromBuf = readBuffer.DecodeBlittableArray<byte>();
 
             for (int i = 0; i < 64; i++)
@@ -109,7 +108,7 @@ namespace Refsa.RePacker.Tests
             buffer.EncodeBlittableArray<int>(testArray);
             Assert.Equal(32 * sizeof(int) + sizeof(ulong), buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             int[] fromBuf = readBuffer.DecodeBlittableArray<int>();
 
             for (int i = 0; i < 32; i++)
@@ -141,7 +140,7 @@ namespace Refsa.RePacker.Tests
 
             Assert.Equal(32 * Marshal.SizeOf<TestBlitStruct>() + sizeof(ulong), buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             TestBlitStruct[] fromBuf = readBuffer.DecodeBlittableArray<TestBlitStruct>();
 
             for (int i = 0; i < 32; i++)
@@ -156,7 +155,7 @@ namespace Refsa.RePacker.Tests
             public int Int;
             public string String;
 
-            public void FromBuffer(ref ReadOnlyBuffer buffer)
+            public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Int);
                 String = buffer.DecodeString();
@@ -182,7 +181,7 @@ namespace Refsa.RePacker.Tests
 
             buffer.Encode(testData);
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             var fromBuf = (TestManagedStruct)Serializer.Decode(ref readBuffer, typeof(TestManagedStruct));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
@@ -203,7 +202,7 @@ namespace Refsa.RePacker.Tests
             buffer.EncodeArray(testData);
             // Assert.Equal((sizeof(ulong) + 12 + sizeof(int)) * 16, buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             TestManagedStruct[] fromBuf = readBuffer.DecodeArray<TestManagedStruct>();
 
             for (int i = 0; i < 16; i++)
@@ -218,7 +217,7 @@ namespace Refsa.RePacker.Tests
             public int Int;
             public string String;
 
-            public void FromBuffer(ref ReadOnlyBuffer buffer)
+            public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Int);
                 String = buffer.DecodeString();
@@ -244,7 +243,7 @@ namespace Refsa.RePacker.Tests
 
             buffer.Encode(testData);
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             var fromBuf = (TestManagedClass)Serializer.Decode(ref readBuffer, typeof(TestManagedClass));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
@@ -266,7 +265,7 @@ namespace Refsa.RePacker.Tests
             buffer.EncodeArray(testData);
             // Assert.Equal((sizeof(ulong) + 12 + sizeof(int)) * 16, buffer.Count());
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             TestManagedClass[] fromBuf = readBuffer.DecodeArray<TestManagedClass>();
 
             for (int i = 0; i < 16; i++)
@@ -289,7 +288,7 @@ namespace Refsa.RePacker.Tests
             public string LastName;
             public Sex Sex;
 
-            public void FromBuffer(ref ReadOnlyBuffer buffer)
+            public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Age);
                 FirstName = buffer.DecodeString();
@@ -322,7 +321,7 @@ namespace Refsa.RePacker.Tests
 
             buffer.Encode(p);
 
-            var readBuffer = new ReadOnlyBuffer(ref buffer);
+            var readBuffer = new Buffer(ref buffer);
             var fromBuf = readBuffer.Decode<Person>();
 
             Assert.Equal(p.Age, fromBuf.Age);

@@ -1,5 +1,5 @@
 General:
-- Clean up project structure making proper sub-projects for everything
+✔ Clean up project structure making proper sub-projects for everything @done(21-02-02 06:44)
 - Clean up the IL and code gen mess in SerializerBuilder.cs
 - Clean up interfacing with Buffer in Serializer.cs
 - Remove ReadOnlyBuffer altogether? 

@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Unsafe;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
-using ReadOnlyBuffer = Refsa.RePacker.Buffers.ReadOnlyBuffer;
 
 namespace Refsa.RePacker
 {
@@ -16,7 +15,7 @@ namespace Refsa.RePacker
             target.ToBuffer(ref buffer);
         }
 
-        public static object Decode(this ref ReadOnlyBuffer buffer, Type type)
+        public static object Decode(this ref Buffer buffer, Type type)
         {
             ISerializer instance = Activator.CreateInstance(type) as ISerializer;
 
@@ -25,7 +24,7 @@ namespace Refsa.RePacker
             return instance;
         }
 
-        public static T Decode<T>(this ref ReadOnlyBuffer buffer)
+        public static T Decode<T>(this ref Buffer buffer)
         {
             ISerializer instance = Activator.CreateInstance(typeof(T)) as ISerializer;
 
@@ -43,7 +42,7 @@ namespace Refsa.RePacker
             buffer.Write(new ReadOnlySpan<byte>(bytes));
         }
 
-        public static string DecodeString(this ref ReadOnlyBuffer buffer)
+        public static string DecodeString(this ref Buffer buffer)
         {
             buffer.Pop<ulong>(out ulong length);
             int start = buffer.Cursor();
@@ -111,7 +110,7 @@ namespace Refsa.RePacker
             }
         }
 
-        public static TEnum DecodeEnum<TEnum>(this ref ReadOnlyBuffer buffer) where TEnum : unmanaged, Enum
+        public static TEnum DecodeEnum<TEnum>(this ref Buffer buffer) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
 
@@ -155,7 +154,7 @@ namespace Refsa.RePacker
             buffer.Write(span);
         }
 
-        public static T[] DecodeBlittableArray<T>(this ref ReadOnlyBuffer buffer) where T : unmanaged
+        public static T[] DecodeBlittableArray<T>(this ref Buffer buffer) where T : unmanaged
         {
             buffer.Pop<ulong>(out ulong length);
             var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
@@ -180,7 +179,7 @@ namespace Refsa.RePacker
             }
         }
 
-        public static T[] DecodeArray<T>(this ref ReadOnlyBuffer buffer) where T : ISerializer
+        public static T[] DecodeArray<T>(this ref Buffer buffer) where T : ISerializer
         {
             buffer.Pop<ulong>(out ulong length);
 

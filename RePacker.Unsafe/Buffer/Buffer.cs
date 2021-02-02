@@ -10,13 +10,21 @@ namespace Refsa.RePacker.Buffers
         int readCursor;
         public int Index;
 
-        public Buffer(Memory<byte> buffer, int index, int offset = 0)
+        public Buffer(Memory<byte> buffer, int index = 0, int offset = 0)
         {
             this.buffer = buffer;
             Index = index;
 
             this.writeCursor = offset;
             this.readCursor = 0;
+        }
+
+        public Buffer(ref Buffer buffer)
+        {
+            this.buffer = buffer.buffer;
+            this.Index = buffer.Index;
+            this.writeCursor = buffer.writeCursor;
+            this.readCursor = buffer.readCursor;
         }
 
         public Buffer Push<T>(ref T value) where T : unmanaged
