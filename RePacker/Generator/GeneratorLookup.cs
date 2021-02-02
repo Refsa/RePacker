@@ -24,6 +24,7 @@ namespace Refsa.RePacker.Generator
                     {typeof(Array), new ArrayGenerator()},
                     {typeof(IList<>), new IListGenerator()},
                     {typeof(IEnumerable<>), new IEnumerableGenerator()},
+                    {typeof(Dictionary<,>), new DictionaryGenerator()},
                 }},
                 {GeneratorType.RePacker, new Dictionary<Type, IGenerator>() {
                     {Type.Missing.GetType(), new RePackerGenerator()}

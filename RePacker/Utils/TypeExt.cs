@@ -95,5 +95,14 @@ namespace Refsa.RePacker.Utils
                 type == genericListType ||
                 genericListType.IsAssignableFrom(type);
         }
+
+        public static bool IsOfDictionary(this Type type)
+        {
+            var genericDictType = typeof(Dictionary<,>).MakeGenericType(type.GenericTypeArguments);
+
+            return
+                type == genericDictType ||
+                genericDictType.IsAssignableFrom(type);
+        }
     }
 }

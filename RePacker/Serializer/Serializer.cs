@@ -343,17 +343,6 @@ namespace Refsa.RePacker
             data = CreateBaseIEnumerableType<T>(type, ref temp_data);
         }
 
-        static IList<T> CreateBaseIListType<T>(IListType type)
-        {
-            switch (type)
-            {
-                case IListType.List:
-                    return new List<T>();
-                default:
-                    return new List<T>();
-            }
-        }
-
         static IEnumerable<T> CreateBaseIEnumerableType<T>(IEnumerableType type, ref Span<T> from)
         {
             if (type == IEnumerableType.Queue)
@@ -385,6 +374,16 @@ namespace Refsa.RePacker
             }
 
             return from.ToArray();
+        }
+
+        public static void RecreateDictionary<K, V>(IList<K> keys, IList<V> values, out Dictionary<K, V> dict)
+        {
+            dict = new Dictionary<K, V>();
+
+            for (int i = 0; i < keys.Count; i++)
+            {
+                dict.Add(keys[i], values[i]);
+            }
         }
     }
 

@@ -166,6 +166,10 @@ namespace Refsa.RePacker.Builder
                                 {
                                     (gt, t) = (GeneratorType.Object, typeof(IEnumerable<>));
                                 }
+                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfDictionary())
+                                {
+                                    (gt, t) = (GeneratorType.Object, typeof(Dictionary<,>));
+                                }
                                 else
                                 {
                                     ilGen.EmitWriteLine($"RePacker - Unpack: Object of type {field.FieldType.Name} is not supported");
@@ -320,6 +324,10 @@ namespace Refsa.RePacker.Builder
                                 else if (field.FieldType.IsGenericType && field.FieldType.IsOfIEnumerable())
                                 {
                                     (gt, t) = (GeneratorType.Object, typeof(IEnumerable<>));
+                                }
+                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfDictionary())
+                                {
+                                    (gt, t) = (GeneratorType.Object, typeof(Dictionary<,>));
                                 }
                                 else
                                 {
