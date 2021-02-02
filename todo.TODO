@@ -2,7 +2,7 @@ General:
 ✔ Clean up project structure making proper sub-projects for everything @done(21-02-02 06:44)
 - Clean up the IL and code gen mess in SerializerBuilder.cs
 - Clean up interfacing with Buffer in Serializer.cs
-- Remove ReadOnlyBuffer altogether? 
+✔ Remove ReadOnlyBuffer altogether? @done(21-02-02 06:48)
 - Figure out a way around using BoxedBuffer for IL generated stuff, not a huge deal since buffers should be pooled
 - Allow ISerializer to override all other types of serialization in code gen
 - Allow Identifier attribute to control ordering
@@ -31,3 +31,4 @@ Handling of 3rd part types:
 
         Main problem is dealing with deseralizing into the right context. We need a type that will receive this data
         and we might not be able to create that in a safe way.
+Archive:

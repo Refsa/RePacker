@@ -13,6 +13,7 @@ using Refsa.RePacker.Unsafe;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 using System.Linq;
 using System.Collections.Generic;
+using Refsa.RePacker.Generator;
 
 namespace Refsa.RePacker.Benchmarks
 {
@@ -825,6 +826,21 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             var fromBuf = RePacker.Unpack<HasUnmanagedIList>(buffer);
 
             RePacker.Log<HasUnmanagedIList>(ref fromBuf); */
+
+            // var generator = GeneratorLookup.Get(GeneratorType.Struct, null);
+            // Console.WriteLine(generator);
+
+            var um = new UnmanagedStruct
+            {
+                Int = 1337,
+                ULong = 9876543210,
+            };
+
+            var buffer = new BoxedBuffer(1024);
+            RePacker.Pack(buffer, ref um);
+            var fromBuf = RePacker.Unpack<UnmanagedStruct>(buffer);
+
+            RePacker.Log<UnmanagedStruct>(ref fromBuf);
         }
     }
 }

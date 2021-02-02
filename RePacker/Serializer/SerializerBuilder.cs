@@ -10,6 +10,7 @@ using System.Reflection.Emit;
 using System.Threading;
 
 using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Generator;
 using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
@@ -61,12 +62,6 @@ namespace Refsa.RePacker.Builder
             MethodInfo bufferPop = typeof(Buffer)
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
                 .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
-
-            MethodInfo deserializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.DeserializeOut));
-            MethodInfo deserializeBlittableArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackBlittableArray));
-            MethodInfo deserializeArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackArray));
-            MethodInfo deserializeIListMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIList));
-            MethodInfo deserializeIListBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIListBlittable));
 
             var parameters = new Type[1];
             MethodInfo bufferPopGeneric = null;
@@ -133,6 +128,8 @@ namespace Refsa.RePacker.Builder
                     }
                     ilGen.Emit(OpCodes.Ldflda, field);
 
+                    (GeneratorType gt, Type t) = (GeneratorType.None, null);
+
                     switch (Type.GetTypeCode(field.FieldType))
                     {
                         // MANAGED DATA
@@ -149,92 +146,22 @@ namespace Refsa.RePacker.Builder
                         case TypeCode.Object:
                             if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))
                             {
-                                var genericSerializer = deserializeTypeMethod.MakeGenericMethod(field.FieldType);
-                                ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
-                                ilGen.Emit(OpCodes.Pop);
+                                (gt, t) = (GeneratorType.RePacker, null);
                             }
                             else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
                             {
-                                // We need to recreate stack with references to value type and Buffer inside BoxedBuffer
-                                ilGen.Emit(OpCodes.Pop);
-                                ilGen.Emit(OpCodes.Pop);
-
-                                ilGen.Emit(OpCodes.Ldarg_0);
-                                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-
-                                ilGen.Emit(OpCodes.Ldloca_S, 0);
-                                ilGen.Emit(OpCodes.Ldflda, field);
-
-                                parameters[0] = field.FieldType;
-                                bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                                ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                                ilGen.Emit(OpCodes.Pop);
+                                (gt, t) = (GeneratorType.Struct, null);
                             }
                             else
                             {
                                 if (field.FieldType.IsArray)
                                 {
-                                    ilGen.Emit(OpCodes.Pop);
-                                    ilGen.Emit(OpCodes.Pop);
-
-                                    var elementType = field.FieldType.GetElementType();
-
-                                    if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-                                        ilGen.Emit(OpCodes.Ldloca_S, 0);
-                                        ilGen.Emit(OpCodes.Ldflda, field);
-
-                                        var arraySerializer = deserializeArrayMethod.MakeGenericMethod(elementType);
-                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
-                                    }
-                                    else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-                                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-
-                                        ilGen.Emit(OpCodes.Ldloca_S, 0);
-                                        ilGen.Emit(OpCodes.Ldflda, field);
-
-                                        var arraySerializer = deserializeBlittableArrayMethod.MakeGenericMethod(elementType);
-                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
-                                    }
-                                    else
-                                    {
-                                        ilGen.EmitWriteLine($"RePacker - Unpack: Array of type {field.FieldType.Name} is not supported");
-                                    }
+                                    (gt, t) = (GeneratorType.Object, typeof(Array));
                                 }
                                 else if (field.FieldType.IsGenericType &&
                                     field.FieldType == typeof(IList<>).MakeGenericType(field.FieldType.GenericTypeArguments[0]))
                                 {
-                                    ilGen.Emit(OpCodes.Pop);
-                                    ilGen.Emit(OpCodes.Pop);
-
-                                    Type listType = field.FieldType.GenericTypeArguments[0];
-
-                                    if (TypeCache.TryGetTypeInfo(listType, out var typeInfo))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-                                        ilGen.Emit(OpCodes.Ldloca_S, 0);
-                                        ilGen.Emit(OpCodes.Ldflda, field);
-
-                                        var listSerializer = deserializeIListMethod.MakeGenericMethod(listType);
-                                        ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
-                                    }
-                                    else if (listType.IsValueType || (listType.IsStruct() && listType.IsUnmanagedStruct()))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-
-                                        ilGen.Emit(OpCodes.Ldloca_S, 0);
-                                        ilGen.Emit(OpCodes.Ldflda, field);
-
-                                        var arraySerializer = deserializeIListBlittableMethod.MakeGenericMethod(listType);
-                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
-                                    }
-                                    else
-                                    {
-                                        ilGen.EmitWriteLine($"RePacker - Unpack: Array of type {field.FieldType.Name} is not supported");
-                                    }
+                                    (gt, t) = (GeneratorType.Object, typeof(IList<>));
                                 }
                                 else
                                 {
@@ -245,91 +172,19 @@ namespace Refsa.RePacker.Builder
                             }
                             break;
                         case TypeCode.String:
-                            var stringDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
-                            var decodeString = typeof(Serializer).GetMethod(nameof(Serializer.UnpackString), stringDecParams);
-
-                            ilGen.EmitCall(OpCodes.Call, decodeString, Type.EmptyTypes);
+                            (gt, t) = (GeneratorType.String, typeof(string));
                             break;
 
                         // UNMANAGED
-                        case TypeCode.Boolean:
-                            parameters[0] = typeof(bool);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
+                        default:
+                            (gt, t) = (GeneratorType.Unmanaged, null);
                             break;
-                        case TypeCode.Char:
-                            parameters[0] = typeof(char);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.SByte:
-                            parameters[0] = typeof(sbyte);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Byte:
-                            parameters[0] = typeof(byte);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Int16:
-                            parameters[0] = typeof(short);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.UInt16:
-                            parameters[0] = typeof(ushort);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Int32:
-                            parameters[0] = typeof(int);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.UInt32:
-                            parameters[0] = typeof(uint);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Int64:
-                            parameters[0] = typeof(long);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.UInt64:
-                            parameters[0] = typeof(ulong);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Single:
-                            parameters[0] = typeof(float);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Double:
-                            parameters[0] = typeof(double);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Decimal:
-                            parameters[0] = typeof(decimal);
-                            bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
+                    }
+
+                    if (gt != GeneratorType.None)
+                    {
+                        var generator = GeneratorLookup.Get(gt, t);
+                        generator.GenerateDeserializer(ilGen, field);
                     }
                 }
                 goto Finished;
@@ -370,13 +225,6 @@ namespace Refsa.RePacker.Builder
                 .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
 
             FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
-            MethodInfo serializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.Serialize));
-
-            MethodInfo serializeBlittableArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.EncodeBlittableArray));
-            MethodInfo serializeArrayMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackArray));
-            MethodInfo serializeIListMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIList));
-            MethodInfo serializeIListBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIListBlittable));
 
             var parameters = new Type[1];
             MethodInfo bufferPushGeneric = null;
@@ -432,6 +280,8 @@ namespace Refsa.RePacker.Builder
                     }
                     ilGen.Emit(OpCodes.Ldflda, field);
 
+                    (GeneratorType gt, Type t) = (GeneratorType.None, null);
+
                     switch (Type.GetTypeCode(field.FieldType))
                     {
                         // MANAGED DATA AND STRUCTS
@@ -448,93 +298,22 @@ namespace Refsa.RePacker.Builder
                         case TypeCode.Object:
                             if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))
                             {
-                                var genericSerializer = serializeTypeMethod.MakeGenericMethod(field.FieldType);
-                                ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+                                (gt, t) = (GeneratorType.RePacker, null);
                             }
                             else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
                             {
-                                // We need to recreate stack with references to value type and Buffer
-                                ilGen.Emit(OpCodes.Pop);
-                                ilGen.Emit(OpCodes.Pop);
-
-                                ilGen.Emit(OpCodes.Ldarg_0);
-                                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-
-                                ilGen.Emit(OpCodes.Ldarga_S, 1);
-                                ilGen.Emit(OpCodes.Ldflda, field);
-
-                                parameters[0] = field.FieldType;
-                                bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                                ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                                ilGen.Emit(OpCodes.Pop);
+                                (gt, t) = (GeneratorType.Struct, null);
                             }
                             else
                             {
                                 if (field.FieldType.IsArray)
                                 {
-                                    ilGen.Emit(OpCodes.Pop);
-                                    ilGen.Emit(OpCodes.Pop);
-
-                                    var elementType = field.FieldType.GetElementType();
-
-                                    if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-                                        ilGen.Emit(OpCodes.Ldarga_S, 1);
-                                        ilGen.Emit(OpCodes.Ldfld, field);
-
-                                        var arraySerializer = serializeArrayMethod.MakeGenericMethod(elementType);
-                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
-                                    }
-                                    else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-                                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-
-                                        ilGen.Emit(OpCodes.Ldarga_S, 1);
-                                        ilGen.Emit(OpCodes.Ldfld, field);
-
-                                        var arraySerializer = serializeBlittableArrayMethod.MakeGenericMethod(elementType);
-                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
-                                    }
-                                    else
-                                    {
-                                        ilGen.EmitWriteLine($"RePacker - Pack: Array of type {field.FieldType.Name} is not supported");
-                                    }
+                                    (gt, t) = (GeneratorType.Object, typeof(Array));
                                 }
                                 else if (field.FieldType.IsGenericType &&
-                                    field.FieldType == typeof(IList<>).MakeGenericType(field.FieldType.GenericTypeArguments[0])
-                                )
+                                    field.FieldType == typeof(IList<>).MakeGenericType(field.FieldType.GenericTypeArguments[0]))
                                 {
-                                    ilGen.Emit(OpCodes.Pop);
-                                    ilGen.Emit(OpCodes.Pop);
-
-                                    Type listType = field.FieldType.GenericTypeArguments[0];
-
-                                    if (TypeCache.TryGetTypeInfo(listType, out var typeInfo))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-
-                                        ilGen.Emit(OpCodes.Ldarga_S, 1);
-                                        ilGen.Emit(OpCodes.Ldfld, field);
-
-                                        var listSerializer = serializeIListMethod.MakeGenericMethod(listType);
-                                        ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
-                                    }
-                                    else if (listType.IsValueType || (listType.IsStruct() && listType.IsUnmanagedStruct()))
-                                    {
-                                        ilGen.Emit(OpCodes.Ldarg_0);
-
-                                        ilGen.Emit(OpCodes.Ldarga_S, 1);
-                                        ilGen.Emit(OpCodes.Ldfld, field);
-
-                                        var arraySerializer = serializeIListBlittableMethod.MakeGenericMethod(listType);
-                                        ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
-                                    }
-                                    else
-                                    {
-                                        ilGen.EmitWriteLine($"RePacker - Pack: IList of type {field.FieldType.Name} is not supported");
-                                    }
+                                    (gt, t) = (GeneratorType.Object, typeof(IList<>));
                                 }
                                 else
                                 {
@@ -545,91 +324,19 @@ namespace Refsa.RePacker.Builder
                             }
                             break;
                         case TypeCode.String:
-                            var encodeString = typeof(Serializer).GetMethod(nameof(Serializer.EncodeString));
-                            var encodeStringParams = new Type[] { typeof(string) };
-                            ilGen.EmitCall(OpCodes.Call, encodeString, Type.EmptyTypes);
-                            // ilGen.Emit(OpCodes.Pop);
+                            (gt, t) = (GeneratorType.String, typeof(string));
                             break;
 
                         // UNMANAGED DATA
-                        case TypeCode.Boolean:
-                            parameters[0] = typeof(bool);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
+                        default:
+                            (gt, t) = (GeneratorType.Unmanaged, null);
                             break;
-                        case TypeCode.Char:
-                            parameters[0] = typeof(char);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.SByte:
-                            parameters[0] = typeof(sbyte);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Byte:
-                            parameters[0] = typeof(byte);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Int16:
-                            parameters[0] = typeof(short);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.UInt16:
-                            parameters[0] = typeof(ushort);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Int32:
-                            parameters[0] = typeof(int);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.UInt32:
-                            parameters[0] = typeof(uint);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Int64:
-                            parameters[0] = typeof(long);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.UInt64:
-                            parameters[0] = typeof(ulong);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Single:
-                            parameters[0] = typeof(float);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Double:
-                            parameters[0] = typeof(double);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
-                        case TypeCode.Decimal:
-                            parameters[0] = typeof(decimal);
-                            bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-                            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                            ilGen.Emit(OpCodes.Pop);
-                            break;
+                    }
+
+                    if (gt != GeneratorType.None)
+                    {
+                        var generator = GeneratorLookup.Get(gt, t);
+                        generator.GenerateSerializer(ilGen, field);
                     }
                 }
                 goto Finished;
