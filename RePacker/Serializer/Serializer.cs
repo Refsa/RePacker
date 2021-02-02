@@ -24,7 +24,7 @@ namespace Refsa.RePacker
             return instance;
         }
 
-        public static T Decode<T>(this ref Buffer buffer)
+        public static T Decode<T>(this ref Buffer buffer) where T : ISerializer
         {
             ISerializer instance = Activator.CreateInstance(typeof(T)) as ISerializer;
 
@@ -385,12 +385,6 @@ namespace Refsa.RePacker
                 dict.Add(keys[i], values[i]);
             }
         }
-    }
-
-    public enum IListType : byte
-    {
-        None = 0,
-        List,
     }
 
     public enum IEnumerableType : byte

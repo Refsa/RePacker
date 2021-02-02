@@ -31,6 +31,7 @@ namespace Refsa.RePacker.Generator
             ilGen.Emit(OpCodes.Pop);
 
             Type[] kvTypes = fieldInfo.FieldType.GenericTypeArguments;
+            (Type keyType, Type valueType) = (kvTypes[0], kvTypes[1]);
 
             var keyConst = typeof(List<>).MakeGenericType(kvTypes[0]).GetConstructor(Type.EmptyTypes);
             var valConst = typeof(List<>).MakeGenericType(kvTypes[1]).GetConstructor(Type.EmptyTypes);
@@ -46,25 +47,18 @@ namespace Refsa.RePacker.Generator
 
             // Keys
             {
-                Type keyType = kvTypes[0];
+                ilGen.Emit(OpCodes.Ldarg_0);
+
+                ilGen.Emit(OpCodes.Ldloca_S, 1);
+                ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
                 if (TypeCache.TryGetTypeInfo(keyType, out var typeInfo))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldloca_S, 1);
-                    ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-
                     var listDeserializer = deserializeIListMethod.MakeGenericMethod(keyType);
                     ilGen.EmitCall(OpCodes.Call, listDeserializer, Type.EmptyTypes);
                 }
                 else if (keyType.IsValueType || (keyType.IsStruct() && keyType.IsUnmanagedStruct()))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldloca_S, 1);
-                    ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-
                     var listDeserializer = deserializeIListBlittableMethod.MakeGenericMethod(keyType);
                     ilGen.EmitCall(OpCodes.Call, listDeserializer, Type.EmptyTypes);
                 }
@@ -76,25 +70,18 @@ namespace Refsa.RePacker.Generator
 
             // Values
             {
-                Type valueType = kvTypes[1];
+                ilGen.Emit(OpCodes.Ldarg_0);
+
+                ilGen.Emit(OpCodes.Ldloca_S, 2);
+                ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
                 if (TypeCache.TryGetTypeInfo(valueType, out var typeInfo))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldloca_S, 2);
-                    ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-
                     var listDeserializer = deserializeIListMethod.MakeGenericMethod(valueType);
                     ilGen.EmitCall(OpCodes.Call, listDeserializer, Type.EmptyTypes);
                 }
                 else if (valueType.IsValueType || (valueType.IsStruct() && valueType.IsUnmanagedStruct()))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldloca_S, 2);
-                    ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-
                     var listDeserializer = deserializeIListBlittableMethod.MakeGenericMethod(valueType);
                     ilGen.EmitCall(OpCodes.Call, listDeserializer, Type.EmptyTypes);
                 }
@@ -131,7 +118,6 @@ namespace Refsa.RePacker.Generator
             /* ilGen.Emit(OpCodes.Ldarg_1);
             ilGen.Emit(OpCodes.Ldfld, fieldInfo);
             ilGen.Emit(OpCodes.Castclass, typeof(IEnumerable<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(kvTypes)));
-
             ilGen.Emit(OpCodes.Pop); */
 
             var getKeys = genDict.GetProperty("Keys").GetMethod;
@@ -139,63 +125,55 @@ namespace Refsa.RePacker.Generator
 
             // Keys
             {
+                ilGen.Emit(OpCodes.Ldarg_0);
+
+                ilGen.Emit(OpCodes.Ldarga_S, 1);
+                ilGen.Emit(OpCodes.Ldfld, fieldInfo);
+                ilGen.Emit(OpCodes.Callvirt, getKeys);
+
                 if (TypeCache.TryGetTypeInfo(keyType, out var typeInfo))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldarga_S, 1);
-                    ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-                    ilGen.Emit(OpCodes.Callvirt, getKeys);
-
                     var listSerializer = serializeIEnumerableMethod.MakeGenericMethod(keyType);
                     ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
                 }
                 else if (keyType.IsValueType || (keyType.IsStruct() && keyType.IsUnmanagedStruct()))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldarga_S, 1);
-                    ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-                    ilGen.Emit(OpCodes.Callvirt, getKeys);
-                    ilGen.Emit(OpCodes.Castclass, typeof(IEnumerable<>).MakeGenericType(keyType));
-
                     var listSerializer = serializeIEnumerableBlittableMethod.MakeGenericMethod(keyType);
                     ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
                 }
                 else
                 {
-                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
+                    ilGen.Emit(OpCodes.Pop);
+                    ilGen.Emit(OpCodes.Pop);
+                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary with keys of type {keyType} is not supported");
                 }
             }
 
+            // TODO: Unroll Keys if values arent supported
+
             // Values
             {
+                ilGen.Emit(OpCodes.Ldarg_0);
+
+                ilGen.Emit(OpCodes.Ldarga_S, 1);
+                ilGen.Emit(OpCodes.Ldfld, fieldInfo);
+                ilGen.Emit(OpCodes.Callvirt, getValues);
+
                 if (TypeCache.TryGetTypeInfo(valueType, out var typeInfo))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldarga_S, 1);
-                    ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-                    ilGen.Emit(OpCodes.Callvirt, getValues);
-
                     var listSerializer = serializeIEnumerableMethod.MakeGenericMethod(valueType);
                     ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
                 }
                 else if (valueType.IsValueType || (valueType.IsStruct() && valueType.IsUnmanagedStruct()))
                 {
-                    ilGen.Emit(OpCodes.Ldarg_0);
-
-                    ilGen.Emit(OpCodes.Ldarga_S, 1);
-                    ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-                    ilGen.Emit(OpCodes.Callvirt, getValues);
-                    ilGen.Emit(OpCodes.Castclass, typeof(IEnumerable<>).MakeGenericType(valueType));
-
                     var listSerializer = serializeIEnumerableBlittableMethod.MakeGenericMethod(valueType);
                     ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
                 }
                 else
                 {
-                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
+                    ilGen.Emit(OpCodes.Pop);
+                    ilGen.Emit(OpCodes.Pop);
+                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary with values of type {valueType} is not supported");
                 }
             }
         }

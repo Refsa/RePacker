@@ -30,41 +30,30 @@ namespace Refsa.RePacker.Generator
             Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
             IEnumerableType listType = GetActualType(fieldInfo.FieldType, elementType);
 
+            ilGen.Emit(OpCodes.Ldarg_0);
+
+            ilGen.Emit(OpCodes.Ldc_I4, (int)(byte)listType);
+
+            ilGen.Emit(OpCodes.Ldloca_S, 0);
+            ilGen.Emit(OpCodes.Ldflda, fieldInfo);
+
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
-                ilGen.Emit(OpCodes.Ldarg_0);
-
-                ilGen.Emit(OpCodes.Ldc_I4, (int)(byte)listType);
-
-                ilGen.Emit(OpCodes.Ldloca_S, 0);
-                ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-
-                var listSerializer = deserializeIEnumerableMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
+                var enumerableDeserializer = deserializeIEnumerableMethod.MakeGenericMethod(elementType);
+                ilGen.EmitCall(OpCodes.Call, enumerableDeserializer, Type.EmptyTypes);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
-                ilGen.Emit(OpCodes.Ldarg_0);
-
-                ilGen.Emit(OpCodes.Ldc_I4, (int)(byte)listType);
-
-                ilGen.Emit(OpCodes.Ldloca_S, 0);
-                ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-
-                var arraySerializer = deserializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                var enumerableDeserializer = deserializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
+                ilGen.EmitCall(OpCodes.Call, enumerableDeserializer, Type.EmptyTypes);
             }
             else
             {
+                ilGen.Emit(OpCodes.Pop);
+                ilGen.Emit(OpCodes.Pop);
                 ilGen.EmitWriteLine($"RePacker - Unpack: Array of type {fieldInfo.FieldType.Name} is not supported");
                 return;
             }
-
-            // Convert into actual type
-            // ilGen.Emit(OpCodes.Ldloca_S, 0);
-            // ilGen.Emit(OpCodes.Ldflda, fieldInfo);
-            // ilGen.Emit(OpCodes.Castclass, fieldInfo.FieldType);
-            // ilGen.Emit(OpCodes.Pop);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
@@ -72,30 +61,26 @@ namespace Refsa.RePacker.Generator
             ilGen.Emit(OpCodes.Pop);
             ilGen.Emit(OpCodes.Pop);
 
-            Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
+            ilGen.Emit(OpCodes.Ldarg_0);
 
+            ilGen.Emit(OpCodes.Ldarga_S, 1);
+            ilGen.Emit(OpCodes.Ldfld, fieldInfo);
+
+            Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
-                ilGen.Emit(OpCodes.Ldarg_0);
-
-                ilGen.Emit(OpCodes.Ldarga_S, 1);
-                ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-
-                var listSerializer = serializeIEnumerableMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
+                var enumerableSerializer = serializeIEnumerableMethod.MakeGenericMethod(elementType);
+                ilGen.EmitCall(OpCodes.Call, enumerableSerializer, Type.EmptyTypes);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
-                ilGen.Emit(OpCodes.Ldarg_0);
-
-                ilGen.Emit(OpCodes.Ldarga_S, 1);
-                ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-
-                var arraySerializer = serializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                var enumerableSerializer = serializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
+                ilGen.EmitCall(OpCodes.Call, enumerableSerializer, Type.EmptyTypes);
             }
             else
             {
+                ilGen.Emit(OpCodes.Pop);
+                ilGen.Emit(OpCodes.Pop);
                 ilGen.EmitWriteLine($"RePacker - Pack: IEnumerable of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
