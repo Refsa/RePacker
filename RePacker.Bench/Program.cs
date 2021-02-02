@@ -660,6 +660,22 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             public double Double;
         }
 
+        [RePacker]
+        public struct HasUnmanagedList
+        {
+            public float Float;
+            public List<int> Ints;
+            public double Double;
+        }
+
+        [RePacker]
+        public struct HasUnmanagedQueue
+        {
+            public float Float;
+            public Queue<int> Ints;
+            public double Double;
+        }
+
         public static void Main(string[] args)
         {
             TypeCache.Init();
@@ -827,10 +843,36 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
 
             RePacker.Log<HasUnmanagedIList>(ref fromBuf); */
 
+            /* var hml = new HasUnmanagedList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+            var fromBuf = RePacker.Unpack<HasUnmanagedList>(buffer);
+
+            RePacker.Log<HasUnmanagedList>(ref fromBuf); */
+
+            var hml = new HasUnmanagedQueue
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Queue<int>(System.Linq.Enumerable.Range(1, 10)),
+            };
+            var buffer = new BoxedBuffer(1024);
+            RePacker.Pack(buffer, ref hml);
+            var fromBuf = RePacker.Unpack<HasUnmanagedQueue>(buffer);
+
+            RePacker.Log(ref fromBuf);
+
             // var generator = GeneratorLookup.Get(GeneratorType.Struct, null);
             // Console.WriteLine(generator);
 
-            var um = new UnmanagedStruct
+            /* var um = new UnmanagedStruct
             {
                 Int = 1337,
                 ULong = 9876543210,
@@ -840,7 +882,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             RePacker.Pack(buffer, ref um);
             var fromBuf = RePacker.Unpack<UnmanagedStruct>(buffer);
 
-            RePacker.Log<UnmanagedStruct>(ref fromBuf);
+            RePacker.Log<UnmanagedStruct>(ref fromBuf); */
         }
     }
 }

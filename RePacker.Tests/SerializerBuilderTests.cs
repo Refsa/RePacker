@@ -6,6 +6,7 @@ using System;
 
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Refsa.RePacker.Tests
 {
@@ -632,5 +633,371 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(hml.Ints[i], fromBuf.Ints[i]);
             }
         }
+
+        [RePacker]
+        public struct HasUnmanagedList
+        {
+            public float Float;
+            public List<int> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void list_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasUnmanagedList>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i], fromBuf.Ints[i]);
+            }
+        }
+
+        [RePacker]
+        public struct HasUnmanagedQueue
+        {
+            public float Float;
+            public Queue<int> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void queue_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedQueue
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Queue<int>(System.Linq.Enumerable.Range(1, 10)),
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasUnmanagedQueue>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints.Dequeue(), fromBuf.Ints.Dequeue());
+            }
+        }
+
+        [RePacker]
+        public struct HasUnmanagedStack
+        {
+            public float Float;
+            public Stack<int> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void stack_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedStack
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Stack<int>(System.Linq.Enumerable.Range(1, 10)),
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasUnmanagedStack>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints.Pop(), fromBuf.Ints.Pop());
+            }
+        }
+
+        [RePacker]
+        public struct HasUnmanagedHashSet
+        {
+            public float Float;
+            public HashSet<int> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void hashset_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedHashSet
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new HashSet<int>(System.Linq.Enumerable.Range(1, 10)),
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasUnmanagedHashSet>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints.ElementAt(i), fromBuf.Ints.ElementAt(i));
+            }
+        }
+
+        #region ManagedContainers
+        [RePacker]
+        public class SomeManagedObject
+        {
+            public float Float;
+            public int Int;
+        }
+
+        [RePacker]
+        public struct HasManagedIList
+        {
+            public float Float;
+            public IList<SomeManagedObject> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void ilist_with_managed_type()
+        {
+            var hml = new HasManagedIList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List<SomeManagedObject> {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasManagedIList>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i].Int, fromBuf.Ints[i].Int);
+                Assert.Equal(hml.Ints[i].Float, fromBuf.Ints[i].Float);
+            }
+        }
+
+        [RePacker]
+        public struct HasManagedList
+        {
+            public float Float;
+            public List<SomeManagedObject> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void list_with_managed_type()
+        {
+            var hml = new HasManagedList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List<SomeManagedObject> {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                },
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasManagedList>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i].Int, fromBuf.Ints[i].Int);
+                Assert.Equal(hml.Ints[i].Float, fromBuf.Ints[i].Float);
+            }
+        }
+
+        [RePacker]
+        public struct HasManagedQueue
+        {
+            public float Float;
+            public Queue<SomeManagedObject> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void queue_with_managed_type()
+        {
+            var hml = new HasManagedQueue
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Queue<SomeManagedObject>(
+                    new List<SomeManagedObject>() {
+                        new SomeManagedObject{Float = 12.34f, Int = 901234},
+                        new SomeManagedObject{Float = 567.25f, Int = 4562},
+                        new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                        new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                    }
+                ),
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasManagedQueue>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                var elementA = hml.Ints.Dequeue();
+                var elementB = fromBuf.Ints.Dequeue();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [RePacker]
+        public struct HasManagedStack
+        {
+            public float Float;
+            public Stack<SomeManagedObject> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void stack_with_managed_type()
+        {
+            var hml = new HasManagedStack
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Stack<SomeManagedObject>(
+                    new List<SomeManagedObject>() {
+                        new SomeManagedObject{Float = 12.34f, Int = 901234},
+                        new SomeManagedObject{Float = 567.25f, Int = 4562},
+                        new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                        new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                    }
+                ),
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasManagedStack>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                var elementA = hml.Ints.Pop();
+                var elementB = fromBuf.Ints.Pop();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [RePacker]
+        public struct HasManagedHashSet
+        {
+            public float Float;
+            public HashSet<SomeManagedObject> Ints;
+            public double Double;
+        }
+
+        [Fact]
+        public void hashset_with_managed_type()
+        {
+            var hml = new HasManagedHashSet
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new HashSet<SomeManagedObject>(
+                    new List<SomeManagedObject>() {
+                        new SomeManagedObject{Float = 12.34f, Int = 901234},
+                        new SomeManagedObject{Float = 567.25f, Int = 4562},
+                        new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                        new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                    }
+                ),
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HasManagedHashSet>(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i < hml.Ints.Count; i++)
+            {
+                var elementA = hml.Ints.ElementAt(i);
+                var elementB = fromBuf.Ints.ElementAt(i);
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
     }
+    #endregion
 }
