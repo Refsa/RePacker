@@ -1,6 +1,7 @@
 
 
 using System;
+using System.Collections.Generic;
 
 namespace Refsa.RePacker.Utils
 {
@@ -75,6 +76,24 @@ namespace Refsa.RePacker.Utils
             }
 
             return false;
+        }
+
+        public static bool IsOfIList(this Type type)
+        {
+            var genericListType = typeof(IList<>).MakeGenericType(type.GenericTypeArguments[0]);
+
+            return
+                type == genericListType ||
+                typeof(IList<>).MakeGenericType(type.GenericTypeArguments[0]).IsAssignableFrom(type);
+        }
+
+        public static bool IsOfIEnumerable(this Type type)
+        {
+            var genericListType = typeof(IEnumerable<>).MakeGenericType(type.GenericTypeArguments[0]);
+
+            return
+                type == genericListType ||
+                genericListType.IsAssignableFrom(type);
         }
     }
 }

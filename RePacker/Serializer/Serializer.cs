@@ -280,5 +280,126 @@ namespace Refsa.RePacker
                 data.Add(value);
             }
         }
+
+        public static void PackIEnumerable<T>(this BoxedBuffer buffer, IEnumerable<T> data)
+        {
+            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            {
+                ulong dataLen = (ulong)data.Count();
+                buffer.Buffer.Push<ulong>(ref dataLen);
+
+                foreach (var element in data)
+                {
+                    var ele = element;
+                    packer.Pack<T>(buffer, ref ele);
+                }
+            }
+        }
+
+        public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, Type type, out IEnumerable<T> data)
+        {
+            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            {
+                buffer.Buffer.Pop<ulong>(out ulong len);
+
+                T[] temp_data = new T[(int)len];
+                for (int i = 0; i < (int)len; i++)
+                {
+                    temp_data[i] = RePacker.Unpack<T>(buffer);
+                }
+
+                var asSpan = new Span<T>(temp_data);
+                data = CreateBaseIEnumerableType<T>(type, ref asSpan);
+            }
+            else
+            {
+                data = null;
+            }
+        }
+
+        public static void PackIEnumerableBlittable<T>(this BoxedBuffer buffer, IEnumerable<T> data) where T : unmanaged
+        {
+            ulong dataLen = (ulong)data.Count();
+            buffer.Buffer.Push<ulong>(ref dataLen);
+
+            foreach (T element in data)
+            {
+                T ele = element;
+                buffer.Buffer.Push<T>(ref ele);
+            }
+        }
+
+        public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, Type type, out IEnumerable<T> data) where T : unmanaged
+        {
+            buffer.Buffer.Pop<ulong>(out ulong len);
+
+            Span<T> temp_data = stackalloc T[(int)len];
+            for (int i = 0; i < (int)len; i++)
+            {
+                buffer.Buffer.Pop<T>(out T value);
+                temp_data[i] = value;
+            }
+
+            data = CreateBaseIEnumerableType<T>(type, ref temp_data);
+        }
+
+        static IList<T> CreateBaseIListType<T>(IListType type)
+        {
+            switch (type)
+            {
+                case IListType.List:
+                    return new List<T>();
+                default:
+                    return new List<T>();
+            }
+        }
+
+        static IEnumerable<T> CreateBaseIEnumerableType<T>(Type type, ref Span<T> from)
+        {
+            if (type == typeof(Queue<T>))
+            {
+                var container = new Queue<T>(from.Length);
+                foreach (var item in from)
+                {
+                    container.Enqueue(item);
+                }
+                return container;
+            }
+            else if (type == typeof(Stack<T>))
+            {
+                var container = new Stack<T>(from.Length);
+                for (int i = from.Length - 1; i >= 0; i--)
+                {
+                    container.Push(from[i]);
+                }
+                return container;
+            }
+            else if (type == typeof(HashSet<T>))
+            {
+                var container = new HashSet<T>(from.Length);
+                foreach (var item in from)
+                {
+                    container.Add(item);
+                }
+                return container;
+            }
+
+            return from.ToArray();
+        }
+    }
+
+    public enum IListType : byte
+    {
+        None = 0,
+        List,
+    }
+
+    public enum IEnumerableType : byte
+    {
+        None = 0,
+        HashSet,
+        Queue,
+        Stack,
     }
 }
+

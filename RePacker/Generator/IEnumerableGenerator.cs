@@ -9,45 +9,49 @@ using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Generator
 {
-    public class IListGenerator : IGenerator
+    public class IEnumerableGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
-        public Type ForType => typeof(IList<>);
+        public Type ForType => typeof(IEnumerable<>);
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-        MethodInfo deserializeIListMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIList));
-        MethodInfo deserializeIListBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIListBlittable));
+        MethodInfo deserializeIEnumerableMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIEnumerable));
+        MethodInfo deserializeIEnumerableBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIEnumerableBlittable));
 
-        MethodInfo serializeIListMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIList));
-        MethodInfo serializeIListBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIListBlittable));
+        MethodInfo serializeIEnumerableMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIEnumerable));
+        MethodInfo serializeIEnumerableBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIEnumerableBlittable));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.Emit(OpCodes.Pop);
             ilGen.Emit(OpCodes.Pop);
 
-            IListType listType = GetActualType(fieldInfo.FieldType);
+            IEnumerableType listType = GetActualType(fieldInfo.FieldType);
             Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
 
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
 
+                ilGen.Emit(OpCodes.Ldtoken, fieldInfo.FieldType);
+
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
-                var listSerializer = deserializeIListMethod.MakeGenericMethod(elementType);
+                var listSerializer = deserializeIEnumerableMethod.MakeGenericMethod(elementType);
                 ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
 
+                ilGen.Emit(OpCodes.Ldtoken, fieldInfo.FieldType);
+
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
-                var arraySerializer = deserializeIListBlittableMethod.MakeGenericMethod(elementType);
+                var arraySerializer = deserializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
                 ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
             }
             else
@@ -68,7 +72,7 @@ namespace Refsa.RePacker.Generator
             ilGen.Emit(OpCodes.Pop);
             ilGen.Emit(OpCodes.Pop);
 
-            IListType listType = GetActualType(fieldInfo.FieldType);
+            IEnumerableType listType = GetActualType(fieldInfo.FieldType);
             Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
 
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
@@ -78,7 +82,7 @@ namespace Refsa.RePacker.Generator
                 ilGen.Emit(OpCodes.Ldarga_S, 1);
                 ilGen.Emit(OpCodes.Ldfld, fieldInfo);
 
-                var listSerializer = serializeIListMethod.MakeGenericMethod(elementType);
+                var listSerializer = serializeIEnumerableMethod.MakeGenericMethod(elementType);
                 ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
@@ -88,21 +92,23 @@ namespace Refsa.RePacker.Generator
                 ilGen.Emit(OpCodes.Ldarga_S, 1);
                 ilGen.Emit(OpCodes.Ldfld, fieldInfo);
 
-                var arraySerializer = serializeIListBlittableMethod.MakeGenericMethod(elementType);
+                var arraySerializer = serializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
                 ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
             }
             else
             {
-                ilGen.EmitWriteLine($"RePacker - Pack: IList of type {fieldInfo.FieldType.Name} is not supported");
+                ilGen.EmitWriteLine($"RePacker - Pack: IEnumerable of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
 
-        IListType GetActualType(Type type)
+        IEnumerableType GetActualType(Type type)
         {
             return type switch
             {
-                var x when type == typeof(List<>) => IListType.List,
-                _ => IListType.None,
+                var x when type == typeof(HashSet<>) => IEnumerableType.HashSet,
+                var x when type == typeof(Queue<>) => IEnumerableType.Queue,
+                var x when type == typeof(Stack<>) => IEnumerableType.Stack,
+                _ => IEnumerableType.None,
             };
         }
     }

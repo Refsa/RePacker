@@ -23,6 +23,7 @@ namespace Refsa.RePacker.Generator
                 {GeneratorType.Object, new Dictionary<Type, IGenerator>() {
                     {typeof(Array), new ArrayGenerator()},
                     {typeof(IList<>), new IListGenerator()},
+                    {typeof(IEnumerable<>), new IEnumerableGenerator()},
                 }},
                 {GeneratorType.RePacker, new Dictionary<Type, IGenerator>() {
                     {Type.Missing.GetType(), new RePackerGenerator()}
@@ -45,6 +46,21 @@ namespace Refsa.RePacker.Generator
             }
 
             return null;
+        }
+
+        public static void RegisterGenerator(Type type, IGenerator generator)
+        {
+            if (generators.TryGetValue(GeneratorType.Object, out var gens))
+            {
+                if (!gens.ContainsKey(type))
+                {
+                    gens.Add(type, generator);
+                }
+                else
+                {
+                    throw new ArgumentException($"Generator for type {type} already exists");
+                }
+            }
         }
     }
 }

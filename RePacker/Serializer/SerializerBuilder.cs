@@ -71,7 +71,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.DeclareLocal(info.Type);
                 // ilGen.EmitWriteLine($"Deserializing {info.Type.Name}");
 
-                if (info.IsUnmanaged)
+                if (info.IsUnmanaged && !info.HasCustomSerializer)
                 {
                     goto Blittable;
                 }
@@ -158,10 +158,13 @@ namespace Refsa.RePacker.Builder
                                 {
                                     (gt, t) = (GeneratorType.Object, typeof(Array));
                                 }
-                                else if (field.FieldType.IsGenericType &&
-                                    field.FieldType == typeof(IList<>).MakeGenericType(field.FieldType.GenericTypeArguments[0]))
+                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIList())
                                 {
                                     (gt, t) = (GeneratorType.Object, typeof(IList<>));
+                                }
+                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIEnumerable())
+                                {
+                                    (gt, t) = (GeneratorType.Object, typeof(IEnumerable<>));
                                 }
                                 else
                                 {
@@ -233,7 +236,7 @@ namespace Refsa.RePacker.Builder
             {
                 // ilGen.EmitWriteLine($"Serializing {info.Type.Name}");
 
-                if (info.IsUnmanaged)
+                if (info.IsUnmanaged && !info.HasCustomSerializer)
                 {
                     goto Blittable;
                 }
@@ -310,10 +313,13 @@ namespace Refsa.RePacker.Builder
                                 {
                                     (gt, t) = (GeneratorType.Object, typeof(Array));
                                 }
-                                else if (field.FieldType.IsGenericType &&
-                                    field.FieldType == typeof(IList<>).MakeGenericType(field.FieldType.GenericTypeArguments[0]))
+                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIList())
                                 {
                                     (gt, t) = (GeneratorType.Object, typeof(IList<>));
+                                }
+                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIEnumerable())
+                                {
+                                    (gt, t) = (GeneratorType.Object, typeof(IEnumerable<>));
                                 }
                                 else
                                 {
@@ -335,8 +341,7 @@ namespace Refsa.RePacker.Builder
 
                     if (gt != GeneratorType.None)
                     {
-                        var generator = GeneratorLookup.Get(gt, t);
-                        generator.GenerateSerializer(ilGen, field);
+                        GeneratorLookup.Get(gt, t).GenerateSerializer(ilGen, field);
                     }
                 }
                 goto Finished;
