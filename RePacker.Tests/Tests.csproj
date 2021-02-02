@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RePacker.csproj" />
+    <ProjectReference Include="..\RePacker\RePacker.csproj" />
   </ItemGroup>
 
 </Project>
