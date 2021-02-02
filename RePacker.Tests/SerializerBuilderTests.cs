@@ -998,6 +998,175 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(elementA.Float, elementB.Float);
             }
         }
+
+        [RePacker]
+        public struct HasUnmanagedDictionary
+        {
+            public float Float;
+            public Dictionary<int, float> Dict;
+            public long Long;
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_value()
+        {
+            var dictCont = new HasUnmanagedDictionary
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary<int, float> {
+                    {123, 12.5f},
+                    {4567456, 125.2345f},
+                    {23454, 3456.235f},
+                    {345643, 3456234.1341f},
+                    {89678, 1234.3523f},
+                    {452, .654567f},
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<HasUnmanagedDictionary>(buffer);
+
+            foreach (var key in dictCont.Dict.Keys)
+            {
+                var wantedValue = dictCont.Dict[key];
+
+                Assert.True(fromBuf.Dict.TryGetValue(key, out float value));
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [RePacker]
+        public struct HasManagedKeyUnmanagedValueDict
+        {
+            public float Float;
+            public Dictionary<SomeManagedObject, float> Dict;
+            public long Long;
+        }
+
+        [Fact]
+        public void dictionary_with_managed_key_and_unmanaged_value()
+        {
+            var dictCont = new HasManagedKeyUnmanagedValueDict
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary<SomeManagedObject, float> {
+                    {new SomeManagedObject{Float = 12.34f, Int = 901234}, 12.5f},
+                    {new SomeManagedObject{Float = 567.25f, Int = 4562}, 125.2345f},
+                    {new SomeManagedObject{Float = 1.3245f, Int = 24535}, 3456.235f},
+                    {new SomeManagedObject{Float = 56.2435f, Int = 56724}, 3456234.1341f},
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<HasManagedKeyUnmanagedValueDict>(buffer);
+
+            for (int i = 0; i < dictCont.Dict.Count; i++)
+            {
+                var wantedKey = dictCont.Dict.Keys.ElementAt(i);
+                var key = fromBuf.Dict.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey.Float, key.Float);
+                Assert.Equal(wantedKey.Int, key.Int);
+
+                var wantedValue = dictCont.Dict.Values.ElementAt(i);
+                var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [RePacker]
+        public struct HasUnmanagedKeyManagedValueDict
+        {
+            public float Float;
+            public Dictionary<int, SomeManagedObject> Dict;
+            public long Long;
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_managed_value()
+        {
+            var dictCont = new HasUnmanagedKeyManagedValueDict
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary<int, SomeManagedObject> {
+                    {1, new SomeManagedObject{Float = 12.34f, Int = 901234}},
+                    {10, new SomeManagedObject{Float = 567.25f, Int = 4562}},
+                    {100, new SomeManagedObject{Float = 1.3245f, Int = 24535}},
+                    {1000, new SomeManagedObject{Float = 56.2435f, Int = 56724}},
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<HasUnmanagedKeyManagedValueDict>(buffer);
+
+            for (int i = 0; i < dictCont.Dict.Count; i++)
+            {
+                var wantedKey = dictCont.Dict.Keys.ElementAt(i);
+                var key = fromBuf.Dict.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey, key);
+
+                var wantedValue = dictCont.Dict.Values.ElementAt(i);
+                var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue.Float, value.Float);
+                Assert.Equal(wantedValue.Int, value.Int);
+            }
+        }
+
+        [RePacker]
+        public struct HasManagedKeyManagedValueDict
+        {
+            public float Float;
+            public Dictionary<SomeManagedObject, SomeManagedObject> Dict;
+            public long Long;
+        }
+
+        [Fact]
+        public void dictionary_with_managed_key_and_managed_value()
+        {
+            var dictCont = new HasManagedKeyManagedValueDict
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary<SomeManagedObject, SomeManagedObject> {
+                    {new SomeManagedObject{Float = 12.34f, Int = 901234}, new SomeManagedObject{Float = 12.34f, Int = 901234}},
+                    {new SomeManagedObject{Float = 567.25f, Int = 4562}, new SomeManagedObject{Float = 567.25f, Int = 4562}},
+                    {new SomeManagedObject{Float = 1.3245f, Int = 24535}, new SomeManagedObject{Float = 1.3245f, Int = 24535}},
+                    {new SomeManagedObject{Float = 56.2435f, Int = 56724}, new SomeManagedObject{Float = 56.2435f, Int = 56724}},
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<HasManagedKeyManagedValueDict>(buffer);
+
+            for (int i = 0; i < dictCont.Dict.Count; i++)
+            {
+                var wantedKey = dictCont.Dict.Keys.ElementAt(i);
+                var key = fromBuf.Dict.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey.Float, key.Float);
+                Assert.Equal(wantedKey.Int, key.Int);
+
+                var wantedValue = dictCont.Dict.Values.ElementAt(i);
+                var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue.Float, value.Float);
+                Assert.Equal(wantedValue.Int, value.Int);
+            }
+        }
     }
     #endregion
 }

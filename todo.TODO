@@ -15,10 +15,11 @@ Base Serializer:
 
     Sort of sorted by importance:
     - ICollection<T>
-        - IList<T>
-        - IEnumerable<T>
+        ✔ IList<T> @done(21-02-02 14:20)
+        ✔ IEnumerable<T> @done(21-02-02 14:20)
         - ISet<T>
     - IDictionary<K, V>
+        - ICollection<KeyValuePair<K, V>>
     - Tuples
 
 

@@ -676,6 +676,14 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             public double Double;
         }
 
+        [RePacker]
+        public struct HasUnmanagedDictionary
+        {
+            public float Float;
+            public Dictionary<int, float> Dict;
+            public long Long;
+        }
+
         public static void Main(string[] args)
         {
             TypeCache.Init();
@@ -883,6 +891,30 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             var fromBuf = RePacker.Unpack<UnmanagedStruct>(buffer);
 
             RePacker.Log<UnmanagedStruct>(ref fromBuf); */
+
+            var dictCont = new HasUnmanagedDictionary
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary<int, float> {
+                    {123, 12.5f},
+                    {4567456, 125.2345f},
+                    {23454, 3456.235f},
+                    {345643, 3456234.1341f},
+                    {89678, 1234.3523f},
+                    {452, .654567f},
+                }
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+
+            Console.WriteLine("Buf Size" + buffer.Buffer.Length());
+
+            var fromBuf = RePacker.Unpack<HasUnmanagedDictionary>(buffer);
+
+            RePacker.Log<HasUnmanagedDictionary>(ref fromBuf);
         }
     }
 }
