@@ -129,7 +129,7 @@ namespace Refsa.RePacker
                 .Where(t => Attribute.GetCustomAttribute(t, typeof(RePackerAttribute)) != null)
                 .Select(e => (e.Name, e)))
             {
-                if (typeCache.TryGetValue(type, out var info)) continue;
+                if (typeCache.TryGetValue(type, out var _)) continue;
 
                 var tci = new Info
                 {

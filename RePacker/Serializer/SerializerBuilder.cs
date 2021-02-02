@@ -46,7 +46,7 @@ namespace Refsa.RePacker.Builder
             Type[] typeParams = new Type[] { typeof(Refsa.RePacker.Buffers.BoxedBuffer) };
 
             var deserBuilder = moduleBuilder.DefineGlobalMethod(
-                $"{info.Type.Name}_Deserialize",
+                $"{info.Type.FullName}_Deserialize",
                 MethodAttributes.Public | MethodAttributes.Static |
                 MethodAttributes.HideBySig,
                 info.Type,
@@ -354,7 +354,7 @@ namespace Refsa.RePacker.Builder
             Type[] typeParams = new Type[] { typeof(BoxedBuffer), info.Type };
 
             var serBuilder = moduleBuilder.DefineGlobalMethod(
-                $"{info.Type.Name}_Serialize",
+                $"{info.Type.FullName}_Serialize",
                 MethodAttributes.Public | MethodAttributes.Static |
                 MethodAttributes.HideBySig,
                 null,
@@ -649,7 +649,7 @@ namespace Refsa.RePacker.Builder
 
         public static Func<Delegate> CreateTestMethod(TypeCache.Info info)
         {
-            string name = $"{info.Type.Name}_Test";
+            string name = $"{info.Type.FullName}_Test";
 
             var serBuilder = moduleBuilder.DefineGlobalMethod(
                 name,
@@ -676,7 +676,7 @@ namespace Refsa.RePacker.Builder
         {
             Type[] typeParams = new Type[] { info.Type };
 
-            string name = $"{info.Type.Name}_Logger";
+            string name = $"{info.Type.FullName}_Logger";
 
             var loggerBuilder = moduleBuilder.DefineGlobalMethod(
                 name,

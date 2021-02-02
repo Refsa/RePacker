@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RePacker\RePacker.csproj" />
+    <ProjectReference Include="..\RePacker.Unsafe\RePacker.Unsafe.csproj" />
   </ItemGroup>
 
 </Project>

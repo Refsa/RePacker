@@ -557,7 +557,8 @@ namespace Refsa.RePacker.Tests
         [Fact]
         public void type_with_array_of_supported_class()
         {
-            var iac = new HasClassArray{
+            var iac = new HasClassArray
+            {
                 Long = 123412341234,
                 Byte = 23,
                 ArrayOfClass = new InArrayClass[]
@@ -578,7 +579,7 @@ namespace Refsa.RePacker.Tests
                         Float = 4567f,
                         Int = 46723,
                     }
-                }  
+                }
             };
 
             var buffer = new BoxedBuffer(1024);
@@ -613,7 +614,7 @@ namespace Refsa.RePacker.Tests
             {
                 Float = 141243f,
                 Double = 2345613491441234,
-                Ints = new List<int>{1,2,3,4,5,6,7,8,9,0},
+                Ints = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
             };
 
             var buffer = new BoxedBuffer(1024);

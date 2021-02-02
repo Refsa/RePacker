@@ -5,6 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RePacker.Unsafe\Unsafe.csproj" />
+    <ProjectReference Include="..\RePacker.Unsafe\RePacker.Unsafe.csproj" />
   </ItemGroup>
 </Project>

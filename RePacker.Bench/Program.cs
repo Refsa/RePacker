@@ -812,7 +812,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             var fromBuf = RePacker.Unpack<StructWithArray>(buffer);
             RePacker.Log<StructWithArray>(ref fromBuf); */
 
-            var hml = new HasUnmanagedIList
+            /* var hml = new HasUnmanagedIList
             {
                 Float = 141243f,
                 Double = 2345613491441234,
@@ -824,7 +824,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             RePacker.Pack(buffer, ref hml);
             var fromBuf = RePacker.Unpack<HasUnmanagedIList>(buffer);
 
-            RePacker.Log<HasUnmanagedIList>(ref fromBuf);
+            RePacker.Log<HasUnmanagedIList>(ref fromBuf); */
         }
     }
 }
