@@ -27,14 +27,14 @@ namespace Refsa.RePacker.Generator
             ilGen.Emit(OpCodes.Pop);
             ilGen.Emit(OpCodes.Pop);
 
-            IEnumerableType listType = GetActualType(fieldInfo.FieldType);
             Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
+            IEnumerableType listType = GetActualType(fieldInfo.FieldType, elementType);
 
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
 
-                ilGen.Emit(OpCodes.Ldtoken, fieldInfo.FieldType);
+                ilGen.Emit(OpCodes.Ldc_I4, (int)(byte)listType);
 
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
@@ -46,7 +46,7 @@ namespace Refsa.RePacker.Generator
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
 
-                ilGen.Emit(OpCodes.Ldtoken, fieldInfo.FieldType);
+                ilGen.Emit(OpCodes.Ldc_I4, (int)(byte)listType);
 
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
@@ -72,7 +72,6 @@ namespace Refsa.RePacker.Generator
             ilGen.Emit(OpCodes.Pop);
             ilGen.Emit(OpCodes.Pop);
 
-            IEnumerableType listType = GetActualType(fieldInfo.FieldType);
             Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
 
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
@@ -101,13 +100,13 @@ namespace Refsa.RePacker.Generator
             }
         }
 
-        IEnumerableType GetActualType(Type type)
+        IEnumerableType GetActualType(Type type, Type elementType)
         {
             return type switch
             {
-                var x when type == typeof(HashSet<>) => IEnumerableType.HashSet,
-                var x when type == typeof(Queue<>) => IEnumerableType.Queue,
-                var x when type == typeof(Stack<>) => IEnumerableType.Stack,
+                var x when type == typeof(HashSet<>).MakeGenericType(elementType) => IEnumerableType.HashSet,
+                var x when type == typeof(Queue<>).MakeGenericType(elementType) => IEnumerableType.Queue,
+                var x when type == typeof(Stack<>).MakeGenericType(elementType) => IEnumerableType.Stack,
                 _ => IEnumerableType.None,
             };
         }

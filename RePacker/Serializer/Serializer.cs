@@ -296,7 +296,7 @@ namespace Refsa.RePacker
             }
         }
 
-        public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, Type type, out IEnumerable<T> data)
+        public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, IEnumerableType type, out IEnumerable<T> data)
         {
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
@@ -329,7 +329,7 @@ namespace Refsa.RePacker
             }
         }
 
-        public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, Type type, out IEnumerable<T> data) where T : unmanaged
+        public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, IEnumerableType type, out IEnumerable<T> data) where T : unmanaged
         {
             buffer.Buffer.Pop<ulong>(out ulong len);
 
@@ -354,9 +354,9 @@ namespace Refsa.RePacker
             }
         }
 
-        static IEnumerable<T> CreateBaseIEnumerableType<T>(Type type, ref Span<T> from)
+        static IEnumerable<T> CreateBaseIEnumerableType<T>(IEnumerableType type, ref Span<T> from)
         {
-            if (type == typeof(Queue<T>))
+            if (type == IEnumerableType.Queue)
             {
                 var container = new Queue<T>(from.Length);
                 foreach (var item in from)
@@ -365,7 +365,7 @@ namespace Refsa.RePacker
                 }
                 return container;
             }
-            else if (type == typeof(Stack<T>))
+            else if (type == IEnumerableType.Stack)
             {
                 var container = new Stack<T>(from.Length);
                 for (int i = from.Length - 1; i >= 0; i--)
@@ -374,7 +374,7 @@ namespace Refsa.RePacker
                 }
                 return container;
             }
-            else if (type == typeof(HashSet<T>))
+            else if (type == IEnumerableType.HashSet)
             {
                 var container = new HashSet<T>(from.Length);
                 foreach (var item in from)

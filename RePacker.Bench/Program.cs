@@ -857,7 +857,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
 
             RePacker.Log<HasUnmanagedList>(ref fromBuf); */
 
-            var hml = new HasUnmanagedQueue
+            /* var hml = new HasUnmanagedQueue
             {
                 Float = 141243f,
                 Double = 2345613491441234,
@@ -867,7 +867,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             RePacker.Pack(buffer, ref hml);
             var fromBuf = RePacker.Unpack<HasUnmanagedQueue>(buffer);
 
-            RePacker.Log(ref fromBuf);
+            RePacker.Log(ref fromBuf); */
 
             // var generator = GeneratorLookup.Get(GeneratorType.Struct, null);
             // Console.WriteLine(generator);
