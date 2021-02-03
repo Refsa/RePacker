@@ -17,6 +17,11 @@ namespace Refsa.RePacker
             this.Info = info;
         }
 
+        public void Setup(ITypeSerializer serializer)
+        {
+            this.serializer = serializer;
+        }
+
         public void Setup<T>(MethodInfo packer, MethodInfo unpacker, MethodInfo logger)
         {
             var ts = new TypeSerializer<T>(packer, unpacker);
@@ -47,14 +52,33 @@ namespace Refsa.RePacker
             {
                 serializer.packer.Invoke(buffer, target);
             }
+            else if (this.serializer is RePackerWrapper<T> wrapper)
+            {
+                wrapper.Pack(buffer, ref target);
+            }
         }
 
-        public T Unpack<T>(BoxedBuffer buffer)
+        public T Unpack<T>(BoxedBuffer buffer, object target = null)
         {
             // return unpacker.Invoke(buffer);
             if (this.serializer is TypeSerializer<T> serializer)
             {
                 return serializer.unpacker.Invoke(buffer);
+            }
+            else if (this.serializer is RePackerWrapper<T> wrapper)
+            {
+                if (target == null)
+                {
+                    T value = Activator.CreateInstance<T>();
+                    wrapper.Unpack(buffer, ref value);
+                    return value;
+                }
+                else
+                {
+                    T asT = (T)target;
+                    wrapper.Unpack(buffer, ref asT);
+                    return asT;
+                }
             }
 
             return default(T);

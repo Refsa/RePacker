@@ -15,6 +15,18 @@ namespace Refsa.RePacker
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class RePackerWrapperAttribute : System.Attribute
+    {
+        public Type WrapperFor;
+
+        public RePackerWrapperAttribute(Type wrapperFor)
+        {
+            
+            WrapperFor = wrapperFor;
+        }
+    }
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class IdentifierAttribute : System.Attribute
     {

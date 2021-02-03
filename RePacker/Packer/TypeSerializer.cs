@@ -3,12 +3,12 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker
 {
-    interface ITypeSerializer
+    public interface ITypeSerializer
     {
 
     }
 
-    class TypeSerializer<T> : ITypeSerializer
+    public class TypeSerializer<T> : ITypeSerializer
     {
         public System.Action<BoxedBuffer, T> packer;
         public System.Func<BoxedBuffer, T> unpacker;

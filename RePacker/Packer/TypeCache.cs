@@ -34,8 +34,50 @@ namespace Refsa.RePacker
             var sw = new System.Diagnostics.Stopwatch(); sw.Restart();
             BuildTypeCache();
             BuildSerializers();
+            BuildCustomSerializers();
             sw.Stop();
             Console.WriteLine($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
+        }
+
+        static void BuildCustomSerializers()
+        {
+            foreach ((string name, Type type) in AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(e => e.GetTypes())
+                .Where(t =>
+                    Attribute.GetCustomAttribute(t, typeof(RePackerWrapperAttribute)) != null
+                )
+                .Select(e => (e.Name, e)))
+            {
+                var attr = (RePackerWrapperAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerWrapperAttribute));
+
+                var genWrapper = typeof(RePackerWrapper<>).MakeGenericType(attr.WrapperFor);
+                if (!type.IsSubclassOf(genWrapper))
+                {
+                    // Log Error
+                    continue;
+                }
+
+                if (typeCache.TryGetValue(type, out var _))
+                {
+                    continue;
+                }
+
+                var typeInfo = new Info
+                {
+                    Type = attr.WrapperFor,
+                    HasCustomSerializer = true,
+                    IsUnmanaged = false,
+                    SerializedFields = null,
+                };
+
+                typeCache.Add(type, typeInfo);
+
+                var typePacker = new TypePacker(typeInfo);
+                var serializer = Activator.CreateInstance(type);
+                typePacker.Setup((ITypeSerializer)serializer);
+
+                packerLookup.Add(typeInfo.Type, typePacker);
+            }
         }
 
         static void BuildSerializers()
@@ -108,7 +150,7 @@ namespace Refsa.RePacker
 
                 var packer = new TypePacker(info);
 
-                var mi = typeof(TypePacker).GetMethod(nameof(TypePacker.Setup)).MakeGenericMethod(type);
+                var mi = typeof(TypePacker).GetMethod(nameof(TypePacker.Setup), new Type[] { typeof(MethodInfo), typeof(MethodInfo), typeof(MethodInfo) }).MakeGenericMethod(type);
                 mi.Invoke(packer, new object[] { ser, deser, logger });
 
                 // var setLogger = typeof(TypePacker).GetMethod(nameof(TypePacker.SetLogger)).MakeGenericMethod(type);
@@ -126,7 +168,9 @@ namespace Refsa.RePacker
             typeCache = new Dictionary<Type, Info>();
             foreach ((string name, Type type) in AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(e => e.GetTypes())
-                .Where(t => Attribute.GetCustomAttribute(t, typeof(RePackerAttribute)) != null)
+                .Where(t =>
+                    Attribute.GetCustomAttribute(t, typeof(RePackerAttribute)) != null
+                )
                 .Select(e => (e.Name, e)))
             {
                 if (typeCache.TryGetValue(type, out var _)) continue;
@@ -199,6 +243,18 @@ namespace Refsa.RePacker
             }
 
             return default(T);
+        }
+
+        public static void DeserializeInto<T>(BoxedBuffer buffer, ref T target)
+        {
+            if (packerLookup.TryGetValue(typeof(T), out var typePacker) && typePacker.Info.HasCustomSerializer)
+            {
+                typePacker.Unpack<T>(buffer, target);
+            }
+            else
+            {
+                // TODO: Log Error
+            }
         }
 
         public static bool DeserializeOut<T>(BoxedBuffer buffer, out T value)
