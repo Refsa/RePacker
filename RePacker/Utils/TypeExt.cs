@@ -66,7 +66,7 @@ namespace Refsa.RePacker.Utils
 
         public static bool HasInterface(this Type type, Type interfaceType)
         {
-            Console.WriteLine(type + " - " + interfaceType.MakeGenericType(type.GenericTypeArguments[0]));
+            RePacker.Settings.Log.Log(type + " - " + interfaceType.MakeGenericType(type.GenericTypeArguments[0]));
             foreach (var it in type.GetInterfaces())
             {
                 if (interfaceType == it)

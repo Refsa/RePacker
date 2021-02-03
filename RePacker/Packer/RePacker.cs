@@ -6,6 +6,14 @@ namespace Refsa.RePacker
 {
     public static class RePacker
     {
+        static RePackerSettings settings = new RePackerSettings();
+        public static RePackerSettings Settings => settings;
+
+        public static void Init(RePackerSettings settings_)
+        {
+            settings = settings_;
+        }
+
         public static void Pack<T>(BoxedBuffer buffer, ref T value)
         {
             TypeCache.Serialize<T>(buffer, ref value);

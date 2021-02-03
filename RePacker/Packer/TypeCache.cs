@@ -23,20 +23,24 @@ namespace Refsa.RePacker
         }
 
         static Dictionary<Type, Info> typeCache;
-        static Dictionary<Type, Delegate> testLookup;
         static Dictionary<Type, TypePacker> packerLookup;
 
         public static void Init() { }
 
         static TypeCache()
         {
-            Console.WriteLine("Setting up TypeCache");
+            RePacker.Settings.Log.Log("Setting up TypeCache");
             var sw = new System.Diagnostics.Stopwatch(); sw.Restart();
             BuildTypeCache();
             BuildSerializers();
             BuildCustomSerializers();
             sw.Stop();
-            Console.WriteLine($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
+            RePacker.Settings.Log.Log($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
+        }
+
+        static void VerifySerializers()
+        {
+            
         }
 
         static void BuildCustomSerializers()
@@ -53,12 +57,13 @@ namespace Refsa.RePacker
                 var genWrapper = typeof(RePackerWrapper<>).MakeGenericType(attr.WrapperFor);
                 if (!type.IsSubclassOf(genWrapper))
                 {
-                    // Log Error
+                    RePacker.Settings.Log.Warn($"{type} does not extend from RePackerWrapper<{attr.WrapperFor}>");
                     continue;
                 }
 
                 if (typeCache.TryGetValue(type, out var _))
                 {
+                    RePacker.Settings.Log.Warn($"Packer already exists for type {attr.WrapperFor}");
                     continue;
                 }
 
@@ -82,14 +87,18 @@ namespace Refsa.RePacker
 
         static void BuildSerializers()
         {
+            packerLookup = new Dictionary<Type, TypePacker>();
+
+            if (!RePacker.Settings.GenerateIL)
+            {
+                RePacker.Settings.Log.Warn("IL Generation is turned off");
+                return;
+            }
+
             var serializerLookup = new Dictionary<Type, MethodInfo>();
             var deserializerLookup = new Dictionary<Type, MethodInfo>();
             var loggerLookup = new Dictionary<Type, MethodInfo>();
 
-            packerLookup = new Dictionary<Type, TypePacker>();
-            testLookup = new Dictionary<Type, Delegate>();
-
-            var testMethodCreators = new List<(Type, Func<Delegate>)>();
             var loggerMethodCreators = new List<(Type, Func<MethodInfo>)>();
 
             var serMethodCreators = new List<(Type, Func<MethodInfo>)>();
@@ -99,33 +108,31 @@ namespace Refsa.RePacker
 
             foreach ((Type type, Info info) in typeCache)
             {
-                if (SerializerBuilder.CreateSerializer(info) is Func<MethodInfo> deserDelegate)
+                try
                 {
-                    serMethodCreators.Add((type, deserDelegate));
+                    if (SerializerBuilder.CreateSerializer(info) is Func<MethodInfo> deserDelegate)
+                    {
+                        serMethodCreators.Add((type, deserDelegate));
+                    }
+
+                    if (SerializerBuilder.CreateDeserializer(info) is Func<MethodInfo> serDelegate)
+                    {
+                        deserMethodCreators.Add((type, serDelegate));
+                    }
+
+                    if (SerializerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
+                    {
+                        loggerMethodCreators.Add((type, loggerDelegate));
+                    }
                 }
-
-                if (SerializerBuilder.CreateDeserializer(info) is Func<MethodInfo> serDelegate)
+                catch (Exception e)
                 {
-                    deserMethodCreators.Add((type, serDelegate));
-                }
-
-                // if (SerializerBuilder.CreateTestMethod(info) is Func<Delegate> testDelegate)
-                // {
-                //     testMethodCreators.Add((type, testDelegate));
-                // }
-
-                if (SerializerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
-                {
-                    loggerMethodCreators.Add((type, loggerDelegate));
+                    RePacker.Settings.Log.Error($"Error when generating serializer for {type}");
+                    RePacker.Settings.Log.Exception(e);
                 }
             }
 
             SerializerBuilder.Complete();
-
-            foreach (var tmc in testMethodCreators)
-            {
-                testLookup.Add(tmc.Item1, tmc.Item2.Invoke());
-            }
 
             foreach (var tmc in serMethodCreators)
             {
@@ -173,7 +180,11 @@ namespace Refsa.RePacker
                 )
                 .Select(e => (e.Name, e)))
             {
-                if (typeCache.TryGetValue(type, out var _)) continue;
+                if (typeCache.TryGetValue(type, out var _))
+                {
+                    RePacker.Settings.Log.Warn($"Packer already exists for type {type}");
+                    continue;
+                }
 
                 var tci = new Info
                 {
@@ -213,6 +224,10 @@ namespace Refsa.RePacker
             {
                 return true;
             }
+            else
+            {
+                RePacker.Settings.Log.Warn($"TypeInfo for {type} not found");
+            }
 
             return false;
         }
@@ -222,6 +237,10 @@ namespace Refsa.RePacker
             if (packerLookup.TryGetValue(type, out packer))
             {
                 return true;
+            }
+            else
+            {
+                RePacker.Settings.Log.Warn($"Packer for {type} not found");
             }
 
             return false;
@@ -233,6 +252,10 @@ namespace Refsa.RePacker
             {
                 typePacker.Pack<T>(buffer, ref value);
             }
+            else
+            {
+                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
+            }
         }
 
         public static T Deserialize<T>(BoxedBuffer buffer)
@@ -240,6 +263,10 @@ namespace Refsa.RePacker
             if (packerLookup.TryGetValue(typeof(T), out var typePacker))
             {
                 return typePacker.Unpack<T>(buffer);
+            }
+            else
+            {
+                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
             }
 
             return default(T);
@@ -253,7 +280,7 @@ namespace Refsa.RePacker
             }
             else
             {
-                // TODO: Log Error
+                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
             }
         }
 
@@ -263,6 +290,10 @@ namespace Refsa.RePacker
             {
                 value = typePacker.Unpack<T>(buffer);
                 return true;
+            }
+            else
+            {
+                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
             }
 
             value = default(T);
@@ -275,13 +306,9 @@ namespace Refsa.RePacker
             {
                 typePacker.RunLogger<T>(ref value);
             }
-        }
-
-        public static void RunTestMethod<T>()
-        {
-            if (testLookup.TryGetValue(typeof(T), out var testMethod))
+            else
             {
-                testMethod.DynamicInvoke(null);
+                RePacker.Settings.Log.Warn($"Logger for {typeof(T)} not found");
             }
         }
     }
