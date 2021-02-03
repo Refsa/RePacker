@@ -13,8 +13,8 @@ namespace Refsa.RePacker.Generator
         public GeneratorType GeneratorType => GeneratorType.RePacker;
         public Type ForType => null;
 
-        MethodInfo deserializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.DeserializeOut));
-        MethodInfo serializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.Serialize));
+        MethodInfo deserializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.UnpackOut));
+        MethodInfo serializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.Pack));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {

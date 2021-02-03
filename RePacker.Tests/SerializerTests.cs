@@ -150,7 +150,7 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        struct TestManagedStruct : ISerializer
+        struct TestManagedStruct : IPacker
         {
             public int Int;
             public string String;
@@ -182,7 +182,7 @@ namespace Refsa.RePacker.Tests
             buffer.Encode(testData);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = (TestManagedStruct)Serializer.Decode(ref readBuffer, typeof(TestManagedStruct));
+            var fromBuf = (TestManagedStruct)PackerExtensions.Decode(ref readBuffer, typeof(TestManagedStruct));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
         }
@@ -212,7 +212,7 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        class TestManagedClass : ISerializer
+        class TestManagedClass : IPacker
         {
             public int Int;
             public string String;
@@ -244,7 +244,7 @@ namespace Refsa.RePacker.Tests
             buffer.Encode(testData);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = (TestManagedClass)Serializer.Decode(ref readBuffer, typeof(TestManagedClass));
+            var fromBuf = (TestManagedClass)PackerExtensions.Decode(ref readBuffer, typeof(TestManagedClass));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
         }
@@ -281,7 +281,7 @@ namespace Refsa.RePacker.Tests
             Unknown, Male, Female,
         }
 
-        class Person : ISerializer
+        class Person : IPacker
         {
             public int Age;
             public string FirstName;

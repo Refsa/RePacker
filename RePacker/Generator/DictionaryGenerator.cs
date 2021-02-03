@@ -16,13 +16,13 @@ namespace Refsa.RePacker.Generator
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-        MethodInfo deserializeIListMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIList));
-        MethodInfo deserializeIListBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.UnpackIListBlittable));
+        MethodInfo deserializeIListMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackIList));
+        MethodInfo deserializeIListBlittableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackIListBlittable));
 
-        MethodInfo serializeIEnumerableMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIEnumerable));
-        MethodInfo serializeIEnumerableBlittableMethod = typeof(Serializer).GetMethod(nameof(Serializer.PackIEnumerableBlittable));
+        MethodInfo serializeIEnumerableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackIEnumerable));
+        MethodInfo serializeIEnumerableBlittableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackIEnumerableBlittable));
 
-        MethodInfo recreateDictMethod = typeof(Serializer).GetMethod(nameof(Serializer.RecreateDictionary));
+        MethodInfo recreateDictMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.RecreateDictionary));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {

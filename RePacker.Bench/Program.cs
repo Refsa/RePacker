@@ -216,7 +216,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
         }
 
         [RePacker]
-        public class Person : ISerializer
+        public class Person : IPacker
         {
             public int Age;
             public string FirstName;
@@ -353,7 +353,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = Serializer.DecodeArray<Person>(ref personArrayBuffer);
+                var p = PackerExtensions.DecodeArray<Person>(ref personArrayBuffer);
                 personArrayBuffer.Reset();
             }
         }
@@ -473,8 +473,8 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
 
             for (int i = 0; i < RUNS; i++)
             {
-                TypeCache.Serialize<Program.TestClass2>(boxedBuffer, ref ts2);
-                var _ = TypeCache.Deserialize<Program.TestClass2>(boxedBuffer);
+                TypeCache.Pack<Program.TestClass2>(boxedBuffer, ref ts2);
+                var _ = TypeCache.Unpack<Program.TestClass2>(boxedBuffer);
 
                 boxedBuffer.Buffer.Reset();
             }

@@ -16,7 +16,7 @@ using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public static class SerializerBuilder
+    public static class PackerBuilder
     {
         static AssemblyBuilder asmBuilder;
         static ModuleBuilder moduleBuilder;
@@ -41,7 +41,7 @@ namespace Refsa.RePacker.Builder
             moduleBuilder.CreateGlobalFunctions();
         }
 
-        public static Func<MethodInfo> CreateDeserializer(TypeCache.Info info)
+        public static Func<MethodInfo> CreatePacker(TypeCache.Info info)
         {
             // TODO: MakeByRefType ??
             Type[] typeParams = new Type[] { typeof(Refsa.RePacker.Buffers.BoxedBuffer) };
@@ -210,7 +210,7 @@ namespace Refsa.RePacker.Builder
             };
         }
 
-        public static Func<MethodInfo> CreateSerializer(TypeCache.Info info)
+        public static Func<MethodInfo> CreateUnpacker(TypeCache.Info info)
         {
             // Type[] typeParams = info.SerializedFields.Select(e => e.FieldType).ToArray();
             Type[] typeParams = new Type[] { typeof(BoxedBuffer), info.Type };
@@ -367,31 +367,6 @@ namespace Refsa.RePacker.Builder
             };
         }
 
-        public static Func<Delegate> CreateTestMethod(TypeCache.Info info)
-        {
-            string name = $"{info.Type.FullName}_Test";
-
-            var serBuilder = moduleBuilder.DefineGlobalMethod(
-                name,
-                MethodAttributes.Public | MethodAttributes.Static,
-                null,
-                null
-            );
-            serBuilder.SetImplementationFlags(MethodImplAttributes.Managed);
-
-            var ilGen = serBuilder.GetILGenerator();
-            {
-                ilGen.EmitWriteLine($"{info.Type.Name}: Hello World");
-                ilGen.Emit(OpCodes.Ret);
-            }
-
-            return () =>
-            {
-                var del = Expression.GetActionType(new Type[0] { });
-                return moduleBuilder.GetMethod(name).CreateDelegate(del);
-            };
-        }
-
         public static Func<MethodInfo> CreateDataLogger(TypeCache.Info info)
         {
             Type[] typeParams = new Type[] { info.Type };
@@ -406,11 +381,11 @@ namespace Refsa.RePacker.Builder
             );
             loggerBuilder.SetImplementationFlags(MethodImplAttributes.Managed);
 
-            MethodInfo stringAdder = typeof(SerializerBuilder).GetMethod(
-                nameof(SerializerBuilder.AddStrings));
+            MethodInfo stringAdder = typeof(PackerBuilder).GetMethod(
+                nameof(PackerBuilder.AddStrings));
 
-            MethodInfo fieldString = typeof(SerializerBuilder).GetMethod(
-                nameof(SerializerBuilder.BuildFieldString));
+            MethodInfo fieldString = typeof(PackerBuilder).GetMethod(
+                nameof(PackerBuilder.BuildFieldString));
 
             var ilGen = loggerBuilder.GetILGenerator();
             {

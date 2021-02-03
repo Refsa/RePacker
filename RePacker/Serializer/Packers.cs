@@ -8,25 +8,25 @@ using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker
 {
-    public static class Serializer
+    public static class PackerExtensions
     {
-        public static void Encode(this ref Buffer buffer, ISerializer target)
+        public static void Encode(this ref Buffer buffer, IPacker target)
         {
             target.ToBuffer(ref buffer);
         }
 
         public static object Decode(this ref Buffer buffer, Type type)
         {
-            ISerializer instance = Activator.CreateInstance(type) as ISerializer;
+            IPacker instance = Activator.CreateInstance(type) as IPacker;
 
             instance.FromBuffer(ref buffer);
 
             return instance;
         }
 
-        public static T Decode<T>(this ref Buffer buffer) where T : ISerializer
+        public static T Decode<T>(this ref Buffer buffer) where T : IPacker
         {
-            ISerializer instance = Activator.CreateInstance(typeof(T)) as ISerializer;
+            IPacker instance = Activator.CreateInstance(typeof(T)) as IPacker;
 
             instance.FromBuffer(ref buffer);
 
@@ -168,7 +168,7 @@ namespace Refsa.RePacker
             data = span.ToArray();
         }
 
-        public static void EncodeArray<T>(this ref Buffer buffer, T[] data) where T : ISerializer
+        public static void EncodeArray<T>(this ref Buffer buffer, T[] data) where T : IPacker
         {
             ulong dataLen = (ulong)data.Length;
             buffer.Push<ulong>(ref dataLen);
@@ -179,7 +179,7 @@ namespace Refsa.RePacker
             }
         }
 
-        public static T[] DecodeArray<T>(this ref Buffer buffer) where T : ISerializer
+        public static T[] DecodeArray<T>(this ref Buffer buffer) where T : IPacker
         {
             buffer.Pop<ulong>(out ulong length);
 
