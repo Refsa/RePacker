@@ -80,11 +80,6 @@ namespace Refsa.RePacker.Buffers
             writeCursor += len;
         }
 
-        public Memory<byte> Write()
-        {
-            return buffer;
-        }
-
         public ReadOnlyMemory<byte> Read()
         {
             return buffer.Slice(readCursor, writeCursor);
