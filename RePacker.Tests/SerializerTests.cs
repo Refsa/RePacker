@@ -21,10 +21,10 @@ namespace Refsa.RePacker.Tests
             Buffer buffer = CreateBuffer();
             string testString = "This is a test string";
 
-            buffer.EncodeString(ref testString);
+            buffer.PackString(ref testString);
 
             var readBuffer = new Buffer(ref buffer);
-            string fromBuf = readBuffer.DecodeString();
+            string fromBuf = readBuffer.UnpackString();
 
             Assert.Equal(testString, fromBuf);
         }
@@ -43,12 +43,12 @@ namespace Refsa.RePacker.Tests
             Buffer buffer = CreateBuffer();
             TestByteEnum testEnum = TestByteEnum.One;
 
-            buffer.EncodeEnum<TestByteEnum>(ref testEnum);
+            buffer.PackEnum<TestByteEnum>(ref testEnum);
 
             Assert.Equal(sizeof(byte), buffer.Count());
 
             var readBuffer = new Buffer(ref buffer);
-            TestByteEnum fromBuf = readBuffer.DecodeEnum<TestByteEnum>();
+            TestByteEnum fromBuf = readBuffer.UnpackEnum<TestByteEnum>();
 
             Assert.Equal(testEnum, fromBuf);
         }
@@ -67,12 +67,12 @@ namespace Refsa.RePacker.Tests
             Buffer buffer = CreateBuffer();
             TestULongEnum testEnum = TestULongEnum.One;
 
-            buffer.EncodeEnum<TestULongEnum>(ref testEnum);
+            buffer.PackEnum<TestULongEnum>(ref testEnum);
 
             Assert.Equal(sizeof(ulong), buffer.Count());
 
             var readBuffer = new Buffer(ref buffer);
-            TestULongEnum fromBuf = readBuffer.DecodeEnum<TestULongEnum>();
+            TestULongEnum fromBuf = readBuffer.UnpackEnum<TestULongEnum>();
 
             Assert.Equal(testEnum, fromBuf);
         }
@@ -158,13 +158,13 @@ namespace Refsa.RePacker.Tests
             public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Int);
-                String = buffer.DecodeString();
+                String = buffer.UnpackString();
             }
 
             public void ToBuffer(ref Buffer buffer)
             {
                 buffer.Push<int>(ref Int);
-                buffer.EncodeString(ref String);
+                buffer.PackString(ref String);
             }
         }
 
@@ -179,10 +179,10 @@ namespace Refsa.RePacker.Tests
                 String = "1.234567f",
             };
 
-            buffer.Encode(testData);
+            buffer.Pack(testData);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = (TestManagedStruct)PackerExtensions.Decode(ref readBuffer, typeof(TestManagedStruct));
+            var fromBuf = (TestManagedStruct)PackerExtensions.Unpack(ref readBuffer, typeof(TestManagedStruct));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
         }
@@ -220,13 +220,13 @@ namespace Refsa.RePacker.Tests
             public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Int);
-                String = buffer.DecodeString();
+                String = buffer.UnpackString();
             }
 
             public void ToBuffer(ref Buffer buffer)
             {
                 buffer.Push<int>(ref Int);
-                buffer.EncodeString(ref String);
+                buffer.PackString(ref String);
             }
         }
 
@@ -241,10 +241,10 @@ namespace Refsa.RePacker.Tests
                 String = "1.234567f",
             };
 
-            buffer.Encode(testData);
+            buffer.Pack(testData);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = (TestManagedClass)PackerExtensions.Decode(ref readBuffer, typeof(TestManagedClass));
+            var fromBuf = (TestManagedClass)PackerExtensions.Unpack(ref readBuffer, typeof(TestManagedClass));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
         }
@@ -291,17 +291,17 @@ namespace Refsa.RePacker.Tests
             public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Age);
-                FirstName = buffer.DecodeString();
-                LastName = buffer.DecodeString();
-                Sex = buffer.DecodeEnum<Sex>();
+                FirstName = buffer.UnpackString();
+                LastName = buffer.UnpackString();
+                Sex = buffer.UnpackEnum<Sex>();
             }
 
             public void ToBuffer(ref Buffer buffer)
             {
                 buffer.Push<int>(ref Age);
-                buffer.EncodeString(ref FirstName);
-                buffer.EncodeString(ref LastName);
-                buffer.EncodeEnum<Sex>(ref Sex);
+                buffer.PackString(ref FirstName);
+                buffer.PackString(ref LastName);
+                buffer.PackEnum<Sex>(ref Sex);
             }
         }
 
@@ -319,10 +319,10 @@ namespace Refsa.RePacker.Tests
                 Sex = Sex.Male,
             };
 
-            buffer.Encode(p);
+            buffer.Pack(p);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = readBuffer.Decode<Person>();
+            var fromBuf = readBuffer.Unpack<Person>();
 
             Assert.Equal(p.Age, fromBuf.Age);
             Assert.Equal(p.FirstName, fromBuf.FirstName);

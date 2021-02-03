@@ -10,12 +10,12 @@ namespace Refsa.RePacker
 {
     public static class PackerExtensions
     {
-        public static void Encode(this ref Buffer buffer, IPacker target)
+        public static void Pack(this ref Buffer buffer, IPacker target)
         {
             target.ToBuffer(ref buffer);
         }
 
-        public static object Decode(this ref Buffer buffer, Type type)
+        public static object Unpack(this ref Buffer buffer, Type type)
         {
             IPacker instance = Activator.CreateInstance(type) as IPacker;
 
@@ -24,7 +24,7 @@ namespace Refsa.RePacker
             return instance;
         }
 
-        public static T Decode<T>(this ref Buffer buffer) where T : IPacker
+        public static T Unpack<T>(this ref Buffer buffer) where T : IPacker
         {
             IPacker instance = Activator.CreateInstance(typeof(T)) as IPacker;
 
@@ -33,7 +33,7 @@ namespace Refsa.RePacker
             return (T)instance;
         }
 
-        public static void EncodeString(this ref Buffer buffer, ref string str)
+        public static void PackString(this ref Buffer buffer, ref string str)
         {
             ulong length = (ulong)str.Length;
             buffer.Push<ulong>(ref length);
@@ -42,7 +42,7 @@ namespace Refsa.RePacker
             buffer.Write(new ReadOnlySpan<byte>(bytes));
         }
 
-        public static string DecodeString(this ref Buffer buffer)
+        public static string UnpackString(this ref Buffer buffer)
         {
             buffer.Pop<ulong>(out ulong length);
             int start = buffer.Cursor();
@@ -69,7 +69,7 @@ namespace Refsa.RePacker
             value = "";
         }
 
-        public static void EncodeEnum<TEnum>(this ref Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
+        public static void PackEnum<TEnum>(this ref Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
 
@@ -110,7 +110,7 @@ namespace Refsa.RePacker
             }
         }
 
-        public static TEnum DecodeEnum<TEnum>(this ref Buffer buffer) where TEnum : unmanaged, Enum
+        public static TEnum UnpackEnum<TEnum>(this ref Buffer buffer) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
 
@@ -175,7 +175,7 @@ namespace Refsa.RePacker
 
             for (int i = 0; i < data.Length; i++)
             {
-                Encode(ref buffer, data[i]);
+                Pack(ref buffer, data[i]);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Refsa.RePacker
             T[] data = new T[(int)length];
             for (int i = 0; i < (int)length; i++)
             {
-                data[i] = (T)Decode(ref buffer, typeof(T));
+                data[i] = (T)Unpack(ref buffer, typeof(T));
             }
 
             return data;

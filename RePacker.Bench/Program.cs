@@ -180,7 +180,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
                 personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
 
                 var _personBuffer = new Buffer(new byte[1024], 0);
-                _personBuffer.Encode(p);
+                _personBuffer.Pack(p);
                 personBuffer = new Buffer(ref _personBuffer);
 
                 personBoxedBuffer = new BoxedBuffer(1024);
@@ -226,17 +226,17 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             public void FromBuffer(ref Buffer buffer)
             {
                 buffer.Pop<int>(out Age);
-                FirstName = buffer.DecodeString();
-                LastName = buffer.DecodeString();
-                Sex = buffer.DecodeEnum<Sex>();
+                FirstName = buffer.UnpackString();
+                LastName = buffer.UnpackString();
+                Sex = buffer.UnpackEnum<Sex>();
             }
 
             public void ToBuffer(ref Buffer buffer)
             {
                 buffer.Push<int>(ref Age);
-                buffer.EncodeString(ref FirstName);
-                buffer.EncodeString(ref LastName);
-                buffer.EncodeEnum<Sex>(ref Sex);
+                buffer.PackString(ref FirstName);
+                buffer.PackString(ref LastName);
+                buffer.PackEnum<Sex>(ref Sex);
             }
         }
 
@@ -259,7 +259,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
         {
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.Encode(p);
+                buffer.Pack(p);
                 buffer.Reset();
             }
         }
@@ -279,7 +279,7 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var _ = (Person)personBuffer.Decode(typeof(Person));
+                var _ = (Person)personBuffer.Unpack(typeof(Person));
                 personBuffer.Reset();
             }
         }
