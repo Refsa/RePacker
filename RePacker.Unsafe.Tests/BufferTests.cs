@@ -345,6 +345,30 @@ namespace Refsa.RePacker.Buffers.Tests
 
         #region DirectPacking
         [Fact]
+        public void direct_packing_bool()
+        {
+            var buffer = new Buffer(new byte[2]);
+
+            char value = 'G';
+
+            buffer.PushChar(ref value);
+            buffer.PopChar(out char posFromBuf);
+            Assert.Equal(value, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_char()
+        {
+            var buffer = new Buffer(new byte[1]);
+
+            bool value = true;
+
+            buffer.PushBool(ref value);
+            buffer.PopBool(out bool posFromBuf);
+            Assert.Equal(value, posFromBuf);
+        }
+
+        [Fact]
         public void direct_packing_short()
         {
             var buffer = new Buffer(new byte[4]);

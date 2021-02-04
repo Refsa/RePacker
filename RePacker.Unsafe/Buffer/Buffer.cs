@@ -177,6 +177,17 @@ namespace Refsa.RePacker.Buffers
         }
 
         #region DirectPacking
+        public void PushBool(ref bool value)
+        {
+            buffer.Span[writeCursor++] = value ? (byte)255 : (byte)0;
+        }
+
+        public void PopBool(out bool value)
+        {
+            byte val = buffer.Span[readCursor++];
+            value = val == 0 ? false : true;
+        }
+
         public unsafe void PushShort(ref short value)
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
@@ -296,6 +307,27 @@ namespace Refsa.RePacker.Buffers
             for (int i = 0; i < 8; i++)
             {
                 value |= (ulong)buffer.Span[readCursor++] << (i * 8);
+            }
+        }
+
+        public unsafe void PushChar(ref char value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    *((char*)val + i) = value;
+                }
+            }
+            writeCursor += 2;
+        }
+
+        public unsafe void PopChar(out char value)
+        {
+            value = '\0';
+            for (int i = 0; i < 2; i++)
+            {
+                value |= (char)(buffer.Span[readCursor++] << (i * 8));
             }
         }
 
