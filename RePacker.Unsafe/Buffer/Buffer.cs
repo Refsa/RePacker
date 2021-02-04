@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Buffers
 {
@@ -27,6 +28,7 @@ namespace Refsa.RePacker.Buffers
             this.readCursor = buffer.readCursor;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Buffer Push<T>(ref T value) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
@@ -37,6 +39,7 @@ namespace Refsa.RePacker.Buffers
             return this;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Buffer Push<T>(ref T value, int index) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
@@ -47,6 +50,7 @@ namespace Refsa.RePacker.Buffers
             // TODO: Make sure offset aligns with new length
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Buffer Pop<T>(out T value) where T : unmanaged
         {
             int size = Marshal.SizeOf<T>();
@@ -56,6 +60,7 @@ namespace Refsa.RePacker.Buffers
             return this;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(ReadOnlySpan<byte> data)
         {
             var span = buffer.Span.Slice(writeCursor, data.Length);
@@ -63,6 +68,7 @@ namespace Refsa.RePacker.Buffers
             writeCursor += data.Length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(Memory<byte> data)
         {
             var mem = buffer.Slice(writeCursor, data.Length);
@@ -70,6 +76,7 @@ namespace Refsa.RePacker.Buffers
             writeCursor += data.Length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(Buffer data)
         {
             int len = data.Length();
@@ -80,11 +87,13 @@ namespace Refsa.RePacker.Buffers
             writeCursor += len;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlyMemory<byte> Read()
         {
             return buffer.Slice(readCursor, writeCursor);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlyMemory<byte> Read(int count)
         {
             var slice = buffer.Slice(readCursor, count);
@@ -92,59 +101,70 @@ namespace Refsa.RePacker.Buffers
             return slice;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flush()
         {
             buffer.Span.Slice(readCursor, Length()).Clear();
             Reset();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Count()
         {
             return writeCursor;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Length()
         {
             return writeCursor - readCursor;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Cursor()
         {
             return readCursor;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int FreeSpace()
         {
             return buffer.Length - writeCursor;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Reset()
         {
             readCursor = 0;
             writeCursor = 0;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetCount(int count)
         {
             writeCursor = count;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveOffset(int amount)
         {
             writeCursor += amount;
             // TODO: Make sure cursor doesnt move outside of buffer
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit(int count)
         {
             return writeCursor + count <= buffer.Length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit<T>(int count)
         {
             return writeCursor + (count * Marshal.SizeOf<T>()) <= buffer.Length;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public (byte[] array, int length) GetArray()
         {
             if (MemoryMarshal.TryGetArray<byte>(buffer, out var seg))
@@ -154,5 +174,169 @@ namespace Refsa.RePacker.Buffers
 
             return (null, 0);
         }
+
+        #region DirectPacking
+        public unsafe void PushShort(ref short value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
+            {
+                for (short i = 0; i < 2; i++)
+                {
+                    *((short*)val + i) = value;
+                }
+            }
+            writeCursor += 2;
+        }
+
+        public unsafe void PopShort(out short value)
+        {
+            value = 0;
+            for (short i = 0; i < 2; i++)
+            {
+                value |= (short)(buffer.Span[readCursor++] << (i * 8));
+            }
+        }
+
+        public unsafe void PushUShort(ref ushort value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
+            {
+                for (ushort i = 0; i < 2; i++)
+                {
+                    *((ushort*)val + i) = value;
+                }
+            }
+            writeCursor += 2;
+        }
+
+        public unsafe void PopUShort(out ushort value)
+        {
+            value = 0;
+            for (ushort i = 0; i < 2; i++)
+            {
+                value |= (ushort)(buffer.Span[readCursor++] << (i * 8));
+            }
+        }
+
+        public unsafe void PushInt(ref int value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 4))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    *((int*)val + i) = value;
+                }
+            }
+            writeCursor += 4;
+        }
+
+        public unsafe void PopInt(out int value)
+        {
+            var span = buffer.Span.Slice(readCursor, 4);
+            readCursor += 4;
+            value = ((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0]));
+        }
+
+        public unsafe void PushUInt(ref uint value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 4))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    *((uint*)val + i) = value;
+                }
+            }
+            writeCursor += 4;
+        }
+
+        public void PopUInt(out uint value)
+        {
+            var span = buffer.Span.Slice(readCursor, 4);
+            readCursor += 4;
+            value = (uint)((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0]));
+        }
+
+        public unsafe void PushLong(ref long value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 8))
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    *((long*)val + i) = value;
+                }
+            }
+            writeCursor += 8;
+        }
+
+        public void PopLong(out long value)
+        {
+            value = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                value |= (long)buffer.Span[readCursor++] << (i * 8);
+            }
+        }
+
+        public unsafe void PushULong(ref ulong value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 8))
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    *((ulong*)val + i) = value;
+                }
+            }
+            writeCursor += 8;
+        }
+
+        public void PopULong(out ulong value)
+        {
+            value = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                value |= (ulong)buffer.Span[readCursor++] << (i * 8);
+            }
+        }
+
+        public void PushByte(ref byte value)
+        {
+            buffer.Span[writeCursor++] = value;
+        }
+
+        public void PopByte(out byte value)
+        {
+            value = buffer.Span[readCursor++];
+        }
+
+        public void PushSByte(ref sbyte value)
+        {
+            buffer.Span[writeCursor++] = (byte)value;
+        }
+
+        public void PopSByte(out sbyte value)
+        {
+            value = (sbyte)buffer.Span[readCursor++];
+        }
+
+
+        public unsafe void PushFloat(ref float value)
+        {
+            fixed (byte* val = buffer.Span.Slice(writeCursor, 4))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    *((float*)val + i) = value;
+                }
+            }
+            writeCursor += 4;
+        }
+
+        public unsafe void PopFloat(out float value)
+        {
+            var span = buffer.Span.Slice(readCursor, 4);
+            readCursor += 4;
+            value = ((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0]));
+        }
+        #endregion
     }
 }

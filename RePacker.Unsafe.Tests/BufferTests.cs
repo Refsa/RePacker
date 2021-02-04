@@ -342,5 +342,134 @@ namespace Refsa.RePacker.Buffers.Tests
 
             Assert.Equal(3, buffer.Count());
         }
+
+        #region DirectPacking
+        [Fact]
+        public void direct_packing_short()
+        {
+            var buffer = new Buffer(new byte[4]);
+
+            short positive = 23423;
+            short negative = -5342;
+
+            buffer.PushShort(ref positive);
+            buffer.PopShort(out short posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+
+            buffer.Reset();
+
+            buffer.PushShort(ref negative);
+            buffer.PopShort(out short negFromBuf);
+            Assert.Equal(negative, negFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_ushort()
+        {
+            var buffer = new Buffer(new byte[4]);
+
+            ushort positive = 23423;
+
+            buffer.PushUShort(ref positive);
+            buffer.PopUShort(out ushort posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_int()
+        {
+            var buffer = new Buffer(new byte[4]);
+
+            int positive = 1234567890;
+            int negative = -1234567890;
+
+            buffer.PushInt(ref positive);
+            buffer.PopInt(out int posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+
+            buffer.Reset();
+
+            buffer.PushInt(ref negative);
+            buffer.PopInt(out int negFromBuf);
+            Assert.Equal(negative, negFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_ints()
+        {
+            var buffer = new Buffer(new byte[1 << 16]);
+
+            for (int i = int.MinValue; i < int.MaxValue - 100_000_000; i += 100_000_000)
+            {
+                buffer.PushInt(ref i);
+            }
+
+            for (int i = int.MinValue; i < int.MaxValue - 100_000_000; i += 100_000_000)
+            {
+                buffer.PopInt(out int val);
+                Assert.Equal(i, val);
+            }
+        }
+
+        [Fact]
+        public void direct_packing_uint()
+        {
+            var buffer = new Buffer(new byte[1024]);
+
+            uint positive = 1234567890;
+            buffer.PushUInt(ref positive);
+            buffer.PopUInt(out uint posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_long()
+        {
+            var buffer = new Buffer(new byte[1024]);
+
+            long positive = 12345678901234123;
+            long negative = -1234567890123435;
+
+            buffer.PushLong(ref positive);
+            buffer.PopLong(out long posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+
+            buffer.PushLong(ref negative);
+            buffer.PopLong(out long negFromBuf);
+            Assert.Equal(negative, negFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_ulong()
+        {
+            var buffer = new Buffer(new byte[1024]);
+
+            ulong positive = 12345678902345243623;
+
+            buffer.PushULong(ref positive);
+            buffer.PopULong(out ulong posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+        }
+
+
+        [Fact]
+        public void direct_packing_float()
+        {
+            var buffer = new Buffer(new byte[4]);
+
+            float positive = 3.141598f;
+            float negative = -6.2826f;
+
+            buffer.PushFloat(ref positive);
+            buffer.PopFloat(out float posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+
+            buffer.Reset();
+
+            buffer.PushFloat(ref negative);
+            buffer.PopFloat(out float negFromBuf);
+            Assert.Equal(negative, negFromBuf);
+        }
+        #endregion
     }
 }
