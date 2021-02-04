@@ -8,12 +8,12 @@ namespace Refsa.RePacker
     {
         public override void Pack(BoxedBuffer buffer, ref double value)
         {
-            buffer.Push<double>(ref value);
+            buffer.Buffer.PushDouble(ref value);
         }
 
         public override void Unpack(BoxedBuffer buffer, ref double value)
         {
-            buffer.Pop(out value);
+            buffer.Buffer.PopDouble(out value);
         }
     }
 }

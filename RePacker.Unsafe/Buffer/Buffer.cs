@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System;
 using System.Runtime.CompilerServices;
+using Refsa.RePacker.Utils;
 
 namespace Refsa.RePacker.Buffers
 {
@@ -321,21 +322,68 @@ namespace Refsa.RePacker.Buffers
 
         public unsafe void PushFloat(ref float value)
         {
-            fixed (byte* val = buffer.Span.Slice(writeCursor, 4))
+            fixed (byte* buf = buffer.Span.Slice(writeCursor, 4))
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    *((float*)val + i) = value;
-                }
+                *(float*)buf = value;
             }
             writeCursor += 4;
+
+            // IEEE-like impl
+            /* float source = value;
+
+            bool isNegative = value < 0f;
+            if (isNegative) value = -value;
+
+            int exp = 0;
+            if (value == 0f)
+            {
+                exp = 0;
+            }
+            else
+            {
+                source = MathExt.LDExp(MathExt.FRExp(source, out exp), 24);
+                source += 126;
+            }
+
+            int mantissa = (int)source;
+
+            buffer.Span[writeCursor++] = (byte)((isNegative ? 0x80 : 0x00) | (exp >> 1));
+            buffer.Span[writeCursor++] = (byte)(((exp << 7) & 0x80) | ((mantissa >> 16) & 0x7F));
+            buffer.Span[writeCursor++] = (byte)(mantissa >> 7);
+            buffer.Span[writeCursor++] = (byte)(mantissa); */
         }
 
         public unsafe void PopFloat(out float value)
         {
-            var span = buffer.Span.Slice(readCursor, 4);
+            value = 0;
+
+            fixed (byte* buf = buffer.Span.Slice(readCursor, 4))
+            {
+                value = *(float*)buf;
+            }
+
             readCursor += 4;
-            value = ((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0]));
+        }
+
+        public unsafe void PushDouble(ref double value)
+        {
+            fixed (byte* buf = buffer.Span.Slice(writeCursor, 8))
+            {
+                *(double*)buf = value;
+            }
+            writeCursor += 8;
+        }
+
+        public unsafe void PopDouble(out double value)
+        {
+            value = 0;
+
+            fixed (byte* buf = buffer.Span.Slice(readCursor, 8))
+            {
+                value = *(double*)buf;
+            }
+
+            readCursor += 8;
         }
         #endregion
     }
