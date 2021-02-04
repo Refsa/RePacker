@@ -128,7 +128,7 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class ZeroFormatterBench
     {
-        /* @22c5a35c377825ec3a7508ca0e5d8ba7c218cf89
+        /* @commit 22c5a35c377825ec3a7508ca0e5d8ba7c218cf89
                                       Method |            Mean |         Error |       StdDev |       Gen 0 |       Gen 1 | Gen 2 |    Allocated |
         ------------------------------------ |----------------:|--------------:|-------------:|------------:|------------:|------:|-------------:|
                      SmallObjectSerialize10K |     2,347.62 us |      6.190 us |     5.790 us |    203.1250 |           - |     - |     640044 B |
@@ -145,6 +145,25 @@ namespace Refsa.RePacker.Benchmarks
               SmallObjectArrayDeserialize10K | 3,020,796.04 us |  2,609.645 us | 2,037.439 us | 408000.0000 |           - |     - | 1280302168 B |
           ILGen_SmallObjectArraySerialize10K | 1,513,431.92 us |  2,639.882 us | 2,340.187 us | 204000.0000 |           - |     - |  640066960 B |
         ILGen_SmallObjectArrayDeserialize10K | 1,985,785.97 us |  3,865.617 us | 3,426.769 us | 306000.0000 | 102000.0000 |     - | 1280240000 B |
+        */
+
+        /* @commit a76f7cd3fcab7e1e78a5184a2f993e4070fd40e8
+                                      Method |            Mean |         Error |        StdDev |       Gen 0 |       Gen 1 | Gen 2 |    Allocated |
+        ------------------------------------ |----------------:|--------------:|--------------:|------------:|------------:|------:|-------------:|
+                     SmallObjectSerialize10K |     2,383.69 us |      4.897 us |      4.581 us |    203.1250 |           - |     - |     640043 B |
+               ILGen_SmallObjectSerialize10K |     1,707.55 us |      5.995 us |      5.314 us |    203.1250 |           - |     - |     640003 B |
+                   SmallObjectDeserialize10K |     2,978.39 us |      7.539 us |      7.052 us |    378.9063 |           - |     - |    1200060 B |
+             ILGen_SmallObjectDeserialize10K |     1,934.69 us |     12.416 us |     11.614 us |    378.9063 |           - |     - |    1200036 B |
+                    ILGen_VectorSerialize10K |       365.67 us |      0.990 us |      0.878 us |           - |           - |     - |            - |
+                  ILGen_VectorDeserialize10K |       388.71 us |      3.484 us |      3.259 us |           - |           - |     - |            - |
+                       ILGen_IntSerialize10K |       212.50 us |      0.418 us |      0.370 us |     20.7520 |           - |     - |      65608 B |
+                     ILGen_IntDeserialize10K |       199.59 us |      0.575 us |      0.538 us |           - |           - |     - |          1 B |
+                             IntSerialize10K |        62.13 us |      0.375 us |      0.351 us |     20.7520 |           - |     - |      65560 B |
+                           IntDeserialize10K |        45.41 us |      0.300 us |      0.281 us |      0.3052 |           - |     - |       1048 B |
+                SmallObjectArraySerialize10K | 2,361,170.74 us | 10,788.875 us | 10,091.920 us | 204000.0000 |           - |     - |  640097960 B |
+              SmallObjectArrayDeserialize10K | 3,058,959.39 us | 23,121.066 us | 20,496.223 us | 408000.0000 |           - |     - | 1280302168 B |
+          ILGen_SmallObjectArraySerialize10K | 1,457,126.79 us |  2,696.468 us |  2,522.278 us | 204000.0000 |           - |     - |  640066960 B |
+        ILGen_SmallObjectArrayDeserialize10K | 1,888,190.82 us |  3,025.772 us |  2,526.656 us | 306000.0000 | 102000.0000 |     - | 1280240000 B |
         */
 
         static byte[] backingBuffer;
@@ -790,7 +809,7 @@ namespace Refsa.RePacker.Benchmarks
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
             // var summary2 = BenchmarkRunner.Run<GeneralBenches>();
 
