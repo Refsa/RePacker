@@ -417,6 +417,27 @@ namespace Refsa.RePacker.Buffers
 
             readCursor += 8;
         }
+
+        public unsafe void PushDecimal(ref decimal value)
+        {
+            fixed (byte* buf = buffer.Span.Slice(writeCursor, 24))
+            {
+                *(decimal*)buf = value;
+            }
+            writeCursor += 24;
+        }
+
+        public unsafe void PopDecimal(out decimal value)
+        {
+            value = 0;
+
+            fixed (byte* buf = buffer.Span.Slice(readCursor, 24))
+            {
+                value = *(decimal*)buf;
+            }
+
+            readCursor += 24;
+        }
         #endregion
     }
 }

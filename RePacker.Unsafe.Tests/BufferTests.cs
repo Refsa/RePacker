@@ -345,7 +345,7 @@ namespace Refsa.RePacker.Buffers.Tests
 
         #region DirectPacking
         [Fact]
-        public void direct_packing_bool()
+        public void direct_packing_char()
         {
             var buffer = new Buffer(new byte[2]);
 
@@ -357,7 +357,25 @@ namespace Refsa.RePacker.Buffers.Tests
         }
 
         [Fact]
-        public void direct_packing_char()
+        public void direct_packing_chars()
+        {
+            var buffer = new Buffer(new byte[2 * 256]);
+
+            for (int i = 0; i < 255; i++)
+            {
+                char val = (char)i;
+                buffer.PushChar(ref val);
+            }
+
+            for (int i = 0; i < 255; i++)
+            {
+                buffer.PopChar(out char posFromBuf);
+                Assert.Equal((char)i, posFromBuf);
+            }
+        }
+
+        [Fact]
+        public void direct_packing_bool()
         {
             var buffer = new Buffer(new byte[1]);
 
@@ -521,8 +539,8 @@ namespace Refsa.RePacker.Buffers.Tests
         {
             var buffer = new Buffer(new byte[8]);
 
-            double positive = 3.141598f;
-            double negative = -6.2826f;
+            double positive = 3.1415989283475918234120012341276357816438762142736507821634783617856417856812736481723645781236481237657619871263497812635871236;
+            double negative = -6.28269283475918234120012341276357816438762142736507821634783617856417856812736481723645781236481237657619871263497812635871236;
 
             buffer.PushDouble(ref positive);
             buffer.PopDouble(out double posFromBuf);
@@ -540,8 +558,8 @@ namespace Refsa.RePacker.Buffers.Tests
         {
             var buffer = new Buffer(new byte[2048]);
 
-            double val = 2_000_000_000f;
-            double step = 2_000_000_000f / 128f;
+            double val = 2_000_000_000.0;
+            double step = 2_000_000_000.0 / 128.0;
 
             for (double f = -val; f < val; f += step)
             {
@@ -554,6 +572,25 @@ namespace Refsa.RePacker.Buffers.Tests
 
                 Assert.Equal(f, posFromBuf);
             }
+        }
+
+        [Fact]
+        public void direct_packing_decimal()
+        {
+            var buffer = new Buffer(new byte[24]);
+
+            decimal positive = 3.141598234523423452345234623455423762345234565346234544236234554264235423526243523452562345234536234523462345243623452364564567456786784567845624356568234623455324521343432435234532234523452346354665344523542354326234576562345234541890123457812348913489071345789012347890123483458972345912357983477659127481275913480712893471298579485723894719823419234712973598234758932075981327948718943567239485128934579843769283745918798523798234596832495874390857190873401298567129034697123456134784239889123471289356102734982316523648712638571293845M;
+            decimal negative = -6.28476345623423452345234623455423762345234565346234544236234554264235423526243523452562345234536234523462345243623452364564567456786784567845624356568234623455342525624523452345623234523452346354665344523542354326234545345236234521890123457812348913489071345789012347890123483458972345912357983477659127481275913480712893471298579485723894719823419234712973598234758932075981327948718943567239485128934579843769283745918798523798234596832495874390857190873401298567129034697123456134784239889123471289356102734982316523648712638571293846M;
+
+            buffer.PushDecimal(ref positive);
+            buffer.PopDecimal(out decimal posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+
+            buffer.Reset();
+
+            buffer.PushDecimal(ref negative);
+            buffer.PopDecimal(out decimal negFromBuf);
+            Assert.Equal(negative, negFromBuf);
         }
         #endregion
     }

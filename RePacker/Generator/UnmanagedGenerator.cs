@@ -32,16 +32,12 @@ namespace Refsa.RePacker.Generator
             switch (Type.GetTypeCode(fieldInfo.FieldType))
             {
                 case TypeCode.Boolean:
-                    parameters[0] = typeof(bool);
-                    bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
+                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopBool), BindingFlags.Public | BindingFlags.Instance);
                     ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                    ilGen.Emit(OpCodes.Pop);
                     break;
                 case TypeCode.Char:
-                    parameters[0] = typeof(char);
-                    bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
+                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopChar), BindingFlags.Public | BindingFlags.Instance);
                     ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                    ilGen.Emit(OpCodes.Pop);
                     break;
                 case TypeCode.SByte:
                     bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopSByte), BindingFlags.Public | BindingFlags.Instance);
@@ -84,10 +80,8 @@ namespace Refsa.RePacker.Generator
                     ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
                     break;
                 case TypeCode.Decimal:
-                    parameters[0] = typeof(decimal);
-                    bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
+                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopDecimal), BindingFlags.Public | BindingFlags.Instance);
                     ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
-                    ilGen.Emit(OpCodes.Pop);
                     break;
             }
         }
@@ -99,16 +93,12 @@ namespace Refsa.RePacker.Generator
             switch (Type.GetTypeCode(fieldInfo.FieldType))
             {
                 case TypeCode.Boolean:
-                    parameters[0] = typeof(bool);
-                    bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushBool), BindingFlags.Public | BindingFlags.Instance);
                     ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                    ilGen.Emit(OpCodes.Pop);
                     break;
                 case TypeCode.Char:
-                    parameters[0] = typeof(char);
-                    bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopBool), BindingFlags.Public | BindingFlags.Instance);
                     ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                    ilGen.Emit(OpCodes.Pop);
                     break;
                 case TypeCode.SByte:
                     bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushSByte), BindingFlags.Public | BindingFlags.Instance);
@@ -151,10 +141,8 @@ namespace Refsa.RePacker.Generator
                     ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
                     break;
                 case TypeCode.Decimal:
-                    parameters[0] = typeof(decimal);
-                    bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
+                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushDecimal), BindingFlags.Public | BindingFlags.Instance);
                     ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
-                    ilGen.Emit(OpCodes.Pop);
                     break;
             }
         }
