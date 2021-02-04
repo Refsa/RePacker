@@ -22,10 +22,9 @@ namespace Refsa.RePacker
             this.serializer = serializer;
         }
 
-        public void Setup<T>(MethodInfo packer, MethodInfo unpacker, MethodInfo logger)
+        public void Setup<T>(MethodInfo packer, MethodInfo unpacker)
         {
             var ts = new TypePacker<T>(packer, unpacker);
-            ts.SetLogger(logger);
             this.serializer = ts;
         }
 
@@ -79,6 +78,16 @@ namespace Refsa.RePacker
                     wrapper.Unpack(buffer, ref asT);
                     return asT;
                 }
+            }
+
+            return default(T);
+        }
+
+        public T GetTypePacker<T>() where T : ITypePacker
+        {
+            if (this.serializer is T)
+            {
+                return (T)this.serializer;
             }
 
             return default(T);
