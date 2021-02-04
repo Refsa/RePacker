@@ -470,6 +470,67 @@ namespace Refsa.RePacker.Buffers.Tests
             buffer.PopFloat(out float negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
+
+        [Fact]
+        public void direct_packing_floats()
+        {
+            var buffer = new Buffer(new byte[2048]);
+
+            float val = 2_000_000_000f;
+            float step = 2_000_000_000f / 128f;
+
+            for (float f = -val; f < val; f += step)
+            {
+                buffer.PushFloat(ref f);
+            }
+
+            for (float f = -val; f < val; f += step)
+            {
+                buffer.PopFloat(out float posFromBuf);
+
+                Assert.Equal(f, posFromBuf);
+            }
+        }
+
+        [Fact]
+        public void direct_packing_double()
+        {
+            var buffer = new Buffer(new byte[8]);
+
+            double positive = 3.141598f;
+            double negative = -6.2826f;
+
+            buffer.PushDouble(ref positive);
+            buffer.PopDouble(out double posFromBuf);
+            Assert.Equal(positive, posFromBuf);
+
+            buffer.Reset();
+
+            buffer.PushDouble(ref negative);
+            buffer.PopDouble(out double negFromBuf);
+            Assert.Equal(negative, negFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_doubles()
+        {
+            var buffer = new Buffer(new byte[2048]);
+
+            double val = 2_000_000_000f;
+            double step = 2_000_000_000f / 128f;
+
+            for (double f = -val; f < val; f += step)
+            {
+                buffer.PushDouble(ref f);
+            }
+
+            for (double f = -val; f < val; f += step)
+            {
+                buffer.PopDouble(out double posFromBuf);
+
+                Assert.Equal(f, posFromBuf);
+            }
+        }
         #endregion
     }
 }
