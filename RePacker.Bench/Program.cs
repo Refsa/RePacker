@@ -128,21 +128,23 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class ZeroFormatterBench
     {
-        /* @commit b11167496426aa69b63ea2b8bcb3cc83209a0c20
-                              Method |           Mean |        Error |       StdDev |       Gen 0 |       Gen 1 | Gen 2 |    Allocated |
------------------------------------- |---------------:|-------------:|-------------:|------------:|------------:|------:|-------------:|
-             SmallObjectSerialize10K | 2,632.0 us |      8.39 us |      7.44 us |    203.1250 |           - |     - |     640036 B |
-       ILGen_SmallObjectSerialize10K | 2,479.2 us |     17.65 us |     16.51 us |    203.1250 |           - |     - |     640002 B |
-           SmallObjectDeserialize10K | 2,711.0 us |      7.88 us |      7.37 us |    378.9063 |           - |     - |    1200064 B |
-     ILGen_SmallObjectDeserialize10K | 2,589.0 us |     18.09 us |     16.92 us |    378.9063 |           - |     - |    1200002 B |
-            ILGen_VectorSerialize10K | 1,168.4 us |      3.19 us |      2.98 us |           - |           - |     - |         14 B |
-          ILGen_VectorDeserialize10K | 1,181.2 us |      5.69 us |      5.04 us |           - |           - |     - |          1 B |
-               ILGen_IntSerialize10K |   160.7 us |      0.31 us |      0.29 us |           - |           - |     - |            - |
-             ILGen_IntDeserialize10K |   141.9 us |      0.34 us |      0.31 us |           - |           - |     - |            - |
-        SmallObjectArraySerialize10K | 2,932.0 ms | 12,787.97 us | 11,961.88 us | 204000.0000 |           - |     - |  640096720 B |
-      SmallObjectArrayDeserialize10K | 3,202.0 ms | 17,691.45 us | 15,683.01 us | 408000.0000 |           - |     - | 1280302168 B |
-  ILGen_SmallObjectArraySerialize10K | 2,077.0 ms | 13,372.43 us | 12,508.58 us | 204000.0000 |           - |     - |  640065608 B |
-ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us | 308000.0000 | 101000.0000 |     - | 1280240000 B |
+        /* @22c5a35c377825ec3a7508ca0e5d8ba7c218cf89
+                                      Method |            Mean |         Error |       StdDev |       Gen 0 |       Gen 1 | Gen 2 |    Allocated |
+        ------------------------------------ |----------------:|--------------:|-------------:|------------:|------------:|------:|-------------:|
+                     SmallObjectSerialize10K |     2,347.62 us |      6.190 us |     5.790 us |    203.1250 |           - |     - |     640044 B |
+               ILGen_SmallObjectSerialize10K |     1,680.36 us |      4.943 us |     4.623 us |    203.1250 |           - |     - |     640003 B |
+                   SmallObjectDeserialize10K |     3,077.62 us |      7.915 us |     7.016 us |    378.9063 |           - |     - |    1200063 B |
+             ILGen_SmallObjectDeserialize10K |     1,867.12 us |      2.489 us |     2.078 us |    380.8594 |           - |     - |    1200004 B |
+                    ILGen_VectorSerialize10K |     1,046.38 us |      2.804 us |     2.486 us |           - |           - |     - |          3 B |
+                  ILGen_VectorDeserialize10K |     1,097.53 us |      1.402 us |     1.243 us |           - |           - |     - |          3 B |
+                       ILGen_IntSerialize10K |       210.51 us |      0.339 us |     0.318 us |     20.7520 |           - |     - |      65610 B |
+                     ILGen_IntDeserialize10K |       210.86 us |      0.258 us |     0.216 us |           - |           - |     - |            - |
+                             IntSerialize10K |        60.25 us |      0.117 us |     0.110 us |     20.8130 |           - |     - |      65560 B |
+                           IntDeserialize10K |        45.55 us |      0.110 us |     0.103 us |      0.3052 |           - |     - |       1048 B |
+                SmallObjectArraySerialize10K | 2,365,370.37 us | 10,392.216 us | 9,720.885 us | 204000.0000 |           - |     - |  640096720 B |
+              SmallObjectArrayDeserialize10K | 3,020,796.04 us |  2,609.645 us | 2,037.439 us | 408000.0000 |           - |     - | 1280302168 B |
+          ILGen_SmallObjectArraySerialize10K | 1,513,431.92 us |  2,639.882 us | 2,340.187 us | 204000.0000 |           - |     - |  640066960 B |
+        ILGen_SmallObjectArrayDeserialize10K | 1,985,785.97 us |  3,865.617 us | 3,426.769 us | 306000.0000 | 102000.0000 |     - | 1280240000 B |
         */
 
         static byte[] backingBuffer;
@@ -317,13 +319,15 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
         [Benchmark]
         public void ILGen_IntSerialize10K()
         {
+            var buffer = new BoxedBuffer(1 << 16);
             int val = 123456789;
 
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack<int>(boxedBuffer, ref val);
-                boxedBuffer.Buffer.Reset();
+                RePacker.Pack<int>(buffer, ref val);
             }
+
+            // buffer.Buffer.Reset();
         }
 
         [Benchmark]
@@ -333,6 +337,34 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             {
                 var _ = RePacker.Unpack<int>(intBuffer);
                 intBuffer.Buffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void IntSerialize10K()
+        {
+            var buffer = new Buffer(new byte[1 << 16]);
+            int val = 123456789;
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                buffer.PushInt(ref val);
+            }
+
+            // buffer.Reset();
+        }
+
+        [Benchmark]
+        public void IntDeserialize10K()
+        {
+            var buffer = new Buffer(new byte[1024]);
+            int val = 123456789;
+            buffer.Push(ref val);
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                buffer.PopInt(out int _);
+                buffer.Reset();
             }
         }
 
@@ -501,6 +533,74 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
                 RePacker.Pack<Program.Parent>(buffer, ref p);
                 var fromBuf = RePacker.Unpack<Program.Parent>(buffer);
                 buffer.Buffer.Reset();
+            }
+        }
+    }
+
+    [MemoryDiagnoser]
+    public class GeneralBenches
+    {
+        [Benchmark]
+        public void BenchRePackerSpeedInt()
+        {
+            if (!RePacker.IsSetup)
+            {
+                RePacker.Init();
+            }
+
+            var buffer = new BoxedBuffer(1 << 16);
+            int val = 123456789;
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacker.Pack(buffer, ref val);
+            }
+        }
+
+        [Benchmark]
+        public void BenchPackerSpeedInt()
+        {
+            if (!RePacker.IsSetup)
+            {
+                RePacker.Init();
+            }
+
+            var buffer = new BoxedBuffer(1 << 16);
+            int val = 123456789;
+
+            if (TypeCache.TryGetTypePacker<int>(out var packer))
+            {
+                if (packer.GetTypePacker<RePackerWrapper<int>>() is RePackerWrapper<int> wrapper)
+                {
+                    for (int i = 0; i < 10_000; i++)
+                    {
+                        wrapper.Pack(buffer, ref val);
+                    }
+                }
+            }
+        }
+
+        [Benchmark]
+        public void BenchDirectSpeedInt()
+        {
+            var buffer = new Buffer(new byte[1 << 16]);
+            int val = 123456789;
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                buffer.Push(ref val);
+            }
+        }
+
+        [Benchmark]
+        public void BenchRawSpeedInt()
+        {
+            var buffer = new Buffer(new byte[1 << 16]);
+            int val = 123456789;
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                buffer.PushInt(ref val);
             }
         }
     }
@@ -686,12 +786,13 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
 
         public static void Main(string[] args)
         {
-            TypeCache.Init();
+            RePacker.Init();
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
             // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
+            // var summary2 = BenchmarkRunner.Run<GeneralBenches>();
 
             /* var personArray = Enumerable.Range(0, 1000).Select(e => new ZeroFormatterBench.Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = ZeroFormatterBench.Sex.Female }).ToArray();
             var container = new ZeroFormatterBench.PersonArrayContainer { Persons = personArray };
@@ -922,64 +1023,64 @@ ILGen_SmallObjectArrayDeserialize10K | 2,421.0 ms | 19,713.62 us | 18,440.13 us 
             var fromBuf = RePacker.Unpack<Vector3>(buffer);
             Console.WriteLine(testVec3.X == fromBuf.X && testVec3.Y == fromBuf.Y && testVec3.Z == fromBuf.Z); */
         }
-    }
 
-    public struct Vector3
-    {
-        public float X;
-        public float Y;
-        public float Z;
-    }
-
-    public class Transform
-    {
-        Vector3 position;
-        Vector3 rotation;
-        Vector3 scale;
-
-        public Vector3 Position { get => position; set => position = value; }
-        public Vector3 Rotation { get => rotation; set => rotation = value; }
-        public Vector3 Scale { get => scale; set => scale = value; }
-    }
-
-    [RePackerWrapper(typeof(Vector3))]
-    public class Vector3Wrapper : RePackerWrapper<Vector3>
-    {
-        public override void Pack(BoxedBuffer buffer, ref Vector3 value)
+        public struct Vector3
         {
-            buffer.Push<float>(ref value.X);
-            buffer.Push<float>(ref value.Y);
-            buffer.Push<float>(ref value.Z);
+            public float X;
+            public float Y;
+            public float Z;
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref Vector3 value)
+        public class Transform
         {
-            buffer.Pop<float>(out value.X);
-            buffer.Pop<float>(out value.Y);
-            buffer.Pop<float>(out value.Z);
-        }
-    }
+            Vector3 position;
+            Vector3 rotation;
+            Vector3 scale;
 
-    [RePackerWrapper(typeof(Transform))]
-    public class TransformWrapper : RePackerWrapper<Transform>
-    {
-        public override void Pack(BoxedBuffer buffer, ref Transform value)
-        {
-            Vector3 pos = value.Position;
-            RePacker.Pack<Vector3>(buffer, ref pos);
-
-            Vector3 rot = value.Rotation;
-            RePacker.Pack<Vector3>(buffer, ref rot);
-
-            Vector3 scale = value.Scale;
-            RePacker.Pack<Vector3>(buffer, ref scale);
+            public Vector3 Position { get => position; set => position = value; }
+            public Vector3 Rotation { get => rotation; set => rotation = value; }
+            public Vector3 Scale { get => scale; set => scale = value; }
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref Transform value)
+        [RePackerWrapper(typeof(Vector3))]
+        public class Vector3Wrapper : RePackerWrapper<Vector3>
         {
-            value.Position = RePacker.Unpack<Vector3>(buffer);
-            value.Rotation = RePacker.Unpack<Vector3>(buffer);
-            value.Scale = RePacker.Unpack<Vector3>(buffer);
+            public override void Pack(BoxedBuffer buffer, ref Vector3 value)
+            {
+                buffer.Push<float>(ref value.X);
+                buffer.Push<float>(ref value.Y);
+                buffer.Push<float>(ref value.Z);
+            }
+
+            public override void Unpack(BoxedBuffer buffer, ref Vector3 value)
+            {
+                buffer.Pop<float>(out value.X);
+                buffer.Pop<float>(out value.Y);
+                buffer.Pop<float>(out value.Z);
+            }
+        }
+
+        [RePackerWrapper(typeof(Transform))]
+        public class TransformWrapper : RePackerWrapper<Transform>
+        {
+            public override void Pack(BoxedBuffer buffer, ref Transform value)
+            {
+                Vector3 pos = value.Position;
+                RePacker.Pack<Vector3>(buffer, ref pos);
+
+                Vector3 rot = value.Rotation;
+                RePacker.Pack<Vector3>(buffer, ref rot);
+
+                Vector3 scale = value.Scale;
+                RePacker.Pack<Vector3>(buffer, ref scale);
+            }
+
+            public override void Unpack(BoxedBuffer buffer, ref Transform value)
+            {
+                value.Position = RePacker.Unpack<Vector3>(buffer);
+                value.Rotation = RePacker.Unpack<Vector3>(buffer);
+                value.Scale = RePacker.Unpack<Vector3>(buffer);
+            }
         }
     }
 }

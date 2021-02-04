@@ -97,6 +97,11 @@ namespace Refsa.RePacker.Tests
 
     public class SerializerBuilderTests
     {
+        public SerializerBuilderTests()
+        {
+            RePacker.Init();
+        }
+
         [Fact]
         public void can_handle_struct_with_blittable_fields()
         {
@@ -1166,6 +1171,48 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(wantedValue.Float, value.Float);
                 Assert.Equal(wantedValue.Int, value.Int);
             }
+        }
+
+        [Fact]
+        public void primitives_standalone()
+        {
+            var buffer = new BoxedBuffer(1024);
+
+            int intValue = 10;
+            RePacker.Pack<int>(buffer, ref intValue);
+            Assert.Equal(intValue, RePacker.Unpack<int>(buffer));
+
+            uint uintValue = 10;
+            RePacker.Pack<uint>(buffer, ref uintValue);
+            Assert.Equal(uintValue, RePacker.Unpack<uint>(buffer));
+
+            byte byteValue = 10;
+            RePacker.Pack<byte>(buffer, ref byteValue);
+            Assert.Equal(byteValue, RePacker.Unpack<byte>(buffer));
+
+            sbyte sbyteValue = 10;
+            RePacker.Pack<sbyte>(buffer, ref sbyteValue);
+            Assert.Equal(sbyteValue, RePacker.Unpack<sbyte>(buffer));
+
+            long longValue = 10;
+            RePacker.Pack<long>(buffer, ref longValue);
+            Assert.Equal(longValue, RePacker.Unpack<long>(buffer));
+
+            ulong ulongValue = 10;
+            RePacker.Pack<ulong>(buffer, ref ulongValue);
+            Assert.Equal(ulongValue, RePacker.Unpack<ulong>(buffer));
+
+            float floatValue = 10.1234f;
+            RePacker.Pack<float>(buffer, ref floatValue);
+            Assert.Equal(floatValue, RePacker.Unpack<float>(buffer));
+
+            double doubleValue = 10.1234;
+            RePacker.Pack<double>(buffer, ref doubleValue);
+            Assert.Equal(doubleValue, RePacker.Unpack<double>(buffer));
+
+            decimal decimalValue = 10.1234M;
+            RePacker.Pack<decimal>(buffer, ref decimalValue);
+            Assert.Equal(decimalValue, RePacker.Unpack<decimal>(buffer));
         }
     }
     #endregion

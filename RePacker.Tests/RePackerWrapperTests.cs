@@ -11,6 +11,11 @@ namespace Refsa.RePacker.Tests
 {
     public class RePackerWrapperTests
     {
+        public RePackerWrapperTests()
+        {
+            RePacker.Init();
+        }
+
         public struct Vector3
         {
             public float X;
