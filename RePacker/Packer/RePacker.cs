@@ -11,6 +11,13 @@ namespace Refsa.RePacker
         public static RePackerSettings Settings => settings;
         public static ILogger Logger => settings.Log;
 
+        public static bool IsSetup => TypeCache.IsSetup;
+
+        static RePacker()
+        {
+            Init();
+        }
+
         public static void Init()
         {
             TypeCache.Setup();
@@ -19,7 +26,7 @@ namespace Refsa.RePacker
         public static void Init(RePackerSettings settings_)
         {
             settings = settings_;
-            TypeCache.Setup();
+            TypeCache.Reload();
         }
 
         public static void Pack<T>(BoxedBuffer buffer, ref T value)

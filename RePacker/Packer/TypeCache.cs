@@ -20,29 +20,111 @@ namespace Refsa.RePacker
             public bool HasCustomSerializer;
             public bool IsUnmanaged;
             public FieldInfo[] SerializedFields;
+
+            public Info(Type type, bool isUnmanaged)
+            {
+                Type = type;
+                IsUnmanaged = isUnmanaged;
+
+                HasCustomSerializer = false;
+                SerializedFields = new FieldInfo[0];
+            }
+        }
+
+        struct PackerEntry
+        {
+            public Dictionary<Type, TypePackerHandler> Lookup;
+            public TypePackerHandler Single;
+
+            int type;
+
+            public PackerEntry(TypePackerHandler single)
+            {
+                Single = single;
+                Lookup = null;
+                type = 1;
+            }
+
+            public PackerEntry(Dictionary<Type, TypePackerHandler> lookup)
+            {
+                Single = null;
+                Lookup = lookup;
+                type = 2;
+            }
+
+            public bool Get(Type type, out TypePackerHandler handler)
+            {
+                if (this.type == 1)
+                {
+                    handler = Single;
+                    return true;
+                }
+                else if (this.type == 2)
+                {
+                    if (Lookup.TryGetValue(type, out var packer))
+                    {
+                        handler = packer;
+                        return true;
+                    }
+                }
+
+                handler = null;
+                return false;
+            }
         }
 
         static Dictionary<Type, Info> typeCache;
         static Dictionary<Type, TypePackerHandler> packerLookup;
 
-        public static void Init() { }
+        static TypeResolver typeResolver;
+        static TypePackerHandler[] packerLookupFast;
 
-        static TypeCache()
+        static bool isSetup = false;
+        public static bool IsSetup => isSetup;
+
+        public static void Reload()
         {
+            typeCache = null;
+            packerLookup = null;
             Setup();
         }
 
         public static void Setup()
         {
+            if (isSetup) return;
+
             RePacker.Settings.Log.Log("Setting up TypeCache");
             var sw = new System.Diagnostics.Stopwatch(); sw.Restart();
+
+            packerLookup = new Dictionary<Type, TypePackerHandler>();
+
             BuildTypeCache();
+
+            BuildPrimitivePackers();
+
+            // TypeCode.Object
             BuildPackers();
             BuildCustomPackers();
 
             VerifyPackers();
+
+            packerLookupFast = new TypePackerHandler[packerLookup.Count];
+            int index = 0;
+            foreach ((Type type, TypePackerHandler handler) in packerLookup)
+            {
+                packerLookupFast[index++] = handler;
+            }
+
+            TypeResolverBuilder.Begin();
+            typeResolver = TypeResolverBuilder.BuildHandler(packerLookup);
+
+            // int idx = typeResolver.Resolver.Invoke(typeof(int));
+            // Console.WriteLine(packerLookupFast[idx].Info.Type);
+
             sw.Stop();
             RePacker.Settings.Log.Log($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
+
+            isSetup = true;
         }
 
         static void VerifyPackers()
@@ -51,7 +133,9 @@ namespace Refsa.RePacker
 
             foreach ((Type type, Info info) in typeCache)
             {
-                if (!packerLookup.TryGetValue(type, out var packer) || packer == null)
+                bool valid = packerLookup.TryGetValue(type, out var packer) && packer != null;
+
+                if (!valid)
                 {
                     RePacker.Logger.Warn($"type of {type} does not have a valid serializer");
                     invalid.Add(type);
@@ -67,6 +151,8 @@ namespace Refsa.RePacker
 
         static void BuildCustomPackers()
         {
+            Dictionary<Type, Info> customTypeInfo = new Dictionary<Type, Info>();
+
             foreach ((string name, Type type) in AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(e => e.GetTypes())
                 .Where(t =>
@@ -97,20 +183,63 @@ namespace Refsa.RePacker
                     SerializedFields = null,
                 };
 
-                typeCache.Add(type, typeInfo);
+                typeCache.Add(attr.WrapperFor, typeInfo);
+                customTypeInfo.Add(type, typeInfo);
+            }
 
-                var typePacker = new TypePackerHandler(typeInfo);
+            foreach ((Type type, Info info) in customTypeInfo)
+            {
+                var typePacker = new TypePackerHandler(info);
                 var serializer = Activator.CreateInstance(type);
                 typePacker.Setup((ITypePacker)serializer);
 
-                packerLookup.Add(typeInfo.Type, typePacker);
+                packerLookup.Add(info.Type, typePacker);
+            }
+        }
+
+        static void BuildPrimitivePackers()
+        {
+            List<(Info, ITypePacker)> packerTypes = new List<(Info, ITypePacker)>
+            {
+                (new Info(typeof(byte), true), new ByteWrapper()),
+                (new Info(typeof(sbyte), true), new SByteWrapper()),
+
+                (new Info(typeof(short), true), new ShortWrapper()),
+                (new Info(typeof(ushort), true), new UShortWrapper()),
+
+                (new Info(typeof(int), true), new IntWrapper()),
+                (new Info(typeof(uint), true), new UIntWrapper()),
+
+                (new Info(typeof(long), true), new LongWrapper()),
+                (new Info(typeof(ulong), true), new ULongWrapper()),
+
+                (new Info(typeof(float), true), new FloatWrapper()),
+                (new Info(typeof(double), true), new DoubleWrapper()),
+                (new Info(typeof(decimal), true), new DecimalWrapper()),
+            };
+
+            foreach ((Info info, ITypePacker packer) in packerTypes)
+            {
+                if (!typeCache.ContainsKey(info.Type))
+                {
+                    typeCache.Add(info.Type, info);
+                }
+
+                // var handler = new TypePackerHandler(info);
+                // handler.Setup(packer);
+                // packerLookupFast[(int)Type.GetTypeCode(info.Type)] = new PackerEntry(handler);
+
+                if (!packerLookup.ContainsKey(info.Type))
+                {
+                    var handler = new TypePackerHandler(info);
+                    handler.Setup(packer);
+                    packerLookup.Add(info.Type, handler);
+                }
             }
         }
 
         static void BuildPackers()
         {
-            packerLookup = new Dictionary<Type, TypePackerHandler>();
-
             if (!RePacker.Settings.GenerateIL)
             {
                 RePacker.Settings.Log.Warn("IL Generation is turned off");
@@ -118,40 +247,54 @@ namespace Refsa.RePacker
             }
 
             var serializerLookup = new Dictionary<Type, MethodInfo>();
-            var deserializerLookup = new Dictionary<Type, MethodInfo>();
-            var loggerLookup = new Dictionary<Type, MethodInfo>();
-
-            var loggerMethodCreators = new List<(Type, Func<MethodInfo>)>();
-
             var serMethodCreators = new List<(Type, Func<MethodInfo>)>();
+
+            var deserializerLookup = new Dictionary<Type, MethodInfo>();
             var deserMethodCreators = new List<(Type, Func<MethodInfo>)>();
+
+            // var loggerLookup = new Dictionary<Type, MethodInfo>();
+            // var loggerMethodCreators = new List<(Type, Func<MethodInfo>)>();
 
             PackerBuilder.Setup();
 
             foreach ((Type type, Info info) in typeCache)
             {
+                if (packerLookup.ContainsKey(type))
+                {
+                    continue;
+                }
+
                 try
                 {
                     if (PackerBuilder.CreateUnpacker(info) is Func<MethodInfo> deserDelegate)
                     {
                         serMethodCreators.Add((type, deserDelegate));
                     }
+                }
+                catch (Exception e)
+                {
+                    RePacker.Settings.Log.Error($"Error when generating unpacker for {type}");
+                    RePacker.Settings.Log.Exception(e);
+                    RePacker.Settings.Log.Warn(e.StackTrace);
+                }
 
+                try
+                {
                     if (PackerBuilder.CreatePacker(info) is Func<MethodInfo> serDelegate)
                     {
                         deserMethodCreators.Add((type, serDelegate));
                     }
-
-                    if (PackerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
-                    {
-                        loggerMethodCreators.Add((type, loggerDelegate));
-                    }
                 }
                 catch (Exception e)
                 {
-                    RePacker.Settings.Log.Error($"Error when generating serializer for {type}");
+                    RePacker.Settings.Log.Error($"Error when generating packer for {type}");
                     RePacker.Settings.Log.Exception(e);
                 }
+
+                // if (PackerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
+                // {
+                //     loggerMethodCreators.Add((type, loggerDelegate));
+                // }
             }
 
             PackerBuilder.Complete();
@@ -166,29 +309,42 @@ namespace Refsa.RePacker
                 deserializerLookup.Add(tmc.Item1, tmc.Item2.Invoke());
             }
 
-            foreach (var lmc in loggerMethodCreators)
-            {
-                loggerLookup.Add(lmc.Item1, lmc.Item2.Invoke());
-            }
+            // foreach (var lmc in loggerMethodCreators)
+            // {
+            //     loggerLookup.Add(lmc.Item1, lmc.Item2.Invoke());
+            // }
 
             foreach ((Type type, Info info) in typeCache)
             {
-                var deser = deserializerLookup[type];
-                var ser = serializerLookup[type];
-                var logger = loggerLookup[type];
+                if (packerLookup.ContainsKey(type))
+                {
+                    continue;
+                }
 
-                var packer = new TypePackerHandler(info);
+                try
+                {
+                    var deser = deserializerLookup[type];
+                    var ser = serializerLookup[type];
+                    // var logger = loggerLookup[type];
 
-                var mi = typeof(TypePackerHandler).GetMethod(nameof(TypePackerHandler.Setup), new Type[] { typeof(MethodInfo), typeof(MethodInfo), typeof(MethodInfo) }).MakeGenericMethod(type);
-                mi.Invoke(packer, new object[] { ser, deser, logger });
+                    var packer = new TypePackerHandler(info);
 
-                // var setLogger = typeof(TypePacker).GetMethod(nameof(TypePacker.SetLogger)).MakeGenericMethod(type);
-                // mi.Invoke(packer, new object[] { logger });
+                    var mi = typeof(TypePackerHandler).GetMethod(nameof(TypePackerHandler.Setup), new Type[] { typeof(MethodInfo), typeof(MethodInfo) }).MakeGenericMethod(type);
+                    mi.Invoke(packer, new object[] { ser, deser });
 
-                packerLookup.Add(
-                    type,
-                    packer
-                );
+                    // var setLogger = typeof(TypePacker).GetMethod(nameof(TypePacker.SetLogger)).MakeGenericMethod(type);
+                    // mi.Invoke(packer, new object[] { logger });
+
+                    packerLookup.Add(
+                        type,
+                        packer
+                    );
+                }
+                catch (Exception e)
+                {
+                    // RePacker.Settings.Log.Error($"Error when setting up TypePackerHandler for {type}");
+                    RePacker.Settings.Log.Error(e.Message + "\n" + e.StackTrace);
+                }
             }
         }
 
@@ -248,16 +404,23 @@ namespace Refsa.RePacker
             }
             else
             {
-                RePacker.Settings.Log.Warn($"TypeInfo for {type} not found");
+                // RePacker.Settings.Log.Warn($"TypeInfo for {type} not found: \n{System.Environment.StackTrace}");
             }
 
             return false;
         }
 
+        public static bool TryGetTypePacker<T>(out TypePackerHandler packer)
+        {
+            return TryGetTypePacker(typeof(T), out packer);
+        }
+
         public static bool TryGetTypePacker(Type type, out TypePackerHandler packer)
         {
-            if (packerLookup.TryGetValue(type, out packer))
+            int idx = typeResolver.Resolver.Invoke(type);
+            if (idx != -1)
             {
+                packer = packerLookupFast[idx];
                 return true;
             }
             else
@@ -265,14 +428,16 @@ namespace Refsa.RePacker
                 RePacker.Settings.Log.Warn($"Packer for {type} not found");
             }
 
+            packer = null;
             return false;
         }
 
         public static void Pack<T>(BoxedBuffer buffer, ref T value)
         {
-            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
+            int idx = typeResolver.Resolver.Invoke(typeof(T));
+            if (idx != -1)
             {
-                typePacker.Pack<T>(buffer, ref value);
+                packerLookupFast[idx].Pack<T>(buffer, ref value);
             }
             else
             {
@@ -282,13 +447,14 @@ namespace Refsa.RePacker
 
         public static T Unpack<T>(BoxedBuffer buffer)
         {
-            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
+            int idx = typeResolver.Resolver.Invoke(typeof(T));
+            if (idx != -1)
             {
-                return typePacker.Unpack<T>(buffer);
+                return packerLookupFast[idx].Unpack<T>(buffer);
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
+                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
             }
 
             return default(T);
@@ -296,21 +462,23 @@ namespace Refsa.RePacker
 
         public static void UnpackInto<T>(BoxedBuffer buffer, ref T target)
         {
-            if (packerLookup.TryGetValue(typeof(T), out var typePacker) && typePacker.Info.HasCustomSerializer)
+            int idx = typeResolver.Resolver.Invoke(typeof(T));
+            if (idx != -1)
             {
-                typePacker.Unpack<T>(buffer, target);
+                packerLookupFast[idx].Unpack<T>(buffer, target);
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
+                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
             }
         }
 
         public static bool UnpackOut<T>(BoxedBuffer buffer, out T value)
         {
-            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
+            int idx = typeResolver.Resolver.Invoke(typeof(T));
+            if (idx != -1)
             {
-                value = typePacker.Unpack<T>(buffer);
+                value = packerLookupFast[idx].Unpack<T>(buffer);
                 return true;
             }
             else
