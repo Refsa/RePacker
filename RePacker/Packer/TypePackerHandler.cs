@@ -68,7 +68,19 @@ namespace Refsa.RePacker
             {
                 if (target == null)
                 {
-                    T value = Activator.CreateInstance<T>();
+                    T value = default(T);
+                    if (value == null)
+                    {
+                        if (typeof(T) == typeof(string))
+                        {
+                            value = (T)(object)"";
+                        }
+                        else
+                        {
+                            value = Activator.CreateInstance<T>();
+                        }
+                    }
+
                     wrapper.Unpack(buffer, ref value);
                     return value;
                 }

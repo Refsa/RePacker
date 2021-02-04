@@ -22,8 +22,8 @@ namespace Refsa.RePacker.Generator
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            var encodeString = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackString));
-            var encodeStringParams = new Type[] { typeof(string) };
+            var encodeStringParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
+            var encodeString = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackString), encodeStringParams);
             ilGen.EmitCall(OpCodes.Call, encodeString, Type.EmptyTypes);
             // ilGen.Emit(OpCodes.Pop);
         }

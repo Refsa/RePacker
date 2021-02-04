@@ -134,14 +134,9 @@ namespace Refsa.RePacker.Builder
                     {
                         // MANAGED DATA
                         case TypeCode.Empty:
-                            ilGen.EmitWriteLine("RePacker - Unpack: Empty is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.DateTime:
-                            ilGen.EmitWriteLine("RePacker - Unpack: DateTime is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
+                            (gt, t) = (GeneratorType.DateTime, null);
                             break;
                         case TypeCode.Object:
                             if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))
@@ -293,14 +288,9 @@ namespace Refsa.RePacker.Builder
                     {
                         // MANAGED DATA AND STRUCTS
                         case TypeCode.Empty:
-                            ilGen.EmitWriteLine("RePacker - Pack: Empty is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
                             break;
                         case TypeCode.DateTime:
-                            ilGen.EmitWriteLine("RePacker - Pack: DateTime is currently unsupported");
-                            ilGen.Emit(OpCodes.Pop);
-                            ilGen.Emit(OpCodes.Pop);
+                            (gt, t) = (GeneratorType.DateTime, null);
                             break;
                         case TypeCode.Object:
                             if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))

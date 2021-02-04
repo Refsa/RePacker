@@ -803,13 +803,79 @@ namespace Refsa.RePacker.Benchmarks
             public long Long;
         }
 
+        [RePacker]
+        public struct HasDateTime
+        {
+            public float Float;
+            public DateTime DateTime;
+        }
+
+        public struct Vector3
+        {
+            public float X;
+            public float Y;
+            public float Z;
+        }
+
+        public class Transform
+        {
+            Vector3 position;
+            Vector3 rotation;
+            Vector3 scale;
+
+            public Vector3 Position { get => position; set => position = value; }
+            public Vector3 Rotation { get => rotation; set => rotation = value; }
+            public Vector3 Scale { get => scale; set => scale = value; }
+        }
+
+        [RePackerWrapper(typeof(Vector3))]
+        public class Vector3Wrapper : RePackerWrapper<Vector3>
+        {
+            public override void Pack(BoxedBuffer buffer, ref Vector3 value)
+            {
+                buffer.Push<float>(ref value.X);
+                buffer.Push<float>(ref value.Y);
+                buffer.Push<float>(ref value.Z);
+            }
+
+            public override void Unpack(BoxedBuffer buffer, ref Vector3 value)
+            {
+                buffer.Pop<float>(out value.X);
+                buffer.Pop<float>(out value.Y);
+                buffer.Pop<float>(out value.Z);
+            }
+        }
+
+        [RePackerWrapper(typeof(Transform))]
+        public class TransformWrapper : RePackerWrapper<Transform>
+        {
+            public override void Pack(BoxedBuffer buffer, ref Transform value)
+            {
+                Vector3 pos = value.Position;
+                RePacker.Pack<Vector3>(buffer, ref pos);
+
+                Vector3 rot = value.Rotation;
+                RePacker.Pack<Vector3>(buffer, ref rot);
+
+                Vector3 scale = value.Scale;
+                RePacker.Pack<Vector3>(buffer, ref scale);
+            }
+
+            public override void Unpack(BoxedBuffer buffer, ref Transform value)
+            {
+                value.Position = RePacker.Unpack<Vector3>(buffer);
+                value.Rotation = RePacker.Unpack<Vector3>(buffer);
+                value.Scale = RePacker.Unpack<Vector3>(buffer);
+            }
+        }
+
         public static void Main(string[] args)
         {
             RePacker.Init();
             Console.WriteLine("Benchmark");
 
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
             // var summary2 = BenchmarkRunner.Run<GeneralBenches>();
 
@@ -1041,65 +1107,20 @@ namespace Refsa.RePacker.Benchmarks
             RePacker.Pack<Vector3>(buffer, ref testVec3);
             var fromBuf = RePacker.Unpack<Vector3>(buffer);
             Console.WriteLine(testVec3.X == fromBuf.X && testVec3.Y == fromBuf.Y && testVec3.Z == fromBuf.Z); */
-        }
 
-        public struct Vector3
-        {
-            public float X;
-            public float Y;
-            public float Z;
-        }
+            /* var hdt = new HasDateTime { Float = 1.2344534f, DateTime = DateTime.Now };
 
-        public class Transform
-        {
-            Vector3 position;
-            Vector3 rotation;
-            Vector3 scale;
+            var buffer = new BoxedBuffer(1024);
 
-            public Vector3 Position { get => position; set => position = value; }
-            public Vector3 Rotation { get => rotation; set => rotation = value; }
-            public Vector3 Scale { get => scale; set => scale = value; }
-        }
+            RePacker.Pack(buffer, ref hdt);
+            var fromBuf = RePacker.Unpack<HasDateTime>(buffer); */
 
-        [RePackerWrapper(typeof(Vector3))]
-        public class Vector3Wrapper : RePackerWrapper<Vector3>
-        {
-            public override void Pack(BoxedBuffer buffer, ref Vector3 value)
-            {
-                buffer.Push<float>(ref value.X);
-                buffer.Push<float>(ref value.Y);
-                buffer.Push<float>(ref value.Z);
-            }
+            string value = "abrakadabra this is a magic trick";
 
-            public override void Unpack(BoxedBuffer buffer, ref Vector3 value)
-            {
-                buffer.Pop<float>(out value.X);
-                buffer.Pop<float>(out value.Y);
-                buffer.Pop<float>(out value.Z);
-            }
-        }
+            var buffer = new BoxedBuffer(1024);
 
-        [RePackerWrapper(typeof(Transform))]
-        public class TransformWrapper : RePackerWrapper<Transform>
-        {
-            public override void Pack(BoxedBuffer buffer, ref Transform value)
-            {
-                Vector3 pos = value.Position;
-                RePacker.Pack<Vector3>(buffer, ref pos);
-
-                Vector3 rot = value.Rotation;
-                RePacker.Pack<Vector3>(buffer, ref rot);
-
-                Vector3 scale = value.Scale;
-                RePacker.Pack<Vector3>(buffer, ref scale);
-            }
-
-            public override void Unpack(BoxedBuffer buffer, ref Transform value)
-            {
-                value.Position = RePacker.Unpack<Vector3>(buffer);
-                value.Rotation = RePacker.Unpack<Vector3>(buffer);
-                value.Scale = RePacker.Unpack<Vector3>(buffer);
-            }
+            RePacker.Pack(buffer, ref value);
+            string fromBuf = RePacker.Unpack<string>(buffer);
         }
     }
 }

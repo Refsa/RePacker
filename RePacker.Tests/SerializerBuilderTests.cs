@@ -1214,6 +1214,87 @@ namespace Refsa.RePacker.Tests
             RePacker.Pack<decimal>(buffer, ref decimalValue);
             Assert.Equal(decimalValue, RePacker.Unpack<decimal>(buffer));
         }
+
+        [Fact]
+        public void date_time_buffer_packing()
+        {
+            DateTime dt = DateTime.Now;
+
+            var buffer = new BoxedBuffer(1024);
+
+            buffer.PackDateTime(ref dt);
+            buffer.UnpackDateTime(out DateTime fromBuf);
+
+            Assert.Equal(dt.Ticks, fromBuf.Ticks);
+        }
+
+        [RePacker]
+        public struct HasDateTime
+        {
+            public float Float;
+            public DateTime DateTime;
+        }
+
+        [Fact]
+        public void has_date_time_packing()
+        {
+            var hdt = new HasDateTime { Float = 1.2344534f, DateTime = DateTime.Now };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hdt);
+            var fromBuf = RePacker.Unpack<HasDateTime>(buffer);
+
+            Assert.Equal(hdt.Float, fromBuf.Float);
+            Assert.Equal(hdt.DateTime, fromBuf.DateTime);
+        }
+
+        [Fact]
+        public void standalone_date_time_repacker()
+        {
+            DateTime dt = DateTime.Now;
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<DateTime>(buffer, ref dt);
+            DateTime fromBuf = RePacker.Unpack<DateTime>(buffer);
+
+            Assert.Equal(dt.Ticks, fromBuf.Ticks);
+        }
+
+        [RePacker]
+        public struct HasString
+        {
+            public float Float;
+            public string String;
+        }
+
+        [Fact]
+        public void has_regular_string()
+        {
+            var hs = new HasString { Float = 1212345.123451f, String = "This is some message" };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hs);
+            var fromBuf = RePacker.Unpack<HasString>(buffer);
+
+            Assert.Equal(hs.Float, fromBuf.Float);
+            Assert.Equal(hs.String, fromBuf.String);
+        }
+
+        [Fact]
+        public void standalone_string_repacker()
+        {
+            string value = "abrakadabra this is a magic trick";
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref value);
+            string fromBuf = RePacker.Unpack<string>(buffer);
+
+            Assert.Equal(value, fromBuf);
+        }
     }
     #endregion
 }

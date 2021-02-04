@@ -28,6 +28,9 @@ namespace Refsa.RePacker.Generator
                 }},
                 {GeneratorType.RePacker, new Dictionary<Type, IGenerator>() {
                     {Type.Missing.GetType(), new RePackerGenerator()}
+                }},
+                {GeneratorType.DateTime, new Dictionary<Type, IGenerator>() {
+                    {Type.Missing.GetType(), new DateTimeGenerator()}
                 }}
             };
 

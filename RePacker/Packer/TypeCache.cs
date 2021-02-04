@@ -216,6 +216,9 @@ namespace Refsa.RePacker
                 (new Info(typeof(float), true), new FloatWrapper()),
                 (new Info(typeof(double), true), new DoubleWrapper()),
                 (new Info(typeof(decimal), true), new DecimalWrapper()),
+
+                (new Info(typeof(DateTime), true), new DateTimeWrapper()),
+                (new Info(typeof(string), true), new StringWrapper()),
             };
 
             foreach ((Info info, ITypePacker packer) in packerTypes)

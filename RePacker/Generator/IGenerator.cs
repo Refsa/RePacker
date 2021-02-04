@@ -13,6 +13,7 @@ namespace Refsa.RePacker.Generator
         RePacker,
         Object,
         String,
+        DateTime,
     }
 
     public interface IGenerator

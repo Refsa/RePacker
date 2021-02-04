@@ -69,6 +69,18 @@ namespace Refsa.RePacker
             value = "";
         }
 
+        public static void PackDateTime(this ref Buffer buffer, ref DateTime value)
+        {
+            long ticks = value.Ticks;
+            buffer.PushLong(ref ticks);
+        }
+
+        public static void UnpackDateTime(this ref Buffer buffer, out DateTime value)
+        {
+            buffer.PopLong(out long ticks);
+            value = new DateTime(ticks);
+        }
+
         public static void PackEnum<TEnum>(this ref Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
@@ -190,6 +202,19 @@ namespace Refsa.RePacker
             }
 
             return data;
+        }
+
+        #region BoxedBuffer
+        public static void PackDateTime(this BoxedBuffer buffer, ref DateTime value)
+        {
+            long ticks = value.Ticks;
+            buffer.Buffer.PushLong(ref ticks);
+        }
+
+        public static void UnpackDateTime(this BoxedBuffer buffer, out DateTime value)
+        {
+            buffer.Buffer.PopLong(out long ticks);
+            value = new DateTime(ticks);
         }
 
         public static void PackArray<T>(this BoxedBuffer buffer, T[] data)
@@ -394,5 +419,6 @@ namespace Refsa.RePacker
         Queue,
         Stack,
     }
+    #endregion
 }
 
