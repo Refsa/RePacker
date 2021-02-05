@@ -11,7 +11,12 @@ namespace Refsa.RePacker
             buffer.Buffer.PushDouble(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref double value)
+        public override void Unpack(BoxedBuffer buffer, out double value)
+        {
+            buffer.Buffer.PopDouble(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref double value)
         {
             buffer.Buffer.PopDouble(out value);
         }

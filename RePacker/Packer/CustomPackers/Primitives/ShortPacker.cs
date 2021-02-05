@@ -11,7 +11,12 @@ namespace Refsa.RePacker
             buffer.Buffer.PushShort(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref short value)
+        public override void Unpack(BoxedBuffer buffer, out short value)
+        {
+            buffer.Buffer.PopShort(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref short value)
         {
             buffer.Buffer.PopShort(out value);
         }

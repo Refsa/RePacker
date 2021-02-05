@@ -11,7 +11,12 @@ namespace Refsa.RePacker
             buffer.Buffer.PushBool(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref bool value)
+        public override void Unpack(BoxedBuffer buffer, out bool value)
+        {
+            buffer.Buffer.PopBool(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref bool value)
         {
             buffer.Buffer.PopBool(out value);
         }

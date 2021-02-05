@@ -11,7 +11,12 @@ namespace Refsa.RePacker
             buffer.Buffer.PushSByte(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref sbyte value)
+        public override void Unpack(BoxedBuffer buffer, out sbyte value)
+        {
+            buffer.Buffer.PopSByte(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref sbyte value)
         {
             buffer.Buffer.PopSByte(out value);
         }

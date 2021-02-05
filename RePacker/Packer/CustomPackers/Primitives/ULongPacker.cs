@@ -11,7 +11,12 @@ namespace Refsa.RePacker
             buffer.Buffer.PushULong(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref ulong value)
+        public override void Unpack(BoxedBuffer buffer, out ulong value)
+        {
+            buffer.Buffer.PopULong(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref ulong value)
         {
             buffer.Buffer.PopULong(out value);
         }

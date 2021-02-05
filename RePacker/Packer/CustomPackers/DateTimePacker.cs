@@ -13,7 +13,13 @@ namespace Refsa.RePacker
             buffer.Buffer.PushLong(ref ticks);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref DateTime value)
+        public override void Unpack(BoxedBuffer buffer, out DateTime value)
+        {
+            buffer.Buffer.PopLong(out long ticks);
+            value = new DateTime(ticks);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref DateTime value)
         {
             buffer.Buffer.PopLong(out long ticks);
             value = new DateTime(ticks);

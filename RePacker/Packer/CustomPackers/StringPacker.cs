@@ -12,7 +12,12 @@ namespace Refsa.RePacker
             buffer.Buffer.PackString(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref string value)
+        public override void Unpack(BoxedBuffer buffer, out string value)
+        {
+            buffer.Buffer.UnpackString(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref string value)
         {
             buffer.Buffer.UnpackString(out value);
         }

@@ -11,7 +11,12 @@ namespace Refsa.RePacker
             buffer.Push<decimal>(ref value);
         }
 
-        public override void Unpack(BoxedBuffer buffer, ref decimal value)
+        public override void Unpack(BoxedBuffer buffer, out decimal value)
+        {
+            buffer.Pop(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref decimal value)
         {
             buffer.Pop(out value);
         }
