@@ -219,6 +219,8 @@ namespace Refsa.RePacker
 
                 (new Info(typeof(DateTime), true), new DateTimeWrapper()),
                 (new Info(typeof(string), true), new StringWrapper()),
+
+                (new Info(typeof(Array), true), new ArrayWrapper()),
             };
 
             foreach ((Info info, ITypePacker packer) in packerTypes)
@@ -444,7 +446,15 @@ namespace Refsa.RePacker
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
+                if (typeof(T).IsArray)
+                {
+                    var asArray = (Array)(object)value;
+                    packerLookup[typeof(Array)].Pack<Array>(buffer, ref asArray);
+                }
+                else
+                {
+                    RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
+                }
             }
         }
 
@@ -468,7 +478,7 @@ namespace Refsa.RePacker
             int idx = typeResolver.Resolver.Invoke(typeof(T));
             if (idx != -1)
             {
-                packerLookupFast[idx].Unpack<T>(buffer, target);
+                target = packerLookupFast[idx].Unpack<T>(buffer, (object)target);
             }
             else
             {

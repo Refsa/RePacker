@@ -66,29 +66,16 @@ namespace Refsa.RePacker
             }
             else if (this.serializer is RePackerWrapper<T> wrapper)
             {
-                if (target == null)
+                if (target != null)
                 {
-                    T value = default(T);
-                    if (value == null)
-                    {
-                        if (typeof(T) == typeof(string))
-                        {
-                            value = (T)(object)"";
-                        }
-                        else
-                        {
-                            value = Activator.CreateInstance<T>();
-                        }
-                    }
-
-                    wrapper.Unpack(buffer, ref value);
-                    return value;
+                    T asT = (T)target;
+                    wrapper.UnpackInto(buffer, ref asT);
+                    return asT;
                 }
                 else
                 {
-                    T asT = (T)target;
-                    wrapper.Unpack(buffer, ref asT);
-                    return asT;
+                    wrapper.Unpack(buffer, out T value);
+                    return value;
                 }
             }
 
