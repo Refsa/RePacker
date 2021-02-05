@@ -44,7 +44,7 @@ namespace Refsa.RePacker.Tests
                 buffer.Push<float>(ref value.Z);
             }
 
-            public override void Unpack(BoxedBuffer buffer, ref Vector3 value)
+            public override void Unpack(BoxedBuffer buffer, out Vector3 value)
             {
                 buffer.Pop<float>(out value.X);
                 buffer.Pop<float>(out value.Y);
@@ -67,7 +67,7 @@ namespace Refsa.RePacker.Tests
                 RePacker.Pack<Vector3>(buffer, ref scale);
             }
 
-            public override void Unpack(BoxedBuffer buffer, ref Transform value)
+            public override void UnpackInto(BoxedBuffer buffer, ref Transform value)
             {
                 value.Position = RePacker.Unpack<Vector3>(buffer);
                 value.Rotation = RePacker.Unpack<Vector3>(buffer);
@@ -100,7 +100,9 @@ namespace Refsa.RePacker.Tests
 
             var buffer = new BoxedBuffer(1024);
             RePacker.Pack<Transform>(buffer, ref testTransform);
-            var fromBuf = RePacker.Unpack<Transform>(buffer);
+
+            var fromBuf = new Transform();
+            RePacker.UnpackInto<Transform>(buffer, ref fromBuf);
 
             Assert.Equal(testTransform.Position.X, fromBuf.Position.X);
             Assert.Equal(testTransform.Position.Y, fromBuf.Position.Y);
