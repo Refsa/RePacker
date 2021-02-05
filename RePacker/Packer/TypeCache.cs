@@ -76,8 +76,8 @@ namespace Refsa.RePacker
         static Dictionary<Type, Info> typeCache;
         static Dictionary<Type, TypePackerHandler> packerLookup;
 
-        static TypeResolver typeResolver;
-        static TypePackerHandler[] packerLookupFast;
+        // static TypeResolver typeResolver;
+        // static TypePackerHandler[] packerLookupFast;
 
         static bool isSetup = false;
         public static bool IsSetup => isSetup;
@@ -108,15 +108,15 @@ namespace Refsa.RePacker
 
             VerifyPackers();
 
-            packerLookupFast = new TypePackerHandler[packerLookup.Count];
-            int index = 0;
-            foreach ((Type type, TypePackerHandler handler) in packerLookup)
-            {
-                packerLookupFast[index++] = handler;
-            }
+            // packerLookupFast = new TypePackerHandler[packerLookup.Count];
+            // int index = 0;
+            // foreach ((Type type, TypePackerHandler handler) in packerLookup)
+            // {
+            //     packerLookupFast[index++] = handler;
+            // }
 
-            TypeResolverBuilder.Begin();
-            typeResolver = TypeResolverBuilder.BuildHandler(packerLookup);
+            // TypeResolverBuilder.Begin();
+            // typeResolver = TypeResolverBuilder.BuildHandler(packerLookup);
 
             // int idx = typeResolver.Resolver.Invoke(typeof(int));
             // Console.WriteLine(packerLookupFast[idx].Info.Type);
@@ -220,7 +220,7 @@ namespace Refsa.RePacker
                 (new Info(typeof(DateTime), true), new DateTimeWrapper()),
                 (new Info(typeof(string), true), new StringWrapper()),
 
-                (new Info(typeof(Array), true), new ArrayWrapper()),
+                // (new Info(typeof(Array), true), new ArrayWrapper()),
             };
 
             foreach ((Info info, ITypePacker packer) in packerTypes)
@@ -396,6 +396,20 @@ namespace Refsa.RePacker
             }
         }
 
+        static void AddTypeHandler(Type type, ITypePacker packer)
+        {
+            var info = new Info
+            {
+                Type = type,
+            };
+
+            var handler = new TypePackerHandler(info);
+            handler.Setup(packer);
+
+            typeCache.Add(type, info);
+            packerLookup.Add(type, handler);
+        }
+
         public static bool TryGetTypeInfo<T>(out Info typeCacheInfo)
         {
             return TryGetTypeInfo(typeof(T), out typeCacheInfo);
@@ -422,10 +436,8 @@ namespace Refsa.RePacker
 
         public static bool TryGetTypePacker(Type type, out TypePackerHandler packer)
         {
-            int idx = typeResolver.Resolver.Invoke(type);
-            if (idx != -1)
+            if (packerLookup.TryGetValue(type, out packer))
             {
-                packer = packerLookupFast[idx];
                 return true;
             }
             else
@@ -439,17 +451,19 @@ namespace Refsa.RePacker
 
         public static void Pack<T>(BoxedBuffer buffer, ref T value)
         {
-            int idx = typeResolver.Resolver.Invoke(typeof(T));
-            if (idx != -1)
+            if (packerLookup.TryGetValue(typeof(T), out var packer))
             {
-                packerLookupFast[idx].Pack<T>(buffer, ref value);
+                packer.Pack<T>(buffer, ref value);
             }
             else
             {
                 if (typeof(T).IsArray)
                 {
-                    var asArray = (Array)(object)value;
-                    packerLookup[typeof(Array)].Pack<Array>(buffer, ref asArray);
+                    var elementType = typeof(T).GetElementType();
+                    var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
+                    AddTypeHandler(typeof(T), (ITypePacker)instance);
+
+                    Pack<T>(buffer, ref value);
                 }
                 else
                 {
@@ -458,49 +472,63 @@ namespace Refsa.RePacker
             }
         }
 
-        public static T Unpack<T>(BoxedBuffer buffer)
+        static T UnpackInternal<T>(BoxedBuffer buffer)
         {
-            int idx = typeResolver.Resolver.Invoke(typeof(T));
-            if (idx != -1)
+            if (packerLookup.TryGetValue(typeof(T), out var packer))
             {
-                return packerLookupFast[idx].Unpack<T>(buffer);
+                return packer.Unpack<T>(buffer);
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
+                if (typeof(T).IsArray)
+                {
+                    var elementType = typeof(T).GetElementType();
+                    var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
+                    AddTypeHandler(typeof(T), (ITypePacker)instance);
+
+                    return UnpackInternal<T>(buffer);
+                }
+                else
+                {
+                    RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
+                }
             }
 
             return default(T);
         }
 
-        public static void UnpackInto<T>(BoxedBuffer buffer, ref T target)
+        public static T Unpack<T>(BoxedBuffer buffer)
         {
-            int idx = typeResolver.Resolver.Invoke(typeof(T));
-            if (idx != -1)
-            {
-                target = packerLookupFast[idx].Unpack<T>(buffer, (object)target);
-            }
-            else
-            {
-                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
-            }
+            return UnpackInternal<T>(buffer);
         }
 
         public static bool UnpackOut<T>(BoxedBuffer buffer, out T value)
         {
-            int idx = typeResolver.Resolver.Invoke(typeof(T));
-            if (idx != -1)
+            value = UnpackInternal<T>(buffer);
+            return value != null;
+        }
+
+        public static void UnpackInto<T>(BoxedBuffer buffer, ref T target)
+        {
+            if (packerLookup.TryGetValue(typeof(T), out var packer))
             {
-                value = packerLookupFast[idx].Unpack<T>(buffer);
-                return true;
+                packer.UnpackInto<T>(buffer, ref target);
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
-            }
+                if (typeof(T).IsArray)
+                {
+                    var elementType = typeof(T).GetElementType();
+                    var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
+                    AddTypeHandler(typeof(T), (ITypePacker)instance);
 
-            value = default(T);
-            return false;
+                    UnpackInto<T>(buffer, ref target);
+                }
+                else
+                {
+                    RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
+                }
+            }
         }
 
         public static void LogData<T>(ref T value)

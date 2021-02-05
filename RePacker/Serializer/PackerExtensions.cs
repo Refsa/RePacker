@@ -249,6 +249,12 @@ namespace Refsa.RePacker
             }
         }
 
+        public static T[] UnpackArrayAsRet<T>(this BoxedBuffer buffer)
+        {
+            UnpackArray<T>(buffer, out var data);
+            return data;
+        }
+
         public static void PackIList<T>(this BoxedBuffer buffer, IList<T> data)
         {
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))

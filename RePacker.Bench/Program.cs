@@ -416,7 +416,7 @@ namespace Refsa.RePacker.Benchmarks
 
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack(buffer, ref personArrayContainer);
+                RePacker.Pack(buffer, ref personArray);
                 buffer.Buffer.Reset();
             }
         }
@@ -426,7 +426,7 @@ namespace Refsa.RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacker.Unpack<PersonArrayContainer>(personArrayBoxedBuffer);
+                var p = RePacker.Unpack<Person[]>(personArrayBoxedBuffer);
                 personArrayBoxedBuffer.Buffer.Reset();
             }
         }
@@ -838,7 +838,13 @@ namespace Refsa.RePacker.Benchmarks
                 buffer.Push<float>(ref value.Z);
             }
 
-            public override void Unpack(BoxedBuffer buffer, ref Vector3 value)
+            public override void Unpack(BoxedBuffer buffer, out Vector3 value)
+            {
+                value = new Vector3();
+                UnpackInto(buffer, ref value);
+            }
+
+            public override void UnpackInto(BoxedBuffer buffer, ref Vector3 value)
             {
                 buffer.Pop<float>(out value.X);
                 buffer.Pop<float>(out value.Y);
@@ -861,7 +867,12 @@ namespace Refsa.RePacker.Benchmarks
                 RePacker.Pack<Vector3>(buffer, ref scale);
             }
 
-            public override void Unpack(BoxedBuffer buffer, ref Transform value)
+            public override void Unpack(BoxedBuffer buffer, out Transform value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void UnpackInto(BoxedBuffer buffer, ref Transform value)
             {
                 value.Position = RePacker.Unpack<Vector3>(buffer);
                 value.Rotation = RePacker.Unpack<Vector3>(buffer);
@@ -874,8 +885,31 @@ namespace Refsa.RePacker.Benchmarks
             RePacker.Init();
             Console.WriteLine("Benchmark");
 
+            /* var buffer = new BoxedBuffer(1024);
+            ArrayWrapper awrapper = new ArrayWrapper();
+            Array testArray = Enumerable.Range(0, 10).Select(e => (float)e).ToArray();
+            awrapper.Pack(buffer, ref testArray);
+
+            Array targetArray = new float[10];
+            awrapper.Unpack(buffer, ref targetArray);
+
+            Console.WriteLine(targetArray.GetValue(5)); */
+
+            /* Vector3[] testArray = Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e, Z = e }).ToArray();
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack<Vector3[]>(buffer, ref testArray);
+            var fromBuf = RePacker.Unpack<Vector3[]>(buffer);
+
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(fromBuf[i].X);
+                Console.WriteLine(fromBuf[i].Y);
+                Console.WriteLine(fromBuf[i].Z);
+            }
+ */
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
             // var summary2 = BenchmarkRunner.Run<GeneralBenches>();
 
@@ -1115,12 +1149,12 @@ namespace Refsa.RePacker.Benchmarks
             RePacker.Pack(buffer, ref hdt);
             var fromBuf = RePacker.Unpack<HasDateTime>(buffer); */
 
-            string value = "abrakadabra this is a magic trick";
+            /* string value = "abrakadabra this is a magic trick";
 
             var buffer = new BoxedBuffer(1024);
 
             RePacker.Pack(buffer, ref value);
-            string fromBuf = RePacker.Unpack<string>(buffer);
+            string fromBuf = RePacker.Unpack<string>(buffer); */
         }
     }
 }

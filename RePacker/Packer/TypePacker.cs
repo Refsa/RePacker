@@ -3,11 +3,6 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker
 {
-    public interface ITypePacker
-    {
-
-    }
-
     public class TypePacker<T> : ITypePacker
     {
         public System.Action<BoxedBuffer, T> packer;

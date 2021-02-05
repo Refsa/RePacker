@@ -10,27 +10,27 @@ namespace Refsa.RePacker
     {
         public TypeCache.Info Info;
 
-        ITypePacker serializer;
+        ITypePacker packer;
 
         public TypePackerHandler(TypeCache.Info info)
         {
             this.Info = info;
         }
 
-        public void Setup(ITypePacker serializer)
+        public void Setup(ITypePacker packer)
         {
-            this.serializer = serializer;
+            this.packer = packer;
         }
 
         public void Setup<T>(MethodInfo packer, MethodInfo unpacker)
         {
             var ts = new TypePacker<T>(packer, unpacker);
-            this.serializer = ts;
+            this.packer = ts;
         }
 
         public void SetLogger<T>(MethodInfo logger)
         {
-            if (this.serializer is TypePacker<T> serializer)
+            if (this.packer is TypePacker<T> serializer)
             {
                 serializer.SetLogger(logger);
             }
@@ -38,7 +38,7 @@ namespace Refsa.RePacker
 
         public void RunLogger<T>(ref T target)
         {
-            if (this.serializer is TypePacker<T> serializer)
+            if (this.packer is TypePacker<T> serializer)
             {
                 serializer.logger.Invoke(target);
             }
@@ -46,47 +46,44 @@ namespace Refsa.RePacker
 
         public void Pack<T>(BoxedBuffer buffer, ref T target)
         {
-            // packer.Invoke(buffer, target);
-            if (this.serializer is TypePacker<T> serializer)
+            if (this.packer is TypePacker<T> serializer)
             {
                 serializer.packer.Invoke(buffer, target);
             }
-            else if (this.serializer is RePackerWrapper<T> wrapper)
+            else if (this.packer is RePackerWrapper<T> wrapper)
             {
                 wrapper.Pack(buffer, ref target);
             }
         }
 
-        public T Unpack<T>(BoxedBuffer buffer, object target = null)
+        public T Unpack<T>(BoxedBuffer buffer)
         {
-            // return unpacker.Invoke(buffer);
-            if (this.serializer is TypePacker<T> serializer)
+            if (this.packer is TypePacker<T> serializer)
             {
                 return serializer.unpacker.Invoke(buffer);
             }
-            else if (this.serializer is RePackerWrapper<T> wrapper)
+            else if (this.packer is RePackerWrapper<T> wrapper)
             {
-                if (target != null)
-                {
-                    T asT = (T)target;
-                    wrapper.UnpackInto(buffer, ref asT);
-                    return asT;
-                }
-                else
-                {
-                    wrapper.Unpack(buffer, out T value);
-                    return value;
-                }
+                wrapper.Unpack(buffer, out T value);
+                return value;
             }
 
             return default(T);
         }
 
+        public void UnpackInto<T>(BoxedBuffer buffer, ref T target)
+        {
+            if (this.packer is RePackerWrapper<T> wrapper)
+            {
+                wrapper.UnpackInto(buffer, ref target);
+            }
+        }
+
         public T GetTypePacker<T>() where T : ITypePacker
         {
-            if (this.serializer is T)
+            if (this.packer is T)
             {
-                return (T)this.serializer;
+                return (T)this.packer;
             }
 
             return default(T);
