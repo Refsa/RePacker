@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using Refsa.RePacker;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Builder;
@@ -75,6 +76,7 @@ namespace Refsa.RePacker
 
         static Dictionary<Type, Info> typeCache;
         static Dictionary<Type, TypePackerHandler> packerLookup;
+        static Dictionary<Type, GenericProducer> runtimePackerProducers;
 
         // static TypeResolver typeResolver;
         // static TypePackerHandler[] packerLookupFast;
@@ -106,6 +108,8 @@ namespace Refsa.RePacker
             BuildPackers();
             BuildCustomPackers();
 
+            BuildRuntimePackerProviders();
+
             VerifyPackers();
 
             // packerLookupFast = new TypePackerHandler[packerLookup.Count];
@@ -125,6 +129,56 @@ namespace Refsa.RePacker
             RePacker.Settings.Log.Log($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
 
             isSetup = true;
+        }
+
+        private static void BuildRuntimePackerProviders()
+        {
+            runtimePackerProducers = new Dictionary<Type, GenericProducer>();
+
+            runtimePackerProducers.Add(
+                typeof(Array),
+                new ArrayProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(List<>),
+                new ListProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(Stack<>),
+                new StackProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(Queue<>),
+                new QueueProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(HashSet<>),
+                new HashSetProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(Dictionary<,>),
+                new DictionaryProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(KeyValuePair<,>),
+                new KeyValuePairProducer()
+            );
+
+            runtimePackerProducers.Add(
+                typeof(ITuple),
+                new ValueTupleProducer()
+            );
+        }
+
+        public static void AddTypePackerProvider(Type targetType, GenericProducer producer)
+        {
+            runtimePackerProducers.Add(targetType, producer);
         }
 
         static void VerifyPackers()
@@ -410,6 +464,40 @@ namespace Refsa.RePacker
             packerLookup.Add(type, handler);
         }
 
+        static bool AttemptToCreatePacker(Type type)
+        {
+            Type targetType = null;
+
+            foreach (var iface in type.GetInterfaces())
+            {
+                if (runtimePackerProducers.TryGetValue(iface, out var producer))
+                {
+                    AddTypeHandler(type, producer.GetProducer(type));
+                    return true;
+                }
+            }
+
+            if (type.IsArray)
+            {
+                targetType = typeof(Array);
+            }
+            else if (type.IsGenericType)
+            {
+                targetType = type.GetGenericTypeDefinition();
+            }
+
+            if (targetType != null)
+            {
+                if (runtimePackerProducers.TryGetValue(targetType, out var producer))
+                {
+                    AddTypeHandler(type, producer.GetProducer(type));
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool TryGetTypeInfo<T>(out Info typeCacheInfo)
         {
             return TryGetTypeInfo(typeof(T), out typeCacheInfo);
@@ -455,20 +543,13 @@ namespace Refsa.RePacker
             {
                 packer.Pack<T>(buffer, ref value);
             }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                Pack<T>(buffer, ref value);
+            }
             else
             {
-                if (typeof(T).IsArray)
-                {
-                    var elementType = typeof(T).GetElementType();
-                    var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
-                    AddTypeHandler(typeof(T), (ITypePacker)instance);
-
-                    Pack<T>(buffer, ref value);
-                }
-                else
-                {
-                    RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
-                }
+                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
             }
         }
 
@@ -478,20 +559,13 @@ namespace Refsa.RePacker
             {
                 return packer.Unpack<T>(buffer);
             }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                return UnpackInternal<T>(buffer);
+            }
             else
             {
-                if (typeof(T).IsArray)
-                {
-                    var elementType = typeof(T).GetElementType();
-                    var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
-                    AddTypeHandler(typeof(T), (ITypePacker)instance);
-
-                    return UnpackInternal<T>(buffer);
-                }
-                else
-                {
-                    RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
-                }
+                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
             }
 
             return default(T);
@@ -514,20 +588,13 @@ namespace Refsa.RePacker
             {
                 packer.UnpackInto<T>(buffer, ref target);
             }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                UnpackInto<T>(buffer, ref target);
+            }
             else
             {
-                if (typeof(T).IsArray)
-                {
-                    var elementType = typeof(T).GetElementType();
-                    var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
-                    AddTypeHandler(typeof(T), (ITypePacker)instance);
-
-                    UnpackInto<T>(buffer, ref target);
-                }
-                else
-                {
-                    RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
-                }
+                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
             }
         }
 
