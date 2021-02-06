@@ -639,6 +639,25 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        /* [Fact]
+        public void ilist_with_unmanaged_type_direct()
+        {
+            var hml = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<IList<int>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml[i], fromBuf[i]);
+            }
+        } */
+
         [RePacker]
         public struct HasUnmanagedList
         {
@@ -671,6 +690,25 @@ namespace Refsa.RePacker.Tests
             for (int i = 0; i < hml.Ints.Count; i++)
             {
                 Assert.Equal(hml.Ints[i], fromBuf.Ints[i]);
+            }
+        }
+
+        [Fact]
+        public void list_with_unmanaged_type_direct()
+        {
+            var hml = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<List<int>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml[i], fromBuf[i]);
             }
         }
 
@@ -709,6 +747,25 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        [Fact]
+        public void queue_with_unmanaged_type_direct()
+        {
+            var hml = new Queue<int>(System.Linq.Enumerable.Range(1, 10));
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<Queue<int>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml.Dequeue(), fromBuf.Dequeue());
+            }
+        }
+
         [RePacker]
         public struct HasUnmanagedStack
         {
@@ -744,6 +801,25 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        [Fact]
+        public void stack_with_unmanaged_type_direct()
+        {
+            var hml = new Stack<int>(System.Linq.Enumerable.Range(1, 10));
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<Stack<int>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml.Pop(), fromBuf.Pop());
+            }
+        }
+
         [RePacker]
         public struct HasUnmanagedHashSet
         {
@@ -776,6 +852,25 @@ namespace Refsa.RePacker.Tests
             for (int i = 0; i < hml.Ints.Count; i++)
             {
                 Assert.Equal(hml.Ints.ElementAt(i), fromBuf.Ints.ElementAt(i));
+            }
+        }
+
+        [Fact]
+        public void hashset_with_unmanaged_type_direct()
+        {
+            var hml = new HashSet<int>(System.Linq.Enumerable.Range(1, 10));
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HashSet<int>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml.ElementAt(i), fromBuf.ElementAt(i));
             }
         }
 
@@ -828,6 +923,31 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        /* [Fact]
+        public void ilist_with_managed_type_direct()
+        {
+            var hml = new List<SomeManagedObject> {
+                new SomeManagedObject{Float = 12.34f, Int = 901234},
+                new SomeManagedObject{Float = 567.25f, Int = 4562},
+                new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                new SomeManagedObject{Float = 56.2435f, Int = 56724},
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<IList<SomeManagedObject>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml[i].Int, fromBuf[i].Int);
+                Assert.Equal(hml[i].Float, fromBuf[i].Float);
+            }
+        } */
+
         [RePacker]
         public struct HasManagedList
         {
@@ -866,6 +986,31 @@ namespace Refsa.RePacker.Tests
             {
                 Assert.Equal(hml.Ints[i].Int, fromBuf.Ints[i].Int);
                 Assert.Equal(hml.Ints[i].Float, fromBuf.Ints[i].Float);
+            }
+        }
+
+        [Fact]
+        public void list_with_managed_type_direct()
+        {
+            var hml = new List<SomeManagedObject> {
+                new SomeManagedObject{Float = 12.34f, Int = 901234},
+                new SomeManagedObject{Float = 567.25f, Int = 4562},
+                new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                new SomeManagedObject{Float = 56.2435f, Int = 56724},
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<List<SomeManagedObject>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                Assert.Equal(hml[i].Int, fromBuf[i].Int);
+                Assert.Equal(hml[i].Float, fromBuf[i].Float);
             }
         }
 
@@ -909,6 +1054,35 @@ namespace Refsa.RePacker.Tests
             {
                 var elementA = hml.Ints.Dequeue();
                 var elementB = fromBuf.Ints.Dequeue();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void queue_with_managed_type_direct()
+        {
+            var hml = new Queue<SomeManagedObject>(
+                new List<SomeManagedObject>() {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                }
+            );
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<Queue<SomeManagedObject>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                var elementA = hml.Dequeue();
+                var elementB = fromBuf.Dequeue();
                 Assert.Equal(elementA.Int, elementB.Int);
                 Assert.Equal(elementA.Float, elementB.Float);
             }
@@ -959,6 +1133,35 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        [Fact]
+        public void stack_with_managed_type_direct()
+        {
+            var hml = new Stack<SomeManagedObject>(
+                new List<SomeManagedObject>() {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                }
+            );
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<Stack<SomeManagedObject>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                var elementA = hml.Pop();
+                var elementB = fromBuf.Pop();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
         [RePacker]
         public struct HasManagedHashSet
         {
@@ -1004,6 +1207,35 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        [Fact]
+        public void hashset_with_managed_type_direct()
+        {
+            var hml = new HashSet<SomeManagedObject>(
+                new List<SomeManagedObject>() {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                }
+            );
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref hml);
+
+            var fromBuf = RePacker.Unpack<HashSet<SomeManagedObject>>(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i < hml.Count; i++)
+            {
+                var elementA = hml.ElementAt(i);
+                var elementB = fromBuf.ElementAt(i);
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
         [RePacker]
         public struct HasUnmanagedDictionary
         {
@@ -1039,6 +1271,32 @@ namespace Refsa.RePacker.Tests
                 var wantedValue = dictCont.Dict[key];
 
                 Assert.True(fromBuf.Dict.TryGetValue(key, out float value));
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_value_direct()
+        {
+            var dictCont = new Dictionary<int, float> {
+                {123, 12.5f},
+                {4567456, 125.2345f},
+                {23454, 3456.235f},
+                {345643, 3456234.1341f},
+                {89678, 1234.3523f},
+                {452, .654567f},
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<Dictionary<int, float>>(buffer);
+
+            foreach (var key in dictCont.Keys)
+            {
+                var wantedValue = dictCont[key];
+
+                Assert.True(fromBuf.TryGetValue(key, out float value));
                 Assert.Equal(wantedValue, value);
             }
         }
@@ -1086,6 +1344,36 @@ namespace Refsa.RePacker.Tests
             }
         }
 
+        [Fact]
+        public void dictionary_with_managed_key_and_unmanaged_value_direct()
+        {
+            var dictCont = new Dictionary<SomeManagedObject, float> {
+                {new SomeManagedObject{Float = 12.34f, Int = 901234}, 12.5f},
+                {new SomeManagedObject{Float = 567.25f, Int = 4562}, 125.2345f},
+                {new SomeManagedObject{Float = 1.3245f, Int = 24535}, 3456.235f},
+                {new SomeManagedObject{Float = 56.2435f, Int = 56724}, 3456234.1341f},
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<Dictionary<SomeManagedObject, float>>(buffer);
+
+            for (int i = 0; i < dictCont.Count; i++)
+            {
+                var wantedKey = dictCont.Keys.ElementAt(i);
+                var key = fromBuf.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey.Float, key.Float);
+                Assert.Equal(wantedKey.Int, key.Int);
+
+                var wantedValue = dictCont.Values.ElementAt(i);
+                var value = fromBuf.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
         [RePacker]
         public struct HasUnmanagedKeyManagedValueDict
         {
@@ -1123,6 +1411,36 @@ namespace Refsa.RePacker.Tests
 
                 var wantedValue = dictCont.Dict.Values.ElementAt(i);
                 var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue.Float, value.Float);
+                Assert.Equal(wantedValue.Int, value.Int);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_managed_value_direct()
+        {
+            var dictCont = new Dictionary<int, SomeManagedObject> {
+                {1, new SomeManagedObject{Float = 12.34f, Int = 901234}},
+                {10, new SomeManagedObject{Float = 567.25f, Int = 4562}},
+                {100, new SomeManagedObject{Float = 1.3245f, Int = 24535}},
+                {1000, new SomeManagedObject{Float = 56.2435f, Int = 56724}}
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref dictCont);
+            var fromBuf = RePacker.Unpack<Dictionary<int, SomeManagedObject>>(buffer);
+
+            for (int i = 0; i < dictCont.Count; i++)
+            {
+                var wantedKey = dictCont.Keys.ElementAt(i);
+                var key = fromBuf.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey, key);
+
+                var wantedValue = dictCont.Values.ElementAt(i);
+                var value = fromBuf.Values.ElementAt(i);
 
                 Assert.Equal(wantedValue.Float, value.Float);
                 Assert.Equal(wantedValue.Int, value.Int);
