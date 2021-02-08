@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net4.7.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityDlls/UnityEngine.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RePacker\RePacker.csproj" />
+  </ItemGroup>
+
+</Project>
