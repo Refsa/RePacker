@@ -2,6 +2,7 @@
 
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
+using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker
 {

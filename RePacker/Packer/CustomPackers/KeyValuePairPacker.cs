@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(int))]
     public class KeyValuePairWrapper<T1, T2> : RePackerWrapper<KeyValuePair<T1, T2>>

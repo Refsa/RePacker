@@ -10,7 +10,6 @@ using System.Reflection.Emit;
 using System.Threading;
 
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Generator;
 using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 

@@ -2,7 +2,7 @@
 using System;
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(int))]
     public class DateTimeWrapper : RePackerWrapper<DateTime>

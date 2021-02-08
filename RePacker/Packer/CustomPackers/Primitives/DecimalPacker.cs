@@ -1,7 +1,7 @@
 
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(decimal))]
     public class DecimalWrapper : RePackerWrapper<decimal>

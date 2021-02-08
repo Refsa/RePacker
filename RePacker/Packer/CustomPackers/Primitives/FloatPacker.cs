@@ -1,7 +1,7 @@
 
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(float))]
     public class FloatWrapper : RePackerWrapper<float>

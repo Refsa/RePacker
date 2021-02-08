@@ -11,7 +11,7 @@ using Refsa.RePacker.Builder;
 using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     public static class TypeCache
     {

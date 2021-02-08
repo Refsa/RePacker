@@ -1,7 +1,7 @@
 
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(long))]
     public class LongWrapper : RePackerWrapper<long>

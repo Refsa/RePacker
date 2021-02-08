@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Builder;
 using Refsa.RePacker.Unsafe;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
@@ -570,7 +571,7 @@ namespace Refsa.RePacker
         }
     }
 
-    public enum IEnumerableType : byte
+    internal enum IEnumerableType : byte
     {
         None = 0,
         HashSet,

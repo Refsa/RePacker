@@ -3,7 +3,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Refsa.RePacker.Generator
+namespace Refsa.RePacker.Builder
 {
     public enum GeneratorType
     {

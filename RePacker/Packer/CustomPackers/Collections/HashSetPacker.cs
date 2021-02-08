@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(int))]
     public class HashSetWrapper<TElement> : RePackerWrapper<HashSet<TElement>>

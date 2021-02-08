@@ -1,7 +1,7 @@
 
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     // [RePackerWrapper(typeof(bool))]
     public class BoolWrapper : RePackerWrapper<bool>

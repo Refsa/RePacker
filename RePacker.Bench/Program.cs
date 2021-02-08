@@ -13,7 +13,7 @@ using Refsa.RePacker.Unsafe;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 using System.Linq;
 using System.Collections.Generic;
-using Refsa.RePacker.Generator;
+using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker.Benchmarks
 {
@@ -1213,7 +1213,7 @@ namespace Refsa.RePacker.Benchmarks
             RePacker.Pack(buffer, ref value);
             string fromBuf = RePacker.Unpack<string>(buffer); */
 
-            var wanted = new StructWithKeyValuePair
+            /* var wanted = new StructWithKeyValuePair
             {
                 Float = 1.234f,
                 KeyValuePair = new KeyValuePair<int, int>(10, 100)
@@ -1231,7 +1231,10 @@ namespace Refsa.RePacker.Benchmarks
                 VT6 = (10, 100, 1000, 10000, 100000, 1000000),
             };
 
-            RePacker.Pack(buffer, ref valuetuples);
+            RePacker.Pack(buffer, ref valuetuples); */
+
+            // var vtrest = ValueTuple.Create(1,1,1,1,1,1,1, ValueTuple.Create(1,1,1,1,1,1,1));
+            // RePacker.Pack(buffer, ref vtrest);
         }
 
         [RePacker]

@@ -193,7 +193,7 @@ namespace Refsa.RePacker.Tests
                 VT5 = (10, 100, 1000, 10000, 100000),
                 VT6 = (10, 100, 1000, 10000, 100000, 1000000),
             };
-            
+
             var buffer = new BoxedBuffer(1024);
             RePacker.Pack(buffer, ref valuetuples);
 
@@ -223,6 +223,30 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(valuetuples.VT6.Item4, frombuf.VT6.Item4);
             Assert.Equal(valuetuples.VT6.Item5, frombuf.VT6.Item5);
             Assert.Equal(valuetuples.VT6.Item6, frombuf.VT6.Item6);
+        }
+
+        [RePacker]
+        public struct StructWithManagedValueTuple
+        {
+            public ValueTuple<SimpleClass, SimpleClass> VT2;
+        }
+
+        [Fact]
+        public void struct_with_managed_value_tuple()
+        {
+            var wanted = new StructWithManagedValueTuple
+            {
+                VT2 = (new SimpleClass { Float = 1.2345f }, new SimpleClass { Float = 1.2345f })
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref wanted);
+
+            var fromBuf = RePacker.Unpack<StructWithManagedValueTuple>(buffer);
+
+            Assert.Equal(wanted.VT2.Item1.Float, fromBuf.VT2.Item1.Float);
+            Assert.Equal(wanted.VT2.Item2.Float, fromBuf.VT2.Item2.Float);
         }
     }
 }

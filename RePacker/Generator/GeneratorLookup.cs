@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Refsa.RePacker.Generator
+namespace Refsa.RePacker.Builder
 {
     public static class GeneratorLookup
     {
@@ -19,6 +19,7 @@ namespace Refsa.RePacker.Generator
                     {Type.Missing.GetType(), new UnmanagedStructGenerator()}
                 }},
                 {GeneratorType.String, new Dictionary<Type, IGenerator>{
+                    {Type.Missing.GetType(), new StringGenerator()},
                     {typeof(string), new StringGenerator()}
                 }},
                 {GeneratorType.Object, new Dictionary<Type, IGenerator>() {

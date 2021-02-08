@@ -7,7 +7,7 @@ using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Generator
+namespace Refsa.RePacker.Builder
 {
     public class IEnumerableGenerator : IGenerator
     {
