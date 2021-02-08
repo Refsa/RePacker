@@ -135,45 +135,23 @@ namespace Refsa.RePacker
         {
             runtimePackerProducers = new Dictionary<Type, GenericProducer>();
 
-            runtimePackerProducers.Add(
-                typeof(Array),
-                new ArrayProducer()
-            );
+            foreach (Type type in AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(e => e.GetTypes())
+                .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
+            {
+                var producer = (GenericProducer)Activator.CreateInstance(type);
+                var forType = producer.ProducerFor;
 
-            runtimePackerProducers.Add(
-                typeof(List<>),
-                new ListProducer()
-            );
-
-            runtimePackerProducers.Add(
-                typeof(Stack<>),
-                new StackProducer()
-            );
-
-            runtimePackerProducers.Add(
-                typeof(Queue<>),
-                new QueueProducer()
-            );
-
-            runtimePackerProducers.Add(
-                typeof(HashSet<>),
-                new HashSetProducer()
-            );
-
-            runtimePackerProducers.Add(
-                typeof(Dictionary<,>),
-                new DictionaryProducer()
-            );
-
-            runtimePackerProducers.Add(
-                typeof(KeyValuePair<,>),
-                new KeyValuePairProducer()
-            );
-
-            runtimePackerProducers.Add(
-                typeof(ITuple),
-                new ValueTupleProducer()
-            );
+                if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
+                {
+                    RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
+                    continue;
+                }
+                runtimePackerProducers.Add(
+                    forType,
+                    producer
+                );
+            }
         }
 
         public static void AddTypePackerProvider(Type targetType, GenericProducer producer)

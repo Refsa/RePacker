@@ -1,16 +1,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker
 {
     public abstract class GenericProducer
     {
+        public abstract Type ProducerFor { get; }
         public abstract ITypePacker GetProducer(Type type);
     }
 
     public class ArrayProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(Array);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetElementType();
@@ -21,6 +25,8 @@ namespace Refsa.RePacker
 
     public class ListProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(List<>);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
@@ -31,6 +37,8 @@ namespace Refsa.RePacker
 
     public class StackProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(Stack<>);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
@@ -41,6 +49,8 @@ namespace Refsa.RePacker
 
     public class QueueProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(Queue<>);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
@@ -51,6 +61,8 @@ namespace Refsa.RePacker
 
     public class HashSetProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(HashSet<>);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
@@ -61,6 +73,8 @@ namespace Refsa.RePacker
 
     public class DictionaryProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(Dictionary<,>);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementTypes = type.GetGenericArguments();
@@ -71,6 +85,8 @@ namespace Refsa.RePacker
 
     public class KeyValuePairProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(KeyValuePair<,>);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementTypes = type.GetGenericArguments();
@@ -81,6 +97,8 @@ namespace Refsa.RePacker
 
     public class ValueTupleProducer : GenericProducer
     {
+        public override Type ProducerFor => typeof(ITuple);
+
         public override ITypePacker GetProducer(Type type)
         {
             var elementTypes = type.GetGenericArguments();
@@ -93,7 +111,9 @@ namespace Refsa.RePacker
                     4 => typeof(ValueTupleWrapper<,,,>),
                     5 => typeof(ValueTupleWrapper<,,,,>),
                     6 => typeof(ValueTupleWrapper<,,,,,>),
-                    _ => null,
+                    7 => typeof(ValueTupleWrapper<,,,,,,>),
+                    8 => typeof(ValueTupleWrapper<,,,,,,,>),
+                    _ => null
                 };
 
             if (genType == null)
