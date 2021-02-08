@@ -9,7 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RePacker\RePacker.csproj" />
+    <ProjectReference Include="..\RePacker\RePacker.csproj">
+      <!-- <DefineConstants>UNITY</DefineConstants> -->
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
