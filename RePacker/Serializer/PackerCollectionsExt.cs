@@ -197,7 +197,7 @@ namespace Refsa.RePacker
             }
             else if (type == IEnumerableType.HashSet)
             {
-                var container = new HashSet<T>(from.Length);
+                var container = new HashSet<T>();
                 foreach (var item in from)
                 {
                     container.Add(item);

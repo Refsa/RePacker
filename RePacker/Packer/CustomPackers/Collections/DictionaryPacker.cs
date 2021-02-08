@@ -14,6 +14,7 @@ namespace Refsa.RePacker.Builder
     {
         public override void Pack(BoxedBuffer buffer, ref Dictionary<TKey, TValue> value)
         {
+            // buffer.PackIEnumerable(value.AsEnumerable());
             buffer.PackIEnumerable(value.Keys);
             buffer.PackIEnumerable(value.Values);
         }
@@ -22,8 +23,10 @@ namespace Refsa.RePacker.Builder
         {
             buffer.UnpackIEnumerable<TKey>(IEnumerableType.None, out var keys);
             buffer.UnpackIEnumerable<TValue>(IEnumerableType.None, out var values);
+            value = keys.Zip(values, (k, v) => new KeyValuePair<TKey, TValue>(k, v)).ToDictionary(x => x.Key, x => x.Value);
 
-            value = new Dictionary<TKey, TValue>(keys.Zip(values, (k, v) => new KeyValuePair<TKey, TValue>(k, v)));
+            // buffer.UnpackIEnumerable<KeyValuePair<TKey, TValue>>(IEnumerableType.None, out var kvCollection);
+            // value = kvCollection.ToDictionary(x => x.Key, x => x.Value);
         }
     }
 }

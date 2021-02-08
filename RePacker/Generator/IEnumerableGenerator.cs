@@ -88,13 +88,20 @@ namespace Refsa.RePacker.Builder
 
         IEnumerableType GetActualType(Type type, Type elementType)
         {
-            return type switch
+            if (type == typeof(HashSet<>).MakeGenericType(elementType))
             {
-                var x when type == typeof(HashSet<>).MakeGenericType(elementType) => IEnumerableType.HashSet,
-                var x when type == typeof(Queue<>).MakeGenericType(elementType) => IEnumerableType.Queue,
-                var x when type == typeof(Stack<>).MakeGenericType(elementType) => IEnumerableType.Stack,
-                _ => IEnumerableType.None,
-            };
+                return IEnumerableType.HashSet;
+            }
+            if (type == typeof(Queue<>).MakeGenericType(elementType))
+            {
+                return IEnumerableType.Queue;
+            }
+            if (type == typeof(Stack<>).MakeGenericType(elementType))
+            {
+                return IEnumerableType.Stack;
+            }
+
+            return IEnumerableType.None;
         }
     }
 }

@@ -13,18 +13,32 @@ namespace Refsa.RePacker.Builder
         {
             var elementTypes = type.GetGenericArguments();
 
-            Type genType =
-                elementTypes.Length switch
-                {
-                    2 => typeof(ValueTupleWrapper<,>),
-                    3 => typeof(ValueTupleWrapper<,,>),
-                    4 => typeof(ValueTupleWrapper<,,,>),
-                    5 => typeof(ValueTupleWrapper<,,,,>),
-                    6 => typeof(ValueTupleWrapper<,,,,,>),
-                    7 => typeof(ValueTupleWrapper<,,,,,,>),
-                    8 => typeof(ValueTupleWrapper<,,,,,,,>),
-                    _ => null
-                };
+            Type genType = null;
+
+            switch (elementTypes.Length)
+            {
+                case 2:
+                    genType = typeof(ValueTupleWrapper<,>);
+                    break;
+                case 3:
+                    genType = typeof(ValueTupleWrapper<,,>);
+                    break;
+                case 4:
+                    genType = typeof(ValueTupleWrapper<,,,>);
+                    break;
+                case 5:
+                    genType = typeof(ValueTupleWrapper<,,,,>);
+                    break;
+                case 6:
+                    genType = typeof(ValueTupleWrapper<,,,,,>);
+                    break;
+                case 7:
+                    genType = typeof(ValueTupleWrapper<,,,,,,>);
+                    break;
+                case 8:
+                    genType = typeof(ValueTupleWrapper<,,,,,,,>);
+                    break;
+            }
 
             if (genType == null)
             {

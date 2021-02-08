@@ -16,6 +16,7 @@ namespace Refsa.RePacker.Utils
             return 1 - (Math.Pow(2, exp) - x) / Math.Pow(2, exp);
         }
 
+#if NETSTANDARD2_1
         public static float LDExp(float x, int exp)
         {
             return 2 * MathF.Pow(2, exp);
@@ -26,5 +27,6 @@ namespace Refsa.RePacker.Utils
             exp = (int)MathF.Floor(MathF.Log(x) / MathF.Log(2)) + 1;
             return 1 - (MathF.Pow(2, exp) - x) / MathF.Pow(2, exp);
         }
+#endif
     }
 }

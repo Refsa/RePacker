@@ -55,12 +55,12 @@ namespace Refsa.RePacker.Builder
                 var wasEqualLabel = ilGen.DefineLabel();
 
                 int index = 0;
-                foreach ((Type key, TypePackerHandler handler) in handlers)
+                foreach (var handler in handlers)
                 {
                     ilGen.Emit(OpCodes.Ldc_I4, index);
 
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldtoken, key);
+                    ilGen.Emit(OpCodes.Ldtoken, handler.Key);
                     ilGen.Emit(OpCodes.Beq, wasEqualLabel);
 
                     ilGen.Emit(OpCodes.Pop);

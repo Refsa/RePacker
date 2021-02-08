@@ -163,14 +163,15 @@ namespace Refsa.RePacker.Builder
         {
             List<Type> invalid = new List<Type>();
 
-            foreach ((Type type, Info info) in typeCache)
+            // foreach ((Type type, Info info) in typeCache)
+            foreach (var kv in typeCache)
             {
-                bool valid = packerLookup.TryGetValue(type, out var packer) && packer != null;
+                bool valid = packerLookup.TryGetValue(kv.Key, out var packer) && packer != null;
 
                 if (!valid)
                 {
-                    RePacker.Logger.Warn($"type of {type} does not have a valid serializer");
-                    invalid.Add(type);
+                    RePacker.Logger.Warn($"type of {kv.Key} does not have a valid serializer");
+                    invalid.Add(kv.Key);
                 }
             }
 
@@ -219,13 +220,14 @@ namespace Refsa.RePacker.Builder
                 customTypeInfo.Add(type, typeInfo);
             }
 
-            foreach ((Type type, Info info) in customTypeInfo)
+            // foreach ((Type type, Info info) in customTypeInfo)
+            foreach (var kv in customTypeInfo)
             {
-                var typePacker = new TypePackerHandler(info);
-                var serializer = Activator.CreateInstance(type);
+                var typePacker = new TypePackerHandler(kv.Value);
+                var serializer = Activator.CreateInstance(kv.Key);
                 typePacker.Setup((ITypePacker)serializer);
 
-                packerLookup.Add(info.Type, typePacker);
+                packerLookup.Add(kv.Value.Type, typePacker);
             }
         }
 
@@ -288,8 +290,11 @@ namespace Refsa.RePacker.Builder
 
             PackerBuilder.Setup();
 
-            foreach ((Type type, Info info) in typeCache)
+            // foreach ((Type type, Info info) in typeCache)
+            foreach (var kv in typeCache)
             {
+                (Type type, Info info) = (kv.Key, kv.Value);
+
                 if (packerLookup.ContainsKey(type))
                 {
                     continue;
@@ -345,8 +350,11 @@ namespace Refsa.RePacker.Builder
             //     loggerLookup.Add(lmc.Item1, lmc.Item2.Invoke());
             // }
 
-            foreach ((Type type, Info info) in typeCache)
+            // foreach ((Type type, Info info) in typeCache)
+            foreach (var kv in typeCache)
             {
+                (Type type, Info info) = (kv.Key, kv.Value);
+
                 if (packerLookup.ContainsKey(type))
                 {
                     continue;
