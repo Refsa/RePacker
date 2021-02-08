@@ -43,24 +43,6 @@ namespace Refsa.RePacker.Generator
                 }}
             };
 
-        public static IGenerator Get(GeneratorType generatorType, Type targetType = null)
-        {
-            if (targetType == null)
-            {
-                targetType = Type.Missing.GetType();
-            }
-
-            if (generators.TryGetValue(generatorType, out var generator))
-            {
-                if (generator.TryGetValue(targetType, out var gen))
-                {
-                    return gen;
-                }
-            }
-
-            return null;
-        }
-
         public static bool TryGet(GeneratorType generatorType, Type targetType, out IGenerator generator)
         {
             if (targetType == null)

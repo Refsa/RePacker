@@ -18,8 +18,6 @@ namespace Refsa.RePacker.Generator
         {
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
 
-            Console.WriteLine(genArgs[0] + " - " + genArgs[1]);
-
             var unpackMethod = typeof(PackerExtensions)
                 .GetMethod(nameof(PackerExtensions.UnpackKeyValuePair))
                 .MakeGenericMethod(genArgs);
