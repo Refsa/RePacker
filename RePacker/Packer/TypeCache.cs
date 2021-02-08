@@ -273,8 +273,6 @@ namespace Refsa.RePacker
 
                 (new Info(typeof(DateTime), true), new DateTimeWrapper()),
                 (new Info(typeof(string), true), new StringWrapper()),
-
-                // (new Info(typeof(Array), true), new ArrayWrapper()),
             };
 
             foreach ((Info info, ITypePacker packer) in packerTypes)
@@ -283,10 +281,6 @@ namespace Refsa.RePacker
                 {
                     typeCache.Add(info.Type, info);
                 }
-
-                // var handler = new TypePackerHandler(info);
-                // handler.Setup(packer);
-                // packerLookupFast[(int)Type.GetTypeCode(info.Type)] = new PackerEntry(handler);
 
                 if (!packerLookup.ContainsKey(info.Type))
                 {
@@ -325,9 +319,9 @@ namespace Refsa.RePacker
 
                 try
                 {
-                    if (PackerBuilder.CreateUnpacker(info) is Func<MethodInfo> deserDelegate)
+                    if (PackerBuilder.CreatePacker(info) is Func<MethodInfo> serDelegate)
                     {
-                        serMethodCreators.Add((type, deserDelegate));
+                        serMethodCreators.Add((type, serDelegate));
                     }
                 }
                 catch (Exception e)
@@ -339,9 +333,9 @@ namespace Refsa.RePacker
 
                 try
                 {
-                    if (PackerBuilder.CreatePacker(info) is Func<MethodInfo> serDelegate)
+                    if (PackerBuilder.CreateUnpacker(info) is Func<MethodInfo> deserDelegate)
                     {
-                        deserMethodCreators.Add((type, serDelegate));
+                        deserMethodCreators.Add((type, deserDelegate));
                     }
                 }
                 catch (Exception e)

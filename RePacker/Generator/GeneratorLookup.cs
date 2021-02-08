@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Generator
 {
@@ -25,6 +26,14 @@ namespace Refsa.RePacker.Generator
                     {typeof(IList<>), new IListGenerator()},
                     {typeof(IEnumerable<>), new IEnumerableGenerator()},
                     {typeof(Dictionary<,>), new DictionaryGenerator()},
+                    {typeof(List<>), new IListGenerator()},
+                    {typeof(HashSet<>), new IEnumerableGenerator()},
+                    {typeof(Queue<>), new IEnumerableGenerator()},
+                    {typeof(Stack<>), new IEnumerableGenerator()},
+
+                    {typeof(KeyValuePair<,>), new KeyValuePairGenerator()},
+
+                    {typeof(ITuple), new ValueTupleGenerator()},
                 }},
                 {GeneratorType.RePacker, new Dictionary<Type, IGenerator>() {
                     {Type.Missing.GetType(), new RePackerGenerator()}
@@ -50,6 +59,37 @@ namespace Refsa.RePacker.Generator
             }
 
             return null;
+        }
+
+        public static bool TryGet(GeneratorType generatorType, Type targetType, out IGenerator generator)
+        {
+            if (targetType == null)
+            {
+                targetType = Type.Missing.GetType();
+            }
+
+            if (generators.TryGetValue(generatorType, out var _generator))
+            {
+                if (_generator.TryGetValue(targetType, out var dirGen))
+                {
+                    generator = dirGen;
+                    return true;
+                }
+                else
+                {
+                    foreach (var intf in targetType.GetInterfaces())
+                    {
+                        if (_generator.TryGetValue(intf, out var intfGen))
+                        {
+                            generator = intfGen;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            generator = null;
+            return false;
         }
 
         public static void RegisterGenerator(Type type, IGenerator generator)

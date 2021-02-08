@@ -41,7 +41,7 @@ namespace Refsa.RePacker.Builder
             moduleBuilder.CreateGlobalFunctions();
         }
 
-        public static Func<MethodInfo> CreatePacker(TypeCache.Info info)
+        public static Func<MethodInfo> CreateUnpacker(TypeCache.Info info)
         {
             // TODO: MakeByRefType ??
             Type[] typeParams = new Type[] { typeof(Refsa.RePacker.Buffers.BoxedBuffer) };
@@ -143,34 +143,18 @@ namespace Refsa.RePacker.Builder
                             {
                                 (gt, t) = (GeneratorType.RePacker, null);
                             }
+                            else if (field.FieldType.IsGenericType)
+                            {
+                                var genType = field.FieldType.GetGenericTypeDefinition();
+                                (gt, t) = (GeneratorType.Object, genType);
+                            }
                             else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
                             {
                                 (gt, t) = (GeneratorType.Struct, null);
                             }
-                            else
+                            else if (field.FieldType.IsArray)
                             {
-                                if (field.FieldType.IsArray)
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(Array));
-                                }
-                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIList())
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(IList<>));
-                                }
-                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIEnumerable())
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(IEnumerable<>));
-                                }
-                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfDictionary())
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(Dictionary<,>));
-                                }
-                                else
-                                {
-                                    ilGen.EmitWriteLine($"RePacker - Unpack: Object of type {field.FieldType.Name} is not supported");
-                                    ilGen.Emit(OpCodes.Pop);
-                                    ilGen.Emit(OpCodes.Pop);
-                                }
+                                (gt, t) = (GeneratorType.Object, typeof(Array));
                             }
                             break;
                         case TypeCode.String:
@@ -183,10 +167,15 @@ namespace Refsa.RePacker.Builder
                             break;
                     }
 
-                    if (gt != GeneratorType.None)
+                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator))
                     {
-                        var generator = GeneratorLookup.Get(gt, t);
                         generator.GenerateDeserializer(ilGen, field);
+                    }
+                    else
+                    {
+                        ilGen.EmitWriteLine($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        ilGen.Emit(OpCodes.Pop);
+                        ilGen.Emit(OpCodes.Pop);
                     }
                 }
                 goto Finished;
@@ -205,7 +194,7 @@ namespace Refsa.RePacker.Builder
             };
         }
 
-        public static Func<MethodInfo> CreateUnpacker(TypeCache.Info info)
+        public static Func<MethodInfo> CreatePacker(TypeCache.Info info)
         {
             // Type[] typeParams = info.SerializedFields.Select(e => e.FieldType).ToArray();
             Type[] typeParams = new Type[] { typeof(BoxedBuffer), info.Type };
@@ -297,34 +286,18 @@ namespace Refsa.RePacker.Builder
                             {
                                 (gt, t) = (GeneratorType.RePacker, null);
                             }
+                            else if (field.FieldType.IsGenericType)
+                            {
+                                var genType = field.FieldType.GetGenericTypeDefinition();
+                                (gt, t) = (GeneratorType.Object, genType);
+                            }
                             else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
                             {
                                 (gt, t) = (GeneratorType.Struct, null);
                             }
-                            else
+                            else if (field.FieldType.IsArray)
                             {
-                                if (field.FieldType.IsArray)
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(Array));
-                                }
-                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIList())
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(IList<>));
-                                }
-                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfIEnumerable())
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(IEnumerable<>));
-                                }
-                                else if (field.FieldType.IsGenericType && field.FieldType.IsOfDictionary())
-                                {
-                                    (gt, t) = (GeneratorType.Object, typeof(Dictionary<,>));
-                                }
-                                else
-                                {
-                                    ilGen.EmitWriteLine($"RePacker - Pack: Object of type {field.FieldType.Name} is not supported");
-                                    ilGen.Emit(OpCodes.Pop);
-                                    ilGen.Emit(OpCodes.Pop);
-                                }
+                                (gt, t) = (GeneratorType.Object, typeof(Array));
                             }
                             break;
                         case TypeCode.String:
@@ -337,9 +310,15 @@ namespace Refsa.RePacker.Builder
                             break;
                     }
 
-                    if (gt != GeneratorType.None)
+                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator))
                     {
-                        GeneratorLookup.Get(gt, t).GenerateSerializer(ilGen, field);
+                        generator.GenerateSerializer(ilGen, field);
+                    }
+                    else
+                    {
+                        ilGen.EmitWriteLine($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        ilGen.Emit(OpCodes.Pop);
+                        ilGen.Emit(OpCodes.Pop);
                     }
                 }
                 goto Finished;
