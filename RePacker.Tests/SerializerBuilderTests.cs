@@ -95,6 +95,18 @@ namespace Refsa.RePacker.Tests
         public int Int;
     }
 
+    [RePacker]
+    public class SimpleClass
+    {
+        public float Float;
+    }
+
+    [RePacker]
+    public class SimpleStruct
+    {
+        public float Float;
+    }
+
     public class SerializerBuilderTests
     {
         public SerializerBuilderTests()
@@ -1612,6 +1624,77 @@ namespace Refsa.RePacker.Tests
             string fromBuf = RePacker.Unpack<string>(buffer);
 
             Assert.Equal(value, fromBuf);
+        }
+
+        [Fact]
+        public void standalone_key_value_pair_unmanaged()
+        {
+            var kvp = new KeyValuePair<int, int>(10, 100);
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref kvp);
+
+            var fromBuf = RePacker.Unpack<KeyValuePair<int, int>>(buffer);
+
+            Assert.Equal(kvp.Key, fromBuf.Key);
+            Assert.Equal(kvp.Value, fromBuf.Value);
+        }
+
+        [Fact]
+        public void standalone_key_value_pair_managed_key()
+        {
+            var kvp = new KeyValuePair<SimpleClass, int>(new SimpleClass { Float = 12.34f }, 100);
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref kvp);
+
+            var fromBuf = RePacker.Unpack<KeyValuePair<SimpleClass, int>>(buffer);
+
+            Assert.Equal(kvp.Key.Float, fromBuf.Key.Float);
+            Assert.Equal(kvp.Value, fromBuf.Value);
+        }
+
+        [Fact]
+        public void standalone_key_value_pair_managed_value()
+        {
+            var kvp = new KeyValuePair<int, SimpleClass>(100, new SimpleClass { Float = 12.34f });
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref kvp);
+
+            var fromBuf = RePacker.Unpack<KeyValuePair<int, SimpleClass>>(buffer);
+
+            Assert.Equal(kvp.Key, fromBuf.Key);
+            Assert.Equal(kvp.Value.Float, fromBuf.Value.Float);
+        }
+
+        [RePacker]
+        public struct StructWithKeyValuePair
+        {
+            public float Float;
+            public KeyValuePair<int, int> KeyValuePair;
+        }
+
+        [Fact]
+        public void struct_with_key_value_pair()
+        {
+            var wanted = new StructWithKeyValuePair{
+                Float = 1.234f,
+                KeyValuePair = new KeyValuePair<int, int>(10, 100)
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref wanted);
+
+            var fromBuf = RePacker.Unpack<StructWithKeyValuePair>(buffer);
+
+            Assert.Equal(wanted.Float, fromBuf.Float);
+            Assert.Equal(wanted.KeyValuePair.Key, fromBuf.KeyValuePair.Key);
+            Assert.Equal(wanted.KeyValuePair.Value, fromBuf.KeyValuePair.Value);
         }
     }
     #endregion

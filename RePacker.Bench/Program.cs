@@ -547,7 +547,7 @@ namespace Refsa.RePacker.Benchmarks
 
             var buffer = new BoxedBuffer(backingBuffer);
 
-            for (int i = 0; i < 100_000; i++)
+            for (int i = 0; i < RUNS; i++)
             {
                 RePacker.Pack<Program.Parent>(buffer, ref p);
                 var fromBuf = RePacker.Unpack<Program.Parent>(buffer);
@@ -895,7 +895,7 @@ namespace Refsa.RePacker.Benchmarks
 
             Console.WriteLine(targetArray.GetValue(5)); */
 
-            /* Vector3[] testArray = Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e, Z = e }).ToArray();
+            /* Vector3[] testArray = Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e * 2, Z = e * 4 }).ToArray();
             var buffer = new BoxedBuffer(1024);
 
             RePacker.Pack<Vector3[]>(buffer, ref testArray);
@@ -903,13 +903,70 @@ namespace Refsa.RePacker.Benchmarks
 
             for (int i = 0; i < 10; i++)
             {
-                Console.WriteLine(fromBuf[i].X);
-                Console.WriteLine(fromBuf[i].Y);
-                Console.WriteLine(fromBuf[i].Z);
+                Console.WriteLine(fromBuf[i].X + ", " + fromBuf[i].Y + ", " + fromBuf[i].Z);
+            } */
+
+
+            /* List<Vector3> testList = Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e * 2, Z = e * 4 }).ToList();
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref testList);
+            var fromBuf = RePacker.Unpack<List<Vector3>>(buffer);
+
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(fromBuf[i].X + ", " + fromBuf[i].Y + ", " + fromBuf[i].Z);
+            }  */
+
+            /* Queue<Vector3> testList = new Queue<Vector3>(Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e * 2, Z = e * 4 }));
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref testList);
+            var fromBuf = RePacker.Unpack<Queue<Vector3>>(buffer);
+
+            for (int i = 0; i < 10; i++)
+            {
+                var popped = fromBuf.Dequeue();
+                Console.WriteLine(popped.X + ", " + popped.Y + ", " + popped.Z);
+            } */
+
+            /* Dictionary<int, int> testDict = new Dictionary<int, int>();
+            for (int i = 0; i < 10; i++)
+            {
+                testDict.Add(i, i * i);
             }
- */
+
+            var buffer = new BoxedBuffer(1024); */
+
+            /* RePacker.Pack(buffer, ref testDict);
+            var fromBuf = RePacker.Unpack<Dictionary<int, int>>(buffer);
+
+            for (int i = 0; i < 10; i++)
+            {
+                Console.WriteLine(i + ": " + fromBuf[i]);
+            } */
+
+            /* buffer.Reset();
+            var keyValuePairs = testDict.ToList();
+            foreach (var kvp in keyValuePairs)
+            {
+                var kvp_ = kvp;
+                RePacker.Pack<KeyValuePair<int, int>>(buffer, ref kvp_);
+            }
+
+            for (int i = 0; i < keyValuePairs.Count; i++)
+            {
+                var kvp = RePacker.Unpack<KeyValuePair<int, int>>(buffer);
+                Console.WriteLine(kvp.Key + " - " + kvp.Value);
+            } */
+
+            /* var vt2 = new ValueTuple<int, int, int, int, int>(10, 100, 1000, 10000, 100000);
+            RePacker.Pack(buffer, ref vt2);
+            var vt2FromBuf = RePacker.Unpack<ValueTuple<int, int, int, int, int>>(buffer);
+            Console.WriteLine(vt2FromBuf.Item1 + " - " + vt2FromBuf.Item2 + " - " + vt2FromBuf.Item3 + " - " + vt2FromBuf.Item4 + " - " + vt2FromBuf.Item5); */
+
             // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
+            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var summary2 = BenchmarkRunner.Run<ILGenerated>();
             // var summary2 = BenchmarkRunner.Run<GeneralBenches>();
 
@@ -1155,6 +1212,43 @@ namespace Refsa.RePacker.Benchmarks
 
             RePacker.Pack(buffer, ref value);
             string fromBuf = RePacker.Unpack<string>(buffer); */
+
+            var wanted = new StructWithKeyValuePair
+            {
+                Float = 1.234f,
+                KeyValuePair = new KeyValuePair<int, int>(10, 100)
+            };
+
+            var buffer = new BoxedBuffer(1024);
+            RePacker.Pack(buffer, ref wanted);
+
+            var valuetuples = new StructWithValueTuple
+            {
+                VT2 = (10, 100),
+                VT3 = (10, 100, 1000),
+                VT4 = (10, 100, 1000, 10000),
+                VT5 = (10, 100, 1000, 10000, 100000),
+                VT6 = (10, 100, 1000, 10000, 100000, 1000000),
+            };
+
+            RePacker.Pack(buffer, ref valuetuples);
+        }
+
+        [RePacker]
+        public struct StructWithKeyValuePair
+        {
+            public float Float;
+            public KeyValuePair<int, int> KeyValuePair;
+        }
+
+        [RePacker]
+        public struct StructWithValueTuple
+        {
+            public ValueTuple<int, int> VT2;
+            public ValueTuple<int, int, int> VT3;
+            public ValueTuple<int, int, int, int> VT4;
+            public ValueTuple<int, int, int, int, int> VT5;
+            public ValueTuple<int, int, int, int, int, int> VT6;
         }
     }
 }
