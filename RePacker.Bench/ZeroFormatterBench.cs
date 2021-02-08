@@ -285,7 +285,7 @@ namespace Refsa.RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = PackerExtensions.DecodeArray<Person>(ref personArrayBuffer);
+                var p = BufferExt.DecodeArray<Person>(ref personArrayBuffer);
                 personArrayBuffer.Reset();
             }
         }

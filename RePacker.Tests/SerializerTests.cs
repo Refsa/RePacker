@@ -182,7 +182,7 @@ namespace Refsa.RePacker.Tests
             buffer.Pack(testData);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = (TestManagedStruct)PackerExtensions.Unpack(ref readBuffer, typeof(TestManagedStruct));
+            var fromBuf = (TestManagedStruct)BufferExt.Unpack(ref readBuffer, typeof(TestManagedStruct));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
         }
@@ -244,7 +244,7 @@ namespace Refsa.RePacker.Tests
             buffer.Pack(testData);
 
             var readBuffer = new Buffer(ref buffer);
-            var fromBuf = (TestManagedClass)PackerExtensions.Unpack(ref readBuffer, typeof(TestManagedClass));
+            var fromBuf = (TestManagedClass)BufferExt.Unpack(ref readBuffer, typeof(TestManagedClass));
             Assert.Equal(testData.Int, fromBuf.Int);
             Assert.Equal(testData.String, fromBuf.String);
         }
