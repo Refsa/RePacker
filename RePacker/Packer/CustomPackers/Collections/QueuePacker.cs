@@ -17,7 +17,7 @@ namespace Refsa.RePacker.Builder
 
         public override void Unpack(BoxedBuffer buffer, out Queue<TElement> value)
         {
-            buffer.UnpackIEnumerable<TElement>(IEnumerableType.Queue, out var ien);
+            buffer.UnpackIEnumerable<TElement>(PackerCollectionsExt.IEnumerableType.Queue, out var ien);
             value = (Queue<TElement>)ien;
         }
     }

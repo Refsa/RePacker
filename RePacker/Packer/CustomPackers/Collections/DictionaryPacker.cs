@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Refsa.RePacker.Buffers;
+using static Refsa.RePacker.PackerCollectionsExt;
 
 namespace Refsa.RePacker.Builder
 {

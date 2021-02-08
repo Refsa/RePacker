@@ -19,10 +19,10 @@ namespace Refsa.RePacker.Builder
         {
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
 
-            var meth = typeof(PackerExtensions)
+            var meth = typeof(PackerValueTupleExt)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(e => 
-                    e.Name.Contains(nameof(PackerExtensions.UnpackValueTuple)) &&
+                    e.Name.Contains(nameof(PackerValueTupleExt.UnpackValueTuple)) &&
                     e.GetGenericArguments().Length == genArgs.Length
                 ).First()
                 .MakeGenericMethod(genArgs);
@@ -34,10 +34,10 @@ namespace Refsa.RePacker.Builder
         {
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
 
-            var meth = typeof(PackerExtensions)
+            var meth = typeof(PackerValueTupleExt)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(e => 
-                    e.Name.Contains(nameof(PackerExtensions.PackValueTuple)) &&
+                    e.Name.Contains(nameof(PackerValueTupleExt.PackValueTuple)) &&
                     e.GetGenericArguments().Length == genArgs.Length
                 ).First()
                 .MakeGenericMethod(genArgs);

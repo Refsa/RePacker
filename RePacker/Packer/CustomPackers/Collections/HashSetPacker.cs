@@ -17,7 +17,7 @@ namespace Refsa.RePacker.Builder
 
         public override void Unpack(BoxedBuffer buffer, out HashSet<TElement> value)
         {
-            buffer.UnpackIEnumerable<TElement>(IEnumerableType.HashSet, out var ien);
+            buffer.UnpackIEnumerable<TElement>(PackerCollectionsExt.IEnumerableType.HashSet, out var ien);
             value = (HashSet<TElement>)ien;
         }
     }

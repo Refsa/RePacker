@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
+using static Refsa.RePacker.PackerCollectionsExt;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
@@ -16,11 +17,11 @@ namespace Refsa.RePacker.Builder
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-        MethodInfo deserializeIEnumerableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackIEnumerable));
-        MethodInfo deserializeIEnumerableBlittableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackIEnumerableBlittable));
+        MethodInfo deserializeIEnumerableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIEnumerable));
+        MethodInfo deserializeIEnumerableBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIEnumerableBlittable));
 
-        MethodInfo serializeIEnumerableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackIEnumerable));
-        MethodInfo serializeIEnumerableBlittableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackIEnumerableBlittable));
+        MethodInfo serializeIEnumerableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackIEnumerable));
+        MethodInfo serializeIEnumerableBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackIEnumerableBlittable));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {

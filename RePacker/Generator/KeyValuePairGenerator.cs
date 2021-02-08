@@ -18,8 +18,8 @@ namespace Refsa.RePacker.Builder
         {
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
 
-            var unpackMethod = typeof(PackerExtensions)
-                .GetMethod(nameof(PackerExtensions.UnpackKeyValuePair))
+            var unpackMethod = typeof(BoxedBufferExt)
+                .GetMethod(nameof(BoxedBufferExt.UnpackKeyValuePair))
                 .MakeGenericMethod(genArgs);
 
             ilGen.EmitCall(OpCodes.Call, unpackMethod, Type.EmptyTypes);
@@ -28,8 +28,8 @@ namespace Refsa.RePacker.Builder
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
-            var packMethod = typeof(PackerExtensions)
-                .GetMethod(nameof(PackerExtensions.PackKeyValuePair))
+            var packMethod = typeof(BoxedBufferExt)
+                .GetMethod(nameof(BoxedBufferExt.PackKeyValuePair))
                 .MakeGenericMethod(genArgs);
 
             ilGen.EmitCall(OpCodes.Call, packMethod, Type.EmptyTypes);

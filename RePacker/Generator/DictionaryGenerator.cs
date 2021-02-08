@@ -16,13 +16,13 @@ namespace Refsa.RePacker.Builder
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-        MethodInfo deserializeIListMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackIList));
-        MethodInfo deserializeIListBlittableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackIListBlittable));
+        MethodInfo deserializeIListMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIList));
+        MethodInfo deserializeIListBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIListBlittable));
 
-        MethodInfo serializeIEnumerableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackIEnumerable));
-        MethodInfo serializeIEnumerableBlittableMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackIEnumerableBlittable));
+        MethodInfo serializeIEnumerableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackIEnumerable));
+        MethodInfo serializeIEnumerableBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackIEnumerableBlittable));
 
-        MethodInfo recreateDictMethod = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.RecreateDictionary));
+        MethodInfo recreateDictMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.RecreateDictionary));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {

@@ -16,14 +16,14 @@ namespace Refsa.RePacker.Builder
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var stringDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
-            var decodeString = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.UnpackString), stringDecParams);
+            var decodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackString), stringDecParams);
             ilGen.EmitCall(OpCodes.Call, decodeString, Type.EmptyTypes);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var encodeStringParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
-            var encodeString = typeof(PackerExtensions).GetMethod(nameof(PackerExtensions.PackString), encodeStringParams);
+            var encodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.PackString), encodeStringParams);
             ilGen.EmitCall(OpCodes.Call, encodeString, Type.EmptyTypes);
             // ilGen.Emit(OpCodes.Pop);
         }
