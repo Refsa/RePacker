@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker
 {

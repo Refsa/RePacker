@@ -1,7 +1,7 @@
 using System.Reflection;
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     public class TypePacker<T> : ITypePacker
     {

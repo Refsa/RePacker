@@ -571,7 +571,7 @@ namespace Refsa.RePacker
         }
     }
 
-    internal enum IEnumerableType : byte
+    public enum IEnumerableType : byte
     {
         None = 0,
         HashSet,
