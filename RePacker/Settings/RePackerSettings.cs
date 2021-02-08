@@ -28,5 +28,11 @@ namespace Refsa.RePacker
             log = new ConsoleLogger();
             log.Enabled = loggingEnabled;
         }
+
+        public RePackerSettings(ILogger logger)
+        {
+            log = logger;
+            log.Enabled = loggingEnabled;
+        }
     }
 }

@@ -10,6 +10,11 @@ namespace Refsa.RePacker.Tests
 {
     public class SerializerTests
     {
+        public SerializerTests()
+        {
+            RePacker.Init();
+        }
+
         Buffer CreateBuffer(int size = 1024)
         {
             return new Buffer(new Memory<byte>(new byte[size]), 0);

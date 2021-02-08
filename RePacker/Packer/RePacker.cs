@@ -14,10 +14,12 @@ namespace Refsa.RePacker
 
         public static bool IsSetup => TypeCache.IsSetup;
 
+#if !UNITY
         static RePacker()
         {
             Init();
         }
+#endif
 
         public static void Init()
         {
