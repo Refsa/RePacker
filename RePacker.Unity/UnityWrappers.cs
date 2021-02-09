@@ -32,7 +32,88 @@ namespace Refsa.RePacker.Unity
         }
     }
 
-#region Vector
+    #region AnimationCurve
+    [RePackerWrapper(typeof(Keyframe))]
+    public class KeyframeWrapper : RePackerWrapper<Keyframe>
+    {
+        public override void Pack(BoxedBuffer buffer, ref Keyframe value)
+        {
+            var time = value.time;
+            var val = value.value;
+            var inTangent = value.inTangent;
+            var outTangent = value.outTangent;
+            var inWeight = value.inWeight;
+            var outWeight = value.outWeight;
+            var weightedMode = value.weightedMode;
+
+            buffer.Buffer.PushFloat(ref time);
+            buffer.Buffer.PushFloat(ref val);
+            buffer.Buffer.PushFloat(ref inTangent);
+            buffer.Buffer.PushFloat(ref outTangent);
+            buffer.Buffer.PushFloat(ref inWeight);
+            buffer.Buffer.PushFloat(ref outWeight);
+            buffer.Buffer.PackEnum(ref weightedMode);
+        }
+
+        public override void Unpack(BoxedBuffer buffer, out Keyframe value)
+        {
+            value = new Keyframe();
+
+            var time = 0f;
+            var val = 0f;
+            var inTangent = 0f;
+            var outTangent = 0f;
+            var inWeight = 0f;
+            var outWeight = 0f;
+
+            buffer.Buffer.PopFloat(out time);
+            buffer.Buffer.PopFloat(out val);
+            buffer.Buffer.PopFloat(out inTangent);
+            buffer.Buffer.PopFloat(out outTangent);
+            buffer.Buffer.PopFloat(out inWeight);
+            buffer.Buffer.PopFloat(out outWeight);
+            value.weightedMode = buffer.Buffer.UnpackEnum<WeightedMode>();
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref Keyframe value)
+        {
+            Unpack(buffer, out value);
+        }
+    }
+
+    [RePackerWrapper(typeof(AnimationCurve))]
+    public class AnimationCurveWrapper : RePackerWrapper<AnimationCurve>
+    {
+        public override void Pack(BoxedBuffer buffer, ref AnimationCurve value)
+        {
+            var preMode = value.preWrapMode;
+            var postMode = value.postWrapMode;
+            var keys = value.keys;
+
+            buffer.Buffer.PackEnum(ref preMode);
+            buffer.Buffer.PackEnum(ref postMode);
+            RePacker.Pack(buffer, ref keys);
+        }
+
+        public override void Unpack(BoxedBuffer buffer, out AnimationCurve value)
+        {
+            var preMode = buffer.Buffer.UnpackEnum<WrapMode>();
+            var postMode = buffer.Buffer.UnpackEnum<WrapMode>();
+            var keys = RePacker.Unpack<Keyframe[]>(buffer);
+
+            value = new AnimationCurve(keys);
+            value.preWrapMode = preMode;
+            value.postWrapMode = postMode;
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref AnimationCurve value)
+        {
+            Unpack(buffer, out value);
+        }
+    }
+    #endregion
+
+    #region Vector
     [RePackerWrapper(typeof(Vector4))]
     public class Vector4Wrapper : RePackerWrapper<Vector4>
     {
@@ -101,9 +182,9 @@ namespace Refsa.RePacker.Unity
             Unpack(buffer, out value);
         }
     }
-#endregion
+    #endregion
 
-#region VectorInt
+    #region VectorInt
     [RePackerWrapper(typeof(Vector3Int))]
     public class Vector3IntWrapper : RePackerWrapper<Vector3Int>
     {
@@ -156,9 +237,9 @@ namespace Refsa.RePacker.Unity
             Unpack(buffer, out value);
         }
     }
-#endregion
+    #endregion
 
-#region Color
+    #region Color
     [RePackerWrapper(typeof(Color))]
     public class ColorWrapper : RePackerWrapper<Color>
     {
@@ -209,7 +290,7 @@ namespace Refsa.RePacker.Unity
             Unpack(buffer, out value);
         }
     }
-#endregion
+    #endregion
 
     [RePackerWrapper(typeof(UnityEngine.Transform))]
     public class TransformWrapper : RePackerWrapper<UnityEngine.Transform>

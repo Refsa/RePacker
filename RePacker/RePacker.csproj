@@ -4,6 +4,10 @@
     <TargetFrameworks>net4.7.1;net4.8;net5.0;netstandard2.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unity|AnyCPU' ">
+    <DefineConstants>UNITY</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\RePacker.Unsafe\RePacker.Unsafe.csproj" />
   </ItemGroup>
