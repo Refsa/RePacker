@@ -5,7 +5,7 @@ using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker
 {
-    public abstract class RePackerWrapper<T> : ITypePacker
+    public abstract class RePackerWrapper<T> : IPacker<T>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void Pack(BoxedBuffer buffer, ref T value);

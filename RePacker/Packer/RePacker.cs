@@ -3,6 +3,7 @@
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
 using Refsa.RePacker.Builder;
+using System;
 
 namespace Refsa.RePacker
 {
@@ -59,6 +60,11 @@ namespace Refsa.RePacker
         {
             return TypeCache.Unpack<T>(buffer);
         }
+
+        // public static object Unpack(BoxedBuffer buffer, Type type)
+        // {
+            
+        // }
 
         /// <summary>
         /// Unpacks value of type T into an out parameter

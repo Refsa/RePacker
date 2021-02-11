@@ -1,12 +1,12 @@
-
-
 using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker
 {
-    public interface IPacker
+    internal interface IPacker<T> : ITypePacker
     {
-        void ToBuffer(ref Buffer buffer);
-        void FromBuffer(ref Buffer buffer);
+        void Pack(BoxedBuffer buffer, ref T value);
+        void Unpack(BoxedBuffer buffer, out T value);
+        void UnpackInto(BoxedBuffer buffer, ref T value);
     }
 }

@@ -11,27 +11,19 @@ namespace Refsa.RePacker
 {
     public static class BufferExt
     {
-        public static void Pack(this ref Buffer buffer, IPacker target)
+        public static void PackString(this BoxedBuffer buffer, ref string str)
         {
-            target.ToBuffer(ref buffer);
+            buffer.Buffer.PackString(ref str);
         }
 
-        public static object Unpack(this ref Buffer buffer, Type type)
+        public static string UnpackString(this BoxedBuffer buffer)
         {
-            IPacker instance = Activator.CreateInstance(type) as IPacker;
-
-            instance.FromBuffer(ref buffer);
-
-            return instance;
+            return buffer.Buffer.UnpackString();
         }
 
-        public static T Unpack<T>(this ref Buffer buffer) where T : IPacker
+        public static void UnpackString(this BoxedBuffer buffer, out string str)
         {
-            IPacker instance = Activator.CreateInstance(typeof(T)) as IPacker;
-
-            instance.FromBuffer(ref buffer);
-
-            return (T)instance;
+            buffer.Buffer.UnpackString(out str);
         }
 
         public static void PackString(this ref Buffer buffer, ref string str)
@@ -179,30 +171,6 @@ namespace Refsa.RePacker
             buffer.Pop<ulong>(out ulong length);
             var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
             data = span.ToArray();
-        }
-
-        public static void EncodeArray<T>(this ref Buffer buffer, T[] data) where T : IPacker
-        {
-            ulong dataLen = (ulong)data.Length;
-            buffer.Push<ulong>(ref dataLen);
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                Pack(ref buffer, data[i]);
-            }
-        }
-
-        public static T[] DecodeArray<T>(this ref Buffer buffer) where T : IPacker
-        {
-            buffer.Pop<ulong>(out ulong length);
-
-            T[] data = new T[(int)length];
-            for (int i = 0; i < (int)length; i++)
-            {
-                data[i] = (T)Unpack(ref buffer, typeof(T));
-            }
-
-            return data;
         }
     }
 }

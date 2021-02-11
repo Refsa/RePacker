@@ -366,7 +366,7 @@ namespace Refsa.RePacker.Builder
                 {
                     Type = type,
                     IsUnmanaged = type.IsUnmanaged(),
-                    HasCustomSerializer = type.GetInterface(nameof(IPacker)) != null,
+                    HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
                 };
 
                 // if (!tci.HasCustomSerializer)
