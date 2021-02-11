@@ -52,9 +52,7 @@ namespace Refsa.RePacker.Benchmarks
         static BoxedBuffer boxedBuffer;
 
         Person[] personArray;
-        Buffer personBuffer;
         BoxedBuffer personBoxedBuffer;
-        Buffer personArrayBuffer;
 
         BoxedBuffer personArrayBoxedBuffer;
         PersonArrayContainer personArrayContainer;
@@ -81,16 +79,8 @@ namespace Refsa.RePacker.Benchmarks
             {
                 personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
 
-                var _personBuffer = new Buffer(new byte[1024], 0);
-                _personBuffer.Pack(p);
-                personBuffer = new Buffer(ref _personBuffer);
-
                 personBoxedBuffer = new BoxedBuffer(1024);
                 RePacker.Pack<Person>(personBoxedBuffer, ref p);
-
-                var _personArrayBuffer = new Buffer(new byte[1 << 16], 0);
-                _personArrayBuffer.EncodeArray<Person>(personArray);
-                personArrayBuffer = new Buffer(ref _personArrayBuffer);
 
                 personArrayBoxedBuffer = new BoxedBuffer(1 << 16);
                 personArrayContainer = new PersonArrayContainer
@@ -118,7 +108,7 @@ namespace Refsa.RePacker.Benchmarks
         }
 
         [RePacker]
-        public class Person : IPacker
+        public class Person
         {
             public int Age;
             public string FirstName;
@@ -157,32 +147,12 @@ namespace Refsa.RePacker.Benchmarks
         }
 
         [Benchmark]
-        public void SmallObjectSerialize10K()
-        {
-            for (int i = 0; i < 10_000; i++)
-            {
-                buffer.Pack(p);
-                buffer.Reset();
-            }
-        }
-
-        [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
             for (int i = 0; i < 10_000; i++)
             {
                 RePacker.Pack<Person>(boxedBuffer, ref p);
                 boxedBuffer.Buffer.Reset();
-            }
-        }
-
-        [Benchmark]
-        public void SmallObjectDeserialize10K()
-        {
-            for (int i = 0; i < 10_000; i++)
-            {
-                var _ = (Person)personBuffer.Unpack(typeof(Person));
-                personBuffer.Reset();
             }
         }
 
@@ -265,28 +235,6 @@ namespace Refsa.RePacker.Benchmarks
             {
                 buffer.PopInt(out int _);
                 buffer.Reset();
-            }
-        }
-
-        [Benchmark]
-        public void SmallObjectArraySerialize10K()
-        {
-            Buffer buffer = new Buffer(new byte[1 << 16], 0);
-
-            for (int i = 0; i < 10_000; i++)
-            {
-                buffer.EncodeArray<Person>(personArray);
-                buffer.Reset();
-            }
-        }
-
-        [Benchmark]
-        public void SmallObjectArrayDeserialize10K()
-        {
-            for (int i = 0; i < 10_000; i++)
-            {
-                var p = BufferExt.DecodeArray<Person>(ref personArrayBuffer);
-                personArrayBuffer.Reset();
             }
         }
 
