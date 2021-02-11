@@ -5,24 +5,29 @@ namespace Refsa.RePacker.Buffers
 {
     public class BoxedBuffer
     {
+        public byte[] Data;
         public Buffer Buffer;
 
         public BoxedBuffer(int size)
         {
-            Buffer = new Buffer(new byte[size], 0);
+            Data = new byte[size];
+            Buffer = new Buffer(Data, 0);
         }
 
         public BoxedBuffer(byte[] buffer)
         {
+            Data = buffer;
             Buffer = new Buffer(buffer, 0);
         }
 
         public BoxedBuffer(ref Buffer buffer)
         {
+            (var array, var _) = buffer.GetArray();
+            Data = array;
             Buffer = buffer;
         }
 
-#region Buffer Wrappers
+        #region Buffer Wrappers
         public void Push<T>(ref T value) where T : unmanaged
         {
             Buffer.Push(ref value);
@@ -118,6 +123,103 @@ namespace Refsa.RePacker.Buffers
         {
             return Buffer.GetArray();
         }
-#endregion
+
+        public void PushShort(ref short value)
+        {
+            Buffer.PushShort(ref value);
+        }
+        public void PopShort(out short value)
+        {
+            Buffer.PopShort(out value);
+        }
+        public void PushUShort(ref ushort value)
+        {
+            Buffer.PushUShort(ref value);
+        }
+        public void PopUShort(out ushort value)
+        {
+            Buffer.PopUShort(out value);
+        }
+        public void PushInt(ref int value)
+        {
+            Buffer.PushInt(ref value);
+        }
+        public void PopInt(out int value)
+        {
+            Buffer.PopInt(out value);
+        }
+        public void PushUInt(ref uint value)
+        {
+            Buffer.PushUInt(ref value);
+        }
+        public void PopUInt(out uint value)
+        {
+            Buffer.PopUInt(out value);
+        }
+        public void PushLong(ref long value)
+        {
+            Buffer.PushLong(ref value);
+        }
+        public void PopLong(out long value)
+        {
+            Buffer.PopLong(out value);
+        }
+        public void PushULong(ref ulong value)
+        {
+            Buffer.PushULong(ref value);
+        }
+        public void PopULong(out ulong value)
+        {
+            Buffer.PopULong(out value);
+        }
+        public void PushChar(ref char value)
+        {
+            Buffer.PushChar(ref value);
+        }
+        public void PopChar(out char value)
+        {
+            Buffer.PopChar(out value);
+        }
+        public void PushByte(ref byte value)
+        {
+            Buffer.PushByte(ref value);
+        }
+        public void PopByte(out byte value)
+        {
+            Buffer.PopByte(out value);
+        }
+        public void PushSByte(ref sbyte value)
+        {
+            Buffer.PushSByte(ref value);
+        }
+        public void PopSByte(out sbyte value)
+        {
+            Buffer.PopSByte(out value);
+        }
+        public void PushFloat(ref float value)
+        {
+            Buffer.PushFloat(ref value);
+        }
+        public void PopFloat(out float value)
+        {
+            Buffer.PopFloat(out value);
+        }
+        public void PushDouble(ref double value)
+        {
+            Buffer.PushDouble(ref value);
+        }
+        public void PopDouble(out double value)
+        {
+            Buffer.PopDouble(out value);
+        }
+        public void PushDecimal(ref decimal value)
+        {
+            Buffer.PushDecimal(ref value);
+        }
+        public void PopDecimal(out decimal value)
+        {
+            Buffer.PopDecimal(out value);
+        }
+        #endregion
     }
 }
