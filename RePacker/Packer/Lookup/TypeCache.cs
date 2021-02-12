@@ -369,21 +369,15 @@ namespace Refsa.RePacker.Builder
                     HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
                 };
 
-                // if (!tci.HasCustomSerializer)
-                {
-                    var fields =
-                        type
-                            .GetFields(BindingFlags.Public | BindingFlags.Instance)
-                            // .Where(fi => fi.GetCustomAttribute(typeof(IdentifierAttribute)) != null)
-                            // .OrderBy(fi =>
-                            // {
-                            // var ia = fi.GetCustomAttribute(typeof(IdentifierAttribute)) as IdentifierAttribute;
-                            // return ia.Order;
-                            // })
-                            .ToArray();
+                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-                    tci.SerializedFields = fields;
+                var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
+                if (!rpattr.UseOnAllPublicFields)
+                {
+                    fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null).ToArray();
                 }
+
+                tci.SerializedFields = fields;
 
                 typeCache.Add(type, tci);
             }

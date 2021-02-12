@@ -28,11 +28,11 @@ namespace Refsa.RePacker
     }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class RePack : System.Attribute
+    public sealed class RePackAttribute : System.Attribute
     {
         public int Order;
 
-        public RePack(int order = 0)
+        public RePackAttribute(int order = 0)
         {
             Order = order;
         }
