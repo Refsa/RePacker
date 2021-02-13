@@ -21,11 +21,14 @@ namespace Refsa.RePacker.Builder
             public bool HasCustomSerializer;
             public bool IsUnmanaged;
             public FieldInfo[] SerializedFields;
+            public bool IsPrivate;
 
             public Info(Type type, bool isUnmanaged)
             {
                 Type = type;
                 IsUnmanaged = isUnmanaged;
+
+                IsPrivate = false;
 
                 HasCustomSerializer = false;
                 SerializedFields = new FieldInfo[0];
@@ -268,7 +271,7 @@ namespace Refsa.RePacker.Builder
                 }
                 catch (Exception e)
                 {
-                    RePacker.Settings.Log.Error($"Error when generating unpacker for {type}");
+                    RePacker.Settings.Log.Error($"Error when generating packer for {type}");
                     RePacker.Settings.Log.Exception(e);
                     RePacker.Settings.Log.Warn(e.StackTrace);
                 }
@@ -282,7 +285,7 @@ namespace Refsa.RePacker.Builder
                 }
                 catch (Exception e)
                 {
-                    RePacker.Settings.Log.Error($"Error when generating packer for {type}");
+                    RePacker.Settings.Log.Error($"Error when generating unpacker for {type}");
                     RePacker.Settings.Log.Exception(e);
                 }
 
@@ -366,21 +369,45 @@ namespace Refsa.RePacker.Builder
                 {
                     Type = type,
                     IsUnmanaged = type.IsUnmanaged(),
+                    IsPrivate = type.IsNotPublic,
                     HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
                 };
 
-                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-                var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
-                if (!rpattr.UseOnAllPublicFields)
+                // fields
+                List<FieldInfo> serializedFields = new List<FieldInfo>();
                 {
-                    fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null).ToArray();
+                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                    var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
+                    if (!rpattr.UseOnAllPublicFields)
+                    {
+                        fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null).ToArray();
+                    }
+
+                    serializedFields.AddRange(fields);
                 }
 
-                tci.SerializedFields = fields;
+                // Properties
+                {
+                    var props =
+                        type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(pi => pi.GetCustomAttribute<RePackAttribute>() != null)
+                        .Select(pi => GetPropertyBackingFieldInfo(type, pi.Name))
+                        .Where(fi => fi != null);
+
+                    serializedFields.AddRange(props);
+                }
+
+                tci.SerializedFields = serializedFields.ToArray();
 
                 typeCache.Add(type, tci);
             }
+        }
+
+        static FieldInfo GetPropertyBackingFieldInfo(Type target, string propertyName)
+        {
+            string backingFieldName = $"<{propertyName}>k__BackingField";
+            FieldInfo fi = target.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            return fi;
         }
 
         static void AddTypeHandler(Type type, ITypePacker packer)
