@@ -35,7 +35,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
                 var arraySerializer = deserializeArrayMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, arraySerializer);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
@@ -46,7 +46,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
                 var arraySerializer = deserializeBlittableArrayMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, arraySerializer);
             }
             else
             {
@@ -68,7 +68,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.Emit(OpCodes.Ldfld, fieldInfo);
 
                 var arraySerializer = serializeArrayMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, arraySerializer);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
@@ -79,7 +79,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.Emit(OpCodes.Ldfld, fieldInfo);
 
                 var arraySerializer = serializeBlittableArrayMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, arraySerializer);
             }
             else
             {

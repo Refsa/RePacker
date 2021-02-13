@@ -17,14 +17,14 @@ namespace Refsa.RePacker.Builder
         {
             var stringDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
             var decodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackString), stringDecParams);
-            ilGen.EmitCall(OpCodes.Call, decodeString, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, decodeString);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var encodeStringParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
             var encodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.PackString), encodeStringParams);
-            ilGen.EmitCall(OpCodes.Call, encodeString, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, encodeString);
             // ilGen.Emit(OpCodes.Pop);
         }
     }

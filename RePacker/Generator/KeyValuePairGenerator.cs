@@ -22,7 +22,7 @@ namespace Refsa.RePacker.Builder
                 .GetMethod(nameof(BoxedBufferExt.UnpackKeyValuePair))
                 .MakeGenericMethod(genArgs);
 
-            ilGen.EmitCall(OpCodes.Call, unpackMethod, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, unpackMethod);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
@@ -32,7 +32,7 @@ namespace Refsa.RePacker.Builder
                 .GetMethod(nameof(BoxedBufferExt.PackKeyValuePair))
                 .MakeGenericMethod(genArgs);
 
-            ilGen.EmitCall(OpCodes.Call, packMethod, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, packMethod);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Refsa.RePacker.Builder
                 ).First()
                 .MakeGenericMethod(genArgs);
 
-            ilGen.EmitCall(OpCodes.Call, meth, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, meth);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
@@ -42,7 +42,7 @@ namespace Refsa.RePacker.Builder
                 ).First()
                 .MakeGenericMethod(genArgs);
 
-            ilGen.EmitCall(OpCodes.Call, meth, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, meth);
         }
     }
 }

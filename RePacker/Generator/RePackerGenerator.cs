@@ -19,14 +19,14 @@ namespace Refsa.RePacker.Builder
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var genericSerializer = deserializeTypeMethod.MakeGenericMethod(fieldInfo.FieldType);
-            ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, genericSerializer);
             ilGen.Emit(OpCodes.Pop);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var genericSerializer = serializeTypeMethod.MakeGenericMethod(fieldInfo.FieldType);
-            ilGen.EmitCall(OpCodes.Call, genericSerializer, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, genericSerializer);
         }
     }
 }

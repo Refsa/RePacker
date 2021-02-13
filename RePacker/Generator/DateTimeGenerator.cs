@@ -17,14 +17,14 @@ namespace Refsa.RePacker.Builder
         {
             var dateTimeDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(DateTime).MakeByRefType() };
             var decodeDateTime = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackDateTime), dateTimeDecParams);
-            ilGen.EmitCall(OpCodes.Call, decodeDateTime, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, decodeDateTime);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             var dateTimeDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(DateTime).MakeByRefType() };
             var encodeDateTime = typeof(BufferExt).GetMethod(nameof(BufferExt.PackDateTime), dateTimeDecParams);
-            ilGen.EmitCall(OpCodes.Call, encodeDateTime, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, encodeDateTime);
             // ilGen.Emit(OpCodes.Pop);
         }
     }

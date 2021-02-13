@@ -36,12 +36,12 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
                 var listSerializer = deserializeIListMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, listSerializer);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
                 var arraySerializer = deserializeIListBlittableMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, arraySerializer);
             }
             else
             {
@@ -66,12 +66,12 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
                 var listSerializer = serializeIListMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, listSerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, listSerializer);
             }
             else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
             {
                 var arraySerializer = serializeIListBlittableMethod.MakeGenericMethod(elementType);
-                ilGen.EmitCall(OpCodes.Call, arraySerializer, Type.EmptyTypes);
+                ilGen.Emit(OpCodes.Call, arraySerializer);
             }
             else
             {

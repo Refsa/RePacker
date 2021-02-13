@@ -32,56 +32,56 @@ namespace Refsa.RePacker.Builder
             switch (Type.GetTypeCode(fieldInfo.FieldType))
             {
                 case TypeCode.Boolean:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopBool), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopBool), typeof(bool));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Char:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopChar), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopChar), typeof(char));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.SByte:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopSByte), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopSByte), typeof(sbyte));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Byte:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopByte), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopByte), typeof(byte));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Int16:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopShort), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopShort), typeof(short));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.UInt16:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopUShort), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopUShort), typeof(ushort));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Int32:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopInt), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopInt), typeof(int));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.UInt32:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopUInt), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopUInt), typeof(uint));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Int64:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopLong), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopLong), typeof(long));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.UInt64:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopULong), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopULong), typeof(ulong));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Single:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopFloat), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopFloat), typeof(float));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Double:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopDouble), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopDouble), typeof(double));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
                 case TypeCode.Decimal:
-                    bufferPopGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopDecimal), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+                    bufferPopGeneric = GetPopMethod(nameof(Buffer.PopDecimal), typeof(decimal));
+                    ilGen.Emit(OpCodes.Call, bufferPopGeneric);
                     break;
             }
         }
@@ -93,58 +93,76 @@ namespace Refsa.RePacker.Builder
             switch (Type.GetTypeCode(fieldInfo.FieldType))
             {
                 case TypeCode.Boolean:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushBool), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushBool), typeof(bool));
+                    ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Char:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PopBool), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PopBool), typeof(char));
+                    ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.SByte:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushSByte), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushSByte), typeof(sbyte));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Byte:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushByte), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushByte), typeof(byte));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Int16:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushShort), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushShort), typeof(short));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.UInt16:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushShort), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushShort), typeof(ushort));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Int32:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushInt), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushInt), typeof(int));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.UInt32:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushUInt), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushUInt), typeof(uint));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Int64:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushLong), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushLong), typeof(long));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.UInt64:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushULong), BindingFlags.Public | BindingFlags.Instance);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushULong), typeof(ulong));
                     ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Single:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushFloat), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushFloat), typeof(float));
+                    ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Double:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushDouble), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushDouble), typeof(double));
+                    ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
                 case TypeCode.Decimal:
-                    bufferPushGeneric = typeof(Buffer).GetMethod(nameof(Buffer.PushDecimal), BindingFlags.Public | BindingFlags.Instance);
-                    ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+                    bufferPushGeneric = GetPushMethod(nameof(Buffer.PushDecimal), typeof(decimal));
+                    ilGen.Emit(OpCodes.Call, bufferPushGeneric);
                     break;
             }
+        }
+
+        MethodInfo GetPopMethod(string name, Type type)
+        {
+            return typeof(Buffer)
+                .GetMethod(
+                    name,
+                    BindingFlags.Public | BindingFlags.Instance
+                );
+        }
+
+        MethodInfo GetPushMethod(string name, Type type)
+        {
+            return typeof(Buffer)
+                .GetMethod(
+                    name,
+                    BindingFlags.Public | BindingFlags.Instance
+                );
         }
     }
 }

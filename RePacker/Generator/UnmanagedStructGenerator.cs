@@ -40,7 +40,7 @@ namespace Refsa.RePacker.Builder
 
             parameters[0] = fieldInfo.FieldType;
             bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
-            ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, bufferPopGeneric);
             ilGen.Emit(OpCodes.Pop);
         }
 
@@ -58,7 +58,7 @@ namespace Refsa.RePacker.Builder
 
             parameters[0] = fieldInfo.FieldType;
             bufferPushGeneric = bufferPush.MakeGenericMethod(parameters);
-            ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, Type.EmptyTypes);
+            ilGen.Emit(OpCodes.Call, bufferPushGeneric);
             ilGen.Emit(OpCodes.Pop);
         }
     }
