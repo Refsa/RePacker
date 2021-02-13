@@ -10,103 +10,6 @@ using System.Linq;
 
 namespace Refsa.RePacker.Tests
 {
-    [RePacker]
-    public struct TestStruct
-    {
-        public bool Bool;
-        // public char Char;
-        public sbyte Sbyte;
-        public byte Byte;
-        public short Short;
-        public ushort Ushort;
-        public int Int;
-        public uint Uint;
-        public long Long;
-        public ulong Ulong;
-        public float Float;
-        public double Double;
-        public decimal Decimal;
-    }
-
-    [RePacker]
-    public class TestClass
-    {
-        public bool Bool;
-        // public char Char;
-        public sbyte Sbyte;
-        public byte Byte;
-        public short Short;
-        public ushort Ushort;
-        public int Int;
-        public uint Uint;
-        public long Long;
-        public ulong Ulong;
-        public float Float;
-        public double Double;
-        public decimal Decimal;
-    }
-
-    [RePacker]
-    public struct StructWithString
-    {
-        public float Float;
-        public string String1;
-        public string String2;
-        public int Int;
-    }
-
-    [RePacker]
-    public class ClassWithString
-    {
-        public float Float;
-        public string String1;
-        public string String2;
-        public int Int;
-    }
-
-    public enum ByteEnum : byte
-    {
-        One = 1,
-        Ten = 10,
-        Hundred = 100,
-    }
-
-    public enum LongEnum : long
-    {
-        Low = -123456789,
-        High = 987654321,
-    }
-
-    [RePacker]
-    public struct StructWithEnum
-    {
-        public float Float;
-        public ByteEnum ByteEnum;
-        public LongEnum LongEnum;
-        public int Int;
-    }
-
-    [RePacker]
-    public struct ClassWithEnum
-    {
-        public float Float;
-        public ByteEnum ByteEnum;
-        public LongEnum LongEnum;
-        public int Int;
-    }
-
-    [RePacker]
-    public class SimpleClass
-    {
-        public float Float;
-    }
-
-    [RePacker]
-    public class SimpleStruct
-    {
-        public float Float;
-    }
-
     public class SerializerBuilderTests
     {
         public SerializerBuilderTests()
@@ -284,19 +187,6 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(sws.Int, fromBuf.Int);
         }
 
-        public enum Sex : sbyte
-        {
-            Unknown, Male, Female,
-        }
-        [RePacker]
-        public class Person
-        {
-            public int Age;
-            public string FirstName;
-            public string LastName;
-            public Sex Sex;
-        }
-
         [Fact]
         public void can_handle_zeroformatter_person_type()
         {
@@ -319,21 +209,6 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(p.Sex, fromBuf.Sex);
         }
 
-
-        [RePacker]
-        public struct ParentWithNestedStruct
-        {
-            public float Float;
-            public ChildStruct Child;
-            public ulong ULong;
-        }
-
-        [RePacker]
-        public struct ChildStruct
-        {
-            public float Float;
-            public byte Byte;
-        }
 
         [Fact]
         public void can_handle_nested_struct_hierarchies()
@@ -358,14 +233,6 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(p.ULong, fromBuf.ULong);
             Assert.Equal(p.Child.Float, fromBuf.Child.Float);
             Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
-        }
-
-        [RePacker]
-        public struct ParentWithNestedClass
-        {
-            public float Float;
-            public ChildClass Child;
-            public ulong ULong;
         }
 
         [Fact]
@@ -393,27 +260,6 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(p.Child.Byte, fromBuf.Child.Byte);
         }
 
-        [RePacker]
-        public class ChildClass
-        {
-            public float Float;
-            public byte Byte;
-        }
-
-        [RePacker]
-        public struct RootType
-        {
-            public float Float;
-            public UnmanagedStruct UnmanagedStruct;
-            public double Double;
-        }
-
-        public struct UnmanagedStruct
-        {
-            public int Int;
-            public ulong ULong;
-        }
-
         [Fact]
         public void can_handle_unmanaged_nested_struct()
         {
@@ -439,14 +285,6 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(rt.UnmanagedStruct.ULong, fromBuf.UnmanagedStruct.ULong);
         }
 
-        [RePacker]
-        public struct HasUnsupportedField
-        {
-            public int Int;
-            public Type Type;
-            public float Float;
-        }
-
         [Fact]
         public void unsupported_type_does_not_break_functonality()
         {
@@ -464,14 +302,6 @@ namespace Refsa.RePacker.Tests
 
             Assert.Equal(data.Int, fromBuf.Int);
             Assert.Equal(data.Float, fromBuf.Float);
-        }
-
-        [RePacker]
-        public struct StructWithUnmanagedArray
-        {
-            public int Int;
-            public float[] Floats;
-            public long Long;
         }
 
         [Fact]
@@ -498,14 +328,6 @@ namespace Refsa.RePacker.Tests
             {
                 Assert.Equal(swa.Floats[i], fromBuf.Floats[i]);
             }
-        }
-
-        [RePacker]
-        public struct StructWithBlittableArray
-        {
-            public int Int;
-            public ChildStruct[] Blittable;
-            public long Long;
         }
 
         [Fact]
@@ -555,22 +377,6 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-
-        [RePacker]
-        public class InArrayClass
-        {
-            public float Float;
-            public int Int;
-        }
-
-        [RePacker]
-        public struct HasClassArray
-        {
-            public long Long;
-            public InArrayClass[] ArrayOfClass;
-            public byte Byte;
-        }
-
         [Fact]
         public void type_with_array_of_supported_class()
         {
@@ -614,14 +420,6 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(iac.ArrayOfClass[i].Float, fromBuf.ArrayOfClass[i].Float);
                 Assert.Equal(iac.ArrayOfClass[i].Int, fromBuf.ArrayOfClass[i].Int);
             }
-        }
-
-        [RePacker]
-        public struct HasUnmanagedIList
-        {
-            public float Float;
-            public IList<int> Ints;
-            public double Double;
         }
 
         [Fact]
@@ -670,14 +468,6 @@ namespace Refsa.RePacker.Tests
             }
         } */
 
-        [RePacker]
-        public struct HasUnmanagedList
-        {
-            public float Float;
-            public List<int> Ints;
-            public double Double;
-        }
-
         [Fact]
         public void list_with_unmanaged_type()
         {
@@ -722,14 +512,6 @@ namespace Refsa.RePacker.Tests
             {
                 Assert.Equal(hml[i], fromBuf[i]);
             }
-        }
-
-        [RePacker]
-        public struct HasUnmanagedQueue
-        {
-            public float Float;
-            public Queue<int> Ints;
-            public double Double;
         }
 
         [Fact]
@@ -778,14 +560,6 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        [RePacker]
-        public struct HasUnmanagedStack
-        {
-            public float Float;
-            public Stack<int> Ints;
-            public double Double;
-        }
-
         [Fact]
         public void stack_with_unmanaged_type()
         {
@@ -830,14 +604,6 @@ namespace Refsa.RePacker.Tests
             {
                 Assert.Equal(hml.Pop(), fromBuf.Pop());
             }
-        }
-
-        [RePacker]
-        public struct HasUnmanagedHashSet
-        {
-            public float Float;
-            public HashSet<int> Ints;
-            public double Double;
         }
 
         [Fact]
@@ -887,20 +653,6 @@ namespace Refsa.RePacker.Tests
         }
 
         #region ManagedContainers
-        [RePacker]
-        public class SomeManagedObject
-        {
-            public float Float;
-            public int Int;
-        }
-
-        [RePacker]
-        public struct HasManagedIList
-        {
-            public float Float;
-            public IList<SomeManagedObject> Ints;
-            public double Double;
-        }
 
         [Fact]
         public void ilist_with_managed_type()
@@ -960,14 +712,6 @@ namespace Refsa.RePacker.Tests
             }
         } */
 
-        [RePacker]
-        public struct HasManagedList
-        {
-            public float Float;
-            public List<SomeManagedObject> Ints;
-            public double Double;
-        }
-
         [Fact]
         public void list_with_managed_type()
         {
@@ -1024,14 +768,6 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(hml[i].Int, fromBuf[i].Int);
                 Assert.Equal(hml[i].Float, fromBuf[i].Float);
             }
-        }
-
-        [RePacker]
-        public struct HasManagedQueue
-        {
-            public float Float;
-            public Queue<SomeManagedObject> Ints;
-            public double Double;
         }
 
         [Fact]
@@ -1100,14 +836,6 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        [RePacker]
-        public struct HasManagedStack
-        {
-            public float Float;
-            public Stack<SomeManagedObject> Ints;
-            public double Double;
-        }
-
         [Fact]
         public void stack_with_managed_type()
         {
@@ -1172,14 +900,6 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(elementA.Int, elementB.Int);
                 Assert.Equal(elementA.Float, elementB.Float);
             }
-        }
-
-        [RePacker]
-        public struct HasManagedHashSet
-        {
-            public float Float;
-            public HashSet<SomeManagedObject> Ints;
-            public double Double;
         }
 
         [Fact]
@@ -1248,14 +968,6 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        [RePacker]
-        public struct HasUnmanagedDictionary
-        {
-            public float Float;
-            public Dictionary<int, float> Dict;
-            public long Long;
-        }
-
         [Fact]
         public void dictionary_with_unmanaged_key_and_value()
         {
@@ -1311,14 +1023,6 @@ namespace Refsa.RePacker.Tests
                 Assert.True(fromBuf.TryGetValue(key, out float value));
                 Assert.Equal(wantedValue, value);
             }
-        }
-
-        [RePacker]
-        public struct HasManagedKeyUnmanagedValueDict
-        {
-            public float Float;
-            public Dictionary<SomeManagedObject, float> Dict;
-            public long Long;
         }
 
         [Fact]
@@ -1386,14 +1090,6 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        [RePacker]
-        public struct HasUnmanagedKeyManagedValueDict
-        {
-            public float Float;
-            public Dictionary<int, SomeManagedObject> Dict;
-            public long Long;
-        }
-
         [Fact]
         public void dictionary_with_unmanaged_key_and_managed_value()
         {
@@ -1457,14 +1153,6 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(wantedValue.Float, value.Float);
                 Assert.Equal(wantedValue.Int, value.Int);
             }
-        }
-
-        [RePacker]
-        public struct HasManagedKeyManagedValueDict
-        {
-            public float Float;
-            public Dictionary<SomeManagedObject, SomeManagedObject> Dict;
-            public long Long;
         }
 
         [Fact]
@@ -1558,13 +1246,6 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(dt.Ticks, fromBuf.Ticks);
         }
 
-        [RePacker]
-        public struct HasDateTime
-        {
-            public float Float;
-            public DateTime DateTime;
-        }
-
         [Fact]
         public void has_date_time_packing()
         {
@@ -1590,13 +1271,6 @@ namespace Refsa.RePacker.Tests
             DateTime fromBuf = RePacker.Unpack<DateTime>(buffer);
 
             Assert.Equal(dt.Ticks, fromBuf.Ticks);
-        }
-
-        [RePacker]
-        public struct HasString
-        {
-            public float Float;
-            public string String;
         }
 
         [Fact]
@@ -1671,17 +1345,11 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(kvp.Value.Float, fromBuf.Value.Float);
         }
 
-        [RePacker]
-        public struct StructWithKeyValuePair
-        {
-            public float Float;
-            public KeyValuePair<int, int> KeyValuePair;
-        }
-
         [Fact]
         public void struct_with_key_value_pair()
         {
-            var wanted = new StructWithKeyValuePair{
+            var wanted = new StructWithKeyValuePair
+            {
                 Float = 1.234f,
                 KeyValuePair = new KeyValuePair<int, int>(10, 100)
             };
@@ -1695,6 +1363,69 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(wanted.Float, fromBuf.Float);
             Assert.Equal(wanted.KeyValuePair.Key, fromBuf.KeyValuePair.Key);
             Assert.Equal(wanted.KeyValuePair.Value, fromBuf.KeyValuePair.Value);
+        }
+
+        [Fact]
+        public void repack_only_selected_fields()
+        {
+            var opsf = new OnlyPackSelectedFields
+            {
+                PackFloat = 1.234f,
+                DontPackInt = 1337,
+                PackLong = 1234567890123456789,
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref opsf);
+
+            var fromBuf = RePacker.Unpack<OnlyPackSelectedFields>(buffer);
+
+            Assert.Equal(opsf.PackFloat, fromBuf.PackFloat);
+            Assert.Equal(opsf.PackLong, fromBuf.PackLong);
+
+            Assert.Equal(0, fromBuf.DontPackInt);
+        }
+
+        [Fact]
+        public void dont_serialize_unmarked_properties()
+        {
+            var swp = new StructWithUnmarkedProperties
+            {
+                Float = 1.245f,
+                Int = 1337,
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref swp);
+
+            var fromBuf = RePacker.Unpack<StructWithUnmarkedProperties>(buffer);
+
+            Assert.Equal(0f, fromBuf.Float);
+            Assert.Equal(0, fromBuf.Int);
+        }
+
+        [Fact]
+        public void serialize_marked_properties()
+        {
+            var swp = new StructWithMarkedProperties
+            {
+                Float = 1.245f,
+                Int = 1337,
+                Long = 123456789
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref swp);
+
+            var fromBuf = RePacker.Unpack<StructWithMarkedProperties>(buffer);
+
+            Assert.Equal(swp.Float, fromBuf.Float);
+            Assert.Equal(swp.Int, fromBuf.Int);
+
+            Assert.Equal(0, fromBuf.Long);
         }
     }
     #endregion
