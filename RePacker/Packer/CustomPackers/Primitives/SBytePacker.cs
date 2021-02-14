@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(sbyte))]
-    public class SByteWrapper : RePackerWrapper<sbyte>
+    internal class SByteWrapper : RePackerWrapper<sbyte>
     {
         public override void Pack(BoxedBuffer buffer, ref sbyte value)
         {

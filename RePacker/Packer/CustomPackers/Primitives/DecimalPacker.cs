@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(decimal))]
-    public class DecimalWrapper : RePackerWrapper<decimal>
+    internal class DecimalWrapper : RePackerWrapper<decimal>
     {
         public override void Pack(BoxedBuffer buffer, ref decimal value)
         {

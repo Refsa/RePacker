@@ -1,12 +1,9 @@
 using System;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
 using System.Collections.Generic;
 using System.Linq;
-using Refsa.RePacker.Unsafe;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     public static class PackerCollectionsExt
     {

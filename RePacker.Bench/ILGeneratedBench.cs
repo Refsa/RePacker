@@ -1,8 +1,6 @@
 
-
 using BenchmarkDotNet.Attributes;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker.Benchmarks
 {
@@ -98,8 +96,8 @@ namespace Refsa.RePacker.Benchmarks
 
             for (int i = 0; i < RUNS; i++)
             {
-                TypeCache.Pack<TestClass2>(boxedBuffer, ref ts2);
-                var _ = TypeCache.Unpack<TestClass2>(boxedBuffer);
+                RePacker.Pack<TestClass2>(boxedBuffer, ref ts2);
+                var _ = RePacker.Unpack<TestClass2>(boxedBuffer);
 
                 boxedBuffer.Buffer.Reset();
             }

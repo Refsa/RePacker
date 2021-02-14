@@ -1,11 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
 {
-    public class DictionaryProducer : GenericProducer
+    internal class DictionaryProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(Dictionary<,>);
 

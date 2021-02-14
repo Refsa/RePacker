@@ -1,11 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
 {
-    public class KeyValuePairProducer : GenericProducer
+    internal class KeyValuePairProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(KeyValuePair<,>);
 

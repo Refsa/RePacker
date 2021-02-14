@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(bool))]
-    public class BoolWrapper : RePackerWrapper<bool>
+    internal class BoolWrapper : RePackerWrapper<bool>
     {
         public override void Pack(BoxedBuffer buffer, ref bool value)
         {

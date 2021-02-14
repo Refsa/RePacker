@@ -1,11 +1,6 @@
 using Xunit;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker;
-using System.Runtime.InteropServices;
-using System;
-
-using Buffer = Refsa.RePacker.Buffers.Buffer;
-using System.Reflection;
+using Refsa.RePacker.Builder;
 
 namespace Refsa.RePacker.Tests
 {

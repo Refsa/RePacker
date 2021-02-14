@@ -1,22 +1,17 @@
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Security;
-using System.Threading;
-
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public static class PackerBuilder
+    internal static class PackerBuilder
     {
         static AssemblyBuilder asmBuilder;
         static ModuleBuilder moduleBuilder;
@@ -43,21 +38,13 @@ namespace Refsa.RePacker.Builder
 
         public static Func<MethodInfo> CreateUnpacker(TypeCache.Info info)
         {
-            // TODO: MakeByRefType ??
             Type[] typeParams = new Type[] { typeof(Refsa.RePacker.Buffers.BoxedBuffer) };
 
-            // var deserBuilder = moduleBuilder.DefineGlobalMethod(
-            // $"{info.Type.FullName}_Deserialize",
-            // MethodAttributes.Public | MethodAttributes.Static,
-            // info.Type,
-            // typeParams
-            // );
-            // deserBuilder.SetImplementationFlags(MethodImplAttributes.IL);
             var deserBuilder = new DynamicMethod(
                 $"{info.Type.FullName}_Deserialize",
                 info.Type,
                 typeParams,
-                typeof(RePacker),
+                moduleBuilder,
                 true
             );
 
@@ -194,30 +181,19 @@ namespace Refsa.RePacker.Builder
 
             return () =>
             {
-                // MethodInfo asGlobal = moduleBuilder.GetMethod(deserBuilder.Name);
-                // return asGlobal;
                 return deserBuilder;
             };
         }
 
         public static Func<MethodInfo> CreatePacker(TypeCache.Info info)
         {
-            // Type[] typeParams = info.SerializedFields.Select(e => e.FieldType).ToArray();
             Type[] typeParams = new Type[2] { typeof(BoxedBuffer), info.Type };
-
-            // var serBuilder = moduleBuilder.DefineGlobalMethod(
-            //     $"{info.Type.FullName}_Serialize",
-            //     MethodAttributes.Public | MethodAttributes.Static,
-            //     null,
-            //     typeParams
-            // );
-            // serBuilder.SetImplementationFlags(MethodImplAttributes.IL);
 
             var serBuilder = new DynamicMethod(
                 $"{info.Type.FullName}_Serialize",
                 typeof(void),
                 typeParams,
-                typeof(RePacker),
+                moduleBuilder,
                 true
             );
 
@@ -343,8 +319,6 @@ namespace Refsa.RePacker.Builder
 
             return () =>
             {
-                // MethodInfo asGlobal = moduleBuilder.GetMethod(serBuilder.Name);
-                // return asGlobal;
                 return serBuilder;
             };
         }

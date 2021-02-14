@@ -1,11 +1,9 @@
-
 using System;
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(int))]
-    public class DateTimeWrapper : RePackerWrapper<DateTime>
+    internal class DateTimeWrapper : RePackerWrapper<DateTime>
     {
         public override void Pack(BoxedBuffer buffer, ref DateTime value)
         {

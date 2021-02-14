@@ -1,10 +1,7 @@
 using System;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
-using Refsa.RePacker.Unsafe;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     public static class PackerValueTupleExt
     {

@@ -3,7 +3,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    public class TypePacker<T> : ITypePacker
+    internal class TypePacker<T> : ITypePacker
     {
         public System.Action<BoxedBuffer, T> packer;
         public System.Func<BoxedBuffer, T> unpacker;

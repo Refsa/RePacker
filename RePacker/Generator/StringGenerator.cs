@@ -1,14 +1,11 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public class StringGenerator : IGenerator
+    internal class StringGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.String;
         public Type ForType => typeof(string);

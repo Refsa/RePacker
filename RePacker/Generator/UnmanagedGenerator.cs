@@ -3,12 +3,11 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public class UnmanagedGenerator : IGenerator
+    internal class UnmanagedGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Unmanaged;
         public Type ForType => null;

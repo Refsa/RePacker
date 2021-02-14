@@ -5,12 +5,12 @@ using System.Reflection.Emit;
 
 namespace Refsa.RePacker.Builder
 {
-    public class TypeResolver
+    internal class TypeResolver
     {
         public Func<Type, int> Resolver;
     }
 
-    public static class TypeResolverBuilder
+    internal static class TypeResolverBuilder
     {
         static AssemblyBuilder asmBuilder;
         static ModuleBuilder moduleBuilder;

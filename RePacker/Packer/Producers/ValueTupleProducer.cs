@@ -1,11 +1,9 @@
-
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
 {
-    public class ValueTupleProducer : GenericProducer
+    internal class ValueTupleProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(ITuple);
 

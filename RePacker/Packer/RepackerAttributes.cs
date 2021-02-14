@@ -1,9 +1,7 @@
 using System;
-using System.Reflection;
 
 namespace Refsa.RePacker
 {
-
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class RePackerAttribute : System.Attribute
     {
@@ -12,18 +10,6 @@ namespace Refsa.RePacker
         public RePackerAttribute(bool useOnAllPublicFields = true)
         {
             this.UseOnAllPublicFields = useOnAllPublicFields;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class RePackerWrapperAttribute : System.Attribute
-    {
-        public Type WrapperFor;
-
-        public RePackerWrapperAttribute(Type wrapperFor)
-        {
-            
-            WrapperFor = wrapperFor;
         }
     }
 

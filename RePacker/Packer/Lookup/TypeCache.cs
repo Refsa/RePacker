@@ -1,19 +1,13 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using Refsa.RePacker;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
 using Refsa.RePacker.Utils;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public static class TypeCache
+    internal static class TypeCache
     {
         public struct Info
         {
@@ -45,7 +39,7 @@ namespace Refsa.RePacker.Builder
         static bool isSetup = false;
         public static bool IsSetup => isSetup;
 
-        public static void Reload()
+        internal static void Reload()
         {
             isSetup = false;
             typeCache = null;
@@ -53,7 +47,7 @@ namespace Refsa.RePacker.Builder
             Setup();
         }
 
-        public static void Setup()
+        internal static void Setup()
         {
             if (isSetup) return;
 
@@ -116,7 +110,7 @@ namespace Refsa.RePacker.Builder
             }
         }
 
-        public static void AddTypePackerProvider(Type targetType, GenericProducer producer)
+        internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
         {
             runtimePackerProducers.Add(targetType, producer);
         }
@@ -458,6 +452,7 @@ namespace Refsa.RePacker.Builder
             return false;
         }
 
+        #region API
         public static bool TryGetTypeInfo<T>(out Info typeCacheInfo)
         {
             return TryGetTypeInfo(typeof(T), out typeCacheInfo);
@@ -569,5 +564,6 @@ namespace Refsa.RePacker.Builder
                 RePacker.Settings.Log.Warn($"Logger for {typeof(T)} not found");
             }
         }
+        #endregion
     }
 }

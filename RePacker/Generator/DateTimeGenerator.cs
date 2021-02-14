@@ -1,14 +1,11 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public class DateTimeGenerator : IGenerator
+    internal class DateTimeGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.DateTime;
         public Type ForType => typeof(string);

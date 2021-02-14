@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(uint))]
-    public class UIntWrapper : RePackerWrapper<uint>
+    internal class UIntWrapper : RePackerWrapper<uint>
     {
         public override void Pack(BoxedBuffer buffer, ref uint value)
         {

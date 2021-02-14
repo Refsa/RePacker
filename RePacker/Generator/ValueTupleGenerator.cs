@@ -1,16 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public class ValueTupleGenerator : IGenerator
+    internal class ValueTupleGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(ITuple);

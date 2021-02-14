@@ -1,14 +1,10 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public class RePackerGenerator : IGenerator
+    internal class RePackerGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.RePacker;
         public Type ForType => null;

@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(ulong))]
-    public class ULongWrapper : RePackerWrapper<ulong>
+    internal class ULongWrapper : RePackerWrapper<ulong>
     {
         public override void Pack(BoxedBuffer buffer, ref ulong value)
         {

@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(long))]
-    public class LongWrapper : RePackerWrapper<long>
+    internal class LongWrapper : RePackerWrapper<long>
     {
         public override void Pack(BoxedBuffer buffer, ref long value)
         {

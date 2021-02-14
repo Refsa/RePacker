@@ -1,14 +1,9 @@
-
-using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(int))]
-    public class HashSetWrapper<TElement> : RePackerWrapper<HashSet<TElement>>
+    internal class HashSetWrapper<TElement> : RePackerWrapper<HashSet<TElement>>
     {
         public override void Pack(BoxedBuffer buffer, ref HashSet<TElement> value)
         {

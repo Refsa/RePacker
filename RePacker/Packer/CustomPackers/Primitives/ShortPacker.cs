@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(short))]
-    public class ShortWrapper : RePackerWrapper<short>
+    internal class ShortWrapper : RePackerWrapper<short>
     {
         public override void Pack(BoxedBuffer buffer, ref short value)
         {

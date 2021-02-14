@@ -1,11 +1,10 @@
-
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Refsa.RePacker.Builder
 {
-    public enum GeneratorType
+    internal enum GeneratorType
     {
         None = 0,
         Unmanaged,
@@ -16,7 +15,7 @@ namespace Refsa.RePacker.Builder
         DateTime,
     }
 
-    public interface IGenerator
+    internal interface IGenerator
     {
         GeneratorType GeneratorType { get; }
         Type ForType { get; }

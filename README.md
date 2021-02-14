@@ -25,9 +25,10 @@ Long Term Goals:
 - Flexibility
 - Tested cross-language support
 - Control over stride/padding
+- Versioning and dirty bits
 
 ## General Use
-
+Currently both bootstrapping and logging is enabled by default, but can be toggled with the NO_BOOTSTRAP and NO_LOGGING compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
 
 ### BoxedBuffer
 Packing and Unpacking requires the use of **BoxedBuffer** that is a class that wraps around the Buffer struct. Buffer internally has a **Memory\<byte\>** that is pointing to a byte array. __You are responsible for pooling the byte array and/or the BoxedBuffer for now.__ 
@@ -103,18 +104,18 @@ public class CantModifyMeWrapper : RePackerWrapper<CantModifyMe>
 {
     public override void Pack(BoxedBuffer buffer, ref CantModifyMe value)
     {
-        buffer.Buffer.PushFloat(ref value.Float);
+        buffer.PushFloat(ref value.Float);
     }
 
     public override void Unpack(BoxedBuffer buffer, out CantModifyMe value)
     {
         value = new CantModifyMe();
-        buffer.Buffer.PopFloat(out value.Float);
+        buffer.PopFloat(out value.Float);
     }
 
     public override void UnpackInto(BoxedBuffer buffer, ref Vector2 value)
     {
-        buffer.Buffer.PopFloat(out value.Float);
+        buffer.PopFloat(out value.Float);
     }
 }
 

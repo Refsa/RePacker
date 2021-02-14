@@ -1,12 +1,10 @@
 using Xunit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker;
-using System.Runtime.InteropServices;
 using System;
-
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 using System.Collections.Generic;
 using System.Linq;
+using Refsa.RePacker.Buffers;
+using Refsa.RePacker.Builder;
+
 
 namespace Refsa.RePacker.Tests
 {
@@ -1426,6 +1424,25 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(swp.Int, fromBuf.Int);
 
             Assert.Equal(0, fromBuf.Long);
+        }
+
+        [Fact]
+        public void serialize_internal_type()
+        {
+            var t = new IHavePrivateType.IAmPrivate
+            {
+                Float = 1.24f,
+                Int = 1337,
+            };
+
+            var buffer = new BoxedBuffer(1024);
+
+            RePacker.Pack(buffer, ref t);
+
+            var fromBuf = RePacker.Unpack<IHavePrivateType.IAmPrivate>(buffer);
+
+            Assert.Equal(t.Float, fromBuf.Float);
+            Assert.Equal(t.Int, fromBuf.Int);
         }
     }
     #endregion

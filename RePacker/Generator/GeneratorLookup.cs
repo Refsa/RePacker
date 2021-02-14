@@ -1,12 +1,10 @@
-
-
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
 {
-    public static class GeneratorLookup
+    internal static class GeneratorLookup
     {
         static Dictionary<GeneratorType, Dictionary<Type, IGenerator>> generators =
             new Dictionary<GeneratorType, Dictionary<Type, IGenerator>>

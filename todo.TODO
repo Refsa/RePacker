@@ -1,29 +1,24 @@
-General:
 - Clean up interfacing with Buffer in Serializer.cs
 - Figure out a way around using BoxedBuffer for IL generated stuff, not a huge deal since buffers should be pooled
-- Allow ISerializer to override all other types of serialization in code gen
-- Allow Identifier attribute to control ordering
+- Add a IPacker<T> work as an override for serialization
 - Meta data? insert version, type name, etc.
     Should move this to user settings so they can be toggled on/off for better performance
     The cost of inserting a header is fairly low though, so might be worth it
+- More efficient lookup of types on serialization
 
 Base Serializer:
     Still missing support for a lot of standard types
     - ICollection<T>
     - ISet<T>
-    - KeyValuePair<K, V>
-    - Tuples
 
-Handling of 3rd part types:
-    Need a good way to handle types we cant attach an attribute to or inherit from
-    Idea:
-        - Make a [RePackerWrapper(Type)] attribute to put above a generator class
-        - Make an interface to create Serialize and Deserialize methods (already have ISerializer, but need a boxed version)
-        - Create a cache over these classes and redirect the calls to serialize
+CR:
+    - Remove generated logger stuff
+    - RePacker::AddTypePackerProvider<T> has no use atm?
 
-        Main problem is dealing with deseralizing into the right context. We need a type that will receive this data
-        and we might not be able to create that in a safe way.
 Archive:
+  ✔ Allow Identifier attribute to control ordering @done(21-02-14 14:58)
+  ✔ KeyValuePair<K, V> @done(21-02-14 14:56) @project(Base Serializer)
+  ✔ Tuples @done(21-02-14 14:56) @project(Base Serializer)
   ✔ Clean up project structure making proper sub-projects for everything @done(21-02-02 06:44)
   ✔ Clean up the IL and code gen mess in SerializerBuilder.cs @done(21-02-02 09:04)
   ✔ Remove ReadOnlyBuffer altogether? @done(21-02-02 06:48)

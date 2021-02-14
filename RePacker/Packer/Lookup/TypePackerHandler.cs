@@ -1,12 +1,9 @@
-
-
-using System;
 using System.Reflection;
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    public class TypePackerHandler
+    internal class TypePackerHandler
     {
         public TypeCache.Info Info;
 

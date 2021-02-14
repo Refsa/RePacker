@@ -1,15 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
-    public class KeyValuePairGenerator : IGenerator
+    internal class KeyValuePairGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(KeyValuePair<,>);

@@ -3,7 +3,6 @@ using Refsa.RePacker.Buffers;
 using Refsa.RePacker;
 using System.Runtime.InteropServices;
 using System;
-
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 using System.Collections.Generic;
 using System.Linq;

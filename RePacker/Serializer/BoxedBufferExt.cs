@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Refsa.RePacker.Buffers;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     public static class BoxedBufferExt
     {

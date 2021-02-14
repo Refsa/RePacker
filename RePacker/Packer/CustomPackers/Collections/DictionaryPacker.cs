@@ -1,16 +1,11 @@
-
-using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 using Refsa.RePacker.Buffers;
-using static Refsa.RePacker.PackerCollectionsExt;
+using static Refsa.RePacker.Builder.PackerCollectionsExt;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(int))]
-    public class DictionaryWrapper<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
+    internal class DictionaryWrapper<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
     {
         public override void Pack(BoxedBuffer buffer, ref Dictionary<TKey, TValue> value)
         {

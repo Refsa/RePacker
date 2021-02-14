@@ -1,9 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
 using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
 
-namespace Refsa.RePacker
+namespace Refsa.RePacker.Builder
 {
     public abstract class RePackerWrapper<T> : IPacker<T>
     {
@@ -20,6 +19,17 @@ namespace Refsa.RePacker
         public virtual void UnpackInto(BoxedBuffer buffer, ref T value)
         {
             throw new NotSupportedException();
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class RePackerWrapperAttribute : System.Attribute
+    {
+        public Type WrapperFor;
+
+        public RePackerWrapperAttribute(Type wrapperFor)
+        {
+            WrapperFor = wrapperFor;
         }
     }
 }

@@ -1,12 +1,9 @@
-
 using System;
-using System.Collections.Generic;
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(int))]
-    public class ValueTupleWrapper<T1, T2> :
+    internal class ValueTupleWrapper<T1, T2> :
         RePackerWrapper<ValueTuple<T1, T2>>
     {
         public override void Pack(BoxedBuffer buffer, ref ValueTuple<T1, T2> value)
@@ -25,7 +22,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class ValueTupleWrapper<T1, T2, T3> :
+    internal class ValueTupleWrapper<T1, T2, T3> :
         RePackerWrapper<ValueTuple<T1, T2, T3>>
     {
         public override void Pack(BoxedBuffer buffer, ref ValueTuple<T1, T2, T3> value)
@@ -44,7 +41,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class ValueTupleWrapper<T1, T2, T3, T4> :
+    internal class ValueTupleWrapper<T1, T2, T3, T4> :
         RePackerWrapper<ValueTuple<T1, T2, T3, T4>>
     {
         public override void Pack(BoxedBuffer buffer, ref ValueTuple<T1, T2, T3, T4> value)
@@ -63,7 +60,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class ValueTupleWrapper<T1, T2, T3, T4, T5> :
+    internal class ValueTupleWrapper<T1, T2, T3, T4, T5> :
         RePackerWrapper<ValueTuple<T1, T2, T3, T4, T5>>
     {
         public override void Pack(BoxedBuffer buffer, ref ValueTuple<T1, T2, T3, T4, T5> value)
@@ -82,7 +79,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class ValueTupleWrapper<T1, T2, T3, T4, T5, T6> :
+    internal class ValueTupleWrapper<T1, T2, T3, T4, T5, T6> :
         RePackerWrapper<ValueTuple<T1, T2, T3, T4, T5, T6>>
     {
         public override void Pack(BoxedBuffer buffer, ref ValueTuple<T1, T2, T3, T4, T5, T6> value)
@@ -101,7 +98,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class ValueTupleWrapper<T1, T2, T3, T4, T5, T6, T7> :
+    internal class ValueTupleWrapper<T1, T2, T3, T4, T5, T6, T7> :
         RePackerWrapper<ValueTuple<T1, T2, T3, T4, T5, T6, T7>>
     {
         public override void Pack(BoxedBuffer buffer, ref ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
@@ -120,7 +117,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class ValueTupleWrapper<T1, T2, T3, T4, T5, T6, T7, TRest> :
+    internal class ValueTupleWrapper<T1, T2, T3, T4, T5, T6, T7, TRest> :
         RePackerWrapper<ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>>
         where TRest : struct
     {

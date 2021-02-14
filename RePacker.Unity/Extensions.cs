@@ -1,6 +1,5 @@
 using Refsa.RePacker.Buffers;
 using UnityEngine;
-
 using static Refsa.RePacker.RePacker;
 
 namespace Refsa.RePacker.Unity

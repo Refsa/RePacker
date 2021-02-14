@@ -1,11 +1,8 @@
-
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
 {
-    public class ArrayProducer : GenericProducer
+    internal class ArrayProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(Array);
 

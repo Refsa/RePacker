@@ -24,6 +24,8 @@ namespace Refsa.RePacker.Benchmarks
             }
         }
 
+        /* 
+        TODO: Remove me
         [Benchmark]
         public void BenchPackerSpeedInt()
         {
@@ -45,7 +47,7 @@ namespace Refsa.RePacker.Benchmarks
                     }
                 }
             }
-        }
+        } */
 
         [Benchmark]
         public void BenchDirectSpeedInt()

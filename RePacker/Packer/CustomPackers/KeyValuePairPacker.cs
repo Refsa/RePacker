@@ -1,12 +1,9 @@
-
-using System;
 using System.Collections.Generic;
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(int))]
-    public class KeyValuePairWrapper<T1, T2> : RePackerWrapper<KeyValuePair<T1, T2>>
+    internal class KeyValuePairWrapper<T1, T2> : RePackerWrapper<KeyValuePair<T1, T2>>
     {
         public override void Pack(BoxedBuffer buffer, ref KeyValuePair<T1, T2> value)
         {

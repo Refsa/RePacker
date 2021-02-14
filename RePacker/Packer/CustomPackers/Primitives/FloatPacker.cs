@@ -1,10 +1,8 @@
-
 using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    // [RePackerWrapper(typeof(float))]
-    public class FloatWrapper : RePackerWrapper<float>
+    internal class FloatWrapper : RePackerWrapper<float>
     {
         public override void Pack(BoxedBuffer buffer, ref float value)
         {

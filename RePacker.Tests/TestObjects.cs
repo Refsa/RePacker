@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 
@@ -362,5 +361,15 @@ namespace Refsa.RePacker.Tests
         public int Int { get; set; }
 
         public float Long { get; set; }
+    }
+
+    internal class IHavePrivateType
+    {
+        [RePacker]
+        internal struct IAmPrivate
+        {
+            public float Float;
+            public int Int;
+        }
     }
 }

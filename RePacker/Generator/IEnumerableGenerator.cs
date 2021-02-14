@@ -1,16 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
-using static Refsa.RePacker.PackerCollectionsExt;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using static Refsa.RePacker.Builder.PackerCollectionsExt;
 
 namespace Refsa.RePacker.Builder
 {
-    public class IEnumerableGenerator : IGenerator
+    internal class IEnumerableGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(IEnumerable<>);

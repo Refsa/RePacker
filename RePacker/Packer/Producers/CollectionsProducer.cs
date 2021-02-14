@@ -1,11 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
 {
-    public class ListProducer : GenericProducer
+    internal class ListProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(List<>);
 
@@ -17,7 +15,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class StackProducer : GenericProducer
+    internal class StackProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(Stack<>);
 
@@ -29,7 +27,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class QueueProducer : GenericProducer
+    internal class QueueProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(Queue<>);
 
@@ -41,7 +39,7 @@ namespace Refsa.RePacker.Builder
         }
     }
 
-    public class HashSetProducer : GenericProducer
+    internal class HashSetProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(HashSet<>);
 
