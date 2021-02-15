@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace Refsa.RePacker.Utils
 {
@@ -16,7 +17,7 @@ namespace Refsa.RePacker.Utils
 
         public void Exception(Exception e)
         {
-            Console.WriteLine("☣ - " + e.Message);
+            Console.WriteLine($"Exception: " + e.Message + "\n" + e.StackTrace);
         }
 
         public void Log(string message)

@@ -16,6 +16,7 @@ CR:
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✔ cache AppDomain type lookup in TypeCache @done(21-02-15 11:09)
   ✔ Allow Identifier attribute to control ordering @done(21-02-14 14:58)
   ✔ KeyValuePair<K, V> @done(21-02-14 14:56) @project(Base Serializer)
   ✔ Tuples @done(21-02-14 14:56) @project(Base Serializer)

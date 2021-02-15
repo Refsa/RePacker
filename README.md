@@ -100,7 +100,7 @@ public class CantModifyMe
 }
 
 [RePackerWrapper(typeof(CantModifyMe))]
-public class CantModifyMeWrapper : RePackerWrapper<CantModifyMe>
+public class CantModifyMePacker : RePackerWrapper<CantModifyMe>
 {
     public override void Pack(BoxedBuffer buffer, ref CantModifyMe value)
     {
@@ -132,7 +132,7 @@ public struct MyGenericType<T1, T2>
     public T2 Value2
 }
 
-public class MyGenericTypeWrapper<T1, T2> : RePackerWrapper<MyGenericType<T1, T2>>
+public class MyGenericTypePacker<T1, T2> : RePackerWrapper<MyGenericType<T1, T2>>
 {
     public override void Pack(BoxedBuffer buffer, ref MyGenericType<T1, T2> value)
     {

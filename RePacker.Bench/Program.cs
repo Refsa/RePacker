@@ -21,13 +21,13 @@ namespace Refsa.RePacker.Benchmarks
             RePacker.Init();
             Console.WriteLine("Benchmark");
 
-            // var summary1 = BenchmarkRunner.Run<BufferBench>();
-            // var summary2 = BenchmarkRunner.Run<ZeroFormatterBench>();
-            // var summary2 = BenchmarkRunner.Run<ILGenerated>();
-            // var summary2 = BenchmarkRunner.Run<GeneralBenches>();
+            // var bufferBench = BenchmarkRunner.Run<BufferBench>();
+            // var zeroFormatterBench = BenchmarkRunner.Run<ZeroFormatterBench>();
+            // var ilGeneratedBench = BenchmarkRunner.Run<ILGenerated>();
+            // var generalBenches = BenchmarkRunner.Run<GeneralBenches>();
+            var setupBench = BenchmarkRunner.Run<SetupBench>();
 
-            new TestClass();
-
+            // new TestClass();
             // RandomStuff.Run();
         }
     }

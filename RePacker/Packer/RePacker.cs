@@ -21,7 +21,14 @@ namespace Refsa.RePacker
 
         public static void Init()
         {
-            TypeCache.Setup();
+            if (!IsSetup)
+            {
+                TypeCache.Setup();
+            }
+            else
+            {
+                TypeCache.Reload();
+            }
         }
 
         /// <summary>
@@ -60,7 +67,7 @@ namespace Refsa.RePacker
 
         // public static object Unpack(BoxedBuffer buffer, Type type)
         // {
-            
+
         // }
 
         /// <summary>
