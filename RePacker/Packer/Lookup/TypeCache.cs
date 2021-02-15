@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -53,9 +54,6 @@ namespace Refsa.RePacker.Builder
         {
             if (isSetup) return;
 
-            RePacker.Settings.Log.Log("Setting up TypeCache");
-            var sw = new System.Diagnostics.Stopwatch(); sw.Restart();
-
             packerLookup = new Dictionary<Type, TypePackerHandler>();
             allTypes = ReflectionUtils.GetAllTypes();
 
@@ -82,11 +80,7 @@ namespace Refsa.RePacker.Builder
             // int idx = typeResolver.Resolver.Invoke(typeof(int));
             // Console.WriteLine(packerLookupFast[idx].Info.Type);
 
-            sw.Stop();
-            RePacker.Settings.Log.Log($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
-
             isSetup = true;
-
             allTypes = null;
         }
 
@@ -174,7 +168,6 @@ namespace Refsa.RePacker.Builder
                 .WithGenericBaseType(typeof(RePackerWrapper<>)))
             {
                 Type wrapperFor = type.BaseType.GetGenericArguments()[0];
-                Console.WriteLine(wrapperFor);
 
                 if (wrapperFor == null)
                 {
@@ -240,89 +233,76 @@ namespace Refsa.RePacker.Builder
                 return;
             }
 
-            var serializerLookup = new Dictionary<Type, MethodInfo>();
-            var serMethodCreators = new List<(Type, Func<MethodInfo>)>();
-
-            var deserializerLookup = new Dictionary<Type, MethodInfo>();
-            var deserMethodCreators = new List<(Type, Func<MethodInfo>)>();
+            ConcurrentDictionary<Type, (MethodInfo packer, MethodInfo unpacker)> packers = new ConcurrentDictionary<Type, (MethodInfo packer, MethodInfo unpacker)>();
 
             PackerBuilder.Setup();
 
-            foreach (var kv in typeCache)
+            foreach (var kv in typeCache.AsParallel())
             {
+                if (packerLookup.ContainsKey(kv.Key)) continue;
                 (Type type, Info info) = (kv.Key, kv.Value);
 
-                if (packerLookup.ContainsKey(type))
+                if (info.SerializedFields == null)
                 {
+                    RePacker.Logger.Error($"No serialized fields found on {type}");
                     continue;
                 }
 
+                MethodInfo packer = null;
+                MethodInfo unpacker = null;
+
+                // Generate Packer Method
                 try
                 {
-                    if (PackerBuilder.CreatePacker(info) is Func<MethodInfo> serDelegate)
-                    {
-                        serMethodCreators.Add((type, serDelegate));
-                    }
+                    packer = PackerBuilder.CreatePacker(info);
                 }
                 catch (Exception e)
                 {
                     RePacker.Settings.Log.Error($"Error when generating packer for {type}");
                     RePacker.Settings.Log.Exception(e);
+                    continue;
                 }
 
+                // Generate Unpacker Method
                 try
                 {
-                    if (PackerBuilder.CreateUnpacker(info) is Func<MethodInfo> deserDelegate)
-                    {
-                        deserMethodCreators.Add((type, deserDelegate));
-                    }
+                    unpacker = PackerBuilder.CreateUnpacker(info);
                 }
                 catch (Exception e)
                 {
                     RePacker.Settings.Log.Error($"Error when generating unpacker for {type}");
                     RePacker.Settings.Log.Exception(e);
-                }
-            }
-
-            PackerBuilder.Complete();
-
-            foreach (var tmc in serMethodCreators)
-            {
-                serializerLookup.Add(tmc.Item1, tmc.Item2.Invoke());
-            }
-
-            foreach (var tmc in deserMethodCreators)
-            {
-                deserializerLookup.Add(tmc.Item1, tmc.Item2.Invoke());
-            }
-
-            foreach (var kv in typeCache)
-            {
-                (Type type, Info info) = (kv.Key, kv.Value);
-
-                if (packerLookup.ContainsKey(type))
-                {
                     continue;
                 }
 
+                packers.TryAdd(type, (packer, unpacker));
+            }
+            PackerBuilder.Complete();
+
+            foreach (var kv in packers)
+            {
+                if (packerLookup.ContainsKey(kv.Key)) continue;
+
                 try
                 {
-                    var deser = deserializerLookup[type];
-                    var ser = serializerLookup[type];
+                    var packerHandler = new TypePackerHandler(typeCache[kv.Key]);
 
-                    var packer = new TypePackerHandler(info);
+                    var mi = typeof(TypePackerHandler)
+                        .GetMethod(
+                            nameof(TypePackerHandler.Setup),
+                            new Type[] { typeof(MethodInfo), typeof(MethodInfo) }
+                        ).MakeGenericMethod(kv.Key);
 
-                    var mi = typeof(TypePackerHandler).GetMethod(nameof(TypePackerHandler.Setup), new Type[] { typeof(MethodInfo), typeof(MethodInfo) }).MakeGenericMethod(type);
-                    mi.Invoke(packer, new object[] { ser, deser });
+                    mi.Invoke(packerHandler, new object[] { kv.Value.packer, kv.Value.unpacker });
 
                     packerLookup.Add(
-                        type,
-                        packer
+                        kv.Key,
+                        packerHandler
                     );
                 }
                 catch (Exception e)
                 {
-                    RePacker.Settings.Log.Error(e.Message + "\n" + e.StackTrace);
+                    RePacker.Logger.Exception(e);
                 }
             }
         }
