@@ -87,11 +87,6 @@ namespace Refsa.RePacker
             TypeCache.UnpackInto<T>(buffer, ref target);
         }
 
-        public static void Log<T>(ref T source)
-        {
-            TypeCache.LogData<T>(ref source);
-        }
-
         public static void AddTypePackerProvider<T>(GenericProducer producer)
         {
             TypeCache.AddTypePackerProvider(typeof(T), producer);

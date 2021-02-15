@@ -99,20 +99,16 @@ namespace Refsa.RePacker.Builder
         {
             List<Type> invalid = new List<Type>();
 
-            // foreach ((Type type, Info info) in typeCache)
             foreach (var kv in typeCache)
             {
                 bool valid = packerLookup.TryGetValue(kv.Key, out var packer) && packer != null;
-
-                if (!valid)
-                {
-                    RePacker.Logger.Warn($"type of {kv.Key} does not have a valid serializer");
-                    invalid.Add(kv.Key);
-                }
+                if (!valid) invalid.Add(kv.Key);
             }
 
             foreach (Type type in invalid)
             {
+                RePacker.Logger.Warn($"type of {type} does not have a valid packer");
+
                 typeCache.Remove(type);
                 packerLookup.Remove(type);
             }
@@ -250,12 +246,8 @@ namespace Refsa.RePacker.Builder
             var deserializerLookup = new Dictionary<Type, MethodInfo>();
             var deserMethodCreators = new List<(Type, Func<MethodInfo>)>();
 
-            // var loggerLookup = new Dictionary<Type, MethodInfo>();
-            // var loggerMethodCreators = new List<(Type, Func<MethodInfo>)>();
-
             PackerBuilder.Setup();
 
-            // foreach ((Type type, Info info) in typeCache)
             foreach (var kv in typeCache)
             {
                 (Type type, Info info) = (kv.Key, kv.Value);
@@ -290,11 +282,6 @@ namespace Refsa.RePacker.Builder
                     RePacker.Settings.Log.Error($"Error when generating unpacker for {type}");
                     RePacker.Settings.Log.Exception(e);
                 }
-
-                // if (PackerBuilder.CreateDataLogger(info) is Func<MethodInfo> loggerDelegate)
-                // {
-                //     loggerMethodCreators.Add((type, loggerDelegate));
-                // }
             }
 
             PackerBuilder.Complete();
@@ -309,11 +296,6 @@ namespace Refsa.RePacker.Builder
                 deserializerLookup.Add(tmc.Item1, tmc.Item2.Invoke());
             }
 
-            // foreach (var lmc in loggerMethodCreators)
-            // {
-            //     loggerLookup.Add(lmc.Item1, lmc.Item2.Invoke());
-            // }
-
             foreach (var kv in typeCache)
             {
                 (Type type, Info info) = (kv.Key, kv.Value);
@@ -327,15 +309,11 @@ namespace Refsa.RePacker.Builder
                 {
                     var deser = deserializerLookup[type];
                     var ser = serializerLookup[type];
-                    // var logger = loggerLookup[type];
 
                     var packer = new TypePackerHandler(info);
 
                     var mi = typeof(TypePackerHandler).GetMethod(nameof(TypePackerHandler.Setup), new Type[] { typeof(MethodInfo), typeof(MethodInfo) }).MakeGenericMethod(type);
                     mi.Invoke(packer, new object[] { ser, deser });
-
-                    // var setLogger = typeof(TypePacker).GetMethod(nameof(TypePacker.SetLogger)).MakeGenericMethod(type);
-                    // mi.Invoke(packer, new object[] { logger });
 
                     packerLookup.Add(
                         type,
@@ -344,7 +322,6 @@ namespace Refsa.RePacker.Builder
                 }
                 catch (Exception e)
                 {
-                    // RePacker.Settings.Log.Error($"Error when setting up TypePackerHandler for {type}");
                     RePacker.Settings.Log.Error(e.Message + "\n" + e.StackTrace);
                 }
             }
@@ -496,18 +473,6 @@ namespace Refsa.RePacker.Builder
             else
             {
                 RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
-            }
-        }
-
-        public static void LogData<T>(ref T value)
-        {
-            if (packerLookup.TryGetValue(typeof(T), out var typePacker))
-            {
-                typePacker.RunLogger<T>(ref value);
-            }
-            else
-            {
-                RePacker.Settings.Log.Warn($"Logger for {typeof(T)} not found");
             }
         }
         #endregion
