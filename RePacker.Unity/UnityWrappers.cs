@@ -6,7 +6,7 @@ using static Refsa.RePacker.RePacker;
 namespace Refsa.RePacker.Unity
 {
     [RePackerWrapper(typeof(Quaternion))]
-    public class QuaternionWrapper : RePackerWrapper<Quaternion>
+    public class QuaternionPacker : RePackerWrapper<Quaternion>
     {
         public override void Pack(BoxedBuffer buffer, ref Quaternion value)
         {
@@ -32,7 +32,7 @@ namespace Refsa.RePacker.Unity
 
     #region AnimationCurve
     [RePackerWrapper(typeof(Keyframe))]
-    public class KeyframeWrapper : RePackerWrapper<Keyframe>
+    public class KeyframePacker : RePackerWrapper<Keyframe>
     {
         public override void Pack(BoxedBuffer buffer, ref Keyframe value)
         {
@@ -80,7 +80,7 @@ namespace Refsa.RePacker.Unity
     }
 
     [RePackerWrapper(typeof(AnimationCurve))]
-    public class AnimationCurveWrapper : RePackerWrapper<AnimationCurve>
+    public class AnimationCurvePacker : RePackerWrapper<AnimationCurve>
     {
         public override void Pack(BoxedBuffer buffer, ref AnimationCurve value)
         {
@@ -113,7 +113,7 @@ namespace Refsa.RePacker.Unity
 
     #region Vector
     [RePackerWrapper(typeof(Vector4))]
-    public class Vector4Wrapper : RePackerWrapper<Vector4>
+    public class Vector4Packer : RePackerWrapper<Vector4>
     {
         public override void Pack(BoxedBuffer buffer, ref Vector4 value)
         {
@@ -138,7 +138,7 @@ namespace Refsa.RePacker.Unity
     }
 
     [RePackerWrapper(typeof(Vector3))]
-    public class Vector3Wrapper : RePackerWrapper<Vector3>
+    public class Vector3Packer : RePackerWrapper<Vector3>
     {
         public override void Pack(BoxedBuffer buffer, ref Vector3 value)
         {
@@ -161,7 +161,7 @@ namespace Refsa.RePacker.Unity
     }
 
     [RePackerWrapper(typeof(Vector2))]
-    public class Vector2Wrapper : RePackerWrapper<Vector2>
+    public class Vector2Packer : RePackerWrapper<Vector2>
     {
         public override void Pack(BoxedBuffer buffer, ref Vector2 value)
         {
@@ -184,7 +184,7 @@ namespace Refsa.RePacker.Unity
 
     #region VectorInt
     [RePackerWrapper(typeof(Vector3Int))]
-    public class Vector3IntWrapper : RePackerWrapper<Vector3Int>
+    public class Vector3IntPacker : RePackerWrapper<Vector3Int>
     {
         public override void Pack(BoxedBuffer buffer, ref Vector3Int value)
         {
@@ -212,7 +212,7 @@ namespace Refsa.RePacker.Unity
     }
 
     [RePackerWrapper(typeof(Vector2Int))]
-    public class Vector2IntWrapper : RePackerWrapper<Vector2Int>
+    public class Vector2IntPacker : RePackerWrapper<Vector2Int>
     {
         public override void Pack(BoxedBuffer buffer, ref Vector2Int value)
         {
@@ -239,7 +239,7 @@ namespace Refsa.RePacker.Unity
 
     #region Color
     [RePackerWrapper(typeof(Color))]
-    public class ColorWrapper : RePackerWrapper<Color>
+    public class ColorPacker : RePackerWrapper<Color>
     {
         public override void Pack(BoxedBuffer buffer, ref Color value)
         {
@@ -264,7 +264,7 @@ namespace Refsa.RePacker.Unity
     }
 
     [RePackerWrapper(typeof(Color32))]
-    public class Color32Wrapper : RePackerWrapper<Color32>
+    public class Color32Packer : RePackerWrapper<Color32>
     {
         public override void Pack(BoxedBuffer buffer, ref Color32 value)
         {
@@ -291,7 +291,7 @@ namespace Refsa.RePacker.Unity
     #endregion
 
     [RePackerWrapper(typeof(UnityEngine.Transform))]
-    public class TransformWrapper : RePackerWrapper<UnityEngine.Transform>
+    public class TransformPacker : RePackerWrapper<UnityEngine.Transform>
     {
         public override void Pack(BoxedBuffer buffer, ref UnityEngine.Transform value)
         {

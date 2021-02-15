@@ -12,7 +12,7 @@ namespace Refsa.RePacker
 
         public static bool IsSetup => TypeCache.IsSetup;
 
-#if !UNITY
+#if !NO_BOOTSTRAP
         static RePacker()
         {
             Init();

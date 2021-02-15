@@ -30,7 +30,7 @@ namespace Refsa.RePacker.Tests
         }
 
         [RePackerWrapper(typeof(Vector3))]
-        public class Vector3Wrapper : RePackerWrapper<Vector3>
+        public class Vector3Packer : RePackerWrapper<Vector3>
         {
             public override void Pack(BoxedBuffer buffer, ref Vector3 value)
             {
@@ -48,7 +48,7 @@ namespace Refsa.RePacker.Tests
         }
 
         [RePackerWrapper(typeof(Transform))]
-        public class TransformWrapper : RePackerWrapper<Transform>
+        public class TransformPacker : RePackerWrapper<Transform>
         {
             public override void Pack(BoxedBuffer buffer, ref Transform value)
             {
