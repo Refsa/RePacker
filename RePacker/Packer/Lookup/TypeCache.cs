@@ -29,6 +29,8 @@ namespace Refsa.RePacker.Builder
             }
         }
 
+        static IEnumerable<Type> allTypes;
+
         static Dictionary<Type, Info> typeCache;
         static Dictionary<Type, TypePackerHandler> packerLookup;
         static Dictionary<Type, GenericProducer> runtimePackerProducers;
@@ -55,14 +57,13 @@ namespace Refsa.RePacker.Builder
             var sw = new System.Diagnostics.Stopwatch(); sw.Restart();
 
             packerLookup = new Dictionary<Type, TypePackerHandler>();
+            allTypes = ReflectionUtils.GetAllTypes();
 
             BuildTypeCache();
 
-            BuildPrimitivePackers();
-
             // TypeCode.Object
-            BuildPackers();
             BuildCustomPackers();
+            BuildPackers();
 
             BuildRuntimePackerProviders();
 
@@ -85,29 +86,8 @@ namespace Refsa.RePacker.Builder
             RePacker.Settings.Log.Log($"TypeCache Setup Took {sw.ElapsedMilliseconds}ms ({sw.ElapsedMilliseconds / packerLookup.Count()}ms per type)");
 
             isSetup = true;
-        }
 
-        private static void BuildRuntimePackerProviders()
-        {
-            runtimePackerProducers = new Dictionary<Type, GenericProducer>();
-
-            foreach (Type type in AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(e => e.GetTypes())
-                .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
-            {
-                var producer = (GenericProducer)Activator.CreateInstance(type);
-                var forType = producer.ProducerFor;
-
-                if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
-                {
-                    RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
-                    continue;
-                }
-                runtimePackerProducers.Add(
-                    forType,
-                    producer
-                );
-            }
+            allTypes = null;
         }
 
         internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
@@ -138,45 +118,92 @@ namespace Refsa.RePacker.Builder
             }
         }
 
+        static void BuildTypeCache()
+        {
+            typeCache = new Dictionary<Type, Info>();
+            foreach (Type type in allTypes
+                .WithAttribute(typeof(RePackerAttribute)))
+            {
+                if (typeCache.TryGetValue(type, out var _))
+                {
+                    RePacker.Settings.Log.Warn($"Packer already exists for type {type}");
+                    continue;
+                }
+
+                var tci = new Info
+                {
+                    Type = type,
+                    IsUnmanaged = type.IsUnmanaged(),
+                    IsPrivate = type.IsNotPublic,
+                    HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
+                };
+
+                List<FieldInfo> serializedFields = new List<FieldInfo>();
+
+                // fields
+                {
+                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                    var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
+                    if (!rpattr.UseOnAllPublicFields)
+                    {
+                        fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null).ToArray();
+                    }
+
+                    serializedFields.AddRange(fields);
+                }
+
+                // Properties
+                {
+                    var props =
+                        type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(pi => pi.GetCustomAttribute<RePackAttribute>() != null)
+                        .Select(pi => ReflectionUtils.GetPropertyBackingFieldInfo(type, pi.Name))
+                        .Where(fi => fi != null);
+
+                    serializedFields.AddRange(props);
+                }
+
+                tci.SerializedFields = serializedFields.ToArray();
+
+                typeCache.Add(type, tci);
+            }
+        }
+
         static void BuildCustomPackers()
         {
             Dictionary<Type, Info> customTypeInfo = new Dictionary<Type, Info>();
 
-            foreach ((string name, Type type) in AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(e => e.GetTypes())
-                .Where(t =>
-                    Attribute.GetCustomAttribute(t, typeof(RePackerWrapperAttribute)) != null
-                )
-                .Select(e => (e.Name, e)))
+            foreach (Type type in allTypes
+                .NotGeneric()
+                .WithGenericBaseType(typeof(RePackerWrapper<>)))
             {
-                var attr = (RePackerWrapperAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerWrapperAttribute));
+                Type wrapperFor = type.BaseType.GetGenericArguments()[0];
+                Console.WriteLine(wrapperFor);
 
-                var genWrapper = typeof(RePackerWrapper<>).MakeGenericType(attr.WrapperFor);
-                if (!type.IsSubclassOf(genWrapper))
+                if (wrapperFor == null)
                 {
-                    RePacker.Settings.Log.Warn($"{type} does not extend from RePackerWrapper<{attr.WrapperFor}>");
+                    RePacker.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
                     continue;
                 }
 
                 if (typeCache.TryGetValue(type, out var _))
                 {
-                    RePacker.Settings.Log.Warn($"Packer already exists for type {attr.WrapperFor}");
+                    RePacker.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
                     continue;
                 }
 
                 var typeInfo = new Info
                 {
-                    Type = attr.WrapperFor,
+                    Type = wrapperFor,
                     HasCustomSerializer = true,
                     IsUnmanaged = false,
                     SerializedFields = null,
                 };
 
-                typeCache.Add(attr.WrapperFor, typeInfo);
+                typeCache.Add(wrapperFor, typeInfo);
                 customTypeInfo.Add(type, typeInfo);
             }
 
-            // foreach ((Type type, Info info) in customTypeInfo)
             foreach (var kv in customTypeInfo)
             {
                 var typePacker = new TypePackerHandler(kv.Value);
@@ -187,43 +214,25 @@ namespace Refsa.RePacker.Builder
             }
         }
 
-        static void BuildPrimitivePackers()
+        private static void BuildRuntimePackerProviders()
         {
-            List<(Info, ITypePacker)> packerTypes = new List<(Info, ITypePacker)>
+            runtimePackerProducers = new Dictionary<Type, GenericProducer>();
+
+            foreach (Type type in allTypes
+                .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
             {
-                (new Info(typeof(byte), true), new BytePacker()),
-                (new Info(typeof(sbyte), true), new SBytePacker()),
+                var producer = (GenericProducer)Activator.CreateInstance(type);
+                var forType = producer.ProducerFor;
 
-                (new Info(typeof(short), true), new ShortPacker()),
-                (new Info(typeof(ushort), true), new UShortPacker()),
-
-                (new Info(typeof(int), true), new IntPacker()),
-                (new Info(typeof(uint), true), new UIntPacker()),
-
-                (new Info(typeof(long), true), new LongPacker()),
-                (new Info(typeof(ulong), true), new ULongPacker()),
-
-                (new Info(typeof(float), true), new FloatPacker()),
-                (new Info(typeof(double), true), new DoublePacker()),
-                (new Info(typeof(decimal), true), new DecimalPacker()),
-
-                (new Info(typeof(DateTime), true), new DateTimePacker()),
-                (new Info(typeof(string), true), new StringPacker()),
-            };
-
-            foreach ((Info info, ITypePacker packer) in packerTypes)
-            {
-                if (!typeCache.ContainsKey(info.Type))
+                if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
                 {
-                    typeCache.Add(info.Type, info);
+                    RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
+                    continue;
                 }
-
-                if (!packerLookup.ContainsKey(info.Type))
-                {
-                    var handler = new TypePackerHandler(info);
-                    handler.Setup(packer);
-                    packerLookup.Add(info.Type, handler);
-                }
+                runtimePackerProducers.Add(
+                    forType,
+                    producer
+                );
             }
         }
 
@@ -267,7 +276,6 @@ namespace Refsa.RePacker.Builder
                 {
                     RePacker.Settings.Log.Error($"Error when generating packer for {type}");
                     RePacker.Settings.Log.Exception(e);
-                    RePacker.Settings.Log.Warn(e.StackTrace);
                 }
 
                 try
@@ -306,7 +314,6 @@ namespace Refsa.RePacker.Builder
             //     loggerLookup.Add(lmc.Item1, lmc.Item2.Invoke());
             // }
 
-            // foreach ((Type type, Info info) in typeCache)
             foreach (var kv in typeCache)
             {
                 (Type type, Info info) = (kv.Key, kv.Value);
@@ -341,68 +348,6 @@ namespace Refsa.RePacker.Builder
                     RePacker.Settings.Log.Error(e.Message + "\n" + e.StackTrace);
                 }
             }
-        }
-
-        static void BuildTypeCache()
-        {
-            typeCache = new Dictionary<Type, Info>();
-            foreach ((string name, Type type) in AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(e => e.GetTypes())
-                .Where(t =>
-                    Attribute.GetCustomAttribute(t, typeof(RePackerAttribute)) != null
-                )
-                .Select(e => (e.Name, e)))
-            {
-                if (typeCache.TryGetValue(type, out var _))
-                {
-                    RePacker.Settings.Log.Warn($"Packer already exists for type {type}");
-                    continue;
-                }
-
-                var tci = new Info
-                {
-                    Type = type,
-                    IsUnmanaged = type.IsUnmanaged(),
-                    IsPrivate = type.IsNotPublic,
-                    HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
-                };
-
-                List<FieldInfo> serializedFields = new List<FieldInfo>();
-
-                // fields
-                {
-                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-                    var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
-                    if (!rpattr.UseOnAllPublicFields)
-                    {
-                        fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null).ToArray();
-                    }
-
-                    serializedFields.AddRange(fields);
-                }
-
-                // Properties
-                {
-                    var props =
-                        type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                        .Where(pi => pi.GetCustomAttribute<RePackAttribute>() != null)
-                        .Select(pi => GetPropertyBackingFieldInfo(type, pi.Name))
-                        .Where(fi => fi != null);
-
-                    serializedFields.AddRange(props);
-                }
-
-                tci.SerializedFields = serializedFields.ToArray();
-
-                typeCache.Add(type, tci);
-            }
-        }
-
-        static FieldInfo GetPropertyBackingFieldInfo(Type target, string propertyName)
-        {
-            string backingFieldName = $"<{propertyName}>k__BackingField";
-            FieldInfo fi = target.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            return fi;
         }
 
         static void AddTypeHandler(Type type, ITypePacker packer)
