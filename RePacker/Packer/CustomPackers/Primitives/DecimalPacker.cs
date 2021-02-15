@@ -2,7 +2,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class DecimalWrapper : RePackerWrapper<decimal>
+    internal class DecimalPacker : RePackerWrapper<decimal>
     {
         public override void Pack(BoxedBuffer buffer, ref decimal value)
         {

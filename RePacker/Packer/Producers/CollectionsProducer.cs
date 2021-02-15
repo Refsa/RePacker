@@ -10,7 +10,7 @@ namespace Refsa.RePacker.Builder
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
-            var instance = Activator.CreateInstance(typeof(ListWrapper<>).MakeGenericType(elementType));
+            var instance = Activator.CreateInstance(typeof(ListPacker<>).MakeGenericType(elementType));
             return (ITypePacker)instance;
         }
     }
@@ -22,7 +22,7 @@ namespace Refsa.RePacker.Builder
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
-            var instance = Activator.CreateInstance(typeof(StackWrapper<>).MakeGenericType(elementType));
+            var instance = Activator.CreateInstance(typeof(StackPacker<>).MakeGenericType(elementType));
             return (ITypePacker)instance;
         }
     }
@@ -34,7 +34,7 @@ namespace Refsa.RePacker.Builder
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
-            var instance = Activator.CreateInstance(typeof(QueueWrapper<>).MakeGenericType(elementType));
+            var instance = Activator.CreateInstance(typeof(QueuePacker<>).MakeGenericType(elementType));
             return (ITypePacker)instance;
         }
     }
@@ -46,7 +46,7 @@ namespace Refsa.RePacker.Builder
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetGenericArguments()[0];
-            var instance = Activator.CreateInstance(typeof(HashSetWrapper<>).MakeGenericType(elementType));
+            var instance = Activator.CreateInstance(typeof(HashSetPacker<>).MakeGenericType(elementType));
             return (ITypePacker)instance;
         }
     }

@@ -3,7 +3,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class QueueWrapper<TElement> : RePackerWrapper<Queue<TElement>>
+    internal class QueuePacker<TElement> : RePackerWrapper<Queue<TElement>>
     {
         public override void Pack(BoxedBuffer buffer, ref Queue<TElement> value)
         {

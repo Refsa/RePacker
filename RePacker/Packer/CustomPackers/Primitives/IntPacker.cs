@@ -2,7 +2,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class IntWrapper : RePackerWrapper<int>
+    internal class IntPacker : RePackerWrapper<int>
     {
         public override void Pack(BoxedBuffer buffer, ref int value)
         {

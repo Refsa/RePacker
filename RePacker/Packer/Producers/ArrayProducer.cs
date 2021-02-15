@@ -9,7 +9,7 @@ namespace Refsa.RePacker.Builder
         public override ITypePacker GetProducer(Type type)
         {
             var elementType = type.GetElementType();
-            var instance = Activator.CreateInstance(typeof(ArrayWrapper<>).MakeGenericType(elementType));
+            var instance = Activator.CreateInstance(typeof(ArrayPacker<>).MakeGenericType(elementType));
             return (ITypePacker)instance;
         }
     }

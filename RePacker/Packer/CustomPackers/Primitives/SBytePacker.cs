@@ -2,7 +2,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class SByteWrapper : RePackerWrapper<sbyte>
+    internal class SBytePacker : RePackerWrapper<sbyte>
     {
         public override void Pack(BoxedBuffer buffer, ref sbyte value)
         {

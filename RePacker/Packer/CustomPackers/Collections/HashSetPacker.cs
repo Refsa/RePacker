@@ -3,7 +3,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class HashSetWrapper<TElement> : RePackerWrapper<HashSet<TElement>>
+    internal class HashSetPacker<TElement> : RePackerWrapper<HashSet<TElement>>
     {
         public override void Pack(BoxedBuffer buffer, ref HashSet<TElement> value)
         {

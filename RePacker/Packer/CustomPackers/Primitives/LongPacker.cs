@@ -2,7 +2,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class LongWrapper : RePackerWrapper<long>
+    internal class LongPacker : RePackerWrapper<long>
     {
         public override void Pack(BoxedBuffer buffer, ref long value)
         {

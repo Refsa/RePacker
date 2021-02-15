@@ -3,7 +3,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class ListWrapper<TElement> : RePackerWrapper<List<TElement>>
+    internal class ListPacker<TElement> : RePackerWrapper<List<TElement>>
     {
         public override void Pack(BoxedBuffer buffer, ref List<TElement> value)
         {

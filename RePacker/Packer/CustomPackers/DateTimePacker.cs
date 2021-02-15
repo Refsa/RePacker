@@ -3,7 +3,7 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class DateTimeWrapper : RePackerWrapper<DateTime>
+    internal class DateTimePacker : RePackerWrapper<DateTime>
     {
         public override void Pack(BoxedBuffer buffer, ref DateTime value)
         {

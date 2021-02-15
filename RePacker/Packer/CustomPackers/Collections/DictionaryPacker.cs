@@ -5,7 +5,7 @@ using static Refsa.RePacker.Builder.PackerCollectionsExt;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class DictionaryWrapper<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
+    internal class DictionaryPacker<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
     {
         public override void Pack(BoxedBuffer buffer, ref Dictionary<TKey, TValue> value)
         {

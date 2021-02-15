@@ -191,24 +191,24 @@ namespace Refsa.RePacker.Builder
         {
             List<(Info, ITypePacker)> packerTypes = new List<(Info, ITypePacker)>
             {
-                (new Info(typeof(byte), true), new ByteWrapper()),
-                (new Info(typeof(sbyte), true), new SByteWrapper()),
+                (new Info(typeof(byte), true), new BytePacker()),
+                (new Info(typeof(sbyte), true), new SBytePacker()),
 
-                (new Info(typeof(short), true), new ShortWrapper()),
-                (new Info(typeof(ushort), true), new UShortWrapper()),
+                (new Info(typeof(short), true), new ShortPacker()),
+                (new Info(typeof(ushort), true), new UShortPacker()),
 
-                (new Info(typeof(int), true), new IntWrapper()),
-                (new Info(typeof(uint), true), new UIntWrapper()),
+                (new Info(typeof(int), true), new IntPacker()),
+                (new Info(typeof(uint), true), new UIntPacker()),
 
-                (new Info(typeof(long), true), new LongWrapper()),
-                (new Info(typeof(ulong), true), new ULongWrapper()),
+                (new Info(typeof(long), true), new LongPacker()),
+                (new Info(typeof(ulong), true), new ULongPacker()),
 
-                (new Info(typeof(float), true), new FloatWrapper()),
-                (new Info(typeof(double), true), new DoubleWrapper()),
-                (new Info(typeof(decimal), true), new DecimalWrapper()),
+                (new Info(typeof(float), true), new FloatPacker()),
+                (new Info(typeof(double), true), new DoublePacker()),
+                (new Info(typeof(decimal), true), new DecimalPacker()),
 
-                (new Info(typeof(DateTime), true), new DateTimeWrapper()),
-                (new Info(typeof(string), true), new StringWrapper()),
+                (new Info(typeof(DateTime), true), new DateTimePacker()),
+                (new Info(typeof(string), true), new StringPacker()),
             };
 
             foreach ((Info info, ITypePacker packer) in packerTypes)
@@ -367,8 +367,9 @@ namespace Refsa.RePacker.Builder
                     HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
                 };
 
-                // fields
                 List<FieldInfo> serializedFields = new List<FieldInfo>();
+
+                // fields
                 {
                     var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
                     var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));

@@ -16,25 +16,25 @@ namespace Refsa.RePacker.Builder
             switch (elementTypes.Length)
             {
                 case 2:
-                    genType = typeof(ValueTupleWrapper<,>);
+                    genType = typeof(ValueTuplePacker<,>);
                     break;
                 case 3:
-                    genType = typeof(ValueTupleWrapper<,,>);
+                    genType = typeof(ValueTuplePacker<,,>);
                     break;
                 case 4:
-                    genType = typeof(ValueTupleWrapper<,,,>);
+                    genType = typeof(ValueTuplePacker<,,,>);
                     break;
                 case 5:
-                    genType = typeof(ValueTupleWrapper<,,,,>);
+                    genType = typeof(ValueTuplePacker<,,,,>);
                     break;
                 case 6:
-                    genType = typeof(ValueTupleWrapper<,,,,,>);
+                    genType = typeof(ValueTuplePacker<,,,,,>);
                     break;
                 case 7:
-                    genType = typeof(ValueTupleWrapper<,,,,,,>);
+                    genType = typeof(ValueTuplePacker<,,,,,,>);
                     break;
                 case 8:
-                    genType = typeof(ValueTupleWrapper<,,,,,,,>);
+                    genType = typeof(ValueTuplePacker<,,,,,,,>);
                     break;
             }
 
