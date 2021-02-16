@@ -34,5 +34,15 @@ namespace Refsa.RePacker.Builder
                 RePacker.Unpack<T2>(buffer)
             );
         }
+
+        public static void Pack<T>(this BoxedBuffer self, ref T value)
+        {
+            RePacker.Pack(self, ref value);
+        }
+
+        public static T Unpack<T>(this BoxedBuffer self)
+        {
+            return RePacker.Unpack<T>(self);
+        }
     }
 }

@@ -41,6 +41,11 @@ namespace Refsa.RePacker
             TypeCache.Reload();
         }
 
+        public static void SetSettings(RePackerSettings settings_)
+        {
+            settings = settings_;
+        }
+
         /// <summary>
         /// Pack value into buffer
         /// 

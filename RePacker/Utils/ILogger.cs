@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace Refsa.RePacker.Utils
 {
@@ -10,5 +11,18 @@ namespace Refsa.RePacker.Utils
         void Warn(string message);
         void Error(string message);
         void Exception(Exception e);
+    }
+
+    public static class ILoggerExt
+    {
+        public static MethodInfo GetLogger()
+        {
+            return typeof(RePacker).GetProperty(nameof(RePacker.Logger)).GetMethod;
+        }
+
+        public static MethodInfo GetLogMethod()
+        {
+            return typeof(ILogger).GetMethod(nameof(ILogger.Log));
+        }
     }
 }
