@@ -10,11 +10,6 @@ namespace Refsa.RePacker.Tests
 {
     public class SerializerBuilderTests
     {
-        public SerializerBuilderTests()
-        {
-            RePacker.Init();
-        }
-
         [Fact]
         public void can_handle_struct_with_blittable_fields()
         {
@@ -1043,6 +1038,8 @@ namespace Refsa.RePacker.Tests
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasManagedKeyUnmanagedValueDict>(buffer);
 
+            Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
+
             for (int i = 0; i < dictCont.Dict.Count; i++)
             {
                 var wantedKey = dictCont.Dict.Keys.ElementAt(i);
@@ -1107,6 +1104,8 @@ namespace Refsa.RePacker.Tests
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasUnmanagedKeyManagedValueDict>(buffer);
+            
+            Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
 
             for (int i = 0; i < dictCont.Dict.Count; i++)
             {
@@ -1172,6 +1171,8 @@ namespace Refsa.RePacker.Tests
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasManagedKeyManagedValueDict>(buffer);
+
+            Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
 
             for (int i = 0; i < dictCont.Dict.Count; i++)
             {

@@ -11,11 +11,6 @@ namespace Refsa.RePacker.Tests
 {
     public class ValueTupleTests
     {
-        public ValueTupleTests()
-        {
-            RePacker.Init();
-        }
-
         [Fact]
         public void ValueTuple_2_unmanaged()
         {
