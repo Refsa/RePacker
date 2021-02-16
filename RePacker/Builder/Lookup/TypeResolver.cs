@@ -12,45 +12,21 @@ namespace Refsa.RePacker.Builder
 
     internal static class TypeResolverBuilder
     {
-        static AssemblyBuilder asmBuilder;
-        static ModuleBuilder moduleBuilder;
-        static bool isSetup = false;
-
-        public static void Begin()
-        {
-            if (isSetup) return;
-
-            asmBuilder = AssemblyBuilder.DefineDynamicAssembly(
-                new AssemblyName(Guid.NewGuid().ToString()),
-                AssemblyBuilderAccess.Run);
-
-            moduleBuilder = asmBuilder
-                .DefineDynamicModule($"TypeResolvers");
-
-            isSetup = true;
-        }
-
-        public static void Complete()
-        {
-            moduleBuilder.CreateGlobalFunctions();
-        }
-
         public static TypeResolver BuildHandler(Dictionary<Type, TypePackerHandler> handlers)
         {
             Type[] typeParams = new Type[] { typeof(Type) };
 
-            var deserBuilder = moduleBuilder.DefineGlobalMethod(
+            var solverBuilder = new DynamicMethod(
                 $"TypeResolver_Method",
-                MethodAttributes.Public | MethodAttributes.Static |
-                MethodAttributes.HideBySig,
                 typeof(int),
-                typeParams
+                typeParams,
+                typeof(TypeResolverBuilder),
+                true
             );
-            deserBuilder.SetImplementationFlags(MethodImplAttributes.Managed);
 
-            var paramBuilder = deserBuilder.DefineParameter(0, ParameterAttributes.None, "type");
+            MethodInfo getHashCode = typeof(Type).GetMethod(nameof(Type.GetHashCode));
 
-            var ilGen = deserBuilder.GetILGenerator();
+            var ilGen = solverBuilder.GetILGenerator();
             {
                 var wasEqualLabel = ilGen.DefineLabel();
 
@@ -60,7 +36,9 @@ namespace Refsa.RePacker.Builder
                     ilGen.Emit(OpCodes.Ldc_I4, index);
 
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldtoken, handler.Key);
+                    ilGen.Emit(OpCodes.Callvirt, getHashCode);
+
+                    ilGen.Emit(OpCodes.Ldc_I4, handler.Key.GetHashCode());
                     ilGen.Emit(OpCodes.Beq, wasEqualLabel);
 
                     ilGen.Emit(OpCodes.Pop);
@@ -73,9 +51,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.Emit(OpCodes.Ret);
             }
 
-            Complete();
-
-            var res = (Func<Type, int>)moduleBuilder.GetMethod(deserBuilder.Name).CreateDelegate(typeof(Func<Type, int>));
+            var res = (Func<Type, int>)solverBuilder.CreateDelegate(typeof(Func<Type, int>));
 
             var resolver = new TypeResolver { Resolver = res };
             return resolver;
