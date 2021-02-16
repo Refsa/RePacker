@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net4.7.1;net4.8;net5.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net4.6.1;net4.7.1;net4.8;net5.0;netstandard2.0;netstandard2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
@@ -12,6 +12,14 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unity|AnyCPU' ">
+    <!-- <OutputPath>bin2\$(Configuration)\</OutputPath> -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <TargetFramework>net4.7.1</TargetFramework>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>true</Optimize>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
     <DefineConstants>NO_BOOTSTRAP</DefineConstants>
   </PropertyGroup>
 

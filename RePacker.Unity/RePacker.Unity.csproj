@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net4.7.1</TargetFramework>
+    <CopyLocal>true</CopyLocal>
   </PropertyGroup>
 
   <ItemGroup>
