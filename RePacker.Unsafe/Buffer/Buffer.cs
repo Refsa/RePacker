@@ -8,6 +8,7 @@ namespace Refsa.RePacker.Buffers
     public struct Buffer
     {
         Memory<byte> buffer;
+
         int writeCursor;
         int readCursor;
         public int Index;
@@ -192,10 +193,7 @@ namespace Refsa.RePacker.Buffers
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
             {
-                for (short i = 0; i < 2; i++)
-                {
-                    *((short*)val + i) = value;
-                }
+                *((short*)val) = value;
             }
             writeCursor += 2;
         }
@@ -213,10 +211,7 @@ namespace Refsa.RePacker.Buffers
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
             {
-                for (ushort i = 0; i < 2; i++)
-                {
-                    *((ushort*)val + i) = value;
-                }
+                *((ushort*)val) = value;
             }
             writeCursor += 2;
         }
@@ -234,48 +229,51 @@ namespace Refsa.RePacker.Buffers
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 4))
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    *((int*)val + i) = value;
-                }
+                *((int*)val) = value;
             }
             writeCursor += 4;
         }
 
         public unsafe void PopInt(out int value)
         {
-            var span = buffer.Span.Slice(readCursor, 4);
+            /* var span = buffer.Span.Slice(readCursor, 4);
             readCursor += 4;
-            value = ((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0]));
+            value = ((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0])); */
+
+            fixed (byte* val = buffer.Span.Slice(readCursor, 4))
+            {
+                value = *(int*)val;
+            }
+            readCursor += 4;
         }
 
         public unsafe void PushUInt(ref uint value)
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 4))
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    *((uint*)val + i) = value;
-                }
+                *((uint*)val) = value;
             }
             writeCursor += 4;
         }
 
-        public void PopUInt(out uint value)
+        public unsafe void PopUInt(out uint value)
         {
-            var span = buffer.Span.Slice(readCursor, 4);
+            /* var span = buffer.Span.Slice(readCursor, 4);
             readCursor += 4;
-            value = (uint)((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0]));
+            value = (uint)((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0])); */
+
+            fixed (byte* val = buffer.Span.Slice(readCursor, 4))
+            {
+                value = *(uint*)val;
+            }
+            readCursor += 4;
         }
 
         public unsafe void PushLong(ref long value)
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 8))
             {
-                for (int i = 0; i < 8; i++)
-                {
-                    *((long*)val + i) = value;
-                }
+                *((long*)val) = value;
             }
             writeCursor += 8;
         }
@@ -293,10 +291,7 @@ namespace Refsa.RePacker.Buffers
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 8))
             {
-                for (int i = 0; i < 8; i++)
-                {
-                    *((ulong*)val + i) = value;
-                }
+                *((ulong*)val) = value;
             }
             writeCursor += 8;
         }
@@ -314,10 +309,7 @@ namespace Refsa.RePacker.Buffers
         {
             fixed (byte* val = buffer.Span.Slice(writeCursor, 2))
             {
-                for (int i = 0; i < 2; i++)
-                {
-                    *((char*)val + i) = value;
-                }
+                *((char*)val) = value;
             }
             writeCursor += 2;
         }
