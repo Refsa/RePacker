@@ -1,14 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net4.6.1;net4.7.1;net4.8;net5.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net4.6.1;net4.7.1;net4.8;netcoreapp3.1</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
     <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>NO_BOOTSTRAP</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <Private>true</Private>
+    </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1">
       <!-- <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets> -->
       <!-- <PrivateAssets>all</PrivateAssets> -->
@@ -24,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RePacker\RePacker.csproj">
       <PrivateAssets>all</PrivateAssets>
+      <DefineConstants>NO_BOOTSTRAP</DefineConstants>
     </ProjectReference>
     <ProjectReference Include="..\RePacker.Unsafe\RePacker.Unsafe.csproj" />
   </ItemGroup>

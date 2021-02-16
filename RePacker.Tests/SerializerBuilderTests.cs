@@ -4,12 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Builder;
-
+using Xunit.Abstractions;
 
 namespace Refsa.RePacker.Tests
 {
     public class SerializerBuilderTests
     {
+        public SerializerBuilderTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
         [Fact]
         public void can_handle_struct_with_blittable_fields()
         {

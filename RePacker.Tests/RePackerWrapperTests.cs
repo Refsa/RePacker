@@ -1,11 +1,17 @@
 using Xunit;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Builder;
+using Xunit.Abstractions;
 
 namespace Refsa.RePacker.Tests
 {
     public class RePackerWrapperTests
     {
+        public RePackerWrapperTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
         public struct Vector3
         {
             public float X;

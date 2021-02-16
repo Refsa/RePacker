@@ -6,11 +6,19 @@ using System;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit.Abstractions;
+using System.Reflection;
 
 namespace Refsa.RePacker.Tests
 {
+
     public class ValueTupleTests
     {
+        public ValueTupleTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
         [Fact]
         public void ValueTuple_2_unmanaged()
         {
