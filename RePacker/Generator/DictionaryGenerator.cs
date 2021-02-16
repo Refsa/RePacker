@@ -31,11 +31,11 @@ namespace Refsa.RePacker.Builder
             Type[] kvTypes = fieldInfo.FieldType.GenericTypeArguments;
             (Type keyType, Type valueType) = (kvTypes[0], kvTypes[1]);
 
-            var keyConst = typeof(List<>).MakeGenericType(kvTypes[0]).GetConstructor(Type.EmptyTypes);
-            var valConst = typeof(List<>).MakeGenericType(kvTypes[1]).GetConstructor(Type.EmptyTypes);
+            var keyConst = typeof(List<>).MakeGenericType(keyType).GetConstructor(Type.EmptyTypes);
+            var valConst = typeof(List<>).MakeGenericType(valueType).GetConstructor(Type.EmptyTypes);
 
-            ilGen.DeclareLocal(typeof(List<>).MakeGenericType(kvTypes[0]));
-            ilGen.DeclareLocal(typeof(List<>).MakeGenericType(kvTypes[1]));
+            ilGen.DeclareLocal(typeof(List<>).MakeGenericType(keyType));
+            ilGen.DeclareLocal(typeof(List<>).MakeGenericType(valueType));
 
             ilGen.Emit(OpCodes.Newobj, keyConst);
             ilGen.Emit(OpCodes.Stloc_1);
@@ -46,9 +46,7 @@ namespace Refsa.RePacker.Builder
             // Keys
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
-
                 ilGen.Emit(OpCodes.Ldloca_S, 1);
-                ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
                 if (TypeCache.TryGetTypeInfo(keyType, out var typeInfo))
                 {
@@ -62,16 +60,14 @@ namespace Refsa.RePacker.Builder
                 }
                 else
                 {
-                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
+                    ilGen.EmitLog($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
                 }
             }
 
             // Values
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
-
                 ilGen.Emit(OpCodes.Ldloca_S, 2);
-                ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
                 if (TypeCache.TryGetTypeInfo(valueType, out var typeInfo))
                 {
@@ -85,7 +81,7 @@ namespace Refsa.RePacker.Builder
                 }
                 else
                 {
-                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
+                    ilGen.EmitLog($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
                 }
             }
 
@@ -93,8 +89,8 @@ namespace Refsa.RePacker.Builder
             {
                 var genericDict = recreateDictMethod.MakeGenericMethod(kvTypes);
 
-                ilGen.Emit(OpCodes.Ldloc_1);
-                ilGen.Emit(OpCodes.Ldloc_2);
+                ilGen.Emit(OpCodes.Ldloc, 1);
+                ilGen.Emit(OpCodes.Ldloc, 2);
 
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
@@ -143,7 +139,7 @@ namespace Refsa.RePacker.Builder
                 {
                     ilGen.Emit(OpCodes.Pop);
                     ilGen.Emit(OpCodes.Pop);
-                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary with keys of type {keyType} is not supported");
+                    ilGen.EmitLog($"RePacker - Pack: Dictionary with keys of type {keyType} is not supported");
                 }
             }
 
@@ -171,7 +167,7 @@ namespace Refsa.RePacker.Builder
                 {
                     ilGen.Emit(OpCodes.Pop);
                     ilGen.Emit(OpCodes.Pop);
-                    ilGen.EmitWriteLine($"RePacker - Pack: Dictionary with values of type {valueType} is not supported");
+                    ilGen.EmitLog($"RePacker - Pack: Dictionary with values of type {valueType} is not supported");
                 }
             }
         }
