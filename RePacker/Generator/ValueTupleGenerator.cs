@@ -9,7 +9,12 @@ namespace Refsa.RePacker.Builder
     internal class ValueTupleGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
+    
+#if NET461
+        public Type ForType => typeof(ValueTuple<>);
+#else
         public Type ForType => typeof(ITuple);
+#endif
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {

@@ -5,7 +5,11 @@ namespace Refsa.RePacker.Builder
 {
     internal class ValueTupleProducer : GenericProducer
     {
+#if NET461
+        public override Type ProducerFor => typeof(ValueTuple<>);
+#else
         public override Type ProducerFor => typeof(ITuple);
+#endif
 
         public override ITypePacker GetProducer(Type type)
         {

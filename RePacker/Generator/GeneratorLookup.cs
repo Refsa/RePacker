@@ -32,7 +32,17 @@ namespace Refsa.RePacker.Builder
 
                     {typeof(KeyValuePair<,>), new KeyValuePairGenerator()},
 
-                    {typeof(ITuple), new ValueTupleGenerator()},
+#if NET461
+                    {typeof(ValueTuple<,>), new ValueTupleGenerator()},
+                    {typeof(ValueTuple<,,>), new ValueTupleGenerator()},
+                    {typeof(ValueTuple<,,,>), new ValueTupleGenerator()},
+                    {typeof(ValueTuple<,,,,>), new ValueTupleGenerator()},
+                    {typeof(ValueTuple<,,,,,>), new ValueTupleGenerator()},
+                    {typeof(ValueTuple<,,,,,,>), new ValueTupleGenerator()},
+                    {typeof(ValueTuple<,,,,,,,>), new ValueTupleGenerator()},
+#else
+                    {typeof(ITuple), new ValueTupleGenerator()},    
+#endif
                 }},
                 {GeneratorType.RePacker, new Dictionary<Type, IGenerator>() {
                     {Type.Missing.GetType(), new RePackerGenerator()}

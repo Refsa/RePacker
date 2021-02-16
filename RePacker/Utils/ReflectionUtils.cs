@@ -9,9 +9,29 @@ namespace Refsa.RePacker.Utils
     {
         public static IEnumerable<Type> GetAllTypes()
         {
+#if NET461 || NET471
+// #if WAT
+            List<Type> types = new List<Type>();
+
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    var asmTypes = asm.GetTypes();
+                    types.AddRange(asmTypes);
+                }
+                catch (Exception e)
+                {
+                    RePacker.Logger.Exception(e);
+                }
+            }
+
+            return types;
+#else
             return AppDomain.CurrentDomain
                 .GetAssemblies()
                 .SelectMany(e => e.GetTypes());
+#endif
         }
 
         public static IEnumerable<Type> WithAttribute(this IEnumerable<Type> self, Type attributeType)
