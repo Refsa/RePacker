@@ -36,7 +36,7 @@ namespace Refsa.RePacker.Builder
             var ilGen = deserBuilder.GetILGenerator();
             {
                 ilGen.DeclareLocal(info.Type);
-                // ilGen.EmitWriteLine($"Deserializing {info.Type.Name}");
+                // ilGen.EmitLog($"Deserializing {info.Type.Name}");
 
                 if (info.IsUnmanaged && !info.HasCustomSerializer)
                 {
@@ -140,7 +140,7 @@ namespace Refsa.RePacker.Builder
                     }
                     else
                     {
-                        ilGen.EmitWriteLine($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        ilGen.EmitLog($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
                         ilGen.Emit(OpCodes.Pop);
                         ilGen.Emit(OpCodes.Pop);
                     }
@@ -148,7 +148,7 @@ namespace Refsa.RePacker.Builder
                 goto Finished;
 
             Finished:
-                // ilGen.EmitWriteLine($"{info.Type.Name} is Deserialized");
+                // ilGen.EmitLog($"{info.Type.Name} is Deserialized");
                 ilGen.Emit(OpCodes.Ldloc_0);
                 ilGen.Emit(OpCodes.Ret);
             }
@@ -182,7 +182,7 @@ namespace Refsa.RePacker.Builder
 
             var ilGen = serBuilder.GetILGenerator();
             {
-                // ilGen.EmitWriteLine($"Serializing {info.Type.Name}");
+                // ilGen.EmitLog($"Serializing {info.Type.Name}");
 
                 if (info.IsUnmanaged && !info.HasCustomSerializer)
                 {
@@ -276,14 +276,14 @@ namespace Refsa.RePacker.Builder
                     }
                     else
                     {
-                        ilGen.EmitWriteLine($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        ilGen.EmitLog($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
                         ilGen.Emit(OpCodes.Pop);
                         ilGen.Emit(OpCodes.Pop);
                     }
                 }
                 goto Finished;
 
-            // ilGen.EmitWriteLine($"{info.Type.Name} is Serialized");
+            // ilGen.EmitLog($"{info.Type.Name} is Serialized");
             Finished:
                 ilGen.Emit(OpCodes.Ret);
             }

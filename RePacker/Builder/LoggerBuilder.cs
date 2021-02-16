@@ -97,7 +97,7 @@ namespace Refsa.RePacker.Builder
                 ilGen.EmitCall(OpCodes.Call, stringAdder, Type.EmptyTypes);
                 ilGen.Emit(OpCodes.Stloc_0);
 
-                ilGen.EmitWriteLine(lb);
+                ilGen.EmitLog(lb);
 
                 ilGen.Emit(OpCodes.Ret);
             }

@@ -50,7 +50,7 @@ namespace Refsa.RePacker.Builder
             {
                 ilGen.Emit(OpCodes.Pop);
                 ilGen.Emit(OpCodes.Pop);
-                ilGen.EmitWriteLine($"RePacker - Unpack: Array of type {fieldInfo.FieldType.Name} is not supported");
+                ilGen.EmitLog($"RePacker - Unpack: Array of type {fieldInfo.FieldType.Name} is not supported");
                 return;
             }
         }
@@ -80,7 +80,7 @@ namespace Refsa.RePacker.Builder
             {
                 ilGen.Emit(OpCodes.Pop);
                 ilGen.Emit(OpCodes.Pop);
-                ilGen.EmitWriteLine($"RePacker - Pack: IEnumerable of type {fieldInfo.FieldType.Name} is not supported");
+                ilGen.EmitLog($"RePacker - Pack: IEnumerable of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
 

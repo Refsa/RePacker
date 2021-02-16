@@ -48,7 +48,7 @@ namespace Refsa.RePacker.Builder
             }
             else
             {
-                ilGen.EmitWriteLine($"RePacker - Unpack: Array of type {fieldInfo.FieldType.Name} is not supported");
+                ilGen.EmitLog($"RePacker - Unpack: Array of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
 
@@ -81,7 +81,7 @@ namespace Refsa.RePacker.Builder
             }
             else
             {
-                ilGen.EmitWriteLine($"RePacker - Pack: Array of type {fieldInfo.FieldType.Name} is not supported");
+                ilGen.EmitLog($"RePacker - Pack: Array of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
     }
