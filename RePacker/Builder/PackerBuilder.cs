@@ -1,7 +1,4 @@
-
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -13,31 +10,6 @@ namespace Refsa.RePacker.Builder
 {
     internal static class PackerBuilder
     {
-        static AssemblyBuilder asmBuilder;
-        static ModuleBuilder moduleBuilder;
-        static bool isSetup = false;
-
-        public static void Setup()
-        {
-            if (isSetup) return;
-
-            asmBuilder = AssemblyBuilder.DefineDynamicAssembly(
-                new AssemblyName(Guid.NewGuid().ToString()),
-                AssemblyBuilderAccess.Run);
-
-            moduleBuilder = asmBuilder
-                .DefineDynamicModule($"RePackerSerializers");
-        }
-
-        public static void Complete()
-        {
-            if (isSetup) return;
-
-            moduleBuilder.CreateGlobalFunctions();
-
-            isSetup = true;
-        }
-
         public static MethodInfo CreateUnpacker(TypeCache.Info info)
         {
             Type[] typeParams = new Type[] { typeof(Refsa.RePacker.Buffers.BoxedBuffer) };
@@ -46,7 +18,7 @@ namespace Refsa.RePacker.Builder
                 $"{info.Type.FullName}_Deserialize",
                 info.Type,
                 typeParams,
-                moduleBuilder,
+                typeof(PackerBuilder),
                 true
             );
 
@@ -192,7 +164,7 @@ namespace Refsa.RePacker.Builder
                 $"{info.Type.FullName}_Serialize",
                 typeof(void),
                 typeParams,
-                moduleBuilder,
+                typeof(PackerBuilder),
                 true
             );
 
