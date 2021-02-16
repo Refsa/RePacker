@@ -2,7 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
 
@@ -36,8 +38,10 @@ namespace Refsa.RePacker.Builder
         static Dictionary<Type, TypePackerHandler> packerLookup;
         static Dictionary<Type, GenericProducer> runtimePackerProducers;
 
-        // static TypeResolver typeResolver;
-        // static TypePackerHandler[] packerLookupFast;
+        static TypeResolver typeResolver;
+        static TypePackerHandler[] packerLookupFast;
+        static Type lookupEnumType;
+        static Func<Type, int> lookupFunction;
 
         static bool isSetup = false;
         public static bool IsSetup => isSetup;
@@ -47,6 +51,8 @@ namespace Refsa.RePacker.Builder
             isSetup = false;
             typeCache = null;
             packerLookup = null;
+            packerLookupFast = null;
+            runtimePackerProducers = null;
             Setup();
         }
 
@@ -59,7 +65,6 @@ namespace Refsa.RePacker.Builder
 
             BuildTypeCache();
 
-            // TypeCode.Object
             BuildCustomPackers();
             BuildPackers();
 
@@ -67,21 +72,15 @@ namespace Refsa.RePacker.Builder
 
             VerifyPackers();
 
-            // packerLookupFast = new TypePackerHandler[packerLookup.Count];
-            // int index = 0;
-            // foreach ((Type type, TypePackerHandler handler) in packerLookup)
-            // {
-            //     packerLookupFast[index++] = handler;
-            // }
+            // Build efficient lookup
+            {
+                BuildLookup();
 
-            // TypeResolverBuilder.Begin();
-            // typeResolver = TypeResolverBuilder.BuildHandler(packerLookup);
-
-            // int idx = typeResolver.Resolver.Invoke(typeof(int));
-            // Console.WriteLine(packerLookupFast[idx].Info.Type);
+                // typeResolver = TypeResolverBuilder.BuildHandler(packerLookup);
+            }
 
             isSetup = true;
-            allTypes = null;
+            // allTypes = null;
         }
 
         internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
@@ -108,13 +107,107 @@ namespace Refsa.RePacker.Builder
             }
         }
 
+        static void BuildLookup()
+        {
+            packerLookupFast = new TypePackerHandler[packerLookup.Count];
+
+            /* var builder = new ABuilder()
+                .NewModule("TypeCacheLookup")
+                    .NewEnum(typeof(int), "TypesAsEnum")
+                        .Run(eb =>
+                        {
+                            int index = 0;
+                            foreach (var kv in packerLookup)
+                            {
+                                eb.AddEntry(kv.Key.Name, index);
+                                packerLookupFast[index] = kv.Value;
+                                index++;
+                            }
+                        })
+                        .GetEnum(out lookupEnumType)
+                    .Build()
+                .Build(); */
+
+            // foreach (object thing in Enum.GetValues(lookupEnumType))
+            // {
+            //     Console.WriteLine($"{thing}: {(int)thing}");
+            // }
+            // Enum.Parse(lookupEnumType, typeof(Int32).Name);
+
+            /* var builder = new ABuilder()
+                .NewModule("TypeCacheLookup")
+                .Run(mb =>
+                {
+                    int index = 0;
+                    Type[] parameters = new Type[1];
+                    foreach (var kv in packerLookup)
+                    {
+                        parameters[0] = kv.Key;
+                        mb.NewMethod(typeof(int), parameters, kv.Key.Name)
+                        .GetILGenerator()
+                        .Run(il =>
+                        {
+                            il
+                                .Emit(OpCodes.Ldc_I4, index++)
+                                .Emit(OpCodes.Ret);
+                        })
+                        .Build()
+                        .Build(out var methodInfo);
+                    }
+                })
+                .GetMethodBuilders(out var builders)
+                .Build();
+
+            foreach (var mb in builders)
+            {
+                Console.WriteLine(mb.MethodBuilder.Name);
+            } */
+
+            var returnLabel = Expression.Label(typeof(int));
+
+            var cases = new SwitchCase[packerLookup.Count];
+            int index = 0;
+            foreach (var kv in packerLookup)
+            {
+                cases[index] = Expression.SwitchCase(
+                    Expression.Return(returnLabel, Expression.Constant(index), typeof(int)),
+                    Expression.Constant(kv.Key.GetHashCode())
+                );
+
+                packerLookupFast[index] = kv.Value;
+
+                index++;
+            }
+
+            var hashCode = Expression.Variable(typeof(int), "HashCode");
+            var parameter = Expression.Parameter(typeof(Type), "TypeParameter");
+
+            var switchExpr = Expression.Switch(
+                hashCode,
+                Expression.Return(returnLabel, Expression.Constant(-1), typeof(int)),
+                cases);
+
+            MethodInfo getHashCode = typeof(Type).GetMethod(nameof(Type.GetHashCode));
+
+            var methodExp = Expression.Block(
+                new[] { hashCode },
+                Expression.Assign(hashCode, Expression.Call(parameter, getHashCode)),
+                switchExpr,
+                Expression.Label(returnLabel, Expression.Constant(-1))
+            );
+
+            lookupFunction = Expression
+                .Lambda<Func<Type, int>>(methodExp, parameter)
+                .Compile();
+        }
+
         static void BuildTypeCache()
         {
             typeCache = new Dictionary<Type, Info>();
             foreach (Type type in allTypes
                 .WithAttribute(typeof(RePackerAttribute)))
             {
-                if (typeCache.TryGetValue(type, out var _))
+                if (typeCache.ContainsKey(type))
                 {
                     RePacker.Settings.Log.Warn($"Packer already exists for type {type}");
                     continue;
@@ -168,6 +261,10 @@ namespace Refsa.RePacker.Builder
                 .WithGenericBaseType(typeof(RePackerWrapper<>)))
             {
                 Type wrapperFor = type.BaseType.GetGenericArguments()[0];
+                if (typeCache.ContainsKey(wrapperFor) || customTypeInfo.ContainsKey(type))
+                {
+                    continue;
+                }
 
                 if (wrapperFor == null)
                 {
@@ -203,7 +300,7 @@ namespace Refsa.RePacker.Builder
             }
         }
 
-        private static void BuildRuntimePackerProviders()
+        static void BuildRuntimePackerProviders()
         {
             runtimePackerProducers = new Dictionary<Type, GenericProducer>();
 
@@ -211,18 +308,36 @@ namespace Refsa.RePacker.Builder
                 .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
             {
                 var producer = (GenericProducer)Activator.CreateInstance(type);
-                var forType = producer.ProducerFor;
 
-                if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
+                if (producer.ProducerForAll != null)
                 {
-                    RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
-                    continue;
+                    foreach (var p in producer.ProducerForAll)
+                    {
+                        AddProducerFor(p, producer);
+                    }
                 }
-                runtimePackerProducers.Add(
-                    forType,
-                    producer
-                );
+                else
+                {
+                    var forType = producer.ProducerFor;
+
+                    AddProducerFor(forType, producer);
+                }
             }
+        }
+
+        static void AddProducerFor(Type type, GenericProducer producer)
+        {
+            var forType = type;
+            if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
+            {
+                RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
+                return;
+            }
+
+            runtimePackerProducers.Add(
+                forType,
+                producer
+            );
         }
 
         static void BuildPackers()
@@ -233,11 +348,9 @@ namespace Refsa.RePacker.Builder
                 return;
             }
 
-            ConcurrentDictionary<Type, (MethodInfo packer, MethodInfo unpacker)> packers = new ConcurrentDictionary<Type, (MethodInfo packer, MethodInfo unpacker)>();
+            Dictionary<Type, (MethodInfo packer, MethodInfo unpacker)> packers = new Dictionary<Type, (MethodInfo packer, MethodInfo unpacker)>();
 
-            PackerBuilder.Setup();
-
-            foreach (var kv in typeCache.AsParallel())
+            foreach (var kv in typeCache)
             {
                 if (packerLookup.ContainsKey(kv.Key)) continue;
                 (Type type, Info info) = (kv.Key, kv.Value);
@@ -275,9 +388,8 @@ namespace Refsa.RePacker.Builder
                     continue;
                 }
 
-                packers.TryAdd(type, (packer, unpacker));
+                packers.Add(type, (packer, unpacker));
             }
-            PackerBuilder.Complete();
 
             foreach (var kv in packers)
             {
@@ -319,6 +431,7 @@ namespace Refsa.RePacker.Builder
 
             typeCache.Add(type, info);
             packerLookup.Add(type, handler);
+            BuildLookup();
         }
 
         static bool AttemptToCreatePacker(Type type)
@@ -397,10 +510,22 @@ namespace Refsa.RePacker.Builder
 
         public static void Pack<T>(BoxedBuffer buffer, ref T value)
         {
-            if (packerLookup.TryGetValue(typeof(T), out var packer))
+            /* int resolverIndex = typeResolver.Resolver.Invoke(typeof(T));
+            if (resolverIndex != -1)
+            {
+                packerLookupFast[resolverIndex].Pack<T>(buffer, ref value);
+                return;
+            } */
+
+            int fastIndex = lookupFunction.Invoke(typeof(T));
+            if (fastIndex != -1)
+            {
+                packerLookupFast[fastIndex].Pack<T>(buffer, ref value);
+            }
+            /* else if (packerLookup.TryGetValue(typeof(T), out var packer))
             {
                 packer.Pack<T>(buffer, ref value);
-            }
+            } */
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 Pack<T>(buffer, ref value);
@@ -413,10 +538,21 @@ namespace Refsa.RePacker.Builder
 
         static T UnpackInternal<T>(BoxedBuffer buffer)
         {
-            if (packerLookup.TryGetValue(typeof(T), out var packer))
+            /* int resolverIndex = typeResolver.Resolver.Invoke(typeof(T));
+            if (resolverIndex != -1)
+            {
+                return packerLookupFast[resolverIndex].Unpack<T>(buffer);
+            } */
+
+            int fastIndex = lookupFunction.Invoke(typeof(T));
+            if (fastIndex != -1)
+            {
+                return packerLookupFast[fastIndex].Unpack<T>(buffer);
+            }
+            /* else if (packerLookup.TryGetValue(typeof(T), out var packer))
             {
                 return packer.Unpack<T>(buffer);
-            }
+            } */
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 return UnpackInternal<T>(buffer);

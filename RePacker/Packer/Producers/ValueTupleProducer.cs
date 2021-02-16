@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Refsa.RePacker.Builder
@@ -6,7 +7,17 @@ namespace Refsa.RePacker.Builder
     internal class ValueTupleProducer : GenericProducer
     {
 #if NET461
-        public override Type ProducerFor => typeof(ValueTuple<>);
+        public override Type ProducerFor => typeof(ValueTuple<,>);
+        public override IEnumerable<Type> ProducerForAll => new List<Type>()
+        {
+            typeof(ValueTuple<,>),
+            typeof(ValueTuple<,,>),
+            typeof(ValueTuple<,,,>),
+            typeof(ValueTuple<,,,,>),
+            typeof(ValueTuple<,,,,,>),
+            typeof(ValueTuple<,,,,,,>),
+            typeof(ValueTuple<,,,,,,,>),
+        };
 #else
         public override Type ProducerFor => typeof(ITuple);
 #endif

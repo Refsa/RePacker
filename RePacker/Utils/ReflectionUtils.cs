@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 
 namespace Refsa.RePacker.Utils
 {
@@ -9,8 +10,7 @@ namespace Refsa.RePacker.Utils
     {
         public static IEnumerable<Type> GetAllTypes()
         {
-#if NET461 || NET471
-// #if WAT
+#if NET461 || NET471 || NET48
             List<Type> types = new List<Type>();
 
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
