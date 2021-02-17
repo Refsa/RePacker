@@ -3,6 +3,18 @@ using System.Collections.Generic;
 
 namespace Refsa.RePacker.Builder
 {
+    internal class IListProducer : GenericProducer
+    {
+        public override Type ProducerFor => typeof(IList<>);
+
+        public override ITypePacker GetProducer(Type type)
+        {
+            var elementType = type.GetGenericArguments();
+            var instance = Activator.CreateInstance(typeof(IListPacker<>).MakeGenericType(elementType));
+            return (ITypePacker)instance;
+        }
+    }
+
     internal class ListProducer : GenericProducer
     {
         public override Type ProducerFor => typeof(List<>);
