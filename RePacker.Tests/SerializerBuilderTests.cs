@@ -447,10 +447,10 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        /* [Fact]
+        [Fact]
         public void ilist_with_unmanaged_type_direct()
         {
-            var hml = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+            IList<int> hml = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
 
             var buffer = new BoxedBuffer(1024);
 
@@ -464,7 +464,7 @@ namespace Refsa.RePacker.Tests
             {
                 Assert.Equal(hml[i], fromBuf[i]);
             }
-        } */
+        }
 
         [Fact]
         public void list_with_unmanaged_type()
@@ -685,7 +685,7 @@ namespace Refsa.RePacker.Tests
             }
         }
 
-        /* [Fact]
+        [Fact]
         public void ilist_with_managed_type_direct()
         {
             var hml = new List<SomeManagedObject> {
@@ -708,7 +708,7 @@ namespace Refsa.RePacker.Tests
                 Assert.Equal(hml[i].Int, fromBuf[i].Int);
                 Assert.Equal(hml[i].Float, fromBuf[i].Float);
             }
-        } */
+        }
 
         [Fact]
         public void list_with_managed_type()
