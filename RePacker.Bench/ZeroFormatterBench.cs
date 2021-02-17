@@ -9,26 +9,7 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class ZeroFormatterBench
     {
-        /* @commit a76f7cd3fcab7e1e78a5184a2f993e4070fd40e8
-                                      Method |            Mean |         Error |        StdDev |       Gen 0 |       Gen 1 | Gen 2 |    Allocated |
-        ------------------------------------ |----------------:|--------------:|--------------:|------------:|------------:|------:|-------------:|
-                     SmallObjectSerialize10K |     2,383.69 us |      4.897 us |      4.581 us |    203.1250 |           - |     - |     640043 B |
-               ILGen_SmallObjectSerialize10K |     1,707.55 us |      5.995 us |      5.314 us |    203.1250 |           - |     - |     640003 B |
-                   SmallObjectDeserialize10K |     2,978.39 us |      7.539 us |      7.052 us |    378.9063 |           - |     - |    1200060 B |
-             ILGen_SmallObjectDeserialize10K |     1,934.69 us |     12.416 us |     11.614 us |    378.9063 |           - |     - |    1200036 B |
-                    ILGen_VectorSerialize10K |       365.67 us |      0.990 us |      0.878 us |           - |           - |     - |            - |
-                  ILGen_VectorDeserialize10K |       388.71 us |      3.484 us |      3.259 us |           - |           - |     - |            - |
-                       ILGen_IntSerialize10K |       212.50 us |      0.418 us |      0.370 us |     20.7520 |           - |     - |      65608 B |
-                     ILGen_IntDeserialize10K |       199.59 us |      0.575 us |      0.538 us |           - |           - |     - |          1 B |
-                             IntSerialize10K |        62.13 us |      0.375 us |      0.351 us |     20.7520 |           - |     - |      65560 B |
-                           IntDeserialize10K |        45.41 us |      0.300 us |      0.281 us |      0.3052 |           - |     - |       1048 B |
-                SmallObjectArraySerialize10K | 2,361,170.74 us | 10,788.875 us | 10,091.920 us | 204000.0000 |           - |     - |  640097960 B |
-              SmallObjectArrayDeserialize10K | 3,058,959.39 us | 23,121.066 us | 20,496.223 us | 408000.0000 |           - |     - | 1280302168 B |
-          ILGen_SmallObjectArraySerialize10K | 1,457,126.79 us |  2,696.468 us |  2,522.278 us | 204000.0000 |           - |     - |  640066960 B |
-        ILGen_SmallObjectArrayDeserialize10K | 1,888,190.82 us |  3,025.772 us |  2,526.656 us | 306000.0000 | 102000.0000 |     - | 1280240000 B |
-        */
-
-        /*
+        /* netcoreapp3.0
                                       Method |            Mean |         Error |        StdDev |       Gen 0 | Gen 1 | Gen 2 |    Allocated |
         ------------------------------------ |----------------:|--------------:|--------------:|------------:|------:|------:|-------------:|
                      SmallObjectSerialize10K |     2,390.44 us |      8.205 us |      7.274 us |    203.1250 |     - |     - |     640039 B |
@@ -46,6 +27,38 @@ namespace Refsa.RePacker.Benchmarks
           ILGen_SmallObjectArraySerialize10K | 1,447,606.43 us |  6,322.598 us |  5,914.163 us | 204000.0000 |     - |     - |  640066960 B |
         ILGen_SmallObjectArrayDeserialize10K | 1,778,030.16 us |  8,599.822 us |  8,044.278 us | 408000.0000 |     - |     - | 1280240000 B |
         */
+
+        /* netcoreapp3.0
+                                      Method |            Mean
+        ------------------------------------ |----------------
+               ILGen_SmallObjectSerialize10K |     1,607.45 us
+             ILGen_SmallObjectDeserialize10K |     1,754.58 us
+                    ILGen_VectorSerialize10K |       245.71 us
+                  ILGen_VectorDeserialize10K |       251.05 us
+                       ILGen_IntSerialize10K |       165.09 us
+                     ILGen_IntDeserialize10K |       163.17 us
+                             IntSerialize10K |        43.51 us
+                           IntDeserialize10K |        40.91 us
+          ILGen_SmallObjectArraySerialize10K | 1,374,717.61 us
+        ILGen_SmallObjectArrayDeserialize10K | 1,756,913.44 us
+        */
+
+        /* net4.6.1
+                                      Method |           Mean |
+        ------------------------------------ |---------------:|
+               ILGen_SmallObjectSerialize10K |     2,508.0 us |
+             ILGen_SmallObjectDeserialize10K |     3,196.8 us |
+                    ILGen_VectorSerialize10K |       601.1 us |
+                  ILGen_VectorDeserialize10K |       633.6 us |
+                       ILGen_IntSerialize10K |       328.1 us |
+                     ILGen_IntDeserialize10K |       326.8 us |
+                             IntSerialize10K |       146.6 us |
+                           IntDeserialize10K |       144.5 us |
+          ILGen_SmallObjectArraySerialize10K | 2,349,831.5 us |
+        ILGen_SmallObjectArrayDeserialize10K | 2,591,480.2 us |
+        */
+
+
 
         static byte[] backingBuffer;
         static Buffer buffer;
@@ -110,26 +123,14 @@ namespace Refsa.RePacker.Benchmarks
         [RePacker]
         public class Person
         {
-            public int Age;
-            public string FirstName;
-            public string LastName;
-            public Sex Sex;
-
-            public void FromBuffer(ref Buffer buffer)
-            {
-                buffer.Pop<int>(out Age);
-                FirstName = buffer.UnpackString();
-                LastName = buffer.UnpackString();
-                Sex = buffer.UnpackEnum<Sex>();
-            }
-
-            public void ToBuffer(ref Buffer buffer)
-            {
-                buffer.Push<int>(ref Age);
-                buffer.PackString(ref FirstName);
-                buffer.PackString(ref LastName);
-                buffer.PackEnum<Sex>(ref Sex);
-            }
+            [RePack]
+            public virtual int Age {get; set;}
+            [RePack]
+            public virtual string FirstName {get; set;}
+            [RePack]
+            public virtual string LastName {get; set;}
+            [RePack]
+            public virtual Sex Sex {get; set;}
         }
 
         [RePacker]
