@@ -434,7 +434,7 @@ namespace Refsa.RePacker.Builder
             BuildLookup();
         }
 
-        static bool AttemptToCreatePacker(Type type)
+        internal static bool AttemptToCreatePacker(Type type)
         {
             Type targetType = null;
 

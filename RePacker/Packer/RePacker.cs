@@ -103,5 +103,10 @@ namespace Refsa.RePacker
         {
             TypeCache.AddTypePackerProvider(typeof(T), producer);
         }
+
+        public static void AttemptToCreatePacker(System.Type type)
+        {
+            TypeCache.AttemptToCreatePacker(type);
+        }
     }
 }
