@@ -36,7 +36,7 @@ namespace Refsa.RePacker.Builder
 
         static Dictionary<Type, Info> typeCache;
         static Dictionary<Type, TypePackerHandler> packerLookup;
-        static Dictionary<Type, GenericProducer> runtimePackerProducers;
+        static ConcurrentDictionary<Type, GenericProducer> runtimePackerProducers;
 
         static TypeResolver typeResolver;
         static TypePackerHandler[] packerLookupFast;
@@ -85,7 +85,7 @@ namespace Refsa.RePacker.Builder
 
         internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
         {
-            runtimePackerProducers.Add(targetType, producer);
+            runtimePackerProducers.TryAdd(targetType, producer);
         }
 
         static void VerifyPackers()
@@ -213,12 +213,17 @@ namespace Refsa.RePacker.Builder
                     continue;
                 }
 
+                var attr = type.GetCustomAttribute<RePackerAttribute>();
+
                 var tci = new Info
                 {
                     Type = type,
                     IsUnmanaged = type.IsUnmanaged(),
                     IsPrivate = type.IsNotPublic,
-                    HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
+                    // HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
+                    HasCustomSerializer = 
+                        type.IsSubclassOf(typeof(RePackerWrapper<>).MakeGenericType(type)) 
+                        || !attr.UseOnAllPublicFields,
                 };
 
                 List<FieldInfo> serializedFields = new List<FieldInfo>();
@@ -302,7 +307,7 @@ namespace Refsa.RePacker.Builder
 
         static void BuildRuntimePackerProviders()
         {
-            runtimePackerProducers = new Dictionary<Type, GenericProducer>();
+            runtimePackerProducers = new ConcurrentDictionary<Type, GenericProducer>();
 
             foreach (Type type in allTypes
                 .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
@@ -334,7 +339,7 @@ namespace Refsa.RePacker.Builder
                 return;
             }
 
-            runtimePackerProducers.Add(
+            runtimePackerProducers.TryAdd(
                 forType,
                 producer
             );
@@ -510,22 +515,11 @@ namespace Refsa.RePacker.Builder
 
         public static void Pack<T>(BoxedBuffer buffer, ref T value)
         {
-            /* int resolverIndex = typeResolver.Resolver.Invoke(typeof(T));
-            if (resolverIndex != -1)
-            {
-                packerLookupFast[resolverIndex].Pack<T>(buffer, ref value);
-                return;
-            } */
-
             int fastIndex = lookupFunction.Invoke(typeof(T));
             if (fastIndex != -1)
             {
                 packerLookupFast[fastIndex].Pack<T>(buffer, ref value);
             }
-            /* else if (packerLookup.TryGetValue(typeof(T), out var packer))
-            {
-                packer.Pack<T>(buffer, ref value);
-            } */
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 Pack<T>(buffer, ref value);
@@ -538,21 +532,11 @@ namespace Refsa.RePacker.Builder
 
         static T UnpackInternal<T>(BoxedBuffer buffer)
         {
-            /* int resolverIndex = typeResolver.Resolver.Invoke(typeof(T));
-            if (resolverIndex != -1)
-            {
-                return packerLookupFast[resolverIndex].Unpack<T>(buffer);
-            } */
-
             int fastIndex = lookupFunction.Invoke(typeof(T));
             if (fastIndex != -1)
             {
                 return packerLookupFast[fastIndex].Unpack<T>(buffer);
             }
-            /* else if (packerLookup.TryGetValue(typeof(T), out var packer))
-            {
-                return packer.Unpack<T>(buffer);
-            } */
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 return UnpackInternal<T>(buffer);
