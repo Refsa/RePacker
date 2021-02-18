@@ -48,13 +48,6 @@ namespace Refsa.RePacker.Utils
             );
         }
 
-        public static FieldInfo GetPropertyBackingFieldInfo(Type target, string propertyName)
-        {
-            string backingFieldName = $"<{propertyName}>k__BackingField";
-            FieldInfo fi = target.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-            return fi;
-        }
-
         public static IEnumerable<Type> WithGenericBaseType(this IEnumerable<Type> self, Type genericBaseType)
         {
             return
@@ -68,6 +61,18 @@ namespace Refsa.RePacker.Utils
         public static IEnumerable<Type> NotGeneric(this IEnumerable<Type> self)
         {
             return self.Where(t => !t.IsGenericType);
+        }
+
+        public static bool HasGetterAndSetter(this PropertyInfo target)
+        {
+            return target.GetMethod != null && target.SetMethod != null;
+        }
+
+        public static FieldInfo GetPropertyBackingFieldInfo(Type target, string propertyName)
+        {
+            string backingFieldName = $"<{propertyName}>k__BackingField";
+            FieldInfo fi = target.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+            return fi;
         }
     }
 }
