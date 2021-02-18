@@ -6,6 +6,21 @@ namespace Refsa.RePacker.Builder
 {
     public static class BoxedBufferExt
     {
+        public static void PackString(this BoxedBuffer buffer, ref string str)
+        {
+            buffer.Buffer.PackString(ref str);
+        }
+
+        public static string UnpackString(this BoxedBuffer buffer)
+        {
+            return buffer.Buffer.UnpackString();
+        }
+
+        public static void UnpackString(this BoxedBuffer buffer, out string str)
+        {
+            buffer.Buffer.UnpackString(out str);
+        }
+
         public static void PackDateTime(this BoxedBuffer buffer, ref DateTime value)
         {
             long ticks = value.Ticks;

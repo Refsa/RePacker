@@ -8,21 +8,6 @@ namespace Refsa.RePacker.Builder
 {
     public static class BufferExt
     {
-        public static void PackString(this BoxedBuffer buffer, ref string str)
-        {
-            buffer.Buffer.PackString(ref str);
-        }
-
-        public static string UnpackString(this BoxedBuffer buffer)
-        {
-            return buffer.Buffer.UnpackString();
-        }
-
-        public static void UnpackString(this BoxedBuffer buffer, out string str)
-        {
-            buffer.Buffer.UnpackString(out str);
-        }
-
         public static void PackString(this ref Buffer buffer, ref string str)
         {
             ulong length = (ulong)str.Length;
