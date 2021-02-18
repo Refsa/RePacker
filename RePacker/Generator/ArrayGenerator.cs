@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Utils;
+using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Builder
 {
@@ -13,11 +14,15 @@ namespace Refsa.RePacker.Builder
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-        MethodInfo serializeBlittableArrayMethod = typeof(BufferExt).GetMethod(nameof(BufferExt.EncodeBlittableArray));
-        MethodInfo serializeArrayMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackArray));
+        MethodInfo serializeBlittableArrayMethod = typeof(BufferExt)
+            .GetMethod(nameof(BufferExt.PackBlittableArray));
+        MethodInfo serializeArrayMethod = typeof(PackerCollectionsExt)
+            .GetMethod(nameof(PackerCollectionsExt.PackArray));
 
-        MethodInfo deserializeBlittableArrayMethod = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackBlittableArray));
-        MethodInfo deserializeArrayMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackArray));
+        MethodInfo deserializeBlittableArrayMethod = typeof(BufferExt)
+            .GetMethod(nameof(BufferExt.UnpackUnmanagedArrayOut));
+        MethodInfo deserializeArrayMethod = typeof(PackerCollectionsExt)
+            .GetMethod(nameof(PackerCollectionsExt.UnpackArray));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
@@ -29,13 +34,14 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
+
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
-                var arraySerializer = deserializeArrayMethod.MakeGenericMethod(elementType);
-                ilGen.Emit(OpCodes.Call, arraySerializer);
+                var arrayUnpacker = deserializeArrayMethod.MakeGenericMethod(elementType);
+                ilGen.Emit(OpCodes.Call, arrayUnpacker);
             }
-            else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
+            else if (elementType.IsValueType || elementType.IsUnmanagedStruct())
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
                 ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
@@ -43,8 +49,8 @@ namespace Refsa.RePacker.Builder
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
                 ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
-                var arraySerializer = deserializeBlittableArrayMethod.MakeGenericMethod(elementType);
-                ilGen.Emit(OpCodes.Call, arraySerializer);
+                var arrayUnpacker = deserializeBlittableArrayMethod.MakeGenericMethod(elementType);
+                ilGen.Emit(OpCodes.Call, arrayUnpacker);
             }
             else
             {
@@ -68,7 +74,7 @@ namespace Refsa.RePacker.Builder
                 var arraySerializer = serializeArrayMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, arraySerializer);
             }
-            else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
+            else if (elementType.IsValueType || elementType.IsUnmanagedStruct())
             {
                 ilGen.Emit(OpCodes.Ldarg_0);
                 ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
