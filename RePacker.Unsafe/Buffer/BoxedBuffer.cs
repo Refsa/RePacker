@@ -1,4 +1,7 @@
 using System;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using Buffer = Refsa.RePacker.Buffers.Buffer;
 
 namespace Refsa.RePacker.Buffers
@@ -25,6 +28,14 @@ namespace Refsa.RePacker.Buffers
             (var array, var _) = buffer.GetArray();
             Data = array;
             Buffer = buffer;
+        }
+        public unsafe void MemoryCopy<T>(T[] array) where T : unmanaged
+        {
+            Buffer.MemoryCopyFrom(array);
+        }
+        public unsafe T[] MemoryCopy<T>() where T : unmanaged
+        {
+            return Buffer.MemoryCopyTo<T>();
         }
 
         #region Buffer Wrappers
@@ -70,7 +81,7 @@ namespace Refsa.RePacker.Buffers
 
         public int Count()
         {
-            return Buffer.Count();
+            return Buffer.WriteCursor();
         }
 
         public int Length()
@@ -80,7 +91,7 @@ namespace Refsa.RePacker.Buffers
 
         public int Cursor()
         {
-            return Buffer.Cursor();
+            return Buffer.ReadCursor();
         }
 
         public int FreeSpace()
@@ -105,7 +116,7 @@ namespace Refsa.RePacker.Buffers
 
         public void MoveOffset(int amount)
         {
-            Buffer.MoveOffset(amount);
+            Buffer.MoveWriteCursor(amount);
             // TODO: Make sure cursor doesnt move outside of buffer
         }
 

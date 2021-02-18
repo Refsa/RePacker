@@ -35,7 +35,7 @@ namespace Refsa.RePacker.Builder
         public static string UnpackString(this ref Buffer buffer)
         {
             buffer.Pop<ulong>(out ulong length);
-            int start = buffer.Cursor();
+            int start = buffer.ReadCursor();
 
             if (MemoryMarshal.TryGetArray(buffer.Read((int)length), out var seg))
             {
@@ -48,7 +48,7 @@ namespace Refsa.RePacker.Builder
         public static void UnpackString(this ref Buffer buffer, out string value)
         {
             buffer.Pop<ulong>(out ulong length);
-            int start = buffer.Cursor();
+            int start = buffer.ReadCursor();
 
             if (MemoryMarshal.TryGetArray(buffer.Read((int)length), out var seg))
             {
@@ -147,27 +147,19 @@ namespace Refsa.RePacker.Builder
             return default(TEnum);
         }
 
-        public static void EncodeBlittableArray<T>(this ref Buffer buffer, T[] data) where T : unmanaged
+        public static void PackBlittableArray<T>(this ref Buffer buffer, T[] data) where T : unmanaged
         {
-            ulong dataLen = (ulong)(data.Length * Marshal.SizeOf<T>());
-            buffer.Push<ulong>(ref dataLen);
-
-            var span = MemoryMarshal.Cast<T, byte>(new Span<T>(data));
-            buffer.Write(span);
+            buffer.MemoryCopyFrom(data);
         }
 
-        public static T[] DecodeBlittableArray<T>(this ref Buffer buffer) where T : unmanaged
+        public static T[] UnpackBlittableArray<T>(this ref Buffer buffer) where T : unmanaged
         {
-            buffer.Pop<ulong>(out ulong length);
-            var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
-            return span.ToArray();
+            return buffer.MemoryCopyTo<T>();
         }
 
-        public static void UnpackBlittableArray<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
+        public static void UnpackUnmanagedArrayOut<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
         {
-            buffer.Pop<ulong>(out ulong length);
-            var span = MemoryMarshal.Cast<byte, T>(buffer.Read((int)length).Span);
-            data = span.ToArray();
+            data = buffer.MemoryCopyTo<T>();
         }
     }
 }
