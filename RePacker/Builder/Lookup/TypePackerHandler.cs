@@ -8,6 +8,7 @@ namespace Refsa.RePacker.Builder
         public TypeCache.Info Info;
 
         ITypePacker packer;
+        public ITypePacker Packer => packer;
 
         public TypePackerHandler(TypeCache.Info info)
         {
@@ -25,43 +26,19 @@ namespace Refsa.RePacker.Builder
             this.packer = ts;
         }
 
-        public void SetLogger<T>(MethodInfo logger)
-        {
-            if (this.packer is TypePacker<T> serializer)
-            {
-                serializer.SetLogger(logger);
-            }
-        }
-
-        public void RunLogger<T>(ref T target)
-        {
-            if (this.packer is TypePacker<T> serializer)
-            {
-                serializer.logger.Invoke(target);
-            }
-        }
-
         public void Pack<T>(BoxedBuffer buffer, ref T target)
         {
-            if (this.packer is TypePacker<T> serializer)
+            if (this.packer is IPacker<T> packer)
             {
-                serializer.packer.Invoke(buffer, target);
-            }
-            else if (this.packer is RePackerWrapper<T> wrapper)
-            {
-                wrapper.Pack(buffer, ref target);
+                packer.Pack(buffer, ref target);
             }
         }
 
         public T Unpack<T>(BoxedBuffer buffer)
         {
-            if (this.packer is TypePacker<T> serializer)
+            if (this.packer is IPacker<T> packer)
             {
-                return serializer.unpacker.Invoke(buffer);
-            }
-            else if (this.packer is RePackerWrapper<T> wrapper)
-            {
-                wrapper.Unpack(buffer, out T value);
+                packer.Unpack(buffer, out T value);
                 return value;
             }
 
@@ -76,9 +53,9 @@ namespace Refsa.RePacker.Builder
             }
         }
 
-        public T GetTypePacker<T>() where T : ITypePacker
+        public IPacker<T> GetTypePacker<T>() where T : IPacker<T>
         {
-            if (this.packer is T)
+            if (this.packer is IPacker<T>)
             {
                 return (T)this.packer;
             }

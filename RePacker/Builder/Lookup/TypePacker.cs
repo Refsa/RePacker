@@ -3,12 +3,10 @@ using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class TypePacker<T> : ITypePacker
+    internal class TypePacker<T> : IPacker<T>
     {
         public System.Action<BoxedBuffer, T> packer;
         public System.Func<BoxedBuffer, T> unpacker;
-
-        public System.Action<T> logger;
 
         public TypePacker(MethodInfo packer, MethodInfo unpacker)
         {
@@ -21,9 +19,19 @@ namespace Refsa.RePacker.Builder
                     .CreateDelegate(typeof(System.Func<BoxedBuffer, T>));
         }
 
-        public void SetLogger(MethodInfo logger)
+        public void Pack(BoxedBuffer buffer, ref T value)
         {
-            this.logger = (System.Action<T>)logger.CreateDelegate(typeof(System.Action<T>));
+            packer.Invoke(buffer, value);
+        }
+
+        public void Unpack(BoxedBuffer buffer, out T value)
+        {
+            value = unpacker.Invoke(buffer);
+        }
+
+        public void UnpackInto(BoxedBuffer buffer, ref T value)
+        {
+            value = unpacker.Invoke(buffer);
         }
     }
 }

@@ -1,60 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
+using Refsa.RePacker.Buffers;
 
 namespace Refsa.RePacker.Builder
 {
-    internal class TypeResolver
+    internal class TypeResolver<TPacker, T> where TPacker : IPacker<T>
     {
-        public Func<Type, int> Resolver;
-    }
+        static TPacker defaultPacker = default(TPacker);
+        public static TPacker Packer { get => defaultPacker; set => defaultPacker = value; }
 
-    internal static class TypeResolverBuilder
-    {
-        public static TypeResolver BuildHandler(Dictionary<Type, TypePackerHandler> handlers)
+        public void Pack(BoxedBuffer buffer, ref T value)
         {
-            Type[] typeParams = new Type[] { typeof(Type) };
+            defaultPacker.Pack(buffer, ref value);
+        }
 
-            var solverBuilder = new DynamicMethod(
-                $"TypeResolver_Method",
-                typeof(int),
-                typeParams,
-                typeof(TypeResolverBuilder),
-                true
-            );
+        public void Unpack(BoxedBuffer buffer, out T value)
+        {
+            defaultPacker.Unpack(buffer, out value);
+        }
 
-            MethodInfo getHashCode = typeof(Type).GetMethod(nameof(Type.GetHashCode));
-
-            var ilGen = solverBuilder.GetILGenerator();
-            {
-                var wasEqualLabel = ilGen.DefineLabel();
-
-                int index = 0;
-                foreach (var handler in handlers)
-                {
-                    ilGen.Emit(OpCodes.Ldc_I4, index);
-
-                    ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Callvirt, getHashCode);
-
-                    ilGen.Emit(OpCodes.Ldc_I4, handler.Key.GetHashCode());
-                    ilGen.Emit(OpCodes.Beq, wasEqualLabel);
-
-                    ilGen.Emit(OpCodes.Pop);
-
-                    index++;
-                }
-
-                ilGen.Emit(OpCodes.Ldc_I4, -1);
-                ilGen.MarkLabel(wasEqualLabel);
-                ilGen.Emit(OpCodes.Ret);
-            }
-
-            var res = (Func<Type, int>)solverBuilder.CreateDelegate(typeof(Func<Type, int>));
-
-            var resolver = new TypeResolver { Resolver = res };
-            return resolver;
+        public void UnpackInto(BoxedBuffer buffer, ref T value)
+        {
+            defaultPacker.UnpackInto(buffer, ref value);
         }
     }
 }
