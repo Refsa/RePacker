@@ -2,6 +2,8 @@ using System;
 using Refsa.RePacker.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using Refsa.RePacker.Utils;
+using System.Reflection;
 
 namespace Refsa.RePacker.Builder
 {
@@ -20,7 +22,7 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
                 ulong dataLen = (ulong)data.Length;
-                buffer.Buffer.Push<ulong>(ref dataLen);
+                buffer.Buffer.PushULong(ref dataLen);
 
                 for (int i = 0; i < data.Length; i++)
                 {
@@ -33,7 +35,7 @@ namespace Refsa.RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
-                buffer.Buffer.Pop<ulong>(out ulong len);
+                buffer.Buffer.PopULong(out ulong len);
                 data = new T[(int)len];
 
                 for (int i = 0; i < data.Length; i++)
@@ -58,7 +60,7 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.Buffer.Push<ulong>(ref dataLen);
+                buffer.Buffer.PushULong(ref dataLen);
 
                 for (int i = 0; i < data.Count; i++)
                 {
@@ -66,13 +68,17 @@ namespace Refsa.RePacker.Builder
                     packer.Pack<T>(buffer, ref ele);
                 }
             }
+            else
+            {
+                RePacker.Logger.Error($"Couldnt find packer for list with elements of {typeof(T)}");
+            }
         }
 
         public static void UnpackIList<T>(this BoxedBuffer buffer, out IList<T> data)
         {
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
-                buffer.Buffer.Pop<ulong>(out ulong len);
+                buffer.Buffer.PopULong(out ulong len);
 
                 data = new List<T>();
                 for (int i = 0; i < (int)len; i++)
@@ -82,32 +88,19 @@ namespace Refsa.RePacker.Builder
             }
             else
             {
+                RePacker.Logger.Error($"Couldnt find unpacker for list with elements of {typeof(T)}");
                 data = null;
             }
         }
 
         public static void PackIListBlittable<T>(this BoxedBuffer buffer, IList<T> data) where T : unmanaged
         {
-            ulong dataLen = (ulong)data.Count;
-            buffer.Buffer.Push<ulong>(ref dataLen);
-
-            for (int i = 0; i < data.Count; i++)
-            {
-                var ele = data[i];
-                buffer.Buffer.Push<T>(ref ele);
-            }
+            buffer.MemoryCopy((T[])data);
         }
 
         public static void UnpackIListBlittable<T>(this BoxedBuffer buffer, out IList<T> data) where T : unmanaged
         {
-            buffer.Buffer.Pop<ulong>(out ulong len);
-
-            data = new List<T>();
-            for (int i = 0; i < (int)len; i++)
-            {
-                buffer.Buffer.Pop<T>(out T value);
-                data.Add(value);
-            }
+            data = buffer.MemoryCopy<T>();
         }
 
         public static void PackIEnumerable<T>(this BoxedBuffer buffer, IEnumerable<T> data)
@@ -115,7 +108,7 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
                 ulong dataLen = (ulong)data.Count();
-                buffer.Buffer.Push<ulong>(ref dataLen);
+                buffer.Buffer.PushULong(ref dataLen);
 
                 foreach (var element in data)
                 {
@@ -129,7 +122,7 @@ namespace Refsa.RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
-                buffer.Buffer.Pop<ulong>(out ulong len);
+                buffer.Buffer.PopULong(out ulong len);
 
                 T[] temp_data = new T[(int)len];
                 for (int i = 0; i < (int)len; i++)
@@ -148,28 +141,12 @@ namespace Refsa.RePacker.Builder
 
         public static void PackIEnumerableBlittable<T>(this BoxedBuffer buffer, IEnumerable<T> data) where T : unmanaged
         {
-            ulong dataLen = (ulong)data.Count();
-            buffer.Buffer.Push<ulong>(ref dataLen);
-
-            foreach (T element in data)
-            {
-                T ele = element;
-                buffer.Buffer.Push<T>(ref ele);
-            }
+            buffer.MemoryCopy((T[])data);
         }
 
         public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, IEnumerableType type, out IEnumerable<T> data) where T : unmanaged
         {
-            buffer.Buffer.Pop<ulong>(out ulong len);
-
-            Span<T> temp_data = stackalloc T[(int)len];
-            for (int i = 0; i < (int)len; i++)
-            {
-                buffer.Buffer.Pop<T>(out T value);
-                temp_data[i] = value;
-            }
-
-            data = CreateBaseIEnumerableType<T>(type, ref temp_data);
+            data = buffer.MemoryCopy<T>();
         }
 
         static IEnumerable<T> CreateBaseIEnumerableType<T>(IEnumerableType type, ref Span<T> from)

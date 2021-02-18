@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Refsa.RePacker.Utils;
 
 namespace Refsa.RePacker.Builder
 {
@@ -9,9 +10,18 @@ namespace Refsa.RePacker.Builder
 
         public override ITypePacker GetProducer(Type type)
         {
-            var elementType = type.GetGenericArguments();
-            var instance = Activator.CreateInstance(typeof(IListPacker<>).MakeGenericType(elementType));
-            return (ITypePacker)instance;
+            var elementType = type.GetGenericArguments()[0];
+
+            if (TypeCache.TryGetTypeInfo(elementType, out var _))
+            {
+                return (ITypePacker)Activator.CreateInstance(typeof(IListPacker<>).MakeGenericType(elementType));
+            }
+            else if (elementType.IsValueType || elementType.IsUnmanagedStruct())
+            {
+                return (ITypePacker)Activator.CreateInstance(typeof(IListUnmanagedPacker<>).MakeGenericType(elementType));
+            }
+
+            return null;
         }
     }
 
