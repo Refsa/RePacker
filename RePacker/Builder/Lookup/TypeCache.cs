@@ -18,14 +18,11 @@ namespace Refsa.RePacker.Builder
             public bool HasCustomSerializer;
             public bool IsUnmanaged;
             public FieldInfo[] SerializedFields;
-            public bool IsPrivate;
 
             public Info(Type type, bool isUnmanaged)
             {
                 Type = type;
                 IsUnmanaged = isUnmanaged;
-
-                IsPrivate = false;
 
                 HasCustomSerializer = false;
                 SerializedFields = new FieldInfo[0];
@@ -132,22 +129,23 @@ namespace Refsa.RePacker.Builder
                 {
                     Type = type,
                     IsUnmanaged = type.IsUnmanaged(),
-                    IsPrivate = type.IsNotPublic,
                     // HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
-                    HasCustomSerializer =
-                        type.IsSubclassOf(typeof(RePackerWrapper<>).MakeGenericType(type))
-                        || !attr.UseOnAllPublicFields,
+                    // HasCustomSerializer =
+                    // type.IsSubclassOf(typeof(RePackerWrapper<>).MakeGenericType(type))
+                    // || !attr.UseOnAllPublicFields,
+                    HasCustomSerializer = !type.IsValueType,
                 };
 
                 List<FieldInfo> serializedFields = new List<FieldInfo>();
 
                 // fields
                 {
-                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                    IEnumerable<FieldInfo> fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+
                     var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
                     if (!rpattr.UseOnAllPublicFields)
                     {
-                        fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null).ToArray();
+                        fields = fields.Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null);
                     }
 
                     serializedFields.AddRange(fields);
@@ -162,6 +160,14 @@ namespace Refsa.RePacker.Builder
                         .Where(fi => fi != null);
 
                     serializedFields.AddRange(props);
+                }
+
+                if (tci.IsUnmanaged || type.IsUnmanagedStruct())
+                {
+                    if (ReflectionUtils.GetAllFields(type).Count() == serializedFields.Count)
+                    {
+                        tci.HasCustomSerializer = false;
+                    }
                 }
 
                 tci.SerializedFields = serializedFields.ToArray();
@@ -199,8 +205,8 @@ namespace Refsa.RePacker.Builder
                 var typeInfo = new Info
                 {
                     Type = wrapperFor,
-                    HasCustomSerializer = true,
-                    IsUnmanaged = false,
+                    HasCustomSerializer = !wrapperFor.IsValueType,
+                    IsUnmanaged = wrapperFor.IsUnmanaged(),
                     SerializedFields = null,
                 };
 
@@ -342,19 +348,13 @@ namespace Refsa.RePacker.Builder
             }
         }
 
-        static void AddTypeHandler(Type type, ITypePacker packer)
+        static void AddTypeHandler(Type type)
         {
             var info = new Info
             {
                 Type = type,
             };
-
-            var handler = new TypePackerHandler(info);
-            handler.Setup(packer);
-
             typeCache.Add(type, info);
-            packerLookup.Add(type, handler);
-            BuildLookup();
         }
 
         internal static bool AttemptToCreatePacker(Type type)
@@ -365,7 +365,8 @@ namespace Refsa.RePacker.Builder
             {
                 if (runtimePackerProducers.TryGetValue(iface, out var producer))
                 {
-                    AddTypeHandler(type, producer.GetProducer(type));
+                    AddTypeHandler(type);
+                    SetupTypeResolver(type, producer.GetProducer(type));
                     return true;
                 }
             }
@@ -383,7 +384,7 @@ namespace Refsa.RePacker.Builder
             {
                 if (runtimePackerProducers.TryGetValue(targetType, out var producer))
                 {
-                    AddTypeHandler(type, producer.GetProducer(type));
+                    AddTypeHandler(type);
                     SetupTypeResolver(type, producer.GetProducer(type));
                     return true;
                 }

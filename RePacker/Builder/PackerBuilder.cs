@@ -26,9 +26,11 @@ namespace Refsa.RePacker.Builder
 
             FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-            MethodInfo bufferPop = typeof(Buffer)
-                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
+            // MethodInfo bufferPop = typeof(Buffer)
+            //     .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            //     .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
+
+            MethodInfo bufferPop = typeof(Buffer).GetMethod(nameof(Buffer.Unpack));
 
             var parameters = new Type[1];
             MethodInfo bufferPopGeneric = null;
@@ -171,9 +173,11 @@ namespace Refsa.RePacker.Builder
             serBuilder.DefineParameter(0, ParameterAttributes.None, "buffer");
             serBuilder.DefineParameter(1, ParameterAttributes.In, info.Type.Name.ToLower());
 
-            MethodInfo bufferPush = typeof(Buffer)
-                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
+            // MethodInfo bufferPush = typeof(Buffer)
+                // .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                // .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
+
+            MethodInfo bufferPush = typeof(Buffer).GetMethod(nameof(Buffer.Pack));
 
             FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 

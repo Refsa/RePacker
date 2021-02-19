@@ -38,7 +38,7 @@ namespace Refsa.RePacker
         public static void Init(RePackerSettings settings_)
         {
             settings = settings_;
-            TypeCache.Reload();
+            Init();
         }
 
         public static void SetSettings(RePackerSettings settings_)

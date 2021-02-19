@@ -74,5 +74,16 @@ namespace Refsa.RePacker.Utils
             FieldInfo fi = target.GetField(backingFieldName, BindingFlags.Instance | BindingFlags.NonPublic);
             return fi;
         }
+
+        public static IEnumerable<FieldInfo> GetAllFields(Type target)
+        {
+            var directFields = target.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var propBackingFields = target
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Select(e => GetPropertyBackingFieldInfo(target, e.Name))
+                .Where(fi => fi != null);
+
+            return directFields.Concat(propBackingFields).Distinct();
+        }
     }
 }
