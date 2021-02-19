@@ -59,13 +59,21 @@ namespace Refsa.RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
-                ulong dataLen = (ulong)data.Count;
-                buffer.Buffer.PushULong(ref dataLen);
-
-                for (int i = 0; i < data.Count; i++)
+                if (data == null)
                 {
-                    var ele = data[i];
-                    packer.Pack<T>(buffer, ref ele);
+                    ulong dataLen = 0;
+                    buffer.Buffer.PushULong(ref dataLen);
+                }
+                else
+                {
+                    ulong dataLen = (ulong)data.Count;
+                    buffer.Buffer.PushULong(ref dataLen);
+
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        var ele = data[i];
+                        packer.Pack<T>(buffer, ref ele);
+                    }
                 }
             }
             else
@@ -79,11 +87,17 @@ namespace Refsa.RePacker.Builder
             if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
             {
                 buffer.Buffer.PopULong(out ulong len);
-
-                data = new List<T>();
-                for (int i = 0; i < (int)len; i++)
+                if (len != 0)
                 {
-                    data.Add(RePacker.Unpack<T>(buffer));
+                    data = new List<T>();
+                    for (int i = 0; i < (int)len; i++)
+                    {
+                        data.Add(RePacker.Unpack<T>(buffer));
+                    }
+                }
+                else
+                {
+                    data = new List<T>();
                 }
             }
             else
