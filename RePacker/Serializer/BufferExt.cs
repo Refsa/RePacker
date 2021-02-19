@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Refsa.RePacker.Buffers;
 using Refsa.RePacker.Unsafe;
@@ -8,54 +9,72 @@ namespace Refsa.RePacker.Builder
 {
     public static class BufferExt
     {
+        static uint ZERO_UINT = 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackString(this ref Buffer buffer, ref string str)
         {
-            ulong length = (ulong)str.Length;
-            buffer.Push<ulong>(ref length);
+            if (string.IsNullOrEmpty(str))
+            {
+                buffer.PushUInt(ref ZERO_UINT);
+            }
 
-            var bytes = System.Text.Encoding.UTF8.GetBytes(str);
-            buffer.Write(new ReadOnlySpan<byte>(bytes));
+            ulong length = (ulong)str.Length;
+            buffer.PushULong(ref length);
+
+            var bufData = buffer.GetArray();
+
+            if (bufData != null)
+            {
+                int count = StringHelper.CopyString(str, bufData, buffer.WriteCursor());
+                buffer.MoveWriteCursor(count);
+            }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string UnpackString(this ref Buffer buffer)
         {
-            buffer.Pop<ulong>(out ulong length);
-            int start = buffer.ReadCursor();
+            buffer.PopULong(out ulong length);
 
-            if (MemoryMarshal.TryGetArray(buffer.Read((int)length), out var seg))
+            if (length == 0)
             {
-                return System.Text.Encoding.UTF8.GetString(seg.Array, start, (int)length);
+                return "";
+            }
+
+            int start = buffer.ReadCursor();
+            var bufData = buffer.GetArray();
+
+            if (bufData != null)
+            {
+                string s = StringHelper.GetString(bufData, start, (int)length);
+                buffer.MoveReadCursor((int)length);
+                return s;
             }
 
             return "";
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackString(this ref Buffer buffer, out string value)
         {
-            buffer.Pop<ulong>(out ulong length);
-            int start = buffer.ReadCursor();
-
-            if (MemoryMarshal.TryGetArray(buffer.Read((int)length), out var seg))
-            {
-                value = System.Text.Encoding.UTF8.GetString(seg.Array, start, (int)length);
-                return;
-            }
-
-            value = "";
+            value = UnpackString(ref buffer);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackDateTime(this ref Buffer buffer, ref DateTime value)
         {
             long ticks = value.Ticks;
             buffer.PushLong(ref ticks);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackDateTime(this ref Buffer buffer, out DateTime value)
         {
             buffer.PopLong(out long ticks);
             value = new DateTime(ticks);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackEnum<TEnum>(this ref Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
@@ -64,39 +83,40 @@ namespace Refsa.RePacker.Builder
             {
                 case TypeCode.Byte:
                     byte bval = target.ToUnderlyingType<TEnum, byte>();
-                    buffer.Push<byte>(ref bval);
+                    buffer.PushByte(ref bval);
                     break;
                 case TypeCode.SByte:
                     sbyte sbval = target.ToUnderlyingType<TEnum, sbyte>();
-                    buffer.Push<sbyte>(ref sbval);
+                    buffer.PushSByte(ref sbval);
                     break;
                 case TypeCode.Int16:
                     short i16 = target.ToUnderlyingType<TEnum, short>();
-                    buffer.Push<short>(ref i16);
+                    buffer.PushShort(ref i16);
                     break;
                 case TypeCode.Int32:
                     int i32 = target.ToUnderlyingType<TEnum, int>();
-                    buffer.Push<int>(ref i32);
+                    buffer.PushInt(ref i32);
                     break;
                 case TypeCode.Int64:
                     long i64 = target.ToUnderlyingType<TEnum, long>();
-                    buffer.Push<long>(ref i64);
+                    buffer.PushLong(ref i64);
                     break;
                 case TypeCode.UInt16:
                     ushort u16 = target.ToUnderlyingType<TEnum, ushort>();
-                    buffer.Push<ushort>(ref u16);
+                    buffer.PushUShort(ref u16);
                     break;
                 case TypeCode.UInt32:
                     uint u32 = target.ToUnderlyingType<TEnum, uint>();
-                    buffer.Push<uint>(ref u32);
+                    buffer.PushUInt(ref u32);
                     break;
                 case TypeCode.UInt64:
                     ulong u64 = target.ToUnderlyingType<TEnum, ulong>();
-                    buffer.Push<ulong>(ref u64);
+                    buffer.PushULong(ref u64);
                     break;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TEnum UnpackEnum<TEnum>(this ref Buffer buffer) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
@@ -104,47 +124,50 @@ namespace Refsa.RePacker.Builder
             switch (enumType)
             {
                 case TypeCode.Byte:
-                    buffer.Pop<byte>(out byte bval);
+                    buffer.PopByte(out byte bval);
                     return EnumHelper.ToEnum<byte, TEnum>(ref bval);
                 case TypeCode.SByte:
-                    buffer.Pop<sbyte>(out sbyte sbval);
+                    buffer.PopSByte(out sbyte sbval);
                     return EnumHelper.ToEnum<sbyte, TEnum>(ref sbval);
                 case TypeCode.Int16:
-                    buffer.Pop<short>(out short i16);
+                    buffer.PopShort(out short i16);
                     return EnumHelper.ToEnum<short, TEnum>(ref i16);
                 case TypeCode.Int32:
-                    buffer.Pop<int>(out int i32);
+                    buffer.PopInt(out int i32);
                     return EnumHelper.ToEnum<int, TEnum>(ref i32);
                 case TypeCode.Int64:
-                    buffer.Pop<long>(out long i64);
+                    buffer.PopLong(out long i64);
                     return EnumHelper.ToEnum<long, TEnum>(ref i64);
                 case TypeCode.UInt16:
-                    buffer.Pop<ushort>(out ushort u16);
+                    buffer.PopUShort(out ushort u16);
                     return EnumHelper.ToEnum<ushort, TEnum>(ref u16);
                 case TypeCode.UInt32:
-                    buffer.Pop<uint>(out uint u32);
+                    buffer.PopUInt(out uint u32);
                     return EnumHelper.ToEnum<uint, TEnum>(ref u32);
                 case TypeCode.UInt64:
-                    buffer.Pop<ulong>(out ulong u64);
+                    buffer.PopULong(out ulong u64);
                     return EnumHelper.ToEnum<ulong, TEnum>(ref u64);
             }
 
             return default(TEnum);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackBlittableArray<T>(this ref Buffer buffer, T[] data) where T : unmanaged
         {
-            buffer.MemoryCopyFrom(data);
+            buffer.MemoryCopyFromUnsafe(data);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] UnpackBlittableArray<T>(this ref Buffer buffer) where T : unmanaged
         {
-            return buffer.MemoryCopyTo<T>();
+            return buffer.MemoryCopyToUnsafe<T>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackUnmanagedArrayOut<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
         {
-            data = buffer.MemoryCopyTo<T>();
+            data = buffer.MemoryCopyToUnsafe<T>();
         }
     }
 }
