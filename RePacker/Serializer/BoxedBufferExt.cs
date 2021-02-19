@@ -50,6 +50,32 @@ namespace Refsa.RePacker.Builder
             );
         }
 
+        public static void PackNullable<TValue>(this BoxedBuffer buffer, ref Nullable<TValue> value) where TValue : unmanaged
+        {
+            bool hasValue = value.HasValue;
+            buffer.Buffer.Pack(ref hasValue);
+
+            if (hasValue)
+            {
+                TValue v = value.Value;
+                buffer.Pack(ref v);
+            }
+        }
+
+        public static void UnpackNullable<TValue>(this BoxedBuffer buffer, out Nullable<TValue> value) where TValue : unmanaged
+        {
+            buffer.Buffer.Unpack<bool>(out bool hasValue);
+
+            if (hasValue)
+            {
+                value = buffer.Unpack<TValue>();
+            }
+            else
+            {
+                value = null;
+            }
+        }
+
         public static void Pack<T>(this BoxedBuffer self, ref T value)
         {
             RePacker.Pack(self, ref value);

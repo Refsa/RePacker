@@ -9,7 +9,7 @@ namespace Refsa.RePacker.Builder
         static Dictionary<GeneratorType, Dictionary<Type, IGenerator>> generators =
             new Dictionary<GeneratorType, Dictionary<Type, IGenerator>>
             {
-                {GeneratorType.None, new Dictionary<Type, IGenerator>{}},
+                // {GeneratorType.None, new Dictionary<Type, IGenerator>{}},
                 {GeneratorType.Unmanaged, new Dictionary<Type, IGenerator>{
                     {Type.Missing.GetType(), new UnmanagedGenerator()}
                 }},
@@ -31,6 +31,8 @@ namespace Refsa.RePacker.Builder
                     {typeof(Stack<>), new IEnumerableGenerator()},
 
                     {typeof(KeyValuePair<,>), new KeyValuePairGenerator()},
+
+                    {typeof(Nullable<>), new NullableGenerator()},
 
 #if NET461
                     {typeof(ValueTuple<,>), new ValueTupleGenerator()},
