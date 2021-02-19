@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net4.6.1;net4.7.1;net4.8;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net4.6.1;net4.7.1;net4.8;netstandard2.1;netcoreapp3.1</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
     <DebugSymbols>true</DebugSymbols>
@@ -12,16 +12,19 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0">
       <PrivateAssets>all</PrivateAssets>
       <Private>true</Private>
+      <IsTestProject>false</IsTestProject>
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1">
       <!-- <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets> -->
       <!-- <PrivateAssets>all</PrivateAssets> -->
+      <IsTestProject>false</IsTestProject>
     </PackageReference>
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1"/>
     <!-- <PackageReference Include="XunitContext" Version="3.0.0" /> -->
     <PackageReference Include="coverlet.collector" Version="1.2.0">
       <!-- <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets> -->
       <!-- <PrivateAssets>all</PrivateAssets> -->
+      <IsTestProject>false</IsTestProject>
     </PackageReference>
   </ItemGroup>
 

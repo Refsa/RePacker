@@ -56,7 +56,7 @@ namespace Refsa.RePacker.Buffers
 
         public void Write(Buffer data)
         {
-            int len = data.Count();
+            int len = data.WriteCursor();
 
             var mem = buffer.Slice(offset, len - 1);
             data.Read().Span.CopyTo(mem);

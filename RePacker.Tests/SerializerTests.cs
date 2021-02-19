@@ -27,6 +27,25 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(testString, fromBuf);
         }
 
+        [Fact]
+        public void can_encode_and_decode_string_multiple()
+        {
+            Buffer buffer = CreateBuffer(1 << 16);
+            string testString = "This is a test string";
+
+            for (int i = 0; i < 10; i++)
+            {
+                buffer.PackString(ref testString);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                string fromBuf = buffer.UnpackString();
+
+                Assert.Equal(testString, fromBuf);
+            }
+        }
+
         public enum TestByteEnum : byte
         {
             Zero = 0,
@@ -43,7 +62,7 @@ namespace Refsa.RePacker.Tests
 
             buffer.PackEnum<TestByteEnum>(ref testEnum);
 
-            Assert.Equal(sizeof(byte), buffer.Count());
+            Assert.Equal(sizeof(byte), buffer.WriteCursor());
 
             var readBuffer = new Buffer(ref buffer);
             TestByteEnum fromBuf = readBuffer.UnpackEnum<TestByteEnum>();
@@ -67,7 +86,7 @@ namespace Refsa.RePacker.Tests
 
             buffer.PackEnum<TestULongEnum>(ref testEnum);
 
-            Assert.Equal(sizeof(ulong), buffer.Count());
+            Assert.Equal(sizeof(ulong), buffer.WriteCursor());
 
             var readBuffer = new Buffer(ref buffer);
             TestULongEnum fromBuf = readBuffer.UnpackEnum<TestULongEnum>();
@@ -83,11 +102,11 @@ namespace Refsa.RePacker.Tests
             byte[] testArray = new byte[64];
             for (int i = 0; i < 64; i++) testArray[i] = (byte)i;
 
-            buffer.EncodeBlittableArray<byte>(testArray);
-            Assert.Equal(64 + sizeof(ulong), buffer.Count());
+            buffer.PackBlittableArray<byte>(testArray);
+            Assert.Equal(64 + sizeof(ulong), buffer.WriteCursor());
 
             var readBuffer = new Buffer(ref buffer);
-            byte[] fromBuf = readBuffer.DecodeBlittableArray<byte>();
+            byte[] fromBuf = readBuffer.UnpackBlittableArray<byte>();
 
             for (int i = 0; i < 64; i++)
             {
@@ -103,11 +122,11 @@ namespace Refsa.RePacker.Tests
             int[] testArray = new int[32];
             for (int i = 0; i < 32; i++) testArray[i] = (int)i;
 
-            buffer.EncodeBlittableArray<int>(testArray);
-            Assert.Equal(32 * sizeof(int) + sizeof(ulong), buffer.Count());
+            buffer.PackBlittableArray<int>(testArray);
+            Assert.Equal(32 * sizeof(int) + sizeof(ulong), buffer.WriteCursor());
 
             var readBuffer = new Buffer(ref buffer);
-            int[] fromBuf = readBuffer.DecodeBlittableArray<int>();
+            int[] fromBuf = readBuffer.UnpackBlittableArray<int>();
 
             for (int i = 0; i < 32; i++)
             {
@@ -134,12 +153,12 @@ namespace Refsa.RePacker.Tests
                 testData[i].Int = i;
             }
 
-            buffer.EncodeBlittableArray<TestBlitStruct>(testData);
+            buffer.PackBlittableArray<TestBlitStruct>(testData);
 
-            Assert.Equal(32 * Marshal.SizeOf<TestBlitStruct>() + sizeof(ulong), buffer.Count());
+            Assert.Equal(32 * Marshal.SizeOf<TestBlitStruct>() + sizeof(ulong), buffer.WriteCursor());
 
             var readBuffer = new Buffer(ref buffer);
-            TestBlitStruct[] fromBuf = readBuffer.DecodeBlittableArray<TestBlitStruct>();
+            TestBlitStruct[] fromBuf = readBuffer.UnpackBlittableArray<TestBlitStruct>();
 
             for (int i = 0; i < 32; i++)
             {

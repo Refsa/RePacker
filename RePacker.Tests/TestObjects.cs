@@ -372,4 +372,12 @@ namespace Refsa.RePacker.Tests
             public int Int;
         }
     }
+
+    [RePacker]
+    public struct HasNullable
+    {
+        public float? Float;
+        public int? Int;
+        public bool? Bool;
+    }
 }

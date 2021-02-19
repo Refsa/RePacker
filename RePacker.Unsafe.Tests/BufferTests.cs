@@ -30,7 +30,7 @@ namespace Refsa.RePacker.Buffers.Tests
         {
             (byte[] buf, Buffer buffer) = MakeBuffer(1024);
 
-            Assert.Equal(buf, buffer.GetArray().array);
+            Assert.Equal(buf, buffer.GetArray());
         }
 
         [Fact]
@@ -62,13 +62,13 @@ namespace Refsa.RePacker.Buffers.Tests
             for (int i = 0; i < 6; i++)
                 buffer.Push<int>(ref testVal);
 
-            Assert.Equal(sizeof(int) * 6, buffer.Count());
+            Assert.Equal(sizeof(int) * 6, buffer.WriteCursor());
 
             buffer.Pop<int>(out int fromBuf);
             buffer.Pop<int>(out fromBuf);
             buffer.Pop<int>(out fromBuf);
 
-            Assert.Equal(sizeof(int) * 6, buffer.Count());
+            Assert.Equal(sizeof(int) * 6, buffer.WriteCursor());
         }
 
         [Fact]
@@ -81,13 +81,13 @@ namespace Refsa.RePacker.Buffers.Tests
             for (int i = 0; i < 6; i++)
                 buffer.Push<int>(ref testVal);
 
-            Assert.Equal(0, buffer.Cursor());
+            Assert.Equal(0, buffer.ReadCursor());
 
             buffer.Pop<int>(out int fromBuf);
             buffer.Pop<int>(out fromBuf);
             buffer.Pop<int>(out fromBuf);
 
-            Assert.Equal(sizeof(int) * 3, buffer.Cursor());
+            Assert.Equal(sizeof(int) * 3, buffer.ReadCursor());
         }
 
         [Fact]
@@ -123,8 +123,8 @@ namespace Refsa.RePacker.Buffers.Tests
 
             buffer.Flush();
 
-            Assert.Equal(0, buffer.Cursor());
-            Assert.Equal(0, buffer.Count());
+            Assert.Equal(0, buffer.ReadCursor());
+            Assert.Equal(0, buffer.WriteCursor());
             Assert.Equal(0, buffer.Length());
         }
 
@@ -143,8 +143,8 @@ namespace Refsa.RePacker.Buffers.Tests
 
             buffer.Reset();
 
-            Assert.Equal(0, buffer.Cursor());
-            Assert.Equal(0, buffer.Count());
+            Assert.Equal(0, buffer.ReadCursor());
+            Assert.Equal(0, buffer.WriteCursor());
             Assert.Equal(0, buffer.Length());
         }
 
@@ -163,7 +163,7 @@ namespace Refsa.RePacker.Buffers.Tests
 
             var arrayFromBuffer = buffer.buffer.GetArray();
 
-            Assert.Equal(5 * sizeof(int), arrayFromBuffer.length);
+            Assert.Equal(5 * sizeof(int), buffer.buffer.Length());
         }
 
         [Fact]
@@ -340,7 +340,7 @@ namespace Refsa.RePacker.Buffers.Tests
 
             buffer.Push(ref testStruct);
 
-            Assert.Equal(3, buffer.Count());
+            Assert.Equal(3, buffer.WriteCursor());
         }
 
         #region DirectPacking

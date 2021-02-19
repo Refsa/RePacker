@@ -1109,7 +1109,7 @@ namespace Refsa.RePacker.Tests
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasUnmanagedKeyManagedValueDict>(buffer);
-            
+
             Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
 
             for (int i = 0; i < dictCont.Dict.Count; i++)
@@ -1450,6 +1450,53 @@ namespace Refsa.RePacker.Tests
             Assert.Equal(t.Float, fromBuf.Float);
             Assert.Equal(t.Int, fromBuf.Int);
         }
+
+        [Fact]
+        public void struct_with_nullable()
+        {
+            var buffer = new BoxedBuffer(1024);
+
+            var hn = new HasNullable
+            {
+                Float = 1.234f,
+                Int = null,
+                Bool = true,
+            };
+
+            buffer.Pack(ref hn);
+
+            var fromBuf = buffer.Unpack<HasNullable>();
+
+            Assert.Equal(hn.Float, fromBuf.Float);
+            Assert.Equal(hn.Int, fromBuf.Int);
+            Assert.Equal(hn.Bool, fromBuf.Bool);
+        }
+
+        [Fact]
+        public void nullable_direct()
+        {
+            var buffer = new BoxedBuffer(1024);
+
+            float? val = 10f;
+            float? val2 = null;
+
+            buffer.Pack(ref val);
+            buffer.Pack(ref val2);
+
+            var fromBuf = buffer.Unpack<float?>();
+            Assert.Equal(val, fromBuf);
+
+            var fromBuf2 = buffer.Unpack<float?>();
+            Assert.Equal(val2, fromBuf2);
+        }
+
+        /* [Fact]
+        public void nullable_list_direct()
+        {
+            var buffer = new BoxedBuffer(1024);
+
+            List<int>? test = new List<int>();
+        } */
     }
     #endregion
 }

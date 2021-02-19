@@ -5,11 +5,29 @@
     Should move this to user settings so they can be toggled on/off for better performance
     The cost of inserting a header is fairly low though, so might be worth it
 - More efficient lookup of types on serialization
+- Clean up how typeCache in TypeCache is setup
+    Should run a prepass to fill typeCache dictionary to avoid dumb order of execution problems
+- clean up the csproj files
+- make ILogger support object and formatting
+- generic producers currently doesnt support multi-threading
+- clean up test cases
+- clean up benchmarks
+- pushing values into Buffer when it's large and filled is slow
+- make root of namespace be just RePacker
+- BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field
+- missing null handling when packing/unpacking
 
 Base Serializer:
     Still missing support for a lot of standard types
     - ICollection<T>
     - ISet<T>
+    - Nullabel<T>
+    - Multi-dim arrays
+
+Bugs:
+    - Test cases with GenericProducer fails at random times
+    - Verify new changes in Buffer actually works
+    - test cases for filling a buffer of large size with all primitive types
 
 CR:
     - Remove generated logger stuff

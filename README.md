@@ -231,7 +231,7 @@ PackDateTime/UnpackDateTime
     Packs the Ticks as a ulong
 PackEnum<TEnum>/UnpackEnum<TEnum>
     All unmanaged underlying types are supported
-EncodeBlittableArray/DecodeBlittableArray
+PackBlittableArray/PackBlittableArray
     Uses MemoryMarshal to convert an unmanaged/blittable type into a byte array
 EncodeArray/DecodeArray
     Only able to support types that are supported by the RePacker framework
@@ -260,30 +260,44 @@ PackIEnumerableBlittable/UnpackIEnumerableBlittable
 PackDictionary/UnpackDictionary
 ```
 
+## Logging
+Package provides an ILogger interface and you can set the logger when initializing it at runtime. A default logger using Console exists, while the Unity version has one for it's Debug logging. You can also turn logging completely off if you want.
+
 ## Performance:
 Benchmarks are performed on an i5-4670k@4.3GHz and uses similar test format to ZeroFormatter. All benchmark code can be found under the RePacker.Bench project. 
 
 ```cs
-                              Method |            Mean | 
------------------------------------- |----------------:|
-             SmallObjectSerialize10K |     2,390.44 µs | 
-       ILGen_SmallObjectSerialize10K |     1,718.52 µs | 
-           SmallObjectDeserialize10K |     2,977.74 µs | 
-     ILGen_SmallObjectDeserialize10K |     1,963.73 µs | 
-            ILGen_VectorSerialize10K |       443.76 µs | 
-          ILGen_VectorDeserialize10K |       474.71 µs | 
-               ILGen_IntSerialize10K |       361.22 µs | 
-             ILGen_IntDeserialize10K |       367.86 µs | 
-                     IntSerialize10K |        63.08 µs | 
-                   IntDeserialize10K |        45.48 µs | 
-        SmallObjectArraySerialize10K | 2,402,383.46 µs | 
-      SmallObjectArrayDeserialize10K | 3,011,003.06 µs | 
-  ILGen_SmallObjectArraySerialize10K | 1,447,606.43 µs | 
-ILGen_SmallObjectArrayDeserialize10K | 1,778,030.16 µs | 
-```
+/* netcoreapp3.0
+                                Method  |            Mean
+------------------------------------    |----------------
+        ILGen_SmallObjectSerialize10K   |     1,607.45 us
+        ILGen_SmallObjectDeserialize10K |     1,754.58 us
+            ILGen_VectorSerialize10K    |       245.71 us
+            ILGen_VectorDeserialize10K  |       251.05 us
+                ILGen_IntSerialize10K   |       165.09 us
+                ILGen_IntDeserialize10K |       163.17 us
+                        IntSerialize10K |        43.51 us
+                    IntDeserialize10K   |        40.91 us
+    ILGen_SmallObjectArraySerialize10K  | 1,374,717.61 us
+ILGen_SmallObjectArrayDeserialize10K    | 1,756,913.44 us
+*/
 
-The biggest performance hit right now is looking up by type into a Dictionary to find the corresponding packer as you can see by the raw Int packing/unpacking performance. Most of the speed from IL generated serializers is related to Enums as we can avoid a switch lookup and some type casting other than the initial setup.
+/* net4.6.1
+                                Method  |           Mean |
+------------------------------------    |---------------:|
+        ILGen_SmallObjectSerialize10K   |     2,508.0 us |
+        ILGen_SmallObjectDeserialize10K |     3,196.8 us |
+            ILGen_VectorSerialize10K    |       601.1 us |
+            ILGen_VectorDeserialize10K  |       633.6 us |
+                ILGen_IntSerialize10K   |       328.1 us |
+                ILGen_IntDeserialize10K |       326.8 us |
+                        IntSerialize10K |       146.6 us |
+                    IntDeserialize10K   |       144.5 us |
+    ILGen_SmallObjectArraySerialize10K  | 2,349,831.5 us |
+ILGen_SmallObjectArrayDeserialize10K    | 2,591,480.2 us |
+*/ 
+```
 
 ### Unity:
 
-For Unity 2048 packs and unpacks of a Transform takes about 3ms on a 4670k@4.3GHz.
+For Unity 2048 packs and unpacks of a Transform takes about 3ms on a 4670k @ 4.3GHz.

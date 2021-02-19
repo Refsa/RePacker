@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Refsa.RePacker.Buffers;
@@ -66,9 +67,18 @@ namespace Refsa.RePacker.Benchmarks
 
         Person[] personArray;
         BoxedBuffer personBoxedBuffer;
-
         BoxedBuffer personArrayBoxedBuffer;
-        PersonArrayContainer personArrayContainer;
+
+        Vector[] vectorArray;
+        BoxedBuffer vectorArrayBoxedBuffer;
+        VectorContainer vectorContainer;
+        BoxedBuffer vectorContainerBuffer;
+
+        int[] intArray;
+        BoxedBuffer intArrayBuffer;
+
+        string largeString;
+        BoxedBuffer largeStringBoxedBuffer;
 
         Person p = new Person
         {
@@ -87,7 +97,13 @@ namespace Refsa.RePacker.Benchmarks
         {
             backingBuffer = new byte[1024];
             buffer = new Buffer(backingBuffer, 0);
-            boxedBuffer = new BoxedBuffer(1024);
+            boxedBuffer = new BoxedBuffer(1 << 24);
+
+            {
+                largeString = System.IO.File.ReadAllText("CSharpHtml.txt");
+                largeStringBoxedBuffer = new BoxedBuffer(1 << 24);
+                largeStringBoxedBuffer.Pack(ref largeString);
+            }
 
             {
                 personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
@@ -96,11 +112,7 @@ namespace Refsa.RePacker.Benchmarks
                 RePacker.Pack<Person>(personBoxedBuffer, ref p);
 
                 personArrayBoxedBuffer = new BoxedBuffer(1 << 16);
-                personArrayContainer = new PersonArrayContainer
-                {
-                    Persons = personArray
-                };
-                RePacker.Pack(personArrayBoxedBuffer, ref personArrayContainer);
+                personArrayBoxedBuffer.Pack(ref personArray);
             }
 
             {
@@ -109,53 +121,38 @@ namespace Refsa.RePacker.Benchmarks
             }
 
             {
+                vectorArray = Enumerable.Range(1, 100).Select(_ => new Vector { X = 12345.12345f, Y = 3994.35226f, Z = 325125.52426f }).ToArray();
+                vectorArrayBoxedBuffer = new BoxedBuffer(2048);
+                vectorArrayBoxedBuffer.Pack(ref vectorArray);
+
+                vectorContainer = new VectorContainer { Vectors = vectorArray };
+                vectorContainerBuffer = new BoxedBuffer(4096);
+                vectorContainerBuffer.Pack(ref vectorContainer);
+            }
+
+            {
                 int val = 123456789;
                 intBuffer = new BoxedBuffer(1024);
                 RePacker.Pack<int>(intBuffer, ref val);
             }
+
+            {
+                intArray = Enumerable.Range(0, 1000).ToArray();
+                intArrayBuffer = new BoxedBuffer(sizeof(int) * 1002);
+                intArrayBuffer.Pack(ref intArray);
+            }
         }
 
-        public enum Sex : sbyte
-        {
-            Unknown, Male, Female,
-        }
-
-        [RePacker]
-        public class Person
-        {
-            [RePack]
-            public virtual int Age {get; set;}
-            [RePack]
-            public virtual string FirstName {get; set;}
-            [RePack]
-            public virtual string LastName {get; set;}
-            [RePack]
-            public virtual Sex Sex {get; set;}
-        }
-
-        [RePacker]
-        public struct PersonArrayContainer
-        {
-            public Person[] Persons;
-        }
-
-        [RePacker]
-        public struct Vector
-        {
-            public float X;
-            public float Y;
-            public float Z;
-        }
-
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
+            boxedBuffer.Buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
                 RePacker.Pack<Person>(boxedBuffer, ref p);
-                boxedBuffer.Buffer.Reset();
+                // boxedBuffer.Buffer.Reset();
             }
-        }
+        } */
 
         [Benchmark]
         public void ILGen_SmallObjectDeserialize10K()
@@ -167,7 +164,7 @@ namespace Refsa.RePacker.Benchmarks
             }
         }
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_VectorSerialize10K()
         {
             for (int i = 0; i < 10_000; i++)
@@ -185,9 +182,9 @@ namespace Refsa.RePacker.Benchmarks
                 var _ = RePacker.Unpack<Vector>(vectorBuffer);
                 vectorBuffer.Buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_IntSerialize10K()
         {
             var buffer = new BoxedBuffer(1 << 16);
@@ -209,9 +206,9 @@ namespace Refsa.RePacker.Benchmarks
                 var _ = RePacker.Unpack<int>(intBuffer);
                 intBuffer.Buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void IntSerialize10K()
         {
             var buffer = new Buffer(new byte[1 << 16]);
@@ -237,9 +234,9 @@ namespace Refsa.RePacker.Benchmarks
                 buffer.PopInt(out int _);
                 buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_SmallObjectArraySerialize10K()
         {
             var buffer = new BoxedBuffer(1 << 16);
@@ -249,9 +246,9 @@ namespace Refsa.RePacker.Benchmarks
                 RePacker.Pack(buffer, ref personArray);
                 buffer.Buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_SmallObjectArrayDeserialize10K()
         {
             for (int i = 0; i < 10_000; i++)
@@ -259,6 +256,95 @@ namespace Refsa.RePacker.Benchmarks
                 var p = RePacker.Unpack<Person[]>(personArrayBoxedBuffer);
                 personArrayBoxedBuffer.Buffer.Reset();
             }
+        } */
+
+        /* [Benchmark]
+        public void ILGen_VectorArraySerialize10K()
+        {
+            boxedBuffer.Reset();
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacker.Pack(boxedBuffer, ref vectorArray);
+                boxedBuffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_VectorArrayDeserialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                var p = RePacker.Unpack<Vector[]>(vectorArrayBoxedBuffer);
+                vectorArrayBoxedBuffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_IntArraySerialize10K()
+        {
+            boxedBuffer.Reset();
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacker.Pack(boxedBuffer, ref intArray);
+                boxedBuffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_IntArrayDeserialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                var p = RePacker.Unpack<int[]>(vectorArrayBoxedBuffer);
+                vectorArrayBoxedBuffer.Reset();
+            }
+        } */
+
+        /* [Benchmark]
+        public void ILGen_LargeStringSerialize()
+        {
+            var buffer = new BoxedBuffer(1 << 24);
+
+            buffer.Pack(ref largeString);
+        }
+
+        [Benchmark]
+        public void ILGen_LargeStringDeserialize()
+        {
+            var _ = largeStringBoxedBuffer.Unpack<string>();
+            largeStringBoxedBuffer.Reset();
+        } */
+
+        public enum Sex : sbyte
+        {
+            Unknown, Male, Female,
+        }
+
+        [RePacker(false)]
+        public class Person
+        {
+            [RePack]
+            public virtual int Age { get; set; }
+            [RePack]
+            public virtual string FirstName { get; set; }
+            [RePack]
+            public virtual string LastName { get; set; }
+            [RePack]
+            public virtual Sex Sex { get; set; }
+        }
+
+        [RePacker]
+        public struct Vector
+        {
+            public float X;
+            public float Y;
+            public float Z;
+        }
+
+        [RePacker]
+        public struct VectorContainer
+        {
+            public IList<Vector> Vectors;
         }
     }
 }
