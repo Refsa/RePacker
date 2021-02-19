@@ -13,7 +13,7 @@ namespace Refsa.RePacker.Builder
 
             ITypePacker instance = null;
 
-            if (TypeCache.TryGetTypeInfo(elementType, out var _))
+            if (TypeCache.TryGetTypeInfo(elementType, out var ti) && ti.HasCustomSerializer)
             {
                 instance = (ITypePacker)Activator
                     .CreateInstance(typeof(ArrayPacker<>)
