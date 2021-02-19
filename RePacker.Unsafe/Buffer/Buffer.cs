@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using Refsa.RePacker.Utils;
 using System.Buffers;
 
+using static System.Runtime.CompilerServices.Unsafe;
+
 namespace Refsa.RePacker.Buffers
 {
     public struct Buffer : IDisposable
@@ -91,7 +93,7 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Unpack<T>(out T value) where T : unmanaged
         {
-            fixed (byte* data = buffer.Span.Slice(writeCursor, sizeof(T)))
+            fixed (byte* data = buffer.Span.Slice(readCursor, sizeof(T)))
             {
                 value = *(T*)data;
             }
@@ -125,6 +127,66 @@ namespace Refsa.RePacker.Buffers
             writeCursor += len;
         }
 
+        public unsafe void MemoryCopyFromUnsafe<T>(T[] array) where T : unmanaged
+        {
+            if (array.Length > FreeSpace())
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            ulong len = (ulong)array.Length;
+            PushULong(ref len);
+
+            int pos = WriteCursor();
+            int size = Marshal.SizeOf<T>();
+
+            var data = GetArray();
+
+            fixed (void* src = array, dest = &data[pos])
+            {
+                System.Buffer.MemoryCopy(src, dest, array.Length * size, array.Length * size);
+            }
+
+            /* fixed (T* src = array) fixed (byte* dest = &data[pos])
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    *((T*)(dest + i * size)) = *(src + i);
+                }
+            } */
+
+            MoveWriteCursor(array.Length * size);
+        }
+
+        public unsafe T[] MemoryCopyToUnsafe<T>() where T : unmanaged
+        {
+            PopULong(out ulong len);
+
+            T[] destArray = new T[(int)len];
+
+            int size = Marshal.SizeOf<T>();
+            int pos = ReadCursor();
+
+            var data = GetArray();
+
+            fixed (void* src = &data[pos], dest = destArray)
+            {
+                System.Buffer.MemoryCopy(src, dest, len * (ulong)size, len * (ulong)size);
+            }
+
+            /* fixed (byte* src = &data[pos]) fixed (T* dest = destArray)
+            {
+                for (int i = 0; i < (int)len; i++)
+                {
+                    *(dest + i) = *(T*)(src + i * size);
+                }
+            } */
+
+            MoveReadCursor(size * (int)len);
+
+            return destArray;
+        }
+
         public unsafe void MemoryCopyFrom<T>(T[] array) where T : unmanaged
         {
             if (array.Length > FreeSpace())
@@ -138,12 +200,15 @@ namespace Refsa.RePacker.Buffers
             int pos = WriteCursor();
             int size = Marshal.SizeOf<T>();
 
-            (var data, var _) = GetArray();
+            var data = GetArray();
 
-            fixed (void* src = array, dest = &data[pos])
-            {
-                System.Buffer.MemoryCopy(src, dest, array.Length * size, array.Length * size);
-            }
+            Span<byte> dest = new Span<byte>(data, pos, size * (int)len);
+            Span<byte> src = MemoryMarshal.Cast<T, byte>(new Span<T>(array));
+            CopyBlockUnaligned(
+                ref MemoryMarshal.GetReference<byte>(dest),
+                ref MemoryMarshal.GetReference<byte>(src),
+                (uint)(array.Length * size)
+            );
 
             MoveWriteCursor(array.Length * size);
         }
@@ -157,12 +222,15 @@ namespace Refsa.RePacker.Buffers
             int size = Marshal.SizeOf<T>();
             int pos = ReadCursor();
 
-            (var data, var _) = GetArray();
+            var data = GetArray();
 
-            fixed (void* src = &data[pos], dest = destArray)
-            {
-                System.Buffer.MemoryCopy(src, dest, len * (ulong)size, len * (ulong)size);
-            }
+            Span<T> src = MemoryMarshal.Cast<byte, T>(new Span<byte>(data));
+            Span<T> dest = new Span<T>(destArray);
+            CopyBlockUnaligned(
+                ref As<T, byte>(ref MemoryMarshal.GetReference<T>(dest)),
+                ref As<T, byte>(ref MemoryMarshal.GetReference<T>(src)),
+                (uint)(len)
+            );
 
             MoveReadCursor(size * (int)len);
 
@@ -255,14 +323,14 @@ namespace Refsa.RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public (byte[] array, int length) GetArray()
+        public byte[] GetArray()
         {
             if (MemoryMarshal.TryGetArray<byte>(buffer, out var seg))
             {
-                return (seg.Array, Length());
+                return seg.Array;
             }
 
-            return (null, 0);
+            return null;
         }
         #endregion
 
@@ -270,7 +338,7 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushBool(ref bool value)
         {
-            buffer.Span[writeCursor++] = value ? (byte)255 : (byte)0;
+            buffer.Span[writeCursor++] = value ? (byte)1 : (byte)0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -293,11 +361,11 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopShort(out short value)
         {
-            value = 0;
-            for (short i = 0; i < 2; i++)
+            fixed (byte* val = buffer.Span.Slice(readCursor, 2))
             {
-                value |= (short)(buffer.Span[readCursor++] << (i * 8));
+                value = *(short*)val;
             }
+            readCursor += 2;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -313,11 +381,11 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopUShort(out ushort value)
         {
-            value = 0;
-            for (ushort i = 0; i < 2; i++)
+            fixed (byte* val = buffer.Span.Slice(readCursor, 2))
             {
-                value |= (ushort)(buffer.Span[readCursor++] << (i * 8));
+                value = *(ushort*)val;
             }
+            readCursor += 2;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -333,10 +401,6 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopInt(out int value)
         {
-            /* var span = buffer.Span.Slice(readCursor, 4);
-            readCursor += 4;
-            value = ((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0])); */
-
             fixed (byte* val = buffer.Span.Slice(readCursor, 4))
             {
                 value = *(int*)val;
@@ -357,10 +421,6 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopUInt(out uint value)
         {
-            /* var span = buffer.Span.Slice(readCursor, 4);
-            readCursor += 4;
-            value = (uint)((span[3] << 24) | (span[2] << 16) | (span[1]) << 8 | (span[0])); */
-
             fixed (byte* val = buffer.Span.Slice(readCursor, 4))
             {
                 value = *(uint*)val;
@@ -379,13 +439,13 @@ namespace Refsa.RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PopLong(out long value)
+        public unsafe void PopLong(out long value)
         {
-            value = 0;
-            for (int i = 0; i < 8; i++)
+            fixed (byte* val = buffer.Span.Slice(readCursor, 8))
             {
-                value |= (long)buffer.Span[readCursor++] << (i * 8);
+                value = *(long*)val;
             }
+            readCursor += 8;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -399,13 +459,13 @@ namespace Refsa.RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PopULong(out ulong value)
+        public unsafe void PopULong(out ulong value)
         {
-            value = 0;
-            for (int i = 0; i < 8; i++)
+            fixed (byte* val = buffer.Span.Slice(readCursor, 8))
             {
-                value |= (ulong)buffer.Span[readCursor++] << (i * 8);
+                value = *(ulong*)val;
             }
+            readCursor += 8;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -421,11 +481,11 @@ namespace Refsa.RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopChar(out char value)
         {
-            value = '\0';
-            for (int i = 0; i < 2; i++)
+            fixed (byte* val = buffer.Span.Slice(readCursor, 2))
             {
-                value |= (char)(buffer.Span[readCursor++] << (i * 8));
+                value = *(char*)val;
             }
+            readCursor += 2;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

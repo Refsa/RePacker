@@ -6,6 +6,8 @@ namespace Refsa.RePacker.Builder
 {
     public abstract class RePackerWrapper<T> : IPacker<T>
     {
+        public virtual bool IsDirectlyCopyable { get; } = false;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void Pack(BoxedBuffer buffer, ref T value);
 

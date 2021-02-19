@@ -25,17 +25,17 @@ namespace Refsa.RePacker.Buffers
 
         public BoxedBuffer(ref Buffer buffer)
         {
-            (var array, var _) = buffer.GetArray();
+            var array = buffer.GetArray();
             Data = array;
             Buffer = buffer;
         }
         public unsafe void MemoryCopy<T>(T[] array) where T : unmanaged
         {
-            Buffer.MemoryCopyFrom(array);
+            Buffer.MemoryCopyFromUnsafe(array);
         }
         public unsafe T[] MemoryCopy<T>() where T : unmanaged
         {
-            return Buffer.MemoryCopyTo<T>();
+            return Buffer.MemoryCopyToUnsafe<T>();
         }
 
         #region Buffer Wrappers
@@ -130,7 +130,7 @@ namespace Refsa.RePacker.Buffers
             return Buffer.CanFit<T>(count);
         }
 
-        public (byte[] array, int length) GetArray()
+        public byte[] GetArray()
         {
             return Buffer.GetArray();
         }
