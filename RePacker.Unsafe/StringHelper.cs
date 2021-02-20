@@ -38,6 +38,8 @@ namespace Refsa.RePacker.Unsafe
                 return stringEncoder.GetString(src, length);
             }
 
+            // return stringEncoder.GetString(data, offset, length);
+
             /* int charCount = stringEncoder.GetCharCount(data, offset, length);
 
             char* dest = stackalloc char[charCount];
