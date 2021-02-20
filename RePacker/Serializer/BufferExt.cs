@@ -10,23 +10,25 @@ namespace Refsa.RePacker.Builder
     public static class BufferExt
     {
         static uint ZERO_UINT = 0;
+        static ulong ZERO_ULONG = 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackString(this ref Buffer buffer, ref string str)
         {
             if (string.IsNullOrEmpty(str))
             {
-                buffer.PushUInt(ref ZERO_UINT);
+                buffer.PushULong(ref ZERO_ULONG);
             }
 
-            ulong length = (ulong)str.Length;
-            buffer.PushULong(ref length);
-
             var bufData = buffer.GetArray();
-
+            int count = 0;
             if (bufData != null)
             {
-                int count = StringHelper.CopyString(str, bufData, buffer.WriteCursor());
+                count = StringHelper.CopyString(str, bufData, buffer.WriteCursor() + sizeof(ulong));
+                
+                ulong c = (ulong)count;
+                buffer.PushULong(ref c);
+
                 buffer.MoveWriteCursor(count);
             }
         }

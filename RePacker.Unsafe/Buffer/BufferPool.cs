@@ -55,7 +55,7 @@ namespace Refsa.RePacker.Buffers
                 buffer.Flush();
             }
 
-            buffer.SetCount(0);
+            buffer.SetReadCursor(0);
 
             free.Enqueue(buffer.Index);
         }
