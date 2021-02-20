@@ -1,8 +1,8 @@
 using System;
-using Refsa.RePacker.Utils;
+using RePacker.Utils;
 using Xunit.Abstractions;
 
-namespace Refsa.RePacker.Tests
+namespace RePacker.Tests
 {
     public class TestLogger : ILogger
     {

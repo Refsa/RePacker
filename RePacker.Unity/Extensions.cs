@@ -1,8 +1,8 @@
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 using UnityEngine;
-using static Refsa.RePacker.RePacker;
+using static RePacker.RePacker;
 
-namespace Refsa.RePacker.Unity
+namespace RePacker.Unity
 {
     public static class UnityExtensions
     {

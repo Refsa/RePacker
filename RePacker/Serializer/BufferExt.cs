@@ -1,11 +1,11 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Unsafe;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using RePacker.Buffers;
+using RePacker.Unsafe;
+using Buffer = RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     public static class BufferExt
     {

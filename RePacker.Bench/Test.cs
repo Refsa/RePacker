@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using Refsa.RePacker;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
+using RePacker;
+using RePacker.Buffers;
+using RePacker.Builder;
 
 public class TestClass
 {
@@ -87,9 +87,9 @@ class BaseStructPacker<A, B, C> : RePackerWrapper<BaseStruct<A, B, C>>
 {
     public override void Pack(BoxedBuffer buffer, ref BaseStruct<A, B, C> value)
     {
-        RePacker.Pack(buffer, ref value.AValue);
-        RePacker.Pack(buffer, ref value.BValue);
-        RePacker.Pack(buffer, ref value.CValue);
+        RePacker.RePacker.Pack(buffer, ref value.AValue);
+        RePacker.RePacker.Pack(buffer, ref value.BValue);
+        RePacker.RePacker.Pack(buffer, ref value.CValue);
     }
 }
 

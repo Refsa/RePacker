@@ -1,7 +1,7 @@
 using System;
-using Refsa.RePacker.Utils;
+using RePacker.Utils;
 
-namespace Refsa.RePacker.Unity
+namespace RePacker.Unity
 {
 #if !NO_BOOTSTRAP
     public static class UnityBootstrap

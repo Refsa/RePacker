@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class IListPacker<TElement> : RePackerWrapper<IList<TElement>>
     {

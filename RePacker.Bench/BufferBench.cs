@@ -1,8 +1,8 @@
 
 using BenchmarkDotNet.Attributes;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Benchmarks
+namespace RePacker.Benchmarks
 {
     [MemoryDiagnoser]
     public class BufferBench

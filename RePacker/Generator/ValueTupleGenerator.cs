@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class ValueTupleGenerator : IGenerator
     {

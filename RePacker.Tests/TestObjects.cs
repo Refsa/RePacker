@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Refsa.RePacker.Tests
+namespace RePacker.Tests
 {
     [RePacker]
     public struct TestStruct

@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Refsa.RePacker.Utils
+namespace RePacker.Utils
 {
     public interface ILogger
     {

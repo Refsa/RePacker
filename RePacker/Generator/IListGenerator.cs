@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
+using RePacker.Buffers;
+using RePacker.Utils;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class IListGenerator : IGenerator
     {

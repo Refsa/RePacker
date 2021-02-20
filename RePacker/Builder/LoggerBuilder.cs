@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     public static class LoggerBuilder
     {

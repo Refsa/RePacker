@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
+using RePacker.Buffers;
+using RePacker.Builder;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class ArrayPacker<TElement> : RePackerWrapper<TElement[]>
     {

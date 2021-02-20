@@ -1,9 +1,9 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using Buffer = RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class DateTimeGenerator : IGenerator
     {

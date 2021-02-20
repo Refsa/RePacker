@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
+using RePacker.Buffers;
+using RePacker.Builder;
 
-namespace Refsa.RePacker.Benchmarks
+namespace RePacker.Benchmarks
 {
     [RePacker]
     public struct TestStruct

@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     public abstract class RePackerWrapper<T> : IPacker<T>
     {

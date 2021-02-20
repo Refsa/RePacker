@@ -5,10 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
+using RePacker.Buffers;
+using RePacker.Utils;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal static class TypeCache
     {
@@ -17,6 +17,7 @@ namespace Refsa.RePacker.Builder
             public Type Type;
             public bool HasCustomSerializer;
             public bool IsUnmanaged;
+            public bool HasWrapper;
             public FieldInfo[] SerializedFields;
 
             public Info(Type type, bool isUnmanaged)
@@ -25,6 +26,7 @@ namespace Refsa.RePacker.Builder
                 IsUnmanaged = isUnmanaged;
 
                 HasCustomSerializer = false;
+                HasWrapper = false;
                 SerializedFields = new FieldInfo[0];
             }
         }
@@ -32,6 +34,8 @@ namespace Refsa.RePacker.Builder
         static IEnumerable<Type> allTypes;
 
         static Dictionary<Type, Info> typeCache;
+        static Dictionary<Type, Type> wrapperTypeLookup;
+
         static Dictionary<Type, TypePackerHandler> packerLookup;
         static ConcurrentDictionary<Type, GenericProducer> runtimePackerProducers;
 
@@ -52,21 +56,19 @@ namespace Refsa.RePacker.Builder
             if (isSetup) return;
 
             packerLookup = new Dictionary<Type, TypePackerHandler>();
+            wrapperTypeLookup = new Dictionary<Type, Type>();
             allTypes = ReflectionUtils.GetAllTypes();
 
             BuildTypeCache();
 
-            BuildCustomPackers();
             BuildPackers();
+            BuildCustomPackers();
 
             BuildRuntimePackerProviders();
 
             VerifyPackers();
 
-            // Build efficient lookup
-            {
-                BuildLookup();
-            }
+            BuildLookup();
 
             isSetup = true;
             // allTypes = null;
@@ -114,6 +116,7 @@ namespace Refsa.RePacker.Builder
         static void BuildTypeCache()
         {
             typeCache = new Dictionary<Type, Info>();
+
             foreach (Type type in allTypes
                 .WithAttribute(typeof(RePackerAttribute)))
             {
@@ -129,11 +132,8 @@ namespace Refsa.RePacker.Builder
                 {
                     Type = type,
                     IsUnmanaged = type.IsUnmanaged(),
-                    // HasCustomSerializer = type.GetInterface(typeof(IPacker<>).MakeGenericType(type).Name) != null,
-                    // HasCustomSerializer =
-                    // type.IsSubclassOf(typeof(RePackerWrapper<>).MakeGenericType(type))
-                    // || !attr.UseOnAllPublicFields,
                     HasCustomSerializer = !type.IsValueType,
+                    HasWrapper = false,
                 };
 
                 List<FieldInfo> serializedFields = new List<FieldInfo>();
@@ -174,18 +174,13 @@ namespace Refsa.RePacker.Builder
 
                 typeCache.Add(type, tci);
             }
-        }
-
-        static void BuildCustomPackers()
-        {
-            Dictionary<Type, Info> customTypeInfo = new Dictionary<Type, Info>();
 
             foreach (Type type in allTypes
                 .NotGeneric()
                 .WithGenericBaseType(typeof(RePackerWrapper<>)))
             {
                 Type wrapperFor = type.BaseType.GetGenericArguments()[0];
-                if (typeCache.ContainsKey(wrapperFor) || customTypeInfo.ContainsKey(type))
+                if (typeCache.ContainsKey(wrapperFor))
                 {
                     continue;
                 }
@@ -208,65 +203,31 @@ namespace Refsa.RePacker.Builder
                     HasCustomSerializer = !wrapperFor.IsValueType,
                     IsUnmanaged = wrapperFor.IsUnmanaged(),
                     SerializedFields = null,
+                    HasWrapper = true,
                 };
 
                 typeCache.Add(wrapperFor, typeInfo);
-                customTypeInfo.Add(type, typeInfo);
-            }
-
-            foreach (var kv in customTypeInfo)
-            {
-                var typePacker = new TypePackerHandler(kv.Value);
-                var serializer = Activator.CreateInstance(kv.Key);
-                typePacker.Setup((ITypePacker)serializer);
-
-                packerLookup.Add(kv.Value.Type, typePacker);
+                wrapperTypeLookup.Add(wrapperFor, type);
             }
         }
 
-        internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
+        static void BuildCustomPackers()
         {
-            runtimePackerProducers.TryAdd(targetType, producer);
-        }
-
-        static void BuildRuntimePackerProviders()
-        {
-            runtimePackerProducers = new ConcurrentDictionary<Type, GenericProducer>();
-
-            foreach (Type type in allTypes
-                .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
+            foreach (var kv in typeCache)
             {
-                var producer = (GenericProducer)Activator.CreateInstance(type);
-
-                if (producer.ProducerForAll != null)
+                if (wrapperTypeLookup.TryGetValue(kv.Key, out Type wrapper))
                 {
-                    foreach (var p in producer.ProducerForAll)
-                    {
-                        AddProducerFor(p, producer);
-                    }
+                    var typePacker = new TypePackerHandler(kv.Value);
+                    var serializer = Activator.CreateInstance(wrapper);
+                    typePacker.Setup((ITypePacker)serializer);
+
+                    packerLookup.Add(kv.Value.Type, typePacker);
                 }
                 else
                 {
-                    var forType = producer.ProducerFor;
-
-                    AddProducerFor(forType, producer);
+                    RePacker.Logger.Warn($"Could not create wrapper for type {kv.Key}, Type instance was null");
                 }
             }
-        }
-
-        static void AddProducerFor(Type type, GenericProducer producer)
-        {
-            var forType = type;
-            if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
-            {
-                RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
-                return;
-            }
-
-            runtimePackerProducers.TryAdd(
-                forType,
-                producer
-            );
         }
 
         static void BuildPackers()
@@ -348,6 +309,47 @@ namespace Refsa.RePacker.Builder
             }
         }
 
+        static void BuildRuntimePackerProviders()
+        {
+            runtimePackerProducers = new ConcurrentDictionary<Type, GenericProducer>();
+
+            foreach (Type type in allTypes
+                .Where(t => t.IsSubclassOf(typeof(GenericProducer))))
+            {
+                var producer = (GenericProducer)Activator.CreateInstance(type);
+
+                if (producer.ProducerForAll != null)
+                {
+                    foreach (var p in producer.ProducerForAll)
+                    {
+                        AddProducerFor(p, producer);
+                    }
+                }
+                else
+                {
+                    var forType = producer.ProducerFor;
+
+                    AddProducerFor(forType, producer);
+                }
+            }
+        }
+
+        static void AddProducerFor(Type type, GenericProducer producer)
+        {
+            var forType = type;
+            if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
+            {
+                RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
+                return;
+            }
+
+            runtimePackerProducers.TryAdd(
+                forType,
+                producer
+            );
+        }
+
+        #region Runtime
         static void AddTypeHandler(Type type)
         {
             var info = new Info
@@ -392,8 +394,14 @@ namespace Refsa.RePacker.Builder
 
             return false;
         }
+        #endregion
 
         #region API
+        internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
+        {
+            runtimePackerProducers.TryAdd(targetType, producer);
+        }
+
         public static bool TryGetTypeInfo<T>(out Info typeCacheInfo)
         {
             return TryGetTypeInfo(typeof(T), out typeCacheInfo);

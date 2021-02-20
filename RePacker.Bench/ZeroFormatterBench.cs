@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
+using RePacker.Buffers;
+using RePacker.Builder;
 
-namespace Refsa.RePacker.Benchmarks
+namespace RePacker.Benchmarks
 {
     [MemoryDiagnoser]
     public class ZeroFormatterBench

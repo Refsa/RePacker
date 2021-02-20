@@ -1,7 +1,7 @@
 
-using Refsa.RePacker.Utils;
+using RePacker.Utils;
 
-namespace Refsa.RePacker
+namespace RePacker
 {
     public class RePackerSettings
     {

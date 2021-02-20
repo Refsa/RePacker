@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Refsa.RePacker.Utils
+namespace RePacker.Utils
 {
     public static class TypeExt
     {

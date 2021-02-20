@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
-using static Refsa.RePacker.Builder.PackerCollectionsExt;
+using RePacker.Buffers;
+using RePacker.Utils;
+using static RePacker.Builder.PackerCollectionsExt;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class IEnumerableGenerator : IGenerator
     {

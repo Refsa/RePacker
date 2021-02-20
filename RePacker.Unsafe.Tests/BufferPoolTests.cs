@@ -1,8 +1,8 @@
 using Xunit;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 using System.Runtime.InteropServices;
 
-namespace Refsa.RePacker.Buffers.Tests
+namespace RePacker.Buffers.Tests
 {
     public class BufferPoolTests
     {

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System;
 
-namespace Refsa.RePacker.Buffers
+namespace RePacker.Buffers
 {
     public unsafe ref struct StackBuffer
     {

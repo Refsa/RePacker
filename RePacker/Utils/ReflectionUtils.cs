@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security;
 
-namespace Refsa.RePacker.Utils
+namespace RePacker.Utils
 {
     public static class ReflectionUtils
     {

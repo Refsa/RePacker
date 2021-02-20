@@ -1,9 +1,9 @@
 using Xunit;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 using System.Runtime.InteropServices;
 using System.Linq;
 
-namespace Refsa.RePacker.Buffers.Tests
+namespace RePacker.Buffers.Tests
 {
     public class BoxedBufferTests
     {

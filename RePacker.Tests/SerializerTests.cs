@@ -1,10 +1,10 @@
 using Xunit;
-using Refsa.RePacker.Builder;
+using RePacker.Builder;
 using System.Runtime.InteropServices;
 using System;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using Buffer = RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Tests
+namespace RePacker.Tests
 {
     public class SerializerTests
     {

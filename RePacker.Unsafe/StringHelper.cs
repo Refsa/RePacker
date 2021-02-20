@@ -6,7 +6,7 @@ using System.Numerics;
 
 using static System.Runtime.CompilerServices.Unsafe;
 
-namespace Refsa.RePacker.Unsafe
+namespace RePacker.Unsafe
 {
     public unsafe static class StringHelper
     {

@@ -1,4 +1,4 @@
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     public interface ITypePacker
     {

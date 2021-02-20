@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Refsa.RePacker.Utils
+namespace RePacker.Utils
 {
     public static class ILUtils
     {
         public static void EmitLog(this ILGenerator ilGen, string msg)
         {
-            ilGen.Emit(OpCodes.Call, Refsa.RePacker.Utils.ILoggerExt.GetLogger());
+            ilGen.Emit(OpCodes.Call, ILoggerExt.GetLogger());
             ilGen.Emit(OpCodes.Ldstr, msg);
-            ilGen.Emit(OpCodes.Call, Refsa.RePacker.Utils.ILoggerExt.GetLogMethod());
+            ilGen.Emit(OpCodes.Call, ILoggerExt.GetLogMethod());
         }
 
         public static void CreateLocal(this ILGenerator ilGen, Type type, MethodInfo constructor, int loc)

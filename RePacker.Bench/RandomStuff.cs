@@ -1,4 +1,4 @@
-namespace Refsa.RePacker.Benchmarks
+namespace RePacker.Benchmarks
 {
 
     public static class RandomStuff

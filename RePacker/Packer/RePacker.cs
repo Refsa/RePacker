@@ -1,8 +1,8 @@
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
-using Refsa.RePacker.Builder;
+using RePacker.Buffers;
+using RePacker.Utils;
+using RePacker.Builder;
 
-namespace Refsa.RePacker
+namespace RePacker
 {
     public static class RePacker
     {

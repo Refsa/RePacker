@@ -1,6 +1,6 @@
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class ShortPacker : RePackerWrapper<short>
     {

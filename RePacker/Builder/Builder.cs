@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Utils;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using RePacker.Buffers;
+using RePacker.Utils;
+using Buffer = RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class Builder { }
 

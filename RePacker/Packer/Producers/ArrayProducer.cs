@@ -1,7 +1,7 @@
 using System;
-using Refsa.RePacker.Utils;
+using RePacker.Utils;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class ArrayProducer : GenericProducer
     {

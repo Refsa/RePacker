@@ -1,12 +1,12 @@
 using System.Runtime.InteropServices;
 using System;
 using System.Runtime.CompilerServices;
-using Refsa.RePacker.Utils;
+using RePacker.Utils;
 using System.Buffers;
 
 using static System.Runtime.CompilerServices.Unsafe;
 
-namespace Refsa.RePacker.Buffers
+namespace RePacker.Buffers
 {
     public struct Buffer : IDisposable
     {

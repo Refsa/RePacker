@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Collections.Generic;
-using Refsa.RePacker.Buffers;
-using static Refsa.RePacker.Builder.PackerCollectionsExt;
+using RePacker.Buffers;
+using static RePacker.Builder.PackerCollectionsExt;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class DictionaryPacker<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
     {

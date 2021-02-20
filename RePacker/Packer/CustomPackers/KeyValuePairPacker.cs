@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class KeyValuePairPacker<T1, T2> : RePackerWrapper<KeyValuePair<T1, T2>>
     {

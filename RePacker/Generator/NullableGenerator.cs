@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class NullableGenerator : IGenerator
     {

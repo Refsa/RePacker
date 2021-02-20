@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class StringPacker : RePackerWrapper<string>
     {

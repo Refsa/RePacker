@@ -1,6 +1,6 @@
 using System;
 
-namespace Refsa.RePacker
+namespace RePacker
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class RePackerAttribute : System.Attribute

@@ -1,9 +1,9 @@
 using Xunit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
+using RePacker.Buffers;
+using RePacker.Builder;
 using Xunit.Abstractions;
 
-namespace Refsa.RePacker.Tests
+namespace RePacker.Tests
 {
     public class RePackerWrapperTests
     {

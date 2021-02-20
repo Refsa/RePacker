@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
-using static Refsa.RePacker.RePacker;
+using RePacker.Buffers;
+using RePacker.Builder;
+using static RePacker.RePacker;
 
-namespace Refsa.RePacker.Unity
+namespace RePacker.Unity
 {
     [RePackerWrapper(typeof(Quaternion))]
     public class QuaternionPacker : RePackerWrapper<Quaternion>

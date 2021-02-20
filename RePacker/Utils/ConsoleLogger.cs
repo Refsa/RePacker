@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Refsa.RePacker.Utils
+namespace RePacker.Utils
 {
     public class ConsoleLogger : ILogger
     {

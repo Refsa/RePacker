@@ -1,6 +1,6 @@
 using System;
 
-namespace Refsa.RePacker.Utils
+namespace RePacker.Utils
 {
     public static class MathExt
     {

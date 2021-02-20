@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal enum GeneratorType
     {

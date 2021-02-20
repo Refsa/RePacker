@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Refsa.RePacker.Buffers;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using RePacker.Buffers;
+using Buffer = RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class UnmanagedGenerator : IGenerator
     {

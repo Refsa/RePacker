@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using Buffer = RePacker.Buffers.Buffer;
 
-namespace Refsa.RePacker.Buffers
+namespace RePacker.Buffers
 {
     public class BoxedBuffer
     {

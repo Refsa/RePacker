@@ -267,35 +267,51 @@ Package provides an ILogger interface and you can set the logger when initializi
 Benchmarks are performed on an i5-4670k@4.3GHz and uses similar test format to ZeroFormatter. All benchmark code can be found under the RePacker.Bench project. 
 
 ```cs
-/* netcoreapp3.0
-                                Method  |            Mean
-------------------------------------    |----------------
-        ILGen_SmallObjectSerialize10K   |     1,607.45 us
-        ILGen_SmallObjectDeserialize10K |     1,754.58 us
-            ILGen_VectorSerialize10K    |       245.71 us
-            ILGen_VectorDeserialize10K  |       251.05 us
-                ILGen_IntSerialize10K   |       165.09 us
-                ILGen_IntDeserialize10K |       163.17 us
-                        IntSerialize10K |        43.51 us
-                    IntDeserialize10K   |        40.91 us
-    ILGen_SmallObjectArraySerialize10K  | 1,374,717.61 us
-ILGen_SmallObjectArrayDeserialize10K    | 1,756,913.44 us
+/* netcoreapp3.1
+                              Method |            Mean
+------------------------------------ |----------------
+       ILGen_SmallObjectSerialize10K |       727.38 us
+     ILGen_SmallObjectDeserialize10K |     1,128.23 us
+            ILGen_VectorSerialize10K |        96.32 us
+          ILGen_VectorDeserialize10K |       155.38 us
+               ILGen_IntSerialize10K |        51.53 us
+             ILGen_IntDeserialize10K |       103.11 us
+                     IntSerialize10K |        21.49 us
+                   IntDeserialize10K |        18.28 us
+                 PackIntSerialize10K |        21.48 us
+               PackIntDeserialize10K |        18.28 us
+  ILGen_SmallObjectArraySerialize10K |   691,455.41 us
+ILGen_SmallObjectArrayDeserialize10K | 1,089,353.67 us
+       ILGen_VectorArraySerialize10K |       677.41 us
+     ILGen_VectorArrayDeserialize10K |     1,548.71 us
+          ILGen_IntArraySerialize10K |     1,018.70 us
+        ILGen_IntArrayDeserialize10K |     1,044.99 us
+          ILGen_LargeStringSerialize |   342,457.98 us
+        ILGen_LargeStringDeserialize | 2,004,193.04 us
 */
 
-/* net4.6.1
-                                Method  |           Mean |
-------------------------------------    |---------------:|
-        ILGen_SmallObjectSerialize10K   |     2,508.0 us |
-        ILGen_SmallObjectDeserialize10K |     3,196.8 us |
-            ILGen_VectorSerialize10K    |       601.1 us |
-            ILGen_VectorDeserialize10K  |       633.6 us |
-                ILGen_IntSerialize10K   |       328.1 us |
-                ILGen_IntDeserialize10K |       326.8 us |
-                        IntSerialize10K |       146.6 us |
-                    IntDeserialize10K   |       144.5 us |
-    ILGen_SmallObjectArraySerialize10K  | 2,349,831.5 us |
-ILGen_SmallObjectArrayDeserialize10K    | 2,591,480.2 us |
-*/ 
+/* net4.6.1 - latest
+                              Method |            Mean
+------------------------------------ |----------------
+       ILGen_SmallObjectSerialize10K |     1,082.88 us
+     ILGen_SmallObjectDeserialize10K |     1,396.81 us
+            ILGen_VectorSerialize10K |       217.88 us
+          ILGen_VectorDeserialize10K |       235.53 us
+               ILGen_IntSerialize10K |       105.54 us
+             ILGen_IntDeserialize10K |       105.72 us
+                     IntSerialize10K |        21.82 us
+                   IntDeserialize10K |        17.69 us
+                 PackIntSerialize10K |        21.95 us
+               PackIntDeserialize10K |        17.67 us
+  ILGen_SmallObjectArraySerialize10K | 1,002,928.50 us
+ILGen_SmallObjectArrayDeserialize10K | 1,395,526.24 us
+       ILGen_VectorArraySerialize10K |       928.49 us
+     ILGen_VectorArrayDeserialize10K |     1,580.59 us
+          ILGen_IntArraySerialize10K |     1,412.97 us
+        ILGen_IntArrayDeserialize10K |     1,006.31 us
+          ILGen_LargeStringSerialize | 1,510,192.95 us
+        ILGen_LargeStringDeserialize | 3,074,888.27 us
+*/
 ```
 
 ### Unity:

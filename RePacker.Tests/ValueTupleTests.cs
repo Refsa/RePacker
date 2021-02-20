@@ -1,15 +1,15 @@
 using Xunit;
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker;
+using RePacker.Buffers;
+using RePacker;
 using System.Runtime.InteropServices;
 using System;
-using Buffer = Refsa.RePacker.Buffers.Buffer;
+using Buffer = RePacker.Buffers.Buffer;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using System.Reflection;
 
-namespace Refsa.RePacker.Tests
+namespace RePacker.Tests
 {
 
     public class ValueTupleTests

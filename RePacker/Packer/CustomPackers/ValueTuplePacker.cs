@@ -1,7 +1,7 @@
 using System;
-using Refsa.RePacker.Buffers;
+using RePacker.Buffers;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class ValueTuplePacker<T1, T2> :
         RePackerWrapper<ValueTuple<T1, T2>>

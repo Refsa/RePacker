@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal static class GeneratorLookup
     {

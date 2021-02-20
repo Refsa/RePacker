@@ -4,7 +4,7 @@ using Xunit.Abstractions;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
-namespace Refsa.RePacker.Tests
+namespace RePacker.Tests
 {
 
     public class BootstrapClass : IDisposable

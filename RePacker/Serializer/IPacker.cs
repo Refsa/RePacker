@@ -1,7 +1,7 @@
-using Refsa.RePacker.Buffers;
-using Refsa.RePacker.Builder;
+using RePacker.Buffers;
+using RePacker.Builder;
 
-namespace Refsa.RePacker
+namespace RePacker
 {
     internal interface IPacker<T> : ITypePacker
     {

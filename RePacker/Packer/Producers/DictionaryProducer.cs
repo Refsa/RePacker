@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Refsa.RePacker.Builder
+namespace RePacker.Builder
 {
     internal class DictionaryProducer : GenericProducer
     {

@@ -1,22 +1,14 @@
-- Clean up interfacing with Buffer in Serializer.cs
+- BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field
+- remove all the custom unmanaged packers on Buffer since Pack/Unpack has the same performance characteristics
+- Clean up how typeCache in TypeCache is setup
+- missing null handling when packing/unpacking
+- clean up the csproj files
+- clean up test cases
+- test cases for filling a buffer of large size with all primitive types
+- clean up benchmarks
+- make ILogger support object and formatting
 - Figure out a way around using BoxedBuffer for IL generated stuff, not a huge deal since buffers should be pooled
 - Add a IPacker<T> work as an override for serialization
-- Meta data? insert version, type name, etc.
-    Should move this to user settings so they can be toggled on/off for better performance
-    The cost of inserting a header is fairly low though, so might be worth it
-- More efficient lookup of types on serialization
-- Clean up how typeCache in TypeCache is setup
-    Should run a prepass to fill typeCache dictionary to avoid dumb order of execution problems
-- clean up the csproj files
-- make ILogger support object and formatting
-- generic producers currently doesnt support multi-threading
-- clean up test cases
-- clean up benchmarks
-- pushing values into Buffer when it's large and filled is slow
-- make root of namespace be just RePacker
-- BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field
-- missing null handling when packing/unpacking
-- remove all the custom unmanaged packers on Buffer since Pack/Unpack has the same performance characteristics
 
 Base Serializer:
     Still missing support for a lot of standard types
@@ -24,16 +16,21 @@ Base Serializer:
     - ISet<T>
     - Multi-dim arrays
 
-Bugs:
-    - Test cases with GenericProducer fails at random times
-    - Verify new changes in Buffer actually works
-    - test cases for filling a buffer of large size with all primitive types
+Ideas:
+    - Meta data? insert version, type name, etc.
+        Should move this to user settings so they can be toggled on/off for better performance
+        The cost of inserting a header is fairly low though, so might be worth it
 
 CR:
-    - Remove generated logger stuff
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✔ make root of namespace be just RePacker @done(21-02-20 09:06)
+  ✔ Clean up interfacing with Buffer in Serializer.cs @done(21-02-20 08:16)
+  ✔ More efficient lookup of types on serialization @done(21-02-20 08:16)
+  ✔ generic producers currently doesnt support multi-threading @done(21-02-20 08:16)
+  ✔ pushing values into Buffer when it's large and filled is slow @done(21-02-20 08:17)
+  ✔ Remove generated logger stuff @done(21-02-20 08:16) @project(CR)
   ✔ Nullabel<T> @done(21-02-20 08:10) @project(Base Serializer)
   ✔ cache AppDomain type lookup in TypeCache @done(21-02-15 11:09)
   ✔ Allow Identifier attribute to control ordering @done(21-02-14 14:58)
