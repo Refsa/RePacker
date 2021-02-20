@@ -16,12 +16,12 @@
 - make root of namespace be just RePacker
 - BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field
 - missing null handling when packing/unpacking
+- remove all the custom unmanaged packers on Buffer since Pack/Unpack has the same performance characteristics
 
 Base Serializer:
     Still missing support for a lot of standard types
     - ICollection<T>
     - ISet<T>
-    - Nullabel<T>
     - Multi-dim arrays
 
 Bugs:
@@ -34,6 +34,7 @@ CR:
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✔ Nullabel<T> @done(21-02-20 08:10) @project(Base Serializer)
   ✔ cache AppDomain type lookup in TypeCache @done(21-02-15 11:09)
   ✔ Allow Identifier attribute to control ordering @done(21-02-14 14:58)
   ✔ KeyValuePair<K, V> @done(21-02-14 14:56) @project(Base Serializer)

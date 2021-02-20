@@ -1305,6 +1305,23 @@ namespace Refsa.RePacker.Tests
         }
 
         [Fact]
+        public void standalone_large_string_repacker()
+        {
+            var largeString = System.IO.File.ReadAllText("CSharpHtml.txt");
+            byte[] asBytes = System.Text.Encoding.UTF8.GetBytes(largeString);
+
+            var buffer = new BoxedBuffer(1 << 24);
+
+            RePacker.Pack(buffer, ref largeString);
+            Assert.Equal(asBytes.Length, buffer.Buffer.WriteCursor() - sizeof(ulong));
+
+            string fromBuf = RePacker.Unpack<string>(buffer);
+
+            Assert.Equal(largeString.Length, fromBuf.Length);
+            Assert.Equal(largeString, fromBuf);
+        }
+
+        [Fact]
         public void standalone_key_value_pair_unmanaged()
         {
             var kvp = new KeyValuePair<int, int>(10, 100);

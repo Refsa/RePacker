@@ -7,22 +7,19 @@ namespace Refsa.RePacker.Benchmarks
     [MemoryDiagnoser]
     public class GeneralBenches
     {
-        [Benchmark]
+        BoxedBuffer buffer = new BoxedBuffer(1 << 16);
+
+        /* [Benchmark]
         public void BenchRePackerSpeedInt()
         {
-            if (!RePacker.IsSetup)
-            {
-                RePacker.Init();
-            }
-
-            var buffer = new BoxedBuffer(1 << 16);
             int val = 123456789;
 
+            buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
                 RePacker.Pack(buffer, ref val);
             }
-        }
+        } */
 
         /* 
         TODO: Remove me
@@ -52,24 +49,24 @@ namespace Refsa.RePacker.Benchmarks
         [Benchmark]
         public void BenchDirectSpeedInt()
         {
-            var buffer = new Buffer(new byte[1 << 16]);
             int val = 123456789;
 
+            buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.Push(ref val);
+                buffer.Buffer.Pack(ref val);
             }
         }
 
         [Benchmark]
         public void BenchRawSpeedInt()
         {
-            var buffer = new Buffer(new byte[1 << 16]);
             int val = 123456789;
 
+            buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.PushInt(ref val);
+                buffer.Buffer.Unpack(out val);
             }
         }
     }
