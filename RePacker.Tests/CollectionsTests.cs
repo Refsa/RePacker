@@ -10,6 +10,8 @@ namespace RePacker.Tests
 {
     public class CollectionsTests
     {
+        BoxedBuffer buffer = new BoxedBuffer(1 << 24);
+
         public CollectionsTests(ITestOutputHelper output)
         {
             TestBootstrap.Setup(output);
@@ -21,7 +23,7 @@ namespace RePacker.Tests
         {
             int[] array = null;
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             buffer.Pack(ref array);
 
@@ -36,7 +38,7 @@ namespace RePacker.Tests
         {
             SomeManagedObject[] array = null;
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             buffer.Pack(ref array);
 
@@ -56,7 +58,7 @@ namespace RePacker.Tests
                 Long = 1234567890
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             buffer.Pack(ref data);
 
@@ -79,7 +81,7 @@ namespace RePacker.Tests
                 Long = 1234567890
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             buffer.Pack(ref data);
 
@@ -104,7 +106,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<StructWithUnmanagedArray>(buffer, ref swa);
             var fromBuf = RePacker.Unpack<StructWithUnmanagedArray>(buffer);
@@ -150,7 +152,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<StructWithBlittableArray>(buffer, ref swa);
             var fromBuf = RePacker.Unpack<StructWithBlittableArray>(buffer);
@@ -193,7 +195,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<HasClassArray>(buffer, ref iac);
             var fromBuf = RePacker.Unpack<HasClassArray>(buffer);
@@ -211,9 +213,9 @@ namespace RePacker.Tests
         }
 
         [Fact]
-        public void two_dim_unmanaged_array()
+        public void direct_two_dim_unmanaged_array()
         {
-            var buffer = new BoxedBuffer(2048);
+            buffer.Reset();
 
             int[,] data = new int[5, 15];
             for (int x = 0; x < 5; x++)
@@ -234,9 +236,42 @@ namespace RePacker.Tests
         }
 
         [Fact]
-        public void three_dim_unmanaged_array()
+        public void has_two_dim_unmanaged_array()
         {
-            var buffer = new BoxedBuffer(4096);
+            buffer.Reset();
+
+            int[,] array = new int[2, 4];
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                {
+                    array[x, y] = x * y;
+                }
+
+            var data = new Has2DArray
+            {
+                Long = 1234567,
+                Int = 12345,
+                TwoDimArray = array
+            };
+
+            buffer.Pack(ref data);
+
+            Has2DArray fromBuf = buffer.Unpack<Has2DArray>();
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Int, fromBuf.Int);
+
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                {
+                    Assert.Equal(data.TwoDimArray[x, y], fromBuf.TwoDimArray[x, y]);
+                }
+        }
+
+        [Fact]
+        public void direct_three_dim_unmanaged_array()
+        {
+            buffer.Reset();
 
             int[,,] data = new int[4, 6, 8];
             for (int x = 0; x < 4; x++)
@@ -259,9 +294,44 @@ namespace RePacker.Tests
         }
 
         [Fact]
-        public void four_dim_unmanaged_array()
+        public void has_three_dim_unmanaged_array()
         {
-            var buffer = new BoxedBuffer(50_000);
+            buffer.Reset();
+
+            int[,,] array = new int[4, 6, 8];
+            for (int x = 0; x < 4; x++)
+                for (int y = 0; y < 6; y++)
+                    for (int z = 0; z < 8; z++)
+                    {
+                        array[x, y, z] = x * y * z;
+                    }
+
+            var data = new Has3DArray
+            {
+                Long = 1234567,
+                Int = 12345,
+                ThreeDimArray = array
+            };
+
+            buffer.Pack(ref data);
+
+            Has3DArray fromBuf = buffer.Unpack<Has3DArray>();
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Int, fromBuf.Int);
+
+            for (int x = 0; x < 4; x++)
+                for (int y = 0; y < 6; y++)
+                    for (int z = 0; z < 8; z++)
+                    {
+                        Assert.Equal(data.ThreeDimArray[x, y, z], fromBuf.ThreeDimArray[x, y, z]);
+                    }
+        }
+
+        [Fact]
+        public void direct_four_dim_unmanaged_array()
+        {
+            buffer.Reset();
 
             int[,,,] data = new int[2, 4, 6, 8];
             for (int x = 0; x < 2; x++)
@@ -284,6 +354,43 @@ namespace RePacker.Tests
                             Assert.Equal(data[x, y, z, w], fromBuf[x, y, z, w]);
                         }
         }
+
+        [Fact]
+        public void has_four_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,,,] array = new int[2, 4, 6, 8];
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                    for (int z = 0; z < 6; z++)
+                        for (int w = 0; w < 8; w++)
+                        {
+                            array[x, y, z, w] = x * y * z * w;
+                        }
+
+            var data = new Has4DArray
+            {
+                Long = 1234567,
+                Int = 12345,
+                FourDimArray = array
+            };
+
+            buffer.Pack(ref data);
+
+            Has4DArray fromBuf = buffer.Unpack<Has4DArray>();
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Int, fromBuf.Int);
+
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                    for (int z = 0; z < 6; z++)
+                        for (int w = 0; w < 8; w++)
+                        {
+                            Assert.Equal(data.FourDimArray[x, y, z, w], fromBuf.FourDimArray[x, y, z, w]);
+                        }
+        }
         #endregion
 
         [Fact]
@@ -296,7 +403,7 @@ namespace RePacker.Tests
                 Ints = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -318,7 +425,7 @@ namespace RePacker.Tests
         {
             IList<int> hml = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -342,7 +449,7 @@ namespace RePacker.Tests
                 Ints = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -364,7 +471,7 @@ namespace RePacker.Tests
         {
             var hml = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -388,7 +495,7 @@ namespace RePacker.Tests
                 Ints = new Queue<int>(System.Linq.Enumerable.Range(1, 10)),
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -410,7 +517,7 @@ namespace RePacker.Tests
         {
             var hml = new Queue<int>(System.Linq.Enumerable.Range(1, 10));
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -434,7 +541,7 @@ namespace RePacker.Tests
                 Ints = new Stack<int>(System.Linq.Enumerable.Range(1, 10)),
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -456,7 +563,7 @@ namespace RePacker.Tests
         {
             var hml = new Stack<int>(System.Linq.Enumerable.Range(1, 10));
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -480,7 +587,7 @@ namespace RePacker.Tests
                 Ints = new HashSet<int>(System.Linq.Enumerable.Range(1, 10)),
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -502,7 +609,7 @@ namespace RePacker.Tests
         {
             var hml = new HashSet<int>(System.Linq.Enumerable.Range(1, 10));
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -531,7 +638,7 @@ namespace RePacker.Tests
                 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -559,7 +666,7 @@ namespace RePacker.Tests
                 new SomeManagedObject{Float = 56.2435f, Int = 56724},
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -589,7 +696,7 @@ namespace RePacker.Tests
                 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -617,7 +724,7 @@ namespace RePacker.Tests
                 new SomeManagedObject{Float = 56.2435f, Int = 56724},
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -649,7 +756,7 @@ namespace RePacker.Tests
                 ),
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -681,7 +788,7 @@ namespace RePacker.Tests
                 }
             );
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -715,7 +822,7 @@ namespace RePacker.Tests
                 ),
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -747,7 +854,7 @@ namespace RePacker.Tests
                 }
             );
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -781,7 +888,7 @@ namespace RePacker.Tests
                 ),
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -813,7 +920,7 @@ namespace RePacker.Tests
                 }
             );
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hml);
 
@@ -847,7 +954,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasUnmanagedDictionary>(buffer);
@@ -873,7 +980,7 @@ namespace RePacker.Tests
                 {452, .654567f},
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<Dictionary<int, float>>(buffer);
@@ -902,7 +1009,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasManagedKeyUnmanagedValueDict>(buffer);
@@ -934,7 +1041,7 @@ namespace RePacker.Tests
                 {new SomeManagedObject{Float = 56.2435f, Int = 56724}, 3456234.1341f},
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<Dictionary<SomeManagedObject, float>>(buffer);
@@ -969,7 +1076,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasUnmanagedKeyManagedValueDict>(buffer);
@@ -1001,7 +1108,7 @@ namespace RePacker.Tests
                 {1000, new SomeManagedObject{Float = 56.2435f, Int = 56724}}
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<Dictionary<int, SomeManagedObject>>(buffer);
@@ -1036,7 +1143,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref dictCont);
             var fromBuf = RePacker.Unpack<HasManagedKeyManagedValueDict>(buffer);

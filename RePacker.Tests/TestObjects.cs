@@ -198,6 +198,30 @@ namespace RePacker.Tests
     }
 
     [RePacker]
+    public struct Has2DArray
+    {
+        public long Long;
+        public int[,] TwoDimArray;
+        public int Int;
+    }
+
+    [RePacker]
+    public struct Has3DArray
+    {
+        public long Long;
+        public int[,,] ThreeDimArray;
+        public int Int;
+    }
+
+    [RePacker]
+    public struct Has4DArray
+    {
+        public long Long;
+        public int[,,,] FourDimArray;
+        public int Int;
+    }
+
+    [RePacker]
     public struct HasUnmanagedIList
     {
         public float Float;

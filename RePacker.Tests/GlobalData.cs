@@ -7,11 +7,11 @@ using Xunit.Abstractions;
 namespace RePacker.Tests
 {
 
-    public class BootstrapClass : IDisposable
+    public class GlobalData : IDisposable
     {
         public TestLogger Logger;
 
-        public BootstrapClass() { }
+        public GlobalData() { }
 
         public void Setup(ITestOutputHelper output)
         {
@@ -35,12 +35,12 @@ namespace RePacker.Tests
 
     public static class TestBootstrap
     {
-        public static BootstrapClass Bootstrap;
+        public static GlobalData GlobalData;
 
         public static void Setup(ITestOutputHelper output)
         {
-            Bootstrap = new BootstrapClass();
-            Bootstrap.Setup(output);
+            GlobalData = new GlobalData();
+            GlobalData.Setup(output);
         }
     }
 }

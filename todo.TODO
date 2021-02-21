@@ -12,7 +12,6 @@ Base Serializer:
     Still missing support for a lot of standard types
     - ICollection<T>
     - ISet<T>
-    - Multi-dim arrays
 
 Ideas:
     - Meta data? insert version, type name, etc.
@@ -23,6 +22,7 @@ CR:
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✔ Multi-dim arrays @done(21-02-21 14:03) @project(Base Serializer)
   ✘ remove all the custom unmanaged packers on Buffer since Pack/Unpack has the same performance characteristics @cancelled(21-02-21 10:07)
   ✔ BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field @done(21-02-21 10:07)
   ✔ Clean up how typeCache in TypeCache is setup @done(21-02-20 15:25)

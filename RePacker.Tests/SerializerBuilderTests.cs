@@ -10,6 +10,8 @@ namespace RePacker.Tests
 {
     public class SerializerBuilderTests
     {
+        BoxedBuffer buffer = new BoxedBuffer(1 << 24);
+
         public SerializerBuilderTests(ITestOutputHelper output)
         {
             TestBootstrap.Setup(output);
@@ -34,7 +36,7 @@ namespace RePacker.Tests
                 Decimal = 1000,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<TestStruct>(buffer, ref ts2);
 
@@ -75,7 +77,7 @@ namespace RePacker.Tests
                 Decimal = 1000,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<TestClass>(buffer, ref ts2);
 
@@ -106,7 +108,7 @@ namespace RePacker.Tests
                 Int = 1337,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<StructWithString>(buffer, ref sws);
 
@@ -129,7 +131,7 @@ namespace RePacker.Tests
                 Int = 1337,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<ClassWithString>(buffer, ref sws);
 
@@ -152,7 +154,7 @@ namespace RePacker.Tests
                 Int = 1337,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<StructWithEnum>(buffer, ref sws);
             var fromBuf = RePacker.Unpack<StructWithEnum>(buffer);
@@ -174,7 +176,7 @@ namespace RePacker.Tests
                 Int = 1337,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<ClassWithEnum>(buffer, ref sws);
             var fromBuf = RePacker.Unpack<ClassWithEnum>(buffer);
@@ -196,7 +198,7 @@ namespace RePacker.Tests
                 Sex = Sex.Male,
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<Person>(buffer, ref p);
             var fromBuf = RePacker.Unpack<Person>(buffer);
@@ -222,7 +224,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<ParentWithNestedStruct>(buffer, ref p);
             var fromBuf = RePacker.Unpack<ParentWithNestedStruct>(buffer);
@@ -247,7 +249,7 @@ namespace RePacker.Tests
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<ParentWithNestedClass>(buffer, ref p);
             var fromBuf = RePacker.Unpack<ParentWithNestedClass>(buffer);
@@ -272,7 +274,7 @@ namespace RePacker.Tests
                 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<RootType>(buffer, ref rt);
             var fromBuf = RePacker.Unpack<RootType>(buffer);
@@ -293,7 +295,7 @@ namespace RePacker.Tests
                 Float = 4321.1234f,
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref data);
             var fromBuf = RePacker.Unpack<HasUnsupportedField>(buffer);
@@ -306,7 +308,7 @@ namespace RePacker.Tests
         [Fact]
         public void primitives_standalone()
         {
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             int intValue = 10;
             RePacker.Pack<int>(buffer, ref intValue);
@@ -345,13 +347,13 @@ namespace RePacker.Tests
             Assert.Equal(decimalValue, RePacker.Unpack<decimal>(buffer));
         }
 
-#region DateTime
+        #region DateTime
         [Fact]
         public void date_time_buffer_packing()
         {
             DateTime dt = DateTime.Now;
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             buffer.PackDateTime(ref dt);
             buffer.UnpackDateTime(out DateTime fromBuf);
@@ -364,7 +366,7 @@ namespace RePacker.Tests
         {
             var hdt = new HasDateTime { Float = 1.2344534f, DateTime = DateTime.Now };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hdt);
             var fromBuf = RePacker.Unpack<HasDateTime>(buffer);
@@ -378,22 +380,22 @@ namespace RePacker.Tests
         {
             DateTime dt = DateTime.Now;
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack<DateTime>(buffer, ref dt);
             DateTime fromBuf = RePacker.Unpack<DateTime>(buffer);
 
             Assert.Equal(dt.Ticks, fromBuf.Ticks);
         }
-#endregion
+        #endregion
 
-#region String
+        #region String
         [Fact]
         public void has_regular_string()
         {
             var hs = new HasString { Float = 1212345.123451f, String = "This is some message" };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref hs);
             var fromBuf = RePacker.Unpack<HasString>(buffer);
@@ -407,7 +409,7 @@ namespace RePacker.Tests
         {
             string value = "abrakadabra this is a magic trick";
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref value);
             string fromBuf = RePacker.Unpack<string>(buffer);
@@ -421,7 +423,7 @@ namespace RePacker.Tests
             var largeString = System.IO.File.ReadAllText("CSharpHtml.txt");
             byte[] asBytes = System.Text.Encoding.UTF8.GetBytes(largeString);
 
-            var buffer = new BoxedBuffer(1 << 24);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref largeString);
             Assert.Equal(asBytes.Length, buffer.Buffer.WriteCursor() - sizeof(ulong));
@@ -436,7 +438,7 @@ namespace RePacker.Tests
         public void null_string()
         {
             string data = null;
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             buffer.Pack(ref data);
             string fromBuf = buffer.Unpack<string>();
@@ -444,14 +446,14 @@ namespace RePacker.Tests
             Assert.NotNull(fromBuf);
             Assert.Equal("", fromBuf);
         }
-#endregion
+        #endregion
 
         [Fact]
         public void standalone_key_value_pair_unmanaged()
         {
             var kvp = new KeyValuePair<int, int>(10, 100);
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref kvp);
 
@@ -466,7 +468,7 @@ namespace RePacker.Tests
         {
             var kvp = new KeyValuePair<SimpleClass, int>(new SimpleClass { Float = 12.34f }, 100);
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref kvp);
 
@@ -481,7 +483,7 @@ namespace RePacker.Tests
         {
             var kvp = new KeyValuePair<int, SimpleClass>(100, new SimpleClass { Float = 12.34f });
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref kvp);
 
@@ -500,7 +502,7 @@ namespace RePacker.Tests
                 KeyValuePair = new KeyValuePair<int, int>(10, 100)
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref wanted);
 
@@ -521,7 +523,7 @@ namespace RePacker.Tests
                 PackLong = 1234567890123456789,
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref opsf);
 
@@ -542,7 +544,7 @@ namespace RePacker.Tests
                 Int = 1337,
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref swp);
 
@@ -562,7 +564,7 @@ namespace RePacker.Tests
                 Long = 123456789
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref swp);
 
@@ -583,7 +585,7 @@ namespace RePacker.Tests
                 Int = 1337,
             };
 
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             RePacker.Pack(buffer, ref t);
 
@@ -596,7 +598,7 @@ namespace RePacker.Tests
         [Fact]
         public void struct_with_nullable()
         {
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             var hn = new HasNullable
             {
@@ -617,7 +619,7 @@ namespace RePacker.Tests
         [Fact]
         public void nullable_direct()
         {
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             float? val = 10f;
             float? val2 = null;
@@ -636,7 +638,7 @@ namespace RePacker.Tests
         [Fact]
         public void nullable_list_direct()
         {
-            var buffer = new BoxedBuffer(1024);
+            buffer.Reset();
 
             List<int>? test = new List<int>();
         }
