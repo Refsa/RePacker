@@ -36,7 +36,7 @@ namespace RePacker.Builder
         static Dictionary<Type, Info> typeCache;
         static Dictionary<Type, Type> wrapperTypeLookup;
 
-        static Dictionary<Type, TypePackerHandler> packerLookup;
+        static Dictionary<Type, ITypePacker> packerLookup;
         static ConcurrentDictionary<Type, GenericProducer> runtimePackerProducers;
 
         static bool isSetup = false;
@@ -55,14 +55,14 @@ namespace RePacker.Builder
         {
             if (isSetup) return;
 
-            packerLookup = new Dictionary<Type, TypePackerHandler>();
+            packerLookup = new Dictionary<Type, ITypePacker>();
             wrapperTypeLookup = new Dictionary<Type, Type>();
             allTypes = ReflectionUtils.GetAllTypes();
 
             BuildTypeCache();
 
+            BuildWrapperPackers();
             BuildPackers();
-            BuildCustomPackers();
 
             BuildRuntimePackerProviders();
 
@@ -95,10 +95,9 @@ namespace RePacker.Builder
 
         static void BuildLookup()
         {
-            var packerGetter = typeof(TypePackerHandler).GetMethod(nameof(TypePackerHandler.GetTypePacker));
             foreach (var handler in packerLookup)
             {
-                SetupTypeResolver(handler.Key, handler.Value.Packer);
+                SetupTypeResolver(handler.Key, handler.Value);
             }
         }
 
@@ -211,17 +210,16 @@ namespace RePacker.Builder
             }
         }
 
-        static void BuildCustomPackers()
+        static void BuildWrapperPackers()
         {
             foreach (var kv in typeCache)
             {
+                if (!kv.Value.HasWrapper) continue;
+
                 if (wrapperTypeLookup.TryGetValue(kv.Key, out Type wrapper))
                 {
-                    var typePacker = new TypePackerHandler(kv.Value);
                     var serializer = Activator.CreateInstance(wrapper);
-                    typePacker.Setup((ITypePacker)serializer);
-
-                    packerLookup.Add(kv.Value.Type, typePacker);
+                    packerLookup.Add(kv.Value.Type, (ITypePacker)serializer);
                 }
                 else
                 {
@@ -242,6 +240,8 @@ namespace RePacker.Builder
 
             foreach (var kv in typeCache)
             {
+                if (kv.Value.HasWrapper) continue;
+
                 if (packerLookup.ContainsKey(kv.Key)) continue;
                 (Type type, Info info) = (kv.Key, kv.Value);
 
@@ -287,19 +287,18 @@ namespace RePacker.Builder
 
                 try
                 {
-                    var packerHandler = new TypePackerHandler(typeCache[kv.Key]);
+                    /* var constructor = typeof(TypePacker<>)
+                        .MakeGenericType(kv.Key)
+                        .GetConstructor(new Type[] { typeof(MethodInfo), typeof(MethodInfo) }); */
 
-                    var mi = typeof(TypePackerHandler)
-                        .GetMethod(
-                            nameof(TypePackerHandler.Setup),
-                            new Type[] { typeof(MethodInfo), typeof(MethodInfo) }
-                        ).MakeGenericMethod(kv.Key);
-
-                    mi.Invoke(packerHandler, new object[] { kv.Value.packer, kv.Value.unpacker });
+                    var typePacker = (ITypePacker)Activator
+                        .CreateInstance(
+                            typeof(TypePacker<>).MakeGenericType(kv.Key),
+                            kv.Value.packer, kv.Value.unpacker);
 
                     packerLookup.Add(
                         kv.Key,
-                        packerHandler
+                        typePacker
                     );
                 }
                 catch (Exception e)
@@ -421,20 +420,17 @@ namespace RePacker.Builder
             return false;
         }
 
-        public static bool TryGetTypePacker<T>(out TypePackerHandler packer)
+        public static bool TryGetTypePacker<T>(out IPacker<T> packer)
         {
-            return TryGetTypePacker(typeof(T), out packer);
-        }
-
-        public static bool TryGetTypePacker(Type type, out TypePackerHandler packer)
-        {
-            if (packerLookup.TryGetValue(type, out packer))
+            // return TryGetTypePacker(typeof(T), out packer);
+            if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> p)
             {
+                packer = p;
                 return true;
             }
-            else
+            else if (AttemptToCreatePacker(typeof(T)))
             {
-                RePacker.Settings.Log.Warn($"Packer for {type} not found");
+                return TryGetTypePacker<T>(out packer);
             }
 
             packer = null;

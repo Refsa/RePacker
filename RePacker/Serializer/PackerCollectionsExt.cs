@@ -19,28 +19,28 @@ namespace RePacker.Builder
 
         public static void PackArray<T>(this BoxedBuffer buffer, T[] data)
         {
-            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Length;
                 buffer.Buffer.PushULong(ref dataLen);
 
                 for (int i = 0; i < data.Length; i++)
                 {
-                    packer.Pack<T>(buffer, ref data[i]);
+                    packer.Pack(buffer, ref data[i]);
                 }
             }
         }
 
         public static void UnpackArray<T>(this BoxedBuffer buffer, out T[] data)
         {
-            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 buffer.Buffer.PopULong(out ulong len);
                 data = new T[(int)len];
 
                 for (int i = 0; i < data.Length; i++)
                 {
-                    data[i] = packer.Unpack<T>(buffer);
+                    packer.Unpack(buffer, out data[i]);
                 }
             }
             else
@@ -57,7 +57,7 @@ namespace RePacker.Builder
 
         public static void PackIList<T>(this BoxedBuffer buffer, IList<T> data)
         {
-            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 if (data == null)
                 {
@@ -72,7 +72,7 @@ namespace RePacker.Builder
                     for (int i = 0; i < data.Count; i++)
                     {
                         var ele = data[i];
-                        packer.Pack<T>(buffer, ref ele);
+                        packer.Pack(buffer, ref ele);
                     }
                 }
             }
@@ -84,7 +84,7 @@ namespace RePacker.Builder
 
         public static void UnpackIList<T>(this BoxedBuffer buffer, out IList<T> data)
         {
-            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 buffer.Buffer.PopULong(out ulong len);
                 if (len != 0)
@@ -92,7 +92,8 @@ namespace RePacker.Builder
                     data = new List<T>();
                     for (int i = 0; i < (int)len; i++)
                     {
-                        data.Add(RePacker.Unpack<T>(buffer));
+                        packer.Unpack(buffer, out T value);
+                        data.Add(value);
                     }
                 }
                 else
@@ -119,7 +120,7 @@ namespace RePacker.Builder
 
         public static void PackIEnumerable<T>(this BoxedBuffer buffer, IEnumerable<T> data)
         {
-            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count();
                 buffer.Buffer.PushULong(ref dataLen);
@@ -127,21 +128,21 @@ namespace RePacker.Builder
                 foreach (var element in data)
                 {
                     var ele = element;
-                    packer.Pack<T>(buffer, ref ele);
+                    packer.Pack(buffer, ref ele);
                 }
             }
         }
 
         public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, IEnumerableType type, out IEnumerable<T> data)
         {
-            if (TypeCache.TryGetTypePacker(typeof(T), out var packer))
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 buffer.Buffer.PopULong(out ulong len);
 
                 T[] temp_data = new T[(int)len];
                 for (int i = 0; i < (int)len; i++)
                 {
-                    temp_data[i] = RePacker.Unpack<T>(buffer);
+                    packer.Unpack(buffer, out temp_data[i]);
                 }
 
                 var asSpan = new Span<T>(temp_data);

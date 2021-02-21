@@ -1,6 +1,5 @@
 - BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field
 - remove all the custom unmanaged packers on Buffer since Pack/Unpack has the same performance characteristics
-- Clean up how typeCache in TypeCache is setup
 - missing null handling when packing/unpacking
 - clean up the csproj files
 - clean up test cases
@@ -25,6 +24,7 @@ CR:
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✔ Clean up how typeCache in TypeCache is setup @done(21-02-20 15:25)
   ✔ make root of namespace be just RePacker @done(21-02-20 09:06)
   ✔ Clean up interfacing with Buffer in Serializer.cs @done(21-02-20 08:16)
   ✔ More efficient lookup of types on serialization @done(21-02-20 08:16)
