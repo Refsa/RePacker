@@ -1,12 +1,10 @@
 - missing null handling when packing/unpacking
-- remove IEnumerableType stuff
 - clean up the csproj files
 - clean up test cases
 - test cases for filling a buffer of large size with all primitive types
 - clean up benchmarks
 - Add a IPacker<T> work as an override for serialization
 - make ILogger support object and formatting
-- Figure out a way around using BoxedBuffer for IL generated stuff, not a huge deal since buffers should be pooled
 
 Base Serializer:
     Still missing support for a lot of standard types
@@ -22,6 +20,8 @@ CR:
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✘ Figure out a way around using BoxedBuffer for IL generated stuff, not a huge deal since buffers should be pooled @cancelled(21-02-21 18:01)
+  ✔ remove IEnumerableType stuff @done(21-02-21 18:01)
   ✔ Multi-dim arrays @done(21-02-21 14:03) @project(Base Serializer)
   ✘ remove all the custom unmanaged packers on Buffer since Pack/Unpack has the same performance characteristics @cancelled(21-02-21 10:07)
   ✔ BuildCustomWrappers using RePackerWrapper needs to define a "direct copyable" field @done(21-02-21 10:07)
