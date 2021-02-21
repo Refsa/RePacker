@@ -2,102 +2,35 @@ using System.Runtime.InteropServices;
 using System;
 using System.Runtime.CompilerServices;
 using RePacker.Utils;
-using System.Buffers;
-
-using static System.Runtime.CompilerServices.Unsafe;
 
 namespace RePacker.Buffers
 {
-    public struct Buffer : IDisposable
+    public struct Buffer
     {
         byte[] array;
-        Memory<byte> buffer;
-        MemoryHandle bufferHandle;
-
         public byte[] Array => array;
 
         int writeCursor;
         int readCursor;
         public int Index;
 
-        public Buffer(Memory<byte> buffer, int index = 0, int offset = 0)
+        public Buffer(byte[] buffer, int index = 0, int offset = 0)
         {
-            this.buffer = buffer;
             Index = index;
 
             this.writeCursor = offset;
             this.readCursor = 0;
 
-            this.bufferHandle = this.buffer.Pin();
-
-            this.array = null;
-            this.array = GetArray();
+            this.array = buffer;
         }
 
         public Buffer(ref Buffer buffer)
         {
-            this.buffer = buffer.buffer;
             this.Index = buffer.Index;
             this.writeCursor = buffer.writeCursor;
             this.readCursor = buffer.readCursor;
 
-            this.bufferHandle = this.buffer.Pin();
-
-            this.array = null;
-            this.array = GetArray();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        byte[] GetArray()
-        {
-            if (MemoryMarshal.TryGetArray<byte>(buffer, out var seg))
-            {
-                return seg.Array;
-            }
-
-            return null;
-        }
-
-        public MemoryHandle GetHandle()
-        {
-            return bufferHandle;
-        }
-
-        public void Dispose()
-        {
-            bufferHandle.Dispose();
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Buffer Push<T>(ref T value) where T : unmanaged
-        {
-            int size = Marshal.SizeOf<T>();
-            var span = buffer.Span.Slice(writeCursor, size);
-            MemoryMarshal.Write(span, ref value);
-            writeCursor += size;
-
-            return this;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Buffer Push<T>(ref T value, int index) where T : unmanaged
-        {
-            int size = Marshal.SizeOf<T>();
-            var span = buffer.Span.Slice(index, size);
-            MemoryMarshal.Write(span, ref value);
-
-            return this;
-            // TODO: Make sure offset aligns with new length
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Buffer Pop<T>(out T value) where T : unmanaged
-        {
-            int size = Marshal.SizeOf<T>();
-            value = MemoryMarshal.Read<T>(buffer.Span.Slice(readCursor, size));
-            readCursor += size;
-
-            return this;
+            this.array = buffer.array;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -188,84 +121,15 @@ namespace RePacker.Buffers
             return destArray;
         }
 
-        public unsafe void MemoryCopyFrom<T>(T[] array) where T : unmanaged
-        {
-            if (array == null || array.Length == 0)
-            {
-                ulong zero = 0;
-                PushULong(ref zero);
-                return;
-            }
-
-            if (!CanFit<T>(array.Length))
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            ulong len = (ulong)array.Length;
-            PushULong(ref len);
-
-            int pos = WriteCursor();
-            int size = Marshal.SizeOf<T>();
-
-            Span<byte> dest = new Span<byte>(Array, pos, size * (int)len);
-            Span<byte> src = MemoryMarshal.Cast<T, byte>(new Span<T>(array));
-            CopyBlockUnaligned(
-                ref MemoryMarshal.GetReference<byte>(dest),
-                ref MemoryMarshal.GetReference<byte>(src),
-                (uint)(array.Length * size)
-            );
-
-            MoveWriteCursor(array.Length * size);
-        }
-
-        public unsafe T[] MemoryCopyTo<T>() where T : unmanaged
-        {
-            PopULong(out ulong len);
-
-            T[] destArray = new T[(int)len];
-
-            if (len == 0)
-            {
-                return destArray;
-            }
-
-            int size = Marshal.SizeOf<T>();
-            int pos = ReadCursor();
-
-            Span<T> src = MemoryMarshal.Cast<byte, T>(new Span<byte>(Array));
-            Span<T> dest = new Span<T>(destArray);
-            CopyBlockUnaligned(
-                ref As<T, byte>(ref MemoryMarshal.GetReference<T>(dest)),
-                ref As<T, byte>(ref MemoryMarshal.GetReference<T>(src)),
-                (uint)(len)
-            );
-
-            MoveReadCursor(size * (int)len);
-
-            return destArray;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlyMemory<byte> Read()
-        {
-            return buffer.Slice(readCursor, writeCursor);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlyMemory<byte> Read(int count)
-        {
-            var slice = buffer.Slice(readCursor, count);
-            readCursor += count;
-            return slice;
-        }
-
         #region General
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flush()
         {
-            buffer.Span.Slice(readCursor, Length()).Clear();
             Reset();
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i] = 0;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -289,7 +153,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int FreeSpace()
         {
-            return buffer.Length - writeCursor;
+            return array.Length - writeCursor;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -322,27 +186,27 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit(int count)
         {
-            return writeCursor + count <= buffer.Length;
+            return writeCursor + count <= array.Length;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit<T>(int count)
         {
-            return writeCursor + (count * Marshal.SizeOf<T>()) <= buffer.Length;
+            return writeCursor + (count * Marshal.SizeOf<T>()) <= array.Length;
         }
         #endregion
 
         #region DirectPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void PushBool(ref bool value)
+        public unsafe void PushBool(ref bool value)
         {
-            buffer.Span[writeCursor++] = value ? (byte)1 : (byte)0;
+            array[writeCursor++] = value ? (byte)1 : (byte)0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopBool(out bool value)
         {
-            byte val = buffer.Span[readCursor++];
+            byte val = array[readCursor++];
             value = val == 0 ? false : true;
         }
 
@@ -489,25 +353,25 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushByte(ref byte value)
         {
-            buffer.Span[writeCursor++] = value;
+            array[writeCursor++] = value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopByte(out byte value)
         {
-            value = buffer.Span[readCursor++];
+            value = array[readCursor++];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PushSByte(ref sbyte value)
         {
-            buffer.Span[writeCursor++] = (byte)value;
+            array[writeCursor++] = (byte)value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PopSByte(out sbyte value)
         {
-            value = (sbyte)buffer.Span[readCursor++];
+            value = (sbyte)array[readCursor++];
         }
 
 

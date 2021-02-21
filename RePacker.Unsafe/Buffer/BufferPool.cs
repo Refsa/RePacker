@@ -45,7 +45,7 @@ namespace RePacker.Buffers
             }
 
             int index = free.Dequeue();
-            buffer = new Buffer(new Memory<byte>(bufferCache[index]), index);
+            buffer = new Buffer(bufferCache[index], index);
         }
 
         public void FreeBuffer(Buffer buffer, bool flush = false)

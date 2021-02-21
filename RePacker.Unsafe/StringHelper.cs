@@ -4,8 +4,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Numerics;
 
-using static System.Runtime.CompilerServices.Unsafe;
-
 namespace RePacker.Unsafe
 {
     public unsafe static class StringHelper
@@ -56,20 +54,6 @@ namespace RePacker.Unsafe
         public static int CopyString(string value, byte[] data, int offset)
         {
             return stringEncoder.GetBytes(value, 0, value.Length, data, offset);
-        }
-
-        static unsafe void widen_bytes_simd(char* dst, byte* src, int c)
-        {
-            for (; c > 0 && ((long)dst & 0xF) != 0; c--)
-                *dst++ = (char)*src++;
-
-            for (; (c -= 0x10) >= 0; src += 0x10, dst += 0x10)
-                Vector.Widen(AsRef<Vector<byte>>(src),
-                             out AsRef<Vector<ushort>>(dst + 0),
-                             out AsRef<Vector<ushort>>(dst + 8));
-
-            for (c += 0x10; c > 0; c--)
-                *dst++ = (char)*src++;
         }
     }
 }

@@ -17,15 +17,6 @@ namespace RePacker.Benchmarks
 {
     public class Program
     {
-        [RePacker]
-        public struct Ints
-        {
-            public int Int1;
-            public int Int2;
-            public int Int3;
-            public int Int4;
-        }
-
         public static void Main(string[] args)
         {
             RePacker.Init();
@@ -39,10 +30,6 @@ namespace RePacker.Benchmarks
 
             // new TestClass();
             // RandomStuff.Run();
-
-            // int[] intArray = Enumerable.Range(0, 1000).ToArray();
-            // var intArrayBuffer = new BoxedBuffer(sizeof(int) * 1002);
-            // intArrayBuffer.Pack(ref intArray);
         }
     }
 }

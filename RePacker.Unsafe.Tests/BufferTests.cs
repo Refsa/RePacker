@@ -20,9 +20,9 @@ namespace RePacker.Buffers.Tests
             Buffer buffer = new Buffer(buf, 0);
 
             int testVal = 100;
-            buffer.Push<int>(ref testVal);
+            buffer.Pack<int>(ref testVal);
 
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => buffer.Pop<ulong>(out ulong outVal));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => buffer.Unpack<ulong>(out ulong outVal));
         }
 
         [Fact]
@@ -41,13 +41,13 @@ namespace RePacker.Buffers.Tests
             int testVal = 10;
 
             for (int i = 0; i < 6; i++)
-                buffer.Push<int>(ref testVal);
+                buffer.Pack<int>(ref testVal);
 
             Assert.Equal(sizeof(int) * 6, buffer.Length());
 
-            buffer.Pop<int>(out int fromBuf);
-            buffer.Pop<int>(out fromBuf);
-            buffer.Pop<int>(out fromBuf);
+            buffer.Unpack<int>(out int fromBuf);
+            buffer.Unpack<int>(out fromBuf);
+            buffer.Unpack<int>(out fromBuf);
 
             Assert.Equal(sizeof(int) * 3, buffer.Length());
         }
@@ -60,13 +60,13 @@ namespace RePacker.Buffers.Tests
             int testVal = 10;
 
             for (int i = 0; i < 6; i++)
-                buffer.Push<int>(ref testVal);
+                buffer.Pack<int>(ref testVal);
 
             Assert.Equal(sizeof(int) * 6, buffer.WriteCursor());
 
-            buffer.Pop<int>(out int fromBuf);
-            buffer.Pop<int>(out fromBuf);
-            buffer.Pop<int>(out fromBuf);
+            buffer.Unpack<int>(out int fromBuf);
+            buffer.Unpack<int>(out fromBuf);
+            buffer.Unpack<int>(out fromBuf);
 
             Assert.Equal(sizeof(int) * 6, buffer.WriteCursor());
         }
@@ -79,13 +79,13 @@ namespace RePacker.Buffers.Tests
             int testVal = 10;
 
             for (int i = 0; i < 6; i++)
-                buffer.Push<int>(ref testVal);
+                buffer.Pack<int>(ref testVal);
 
             Assert.Equal(0, buffer.ReadCursor());
 
-            buffer.Pop<int>(out int fromBuf);
-            buffer.Pop<int>(out fromBuf);
-            buffer.Pop<int>(out fromBuf);
+            buffer.Unpack<int>(out int fromBuf);
+            buffer.Unpack<int>(out fromBuf);
+            buffer.Unpack<int>(out fromBuf);
 
             Assert.Equal(sizeof(int) * 3, buffer.ReadCursor());
         }
@@ -97,13 +97,13 @@ namespace RePacker.Buffers.Tests
 
             int testVal = 10;
             for (int i = 0; i < 10; i++)
-                buffer.Push<int>(ref testVal);
+                buffer.Pack<int>(ref testVal);
 
             buffer.Flush();
 
             for (int i = 0; i < 10; i++)
             {
-                buffer.Pop<int>(out int val);
+                buffer.Unpack<int>(out int val);
                 Assert.Equal(0, val);
             }
         }
@@ -115,11 +115,11 @@ namespace RePacker.Buffers.Tests
 
             int testVal = 10;
             for (int i = 0; i < 10; i++)
-                buffer.Push<int>(ref testVal);
+                buffer.Pack<int>(ref testVal);
 
-            buffer.Pop<int>(out int _);
-            buffer.Pop<int>(out int _);
-            buffer.Pop<int>(out int _);
+            buffer.Unpack<int>(out int _);
+            buffer.Unpack<int>(out int _);
+            buffer.Unpack<int>(out int _);
 
             buffer.Flush();
 
@@ -135,11 +135,11 @@ namespace RePacker.Buffers.Tests
 
             int testVal = 10;
             for (int i = 0; i < 10; i++)
-                buffer.Push<int>(ref testVal);
+                buffer.Pack<int>(ref testVal);
 
-            buffer.Pop<int>(out int _);
-            buffer.Pop<int>(out int _);
-            buffer.Pop<int>(out int _);
+            buffer.Unpack<int>(out int _);
+            buffer.Unpack<int>(out int _);
+            buffer.Unpack<int>(out int _);
 
             buffer.Reset();
 
@@ -155,11 +155,11 @@ namespace RePacker.Buffers.Tests
 
             int testVal = 10;
 
-            buffer.buffer.Push<int>(ref testVal);
-            buffer.buffer.Push<int>(ref testVal);
-            buffer.buffer.Push<int>(ref testVal);
-            buffer.buffer.Push<int>(ref testVal);
-            buffer.buffer.Push<int>(ref testVal);
+            buffer.buffer.Pack<int>(ref testVal);
+            buffer.buffer.Pack<int>(ref testVal);
+            buffer.buffer.Pack<int>(ref testVal);
+            buffer.buffer.Pack<int>(ref testVal);
+            buffer.buffer.Pack<int>(ref testVal);
 
             var arrayFromBuffer = buffer.buffer.Array;
 
@@ -204,9 +204,9 @@ namespace RePacker.Buffers.Tests
             byte[] buf = new byte[sizeof(int)];
             Buffer buffer = new Buffer(buf, 0);
 
-            buffer.Push<int>(ref data);
+            buffer.Pack<int>(ref data);
 
-            buffer.Pop<int>(out int fromBuf);
+            buffer.Unpack<int>(out int fromBuf);
 
             Assert.Equal(data, fromBuf);
         }
@@ -222,11 +222,11 @@ namespace RePacker.Buffers.Tests
             Buffer buffer = new Buffer(buf, 0);
 
             for (int i = 0; i < 100; i++)
-                buffer.Push<int>(ref data);
+                buffer.Pack<int>(ref data);
 
             for (int i = 0; i < 100; i++)
             {
-                buffer.Pop<int>(out int fromBuf);
+                buffer.Unpack<int>(out int fromBuf);
                 Assert.Equal(data, fromBuf);
             }
         }
@@ -241,9 +241,9 @@ namespace RePacker.Buffers.Tests
             byte[] buf = new byte[sizeof(float)];
             Buffer buffer = new Buffer(buf, 0);
 
-            buffer.Push<float>(ref data);
+            buffer.Pack<float>(ref data);
 
-            buffer.Pop<float>(out float fromBuf);
+            buffer.Unpack<float>(out float fromBuf);
 
             Assert.Equal(data, fromBuf);
         }
@@ -259,11 +259,11 @@ namespace RePacker.Buffers.Tests
             Buffer buffer = new Buffer(buf, 0);
 
             for (float i = 0; i < 100; i++)
-                buffer.Push<float>(ref data);
+                buffer.Pack<float>(ref data);
 
             for (float i = 0; i < 100; i++)
             {
-                buffer.Pop<float>(out float fromBuf);
+                buffer.Unpack<float>(out float fromBuf);
                 Assert.Equal(data, fromBuf);
             }
         }
@@ -281,9 +281,9 @@ namespace RePacker.Buffers.Tests
 
             var testStruct = new TestBlittableStruct { Float = 1.234f, Int = 1234 };
 
-            buffer.Push(ref testStruct);
+            buffer.Pack(ref testStruct);
 
-            buffer.Pop<TestBlittableStruct>(out var fromBuf);
+            buffer.Unpack<TestBlittableStruct>(out var fromBuf);
 
             Assert.Equal(testStruct.Float, fromBuf.Float);
             Assert.Equal(testStruct.Int, fromBuf.Int);
@@ -298,12 +298,12 @@ namespace RePacker.Buffers.Tests
 
             for (int i = 0; i < 100; i++)
             {
-                buffer.Push(ref testStruct);
+                buffer.Pack(ref testStruct);
             }
 
             for (int i = 0; i < 100; i++)
             {
-                buffer.Pop<TestBlittableStruct>(out var fromBuf);
+                buffer.Unpack<TestBlittableStruct>(out var fromBuf);
                 Assert.Equal(testStruct.Float, fromBuf.Float);
                 Assert.Equal(testStruct.Int, fromBuf.Int);
             }
@@ -338,7 +338,7 @@ namespace RePacker.Buffers.Tests
 
             var testStruct = new TestPaddingStruct { TwoBytes = 1234, OneByte = 128 };
 
-            buffer.Push(ref testStruct);
+            buffer.Pack(ref testStruct);
 
             Assert.Equal(3, buffer.WriteCursor());
         }

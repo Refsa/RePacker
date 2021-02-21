@@ -65,8 +65,8 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < RUNS; i++)
             {
-                buffer.Push(ref ts2);
-                buffer.Pop<TestStruct2>(out var _);
+                buffer.Pack(ref ts2);
+                buffer.Unpack<TestStruct2>(out var _);
 
                 buffer.Reset();
             }

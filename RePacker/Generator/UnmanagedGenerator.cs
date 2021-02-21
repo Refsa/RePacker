@@ -13,13 +13,6 @@ namespace RePacker.Builder
         public Type ForType => null;
 
         MethodInfo bufferPushGeneric = null;
-        MethodInfo bufferPush = typeof(Buffer)
-                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
-
-        MethodInfo bufferPop = typeof(Buffer)
-                .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
         MethodInfo bufferPopGeneric = null;
 
         MethodInfo bufferPack = typeof(Buffer)

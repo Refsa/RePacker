@@ -174,8 +174,8 @@ namespace RePacker.Builder
             serBuilder.DefineParameter(1, ParameterAttributes.In, info.Type.Name.ToLower());
 
             // MethodInfo bufferPush = typeof(Buffer)
-                // .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                // .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
+            // .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            // .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
 
             MethodInfo bufferPush = typeof(Buffer).GetMethod(nameof(Buffer.Pack));
 
@@ -274,7 +274,7 @@ namespace RePacker.Builder
                             break;
                     }
 
-                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator))
+                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator) && generator != null)
                     {
                         generator.GenerateSerializer(ilGen, field);
                     }

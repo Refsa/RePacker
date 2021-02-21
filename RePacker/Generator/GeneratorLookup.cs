@@ -9,7 +9,7 @@ namespace RePacker.Builder
         static Dictionary<GeneratorType, Dictionary<Type, IGenerator>> generators =
             new Dictionary<GeneratorType, Dictionary<Type, IGenerator>>
             {
-                // {GeneratorType.None, new Dictionary<Type, IGenerator>{}},
+                {GeneratorType.None, new Dictionary<Type, IGenerator>{}},
                 {GeneratorType.Unmanaged, new Dictionary<Type, IGenerator>{
                     {Type.Missing.GetType(), new UnmanagedGenerator()}
                 }},
@@ -59,6 +59,12 @@ namespace RePacker.Builder
             if (targetType == null)
             {
                 targetType = Type.Missing.GetType();
+            }
+
+            if (generators == null)
+            {
+                generator = null;
+                return false;
             }
 
             if (generators.TryGetValue(generatorType, out var _generator))

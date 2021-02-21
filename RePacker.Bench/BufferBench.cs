@@ -24,13 +24,13 @@ namespace RePacker.Benchmarks
                 for (int i = 0; i < 1024 / sizeof(int); i++)
                 {
                     int val = i;
-                    buffer.Push<int>(ref val);
+                    buffer.Pack<int>(ref val);
                 }
 
                 for (int i = 0; i < 1024 / sizeof(int); i++)
                 {
                     int val = 0;
-                    buffer.Pop<int>(out val);
+                    buffer.Unpack<int>(out val);
                 }
 
                 buffer.Reset();
@@ -45,13 +45,13 @@ namespace RePacker.Benchmarks
                 for (int i = 0; i < 1024 / sizeof(float); i++)
                 {
                     float val = i;
-                    buffer.Push<float>(ref val);
+                    buffer.Pack<float>(ref val);
                 }
 
                 for (int i = 0; i < 1024 / sizeof(float); i++)
                 {
                     float val = 0;
-                    buffer.Pop<float>(out val);
+                    buffer.Unpack<float>(out val);
                 }
 
                 buffer.Reset();
@@ -66,13 +66,13 @@ namespace RePacker.Benchmarks
                 for (int i = 0; i < 1024 / sizeof(ulong); i++)
                 {
                     ulong val = (ulong)i;
-                    buffer.Push<ulong>(ref val);
+                    buffer.Pack<ulong>(ref val);
                 }
 
                 for (int i = 0; i < 1024 / sizeof(ulong); i++)
                 {
                     ulong val = 0;
-                    buffer.Pop<ulong>(out val);
+                    buffer.Unpack<ulong>(out val);
                 }
 
                 buffer.Reset();
@@ -99,12 +99,12 @@ namespace RePacker.Benchmarks
                 for (int i = 0; i < 1024 / System.Runtime.InteropServices.Marshal.SizeOf<TestBlittableStruct>(); i++)
                 {
                     TestBlittableStruct val = new TestBlittableStruct();
-                    buffer.Push<TestBlittableStruct>(ref val);
+                    buffer.Pack<TestBlittableStruct>(ref val);
                 }
 
                 for (int i = 0; i < 1024 / System.Runtime.InteropServices.Marshal.SizeOf<TestBlittableStruct>(); i++)
                 {
-                    buffer.Pop<TestBlittableStruct>(out var val);
+                    buffer.Unpack<TestBlittableStruct>(out var val);
                 }
 
                 buffer.Reset();

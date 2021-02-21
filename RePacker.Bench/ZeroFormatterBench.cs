@@ -222,7 +222,7 @@ namespace RePacker.Benchmarks
         {
             buffer.Reset();
             int val = 123456789;
-            buffer.Push(ref val);
+            buffer.Pack(ref val);
 
             for (int i = 0; i < 10_000; i++)
             {
@@ -250,7 +250,7 @@ namespace RePacker.Benchmarks
         {
             buffer.Reset();
             int val = 123456789;
-            buffer.Push(ref val);
+            buffer.Pack(ref val);
 
             for (int i = 0; i < 10_000; i++)
             {

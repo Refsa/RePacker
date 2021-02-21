@@ -8,17 +8,17 @@ namespace RePacker.Builder
 
         public override void Pack(BoxedBuffer buffer, ref decimal value)
         {
-            buffer.Push<decimal>(ref value);
+            buffer.Buffer.PushDecimal(ref value);
         }
 
         public override void Unpack(BoxedBuffer buffer, out decimal value)
         {
-            buffer.Pop(out value);
+            buffer.Buffer.PopDecimal(out value);
         }
 
         public override void UnpackInto(BoxedBuffer buffer, ref decimal value)
         {
-            buffer.Pop(out value);
+            buffer.Buffer.PopDecimal(out value);
         }
     }
 }

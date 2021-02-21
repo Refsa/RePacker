@@ -212,9 +212,9 @@ namespace RePacker.Benchmarks
     {
         public override void Pack(BoxedBuffer buffer, ref Vector3 value)
         {
-            buffer.Push<float>(ref value.X);
-            buffer.Push<float>(ref value.Y);
-            buffer.Push<float>(ref value.Z);
+            buffer.Buffer.PushFloat(ref value.X);
+            buffer.Buffer.PushFloat(ref value.Y);
+            buffer.Buffer.PushFloat(ref value.Z);
         }
 
         public override void Unpack(BoxedBuffer buffer, out Vector3 value)
@@ -225,9 +225,9 @@ namespace RePacker.Benchmarks
 
         public override void UnpackInto(BoxedBuffer buffer, ref Vector3 value)
         {
-            buffer.Pop<float>(out value.X);
-            buffer.Pop<float>(out value.Y);
-            buffer.Pop<float>(out value.Z);
+            buffer.Buffer.PopFloat(out value.X);
+            buffer.Buffer.PopFloat(out value.Y);
+            buffer.Buffer.PopFloat(out value.Z);
         }
     }
 

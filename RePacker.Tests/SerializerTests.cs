@@ -10,7 +10,7 @@ namespace RePacker.Tests
     {
         Buffer CreateBuffer(int size = 1024)
         {
-            return new Buffer(new Memory<byte>(new byte[size]), 0);
+            return new Buffer(new byte[size], 0);
         }
 
         [Fact]

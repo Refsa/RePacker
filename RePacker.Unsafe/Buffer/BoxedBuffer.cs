@@ -40,27 +40,18 @@ namespace RePacker.Buffers
         #region Buffer Wrappers
         public void Push<T>(ref T value) where T : unmanaged
         {
-            Buffer.Push(ref value);
-        }
-
-        public void Push<T>(ref T value, int index) where T : unmanaged
-        {
-            Buffer.Push(ref value, index);
+            Buffer.Pack(ref value);
         }
 
         public void Pop<T>(out T value) where T : unmanaged
         {
-            Buffer.Pop<T>(out value);
+            Buffer.Unpack<T>(out value);
         }
 
-        public ReadOnlyMemory<byte> Read()
+        public T Pop<T>() where T : unmanaged
         {
-            return Buffer.Read();
-        }
-
-        public ReadOnlyMemory<byte> Read(int count)
-        {
-            return Buffer.Read(count);
+            Buffer.Unpack<T>(out T value);
+            return value;
         }
 
         public int Count()
