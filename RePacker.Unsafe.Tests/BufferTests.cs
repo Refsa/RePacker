@@ -30,7 +30,7 @@ namespace RePacker.Buffers.Tests
         {
             (byte[] buf, Buffer buffer) = MakeBuffer(1024);
 
-            Assert.Equal(buf, buffer.GetArray());
+            Assert.Equal(buf, buffer.Array);
         }
 
         [Fact]
@@ -161,7 +161,7 @@ namespace RePacker.Buffers.Tests
             buffer.buffer.Push<int>(ref testVal);
             buffer.buffer.Push<int>(ref testVal);
 
-            var arrayFromBuffer = buffer.buffer.GetArray();
+            var arrayFromBuffer = buffer.buffer.Array;
 
             Assert.Equal(5 * sizeof(int), buffer.buffer.Length());
         }
