@@ -19,6 +19,13 @@ namespace RePacker.Builder
 
         public static void PackArray<T>(this BoxedBuffer buffer, T[] data)
         {
+            if (data == null || data.Length == 0)
+            {
+                ulong zero = 0;
+                buffer.Buffer.Pack(ref zero);
+                return;
+            }
+
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Length;
@@ -57,23 +64,22 @@ namespace RePacker.Builder
 
         public static void PackIList<T>(this BoxedBuffer buffer, IList<T> data)
         {
+            if (data == null)
+            {
+                ulong zero = 0;
+                buffer.Buffer.PushULong(ref zero);
+                return;
+            }
+
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                if (data == null)
-                {
-                    ulong dataLen = 0;
-                    buffer.Buffer.PushULong(ref dataLen);
-                }
-                else
-                {
-                    ulong dataLen = (ulong)data.Count;
-                    buffer.Buffer.PushULong(ref dataLen);
+                ulong dataLen = (ulong)data.Count;
+                buffer.Buffer.PushULong(ref dataLen);
 
-                    for (int i = 0; i < data.Count; i++)
-                    {
-                        var ele = data[i];
-                        packer.Pack(buffer, ref ele);
-                    }
+                for (int i = 0; i < data.Count; i++)
+                {
+                    var ele = data[i];
+                    packer.Pack(buffer, ref ele);
                 }
             }
             else
@@ -87,18 +93,12 @@ namespace RePacker.Builder
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 buffer.Buffer.PopULong(out ulong len);
-                if (len != 0)
+
+                data = new List<T>();
+                for (int i = 0; i < (int)len; i++)
                 {
-                    data = new List<T>();
-                    for (int i = 0; i < (int)len; i++)
-                    {
-                        packer.Unpack(buffer, out T value);
-                        data.Add(value);
-                    }
-                }
-                else
-                {
-                    data = new List<T>();
+                    packer.Unpack(buffer, out T value);
+                    data.Add(value);
                 }
             }
             else
@@ -120,6 +120,13 @@ namespace RePacker.Builder
 
         public static void PackIEnumerable<T>(this BoxedBuffer buffer, IEnumerable<T> data)
         {
+            if (data == null || data.Count() == 0)
+            {
+                ulong zero = 0;
+                buffer.Buffer.PushULong(ref zero);
+                return;
+            }
+
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count();

@@ -109,7 +109,14 @@ namespace RePacker.Buffers
 
         public unsafe void MemoryCopyFromUnsafe<T>(T[] array) where T : unmanaged
         {
-            if (array.Length > FreeSpace())
+            if (array == null || array.Length == 0)
+            {
+                ulong zero = 0;
+                PushULong(ref zero);
+                return;
+            }
+
+            if (!CanFit<T>(array.Length))
             {
                 throw new IndexOutOfRangeException();
             }
@@ -144,6 +151,11 @@ namespace RePacker.Buffers
 
             T[] destArray = new T[(int)len];
 
+            if (len == 0)
+            {
+                return destArray;
+            }
+
             int size = Marshal.SizeOf<T>();
             int pos = ReadCursor();
 
@@ -169,7 +181,14 @@ namespace RePacker.Buffers
 
         public unsafe void MemoryCopyFrom<T>(T[] array) where T : unmanaged
         {
-            if (array.Length > FreeSpace())
+            if (array == null || array.Length == 0)
+            {
+                ulong zero = 0;
+                PushULong(ref zero);
+                return;
+            }
+
+            if (!CanFit<T>(array.Length))
             {
                 throw new IndexOutOfRangeException();
             }
@@ -198,6 +217,11 @@ namespace RePacker.Buffers
             PopULong(out ulong len);
 
             T[] destArray = new T[(int)len];
+
+            if (len == 0)
+            {
+                return destArray;
+            }
 
             int size = Marshal.SizeOf<T>();
             int pos = ReadCursor();

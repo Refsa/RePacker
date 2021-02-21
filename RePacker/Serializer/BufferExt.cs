@@ -18,6 +18,7 @@ namespace RePacker.Builder
             if (string.IsNullOrEmpty(str))
             {
                 buffer.PushULong(ref ZERO_ULONG);
+                return;
             }
 
             var bufData = buffer.GetArray();
