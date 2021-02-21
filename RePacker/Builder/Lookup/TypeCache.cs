@@ -198,7 +198,8 @@ namespace RePacker.Builder
 
                 var isCopyableField = type.GetField("IsCopyable", BindingFlags.Static | BindingFlags.Public);
                 bool isDirectlyCopyable = false;
-                if (isCopyableField is FieldInfo fieldInfo)
+                if ((wrapperFor.IsUnmanaged() || wrapperFor.IsUnmanagedStruct()) &&
+                    isCopyableField is FieldInfo fieldInfo)
                 {
                     isDirectlyCopyable = (bool)fieldInfo.GetValue(null);
                 }
