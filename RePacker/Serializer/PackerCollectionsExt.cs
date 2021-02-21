@@ -53,14 +53,14 @@ namespace RePacker.Builder
         {
             if (data == null)
             {
-                ulong zero = 0;
+                int zero = 0;
                 buffer.Buffer.Pack(ref zero);
                 buffer.Buffer.Pack(ref zero);
                 return;
             }
 
-            ulong width = (ulong)data.GetLength(0);
-            ulong height = (ulong)data.GetLength(1);
+            int width = data.GetLength(0);
+            int height = data.GetLength(1);
 
             buffer.Buffer.Pack(ref width);
             buffer.Buffer.Pack(ref height);
@@ -81,19 +81,19 @@ namespace RePacker.Builder
 
         public static void UnpackArray2D<T>(this BoxedBuffer buffer, out T[,] data)
         {
-            buffer.Buffer.Unpack<ulong>(out ulong width);
-            buffer.Buffer.Unpack<ulong>(out ulong height);
+            buffer.Buffer.Unpack<int>(out int width);
+            buffer.Buffer.Unpack<int>(out int height);
 
-            data = new T[(int)width, (int)height];
+            data = new T[width, height];
 
             if (width == 0 || height == 0)
             {
                 return;
             }
 
-            for (int x = 0; x < (int)width; x++)
+            for (int x = 0; x < width; x++)
             {
-                for (int y = 0; y < (int)height; y++)
+                for (int y = 0; y < height; y++)
                 {
                     data[x, y] = buffer.Unpack<T>();
                 }
@@ -210,12 +210,6 @@ namespace RePacker.Builder
                         {
                             data[x, y, z, w] = buffer.Unpack<T>();
                         }
-        }
-
-        public static T[] UnpackArrayAsRet<T>(this BoxedBuffer buffer)
-        {
-            UnpackArray<T>(buffer, out var data);
-            return data;
         }
         #endregion
 
