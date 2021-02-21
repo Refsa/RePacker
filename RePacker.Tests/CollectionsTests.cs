@@ -10,6 +10,12 @@ namespace RePacker.Tests
 {
     public class CollectionsTests
     {
+        public CollectionsTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
+        #region Array
         [Fact]
         public void unmanaged_null_array()
         {
@@ -203,6 +209,82 @@ namespace RePacker.Tests
                 Assert.Equal(iac.ArrayOfClass[i].Int, fromBuf.ArrayOfClass[i].Int);
             }
         }
+
+        [Fact]
+        public void two_dim_unmanaged_array()
+        {
+            var buffer = new BoxedBuffer(2048);
+
+            int[,] data = new int[5, 15];
+            for (int x = 0; x < 5; x++)
+                for (int y = 0; y < 15; y++)
+                {
+                    data[x, y] = x * y;
+                }
+
+            buffer.Pack(ref data);
+
+            int[,] fromBuf = buffer.Unpack<int[,]>();
+
+            for (int x = 0; x < 5; x++)
+                for (int y = 0; y < 15; y++)
+                {
+                    Assert.Equal(data[x, y], fromBuf[x, y]);
+                }
+        }
+
+        [Fact]
+        public void three_dim_unmanaged_array()
+        {
+            var buffer = new BoxedBuffer(4096);
+
+            int[,,] data = new int[4, 6, 8];
+            for (int x = 0; x < 4; x++)
+                for (int y = 0; y < 6; y++)
+                    for (int z = 0; z < 8; z++)
+                    {
+                        data[x, y, z] = x * y * z;
+                    }
+
+            buffer.Pack(ref data);
+
+            int[,,] fromBuf = buffer.Unpack<int[,,]>();
+
+            for (int x = 0; x < 4; x++)
+                for (int y = 0; y < 6; y++)
+                    for (int z = 0; z < 8; z++)
+                    {
+                        Assert.Equal(data[x, y, z], fromBuf[x, y, z]);
+                    }
+        }
+
+        [Fact]
+        public void four_dim_unmanaged_array()
+        {
+            var buffer = new BoxedBuffer(50_000);
+
+            int[,,,] data = new int[2, 4, 6, 8];
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                    for (int z = 0; z < 6; z++)
+                        for (int w = 0; w < 8; w++)
+                        {
+                            data[x, y, z, w] = x * y * z * w;
+                        }
+
+            buffer.Pack(ref data);
+
+            int[,,,] fromBuf = buffer.Unpack<int[,,,]>();
+
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 4; y++)
+                    for (int z = 0; z < 6; z++)
+                        for (int w = 0; w < 8; w++)
+                        {
+                            Assert.Equal(data[x, y, z, w], fromBuf[x, y, z, w]);
+                        }
+        }
+        #endregion
 
         [Fact]
         public void ilist_with_unmanaged_type()
