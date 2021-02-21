@@ -12,8 +12,12 @@ namespace RePacker.Builder
 
         public override void Unpack(BoxedBuffer buffer, out Queue<TElement> value)
         {
-            buffer.UnpackIEnumerable<TElement>(PackerCollectionsExt.IEnumerableType.Queue, out var ien);
-            value = (Queue<TElement>)ien;
+            buffer.UnpackQueue<TElement>(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref Queue<TElement> value)
+        {
+            Unpack(buffer, out value);
         }
     }
 }

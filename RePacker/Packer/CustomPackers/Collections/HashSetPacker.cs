@@ -7,13 +7,17 @@ namespace RePacker.Builder
     {
         public override void Pack(BoxedBuffer buffer, ref HashSet<TElement> value)
         {
-            buffer.PackIEnumerable(value);
+            buffer.PackHashSet(value);
         }
 
         public override void Unpack(BoxedBuffer buffer, out HashSet<TElement> value)
         {
-            buffer.UnpackIEnumerable<TElement>(PackerCollectionsExt.IEnumerableType.HashSet, out var ien);
-            value = (HashSet<TElement>)ien;
+            buffer.UnpackHashSet<TElement>(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref HashSet<TElement> value)
+        {
+            Unpack(buffer, out value);
         }
     }
 }

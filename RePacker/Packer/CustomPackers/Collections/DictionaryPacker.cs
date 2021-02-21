@@ -18,8 +18,8 @@ namespace RePacker.Builder
 
         public override void Unpack(BoxedBuffer buffer, out Dictionary<TKey, TValue> value)
         {
-            buffer.UnpackIEnumerable<TKey>(IEnumerableType.None, out var keys);
-            buffer.UnpackIEnumerable<TValue>(IEnumerableType.None, out var values);
+            buffer.UnpackIEnumerable<TKey>(out var keys);
+            buffer.UnpackIEnumerable<TValue>(out var values);
             value = keys.Zip(values, (k, v) => new KeyValuePair<TKey, TValue>(k, v)).ToDictionary(x => x.Key, x => x.Value);
 
             // var kvCollection = buffer.Unpack<IEnumerable<KeyValuePair<TKey, TValue>>>();

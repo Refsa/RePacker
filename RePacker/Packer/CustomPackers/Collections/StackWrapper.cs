@@ -7,13 +7,17 @@ namespace RePacker.Builder
     {
         public override void Pack(BoxedBuffer buffer, ref Stack<TElement> value)
         {
-            buffer.PackIEnumerable(value);
+            buffer.PackStack(value);
         }
 
         public override void Unpack(BoxedBuffer buffer, out Stack<TElement> value)
         {
-            buffer.UnpackIEnumerable<TElement>(PackerCollectionsExt.IEnumerableType.Stack, out var ien);
-            value = (Stack<TElement>)ien;
+            buffer.UnpackStack<TElement>(out value);
+        }
+
+        public override void UnpackInto(BoxedBuffer buffer, ref Stack<TElement> value)
+        {
+            Unpack(buffer, out value);
         }
     }
 }

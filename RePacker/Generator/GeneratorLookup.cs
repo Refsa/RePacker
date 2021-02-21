@@ -26,9 +26,9 @@ namespace RePacker.Builder
                     {typeof(IEnumerable<>), new IEnumerableGenerator()},
                     {typeof(Dictionary<,>), new DictionaryGenerator()},
                     {typeof(List<>), new IListGenerator()},
-                    {typeof(HashSet<>), new IEnumerableGenerator()},
-                    {typeof(Queue<>), new IEnumerableGenerator()},
-                    {typeof(Stack<>), new IEnumerableGenerator()},
+                    {typeof(HashSet<>), new HashSetGenerator()},
+                    {typeof(Queue<>), new QueueGenerator()},
+                    {typeof(Stack<>), new StackGenerator()},
 
                     {typeof(KeyValuePair<,>), new KeyValuePairGenerator()},
 

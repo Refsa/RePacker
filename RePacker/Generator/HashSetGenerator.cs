@@ -8,18 +8,18 @@ using static RePacker.Builder.PackerCollectionsExt;
 
 namespace RePacker.Builder
 {
-    internal class IEnumerableGenerator : IGenerator
+    internal class HashSetGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
-        public Type ForType => typeof(IEnumerable<>);
+        public Type ForType => typeof(HashSet<>);
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
-        MethodInfo deserializeIEnumerableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIEnumerable));
-        MethodInfo deserializeIEnumerableBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIEnumerableBlittable));
+        MethodInfo deserializeHashSetMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackHashSet));
+        // MethodInfo deserializeHashSetBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackHashSetBlittable));
 
-        MethodInfo serializeIEnumerableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackIEnumerable));
-        MethodInfo serializeIEnumerableBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackIEnumerableBlittable));
+        MethodInfo serializeHashSetMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackHashSet));
+        // MethodInfo serializeHashSetBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackHashSetBlittable));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
@@ -35,14 +35,14 @@ namespace RePacker.Builder
 
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
-                var enumerableDeserializer = deserializeIEnumerableMethod.MakeGenericMethod(elementType);
+                var enumerableDeserializer = deserializeHashSetMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, enumerableDeserializer);
             }
-            else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-            {
-                var enumerableDeserializer = deserializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
-                ilGen.Emit(OpCodes.Call, enumerableDeserializer);
-            }
+            // else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
+            // {
+            //     var enumerableDeserializer = deserializeHashSetBlittableMethod.MakeGenericMethod(elementType);
+            //     ilGen.Emit(OpCodes.Call, enumerableDeserializer);
+            // }
             else
             {
                 ilGen.Emit(OpCodes.Pop);
@@ -65,19 +65,19 @@ namespace RePacker.Builder
             Type elementType = fieldInfo.FieldType.GenericTypeArguments[0];
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
             {
-                var enumerableSerializer = serializeIEnumerableMethod.MakeGenericMethod(elementType);
+                var enumerableSerializer = serializeHashSetMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, enumerableSerializer);
             }
-            else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-            {
-                var enumerableSerializer = serializeIEnumerableBlittableMethod.MakeGenericMethod(elementType);
-                ilGen.Emit(OpCodes.Call, enumerableSerializer);
-            }
+            // else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
+            // {
+            //     var enumerableSerializer = serializeHashSetBlittableMethod.MakeGenericMethod(elementType);
+            //     ilGen.Emit(OpCodes.Call, enumerableSerializer);
+            // }
             else
             {
                 ilGen.Emit(OpCodes.Pop);
                 ilGen.Emit(OpCodes.Pop);
-                ilGen.EmitLog($"RePacker - Pack: IEnumerable of type {fieldInfo.FieldType.Name} is not supported");
+                ilGen.EmitLog($"RePacker - Pack: HashSet of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
     }

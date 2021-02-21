@@ -9,14 +9,7 @@ namespace RePacker.Builder
 {
     public static class PackerCollectionsExt
     {
-        public enum IEnumerableType : byte
-        {
-            None = 0,
-            HashSet,
-            Queue,
-            Stack,
-        }
-
+        #region Array
         public static void PackArray<T>(this BoxedBuffer buffer, T[] data)
         {
             if (data == null || data.Length == 0)
@@ -61,7 +54,9 @@ namespace RePacker.Builder
             UnpackArray<T>(buffer, out var data);
             return data;
         }
+        #endregion
 
+        #region IList
         public static void PackIList<T>(this BoxedBuffer buffer, IList<T> data)
         {
             if (data == null)
@@ -117,7 +112,9 @@ namespace RePacker.Builder
         {
             data = buffer.MemoryCopy<T>();
         }
+        #endregion
 
+        #region IEnumerable
         public static void PackIEnumerable<T>(this BoxedBuffer buffer, IEnumerable<T> data)
         {
             if (data == null || data.Count() == 0)
@@ -140,7 +137,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, IEnumerableType type, out IEnumerable<T> data)
+        public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, out IEnumerable<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
@@ -151,13 +148,11 @@ namespace RePacker.Builder
                 {
                     packer.Unpack(buffer, out temp_data[i]);
                 }
-
-                var asSpan = new Span<T>(temp_data);
-                data = CreateBaseIEnumerableType<T>(type, ref asSpan);
+                data = temp_data;
             }
             else
             {
-                data = null;
+                data = new T[0];
             }
         }
 
@@ -166,43 +161,70 @@ namespace RePacker.Builder
             buffer.MemoryCopy((T[])data);
         }
 
-        public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, IEnumerableType type, out IEnumerable<T> data) where T : unmanaged
+        public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, out IEnumerable<T> data) where T : unmanaged
+        {
+            T[] temp = buffer.MemoryCopy<T>();
+            data = temp;
+        }
+        #endregion
+
+        #region ICollection
+        public static void PackICollection<T>(this BoxedBuffer buffer, ICollection<T> data)
+        {
+            if (data == null)
+            {
+                ulong zero = 0;
+                buffer.Buffer.PushULong(ref zero);
+                return;
+            }
+
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
+            {
+                ulong dataLen = (ulong)data.Count;
+                buffer.Buffer.PushULong(ref dataLen);
+
+                foreach (var d in data)
+                {
+                    var ele = d;
+                    packer.Pack(buffer, ref ele);
+                }
+            }
+            else
+            {
+                RePacker.Logger.Error($"Couldnt find packer for list with elements of {typeof(T)}");
+            }
+        }
+
+        public static void UnpackICollection<T>(this BoxedBuffer buffer, out ICollection<T> data)
+        {
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
+            {
+                buffer.Buffer.PopULong(out ulong len);
+
+                data = new T[(int)len];
+                for (int i = 0; i < (int)len; i++)
+                {
+                    packer.Unpack(buffer, out T value);
+                    data.Add(value);
+                }
+            }
+            else
+            {
+                RePacker.Logger.Error($"Couldnt find unpacker for list with elements of {typeof(T)}");
+                data = null;
+            }
+        }
+
+        public static void PackICollectionBlittable<T>(this BoxedBuffer buffer, ICollection<T> data) where T : unmanaged
+        {
+            buffer.MemoryCopy((T[])data);
+        }
+
+        public static void UnpackICollectionBlittable<T>(this BoxedBuffer buffer, out ICollection<T> data) where T : unmanaged
         {
             data = buffer.MemoryCopy<T>();
         }
-
-        static IEnumerable<T> CreateBaseIEnumerableType<T>(IEnumerableType type, ref Span<T> from)
-        {
-            if (type == IEnumerableType.Queue)
-            {
-                var container = new Queue<T>(from.Length);
-                foreach (var item in from)
-                {
-                    container.Enqueue(item);
-                }
-                return container;
-            }
-            else if (type == IEnumerableType.Stack)
-            {
-                var container = new Stack<T>(from.Length);
-                for (int i = from.Length - 1; i >= 0; i--)
-                {
-                    container.Push(from[i]);
-                }
-                return container;
-            }
-            else if (type == IEnumerableType.HashSet)
-            {
-                var container = new HashSet<T>();
-                foreach (var item in from)
-                {
-                    container.Add(item);
-                }
-                return container;
-            }
-
-            return from.ToArray();
-        }
+        #endregion
 
         public static void RecreateDictionary<K, V>(IList<K> keys, IList<V> values, out Dictionary<K, V> dict)
         {
@@ -212,6 +234,79 @@ namespace RePacker.Builder
             {
                 dict.Add(keys[i], values[i]);
             }
+        }
+
+        public static void PackQueue<T>(this BoxedBuffer buffer, Queue<T> data)
+        {
+            PackIEnumerable<T>(buffer, data);
+        }
+
+        public static void PackStack<T>(this BoxedBuffer buffer, Stack<T> data)
+        {
+            if (data == null)
+            {
+                ulong zero = 0;
+                buffer.Buffer.PushULong(ref zero);
+                return;
+            }
+
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
+            {
+                ulong dataLen = (ulong)data.Count;
+                buffer.Buffer.PushULong(ref dataLen);
+
+                for (int i = (int)dataLen - 1; i >= 0; i--)
+                {
+                    var ele = data.ElementAt(i);
+                    packer.Pack(buffer, ref ele);
+                }
+            }
+            else
+            {
+                RePacker.Logger.Error($"Couldnt find packer for stack with elements of {typeof(T)}");
+            }
+        }
+
+        public static void PackHashSet<T>(this BoxedBuffer buffer, HashSet<T> data)
+        {
+            PackIEnumerable<T>(buffer, data);
+        }
+
+        static void UnpackCollectionInternal<T>(this BoxedBuffer buffer, Action<T> predicate)
+        {
+            if (TypeCache.TryGetTypePacker<T>(out var packer))
+            {
+                buffer.Buffer.PopULong(out ulong len);
+
+                for (int i = 0; i < (int)len; i++)
+                {
+                    packer.Unpack(buffer, out var item);
+                    predicate.Invoke(item);
+                }
+            }
+        }
+
+        public static void UnpackQueue<T>(this BoxedBuffer buffer, out Queue<T> data)
+        {
+            data = new Queue<T>();
+            UnpackCollectionInternal<T>(buffer, data.Enqueue);
+        }
+
+        public static void UnpackStack<T>(this BoxedBuffer buffer, out Stack<T> data)
+        {
+            data = new Stack<T>();
+            UnpackCollectionInternal<T>(buffer, data.Push);
+        }
+
+        public static void UnpackHashSet<T>(this BoxedBuffer buffer, out HashSet<T> data)
+        {
+            data = new HashSet<T>();
+            UnpackCollectionInternal<T>(buffer, data.HashSetAdd);
+        }
+
+        static void HashSetAdd<T>(this HashSet<T> self, T item)
+        {
+            self.Add(item);
         }
     }
 }
