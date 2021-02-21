@@ -1,63 +1,75 @@
-# RePacker - Flexible and Fast C# Binary Packer
+# RePacker - Flexible and Fast C# Non-Persistent Binary Packer
 
-The aim for this project is to create a flexible and fast serializer/binary packer that works with both standalone C# projects and within the Unity .Net ecosystem.
+The aim for this project is to create a flexible and fast serializer/binary packer that works with both standalone C# projects and within the Unity Engine ecosystem.
 
-Current Features:
-- Single entry serialization of any supported type
-- Easily auto-generate serializers, with nested type support
-- Wrap types you can't directly modify to support serialization
-- Fast Buffer type that can be used by itself to pack and unpack data
-- No GC footprint on unmanaged types
-- Unpack directly into existing objects
-- C style packing without padding, meaning it can be unpacked in languages that supports C style structs
+What you get:
+- Blazingly fast binary packing
+- Single entry point to serialization
+- Ability to mark specific fields/properties for serialization
+- Ability to wrap types outside of your control for serialization
+- Supports NET4.6.1 through NET4.7.3 and Net Core 3.0/3.1
 
-Issues/Downsides:
-- No AOT(IL2CPP) support for Unity
-- Currently auto-generated packers needs the base type to be public
-- Unity reference types nested inside other types can be iffy
-- Currently you need to use Buffer and BoxedBuffer that is supplied with this package to Pack and Unpack. It's a wrapper around Memory\<byte\> to more easily optimize the internal workings.
-- No proper IEEE handling of floating point types
-- Only Big-Endian support for now
-  
+What you dont get:
+- Versioning
+- No Unity AOT(IL2CPP) Support (for now)
+- Endianess is based on platform it runs on (for now)
+
 Long Term Goals:
 - Unity AOT(IL2CPP) Support
-- Speed
-- Flexibility
 - Tested cross-language support
 - Control over stride/padding
 - Versioning and dirty bits
 
+You can find benchmarks under the [performance](#performance) section.
+
 ## General Use
+
 Currently both bootstrapping and logging is enabled by default, but can be toggled with the NO_BOOTSTRAP and NO_LOGGING compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
 
 ### BoxedBuffer
-Packing and Unpacking requires the use of **BoxedBuffer** that is a class that wraps around the Buffer struct. Buffer internally has a **Memory\<byte\>** that is pointing to a byte array. __You are responsible for pooling the byte array and/or the BoxedBuffer for now.__ 
+
+Packing and Unpacking requires the use of **BoxedBuffer** that is a class that wraps around the Buffer struct. Buffer internally has a **Memory\<byte\>** that is pointing to a byte array. **You are responsible for pooling the byte array and/or the BoxedBuffer for now.**
 
 Because of how Buffer works internally it's important that you call `buffer.Reset()` after you're finished unpacking data from it. It stores both a read and a write index internally to facilitate reads and writes.
 
 ### Auto-Generate packer:
+
 By default it generates for all public fields:
+
 ```cs
 [RePacker]
 public struct SupportMe
 {
-    public float Float;
-    public int Int;
+    public float Float; // Packed
+    public int Int; // Packed
+    long _long; // Not Packed
 }
 ```
 
 You can also specify the fields to pack:
+
 ```cs
 [RePacker(false)]
 public struct SupportMe
 {
-    [RePack] public float Float;
-    public int Int;
+    [RePack] public float Float; // Serialized
+    public int Int; // Not serialized
 }
+```
 
+Any properties needs to be explicitly marked for serialization.
+
+```cs
+[RePacker(false)]
+public struct SupportMe
+{
+    [RePack] public float Float { get; set; } // Serialized
+    [RePack] public int Int; // Serialized
+}
 ```
 
 Alternatively, any struct with only unmanaged fields can be directly packed/unpacked. This is all handled internally though, but best practice is probably to have the [RePackerAttribute] present.
+
 ```cs
 public struct ImUnmanaged
 {
@@ -66,7 +78,10 @@ public struct ImUnmanaged
 }
 ```
 
+Another benefit is that any struct where all fields are serialized can be directly copied. This means that an array of "ImUnmanaged" structs will be copied with MemoryCopy and as such provide no overhead.
+
 ### Pack and Unpack:
+
 ```cs
 SupportMe packMe = new SupportMe{Float = 1.337f, Int = 1337};
 BoxedBuffer buffer = new BoxedBuffer(1024);
@@ -76,6 +91,9 @@ SupportMe unpacked = RePacker.Unpack<SupportMe>(buffer);
 ```
 
 ### Pack and Unpack into existing instance
+
+You can also unpack types that has the "UnpackInto" method defined on them. Any internal type has this defined, but any custom wrappers you make needs this defined
+
 ```cs
 [RePacker]
 public class IntoInstance
@@ -93,36 +111,47 @@ RePacker.UnpackInto(buffer, ref unpackIntoMe);
 ```
 
 ### Wrap an existing type
+
+Any type outside of your control needs a custom wrapper defined to enable serialization. In this case you can make use of all the internally used packing/unpacking methods for Buffer and BoxedBuffer. An overview of the supported packing helpers can be found in the [Buffer Extensions](#buffer-extensions) and [BoxedBuffer Extensions](#boxedbuffer-extensions) section below.
+
+Additionally any type that has a custom packer can also be packed/unpacked with `RePacker.Pack`/`RePacker.Unpack`.
+
 ```cs
 public class CantModifyMe
 {
     public float Float;
+    public SupportMe SupportMe;
 }
 
 [RePackerWrapper(typeof(CantModifyMe))]
-public class CantModifyMePacker : RePackerWrapper<CantModifyMe>
+public class CantModifyMeWrapper : RePackerWrapper<CantModifyMe>
 {
     public override void Pack(BoxedBuffer buffer, ref CantModifyMe value)
     {
         buffer.PushFloat(ref value.Float);
+        RePacker.Pack(buffer, ref value.SupportMe);
     }
 
     public override void Unpack(BoxedBuffer buffer, out CantModifyMe value)
     {
         value = new CantModifyMe();
         buffer.PopFloat(out value.Float);
+        RePacker.Unpack(buffer, ref value.SupportMe);
     }
 
     public override void UnpackInto(BoxedBuffer buffer, ref Vector2 value)
     {
         buffer.PopFloat(out value.Float);
+        RePacker.Unpack(buffer, ref value.SupportMe);
     }
 }
-
 // Pack/Unpack as shown above
 ```
 
+You can also add the `public static new bool IsCopyable = true;` field to your `RePackerWrapper<T>` to enable direct copying of the type inside of arrays/collections. This is only applicable to unmanaged types, such as primitives or structs with only primitives. If that is not the case the field is ignored.
+
 ### Handling generic types
+
 Generic types is a special case that requires some additional work to support. They need an additional class that is responsible for producing a packer/unpacker for a specific set of generic arguments. There is currently no pre-generating for generic types but they only need to run once when the first call to packing/unpacking is done. This is hopefully something that can be reworked in the future to reduce the amount of boilerplate.
 
 ```cs
@@ -164,36 +193,46 @@ public class MyGenericTypeProducer : GenericProducer
 ## Supported Types
 
 ### C# Types
-Any unmanaged type/struct is automatically supported by the use of MemoryMarshal. 
 
-To allow for faster serialization the following unmanaged types have direct support:
+Primitives:
 
+```
 Bool, Char, Byte, SByte, Short, UShort, Int, Uint, Long, ULong, Float, Double, Decimal
+```
 
 Collections:
-- ICollection\<T\>
-- IList\<T\>
-- IEnumerable\<T\>
+
+```
+- ICollection<T>
+- IList<T>
+- IEnumerable<T>
 - Dictionary<TKey, TValue>
-- List\<T\>
-- Stack\<T\>
-- Queue\<T\>
-- HashSet\<T\>
+- List<T>
+- Stack<T>
+- Queue<T>
+- HashSet<T>
 - Array
+```
 
 Additionally:
+
+```
 - String
 - Enum (the built in generator reflects directly on the underlying type, meaning no overhead)
 - DateTime
 - TimeSpan
-- ValueTuple\<T1, T2, T3, T4, T5, T6, T7, TRest\> (or any of the versions with fewer params)
-- KeyValuePair\<TKey, TValue\>
-- Nullable\<T\>
-
-**Any generic argument shown above needs to be supported by a packer/unpacker as well, but nesting of types is supported**
+- ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> (or any of the versions with fewer params)
+- KeyValuePair<TKey, TValue>
+- Nullable<T>
+```
 
 ### Unity Types:
+
+RePacker.Unity projects contains support needed for Unity types.
+
+```
 Transform, Color, Color32, Vector2, Vector3, Vector4, Quaternion, Vector3Int, Vector2Int
+```
 
 ## Buffer and BoxedBuffer
 
@@ -202,13 +241,14 @@ This library uses a struct known as `Buffer` in order to to read and writes into
 You can use the Buffer and BoxedBuffer alone in order to do packing and unpacking without the rest of the framework. These are contained inside the RePacker.Unsafe project. This is also how you implement custom packers for types you might not have control over.
 
 ### Buffer Extensions
-Buffer itself has access to a bunch of utility methods to pack different types. Some of them have direct support, but any type wrapped by RePacker needs to use the framework itself. 
+
+Buffer itself has access to a bunch of utility methods to pack different types. Some of them have direct support, but any type wrapped by RePacker needs to use the framework itself.
 
 ```md
-Push<T> where T : unmanaged
-    Supports any unmanaged type by using MemoryManager. This is a bit slower than the more optimized packing methods but can be useful.
+Pack<T> where T : unmanaged
+Supports any unmanaged type by direct memory copy.
 
-All of these methods are packing in Big Endian form
+All of these methods are directly copied by memory:
 PushBool/PopBool
 PushByte/PopByte
 PushSByte/PopSByte
@@ -218,26 +258,25 @@ PushInt/PopInt
 PushUInt/PopUInt
 PushLong/PopLong
 PushULong/PopULong
-
-Floating point numbers are directly copied by memory and as such is bound to the form the runtime is using
 PushFloat/PopFloat
 PushDouble/PopDouble
 PushDecimal/PopDecimal
 
-Extensions
-PackString/UnpackString 
-    UTF8 Encoding
+Extensions:
+PackString/UnpackString
+UTF8 Encoding
 PackDateTime/UnpackDateTime
-    Packs the Ticks as a ulong
+Packs the Ticks as a ulong
 PackEnum<TEnum>/UnpackEnum<TEnum>
-    All unmanaged underlying types are supported
+All unmanaged underlying types are supported
 PackBlittableArray/PackBlittableArray
-    Uses MemoryMarshal to convert an unmanaged/blittable type into a byte array
+Any blittable/unmanaged types such as primitives and structs with only primitives
 EncodeArray/DecodeArray
-    Only able to support types that are supported by the RePacker framework
+Only able to support types that are supported by the RePacker framework
 ```
 
 ### BoxedBuffer Extensions
+
 BoxedBuffer contains a field, Buffer, that points to a Buffer instance. On top of this it has some additional utility extensions.
 
 ```md
@@ -249,22 +288,24 @@ PackArray/UnpackArray
 
 PackIList/UnpackIList
 PackIListBlittable/UnpackIListBlittable
-    Internall this is unpacked as List
-    Blittable version utilizes `stackalloc` meaning it avoids heap allocations
+Internall this is unpacked as List
+Blittable version utilizes `stackalloc` meaning it avoids heap allocations
 
 PackIEnumerable/UnpackIEnumerable
 PackIEnumerableBlittable/UnpackIEnumerableBlittable
-    Internally it supports Stack, Queue and HashSet but defaults to List
-    Blittable version utilizes `stackalloc` meaning it avoids heap allocations
+Internally it supports Stack, Queue and HashSet but defaults to List
+Blittable version utilizes `stackalloc` meaning it avoids heap allocations
 
 PackDictionary/UnpackDictionary
 ```
 
 ## Logging
+
 Package provides an ILogger interface and you can set the logger when initializing it at runtime. A default logger using Console exists, while the Unity version has one for it's Debug logging. You can also turn logging completely off if you want.
 
 ## Performance:
-Benchmarks are performed on an i5-4670k@4.3GHz and uses similar test format to ZeroFormatter. All benchmark code can be found under the RePacker.Bench project. 
+
+Benchmarks are performed on an i5-4670k@4.3GHz with Windows 10. All benchmark code can be found under the RePacker.Bench project.
 
 ```cs
 /* netcoreapp3.1
@@ -290,7 +331,7 @@ ILGen_SmallObjectArrayDeserialize10K | 1,089,353.67 us
         ILGen_LargeStringDeserialize | 2,004,193.04 us
 */
 
-/* net4.6.1 - latest
+/* net4.6.1
                               Method |            Mean
 ------------------------------------ |----------------
        ILGen_SmallObjectSerialize10K |     1,082.88 us
@@ -313,6 +354,8 @@ ILGen_SmallObjectArrayDeserialize10K | 1,395,526.24 us
         ILGen_LargeStringDeserialize | 3,074,888.27 us
 */
 ```
+
+You can also find the ZeroFormatter benchmark results [here](RePacker.Bench/ZeroFormatterBench.md).
 
 ### Unity:
 

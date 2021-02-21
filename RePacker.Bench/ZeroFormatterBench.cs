@@ -138,7 +138,7 @@ namespace RePacker.Benchmarks
             }
         }
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
             boxedBuffer.Buffer.Reset();
@@ -177,9 +177,9 @@ namespace RePacker.Benchmarks
                 var _ = RePacker.Unpack<Vector>(vectorBuffer);
                 vectorBuffer.Buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_IntSerialize10K()
         {
             boxedBuffer.Buffer.Reset();
@@ -201,9 +201,9 @@ namespace RePacker.Benchmarks
                 var _ = RePacker.Unpack<int>(intBuffer);
                 intBuffer.Buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void IntSerialize10K()
         {
             buffer.Reset();
@@ -229,9 +229,9 @@ namespace RePacker.Benchmarks
                 buffer.PopInt(out int _);
                 buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void PackIntSerialize10K()
         {
             buffer.Reset();
@@ -257,7 +257,7 @@ namespace RePacker.Benchmarks
                 buffer.Unpack(out int _);
                 buffer.Reset();
             }
-        }
+        } */
 
         [Benchmark]
         public void ILGen_SmallObjectArraySerialize10K()
@@ -302,7 +302,7 @@ namespace RePacker.Benchmarks
             }
         }
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_IntArraySerialize10K()
         {
             boxedBuffer.Reset();
@@ -321,9 +321,9 @@ namespace RePacker.Benchmarks
                 var p = RePacker.Unpack<int[]>(vectorArrayBoxedBuffer);
                 vectorArrayBoxedBuffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_LargeStringSerialize()
         {
             for (int i = 0; i < 10_000; i++)
@@ -341,7 +341,7 @@ namespace RePacker.Benchmarks
                 largeStringBoxedBuffer.Reset();
                 var _ = largeStringBoxedBuffer.Unpack<string>();
             }
-        }
+        } */
 
         public enum Sex : sbyte
         {
