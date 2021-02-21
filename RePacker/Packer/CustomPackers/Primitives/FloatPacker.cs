@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class FloatPacker : RePackerWrapper<float>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref float value)
         {
             buffer.Buffer.PushFloat(ref value);

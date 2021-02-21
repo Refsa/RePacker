@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class BoolPacker : RePackerWrapper<bool>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref bool value)
         {
             buffer.Buffer.PushBool(ref value);

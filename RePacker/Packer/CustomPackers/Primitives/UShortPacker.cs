@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class UShortPacker : RePackerWrapper<ushort>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref ushort value)
         {
             buffer.Buffer.PushUShort(ref value);

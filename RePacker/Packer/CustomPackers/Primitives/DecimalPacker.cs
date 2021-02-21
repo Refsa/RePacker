@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class DecimalPacker : RePackerWrapper<decimal>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref decimal value)
         {
             buffer.Push<decimal>(ref value);

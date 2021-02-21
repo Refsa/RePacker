@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class BytePacker : RePackerWrapper<byte>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref byte value)
         {
             buffer.Buffer.PushByte(ref value);

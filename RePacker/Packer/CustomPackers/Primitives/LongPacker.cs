@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class LongPacker : RePackerWrapper<long>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref long value)
         {
             buffer.Buffer.PushLong(ref value);

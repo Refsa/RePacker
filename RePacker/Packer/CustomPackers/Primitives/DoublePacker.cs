@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class DoublePacker : RePackerWrapper<double>
     {
+        public static new bool IsCopyable = true;
+
         public override void Pack(BoxedBuffer buffer, ref double value)
         {
             buffer.Buffer.PushDouble(ref value);

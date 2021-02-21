@@ -4,6 +4,8 @@ namespace RePacker.Builder
 {
     internal class CharPacker : RePackerWrapper<char>
     {
+        public static new bool IsCopyable = true;
+        
         public override void Pack(BoxedBuffer buffer, ref char value)
         {
             buffer.Buffer.PushChar(ref value);
