@@ -17,7 +17,7 @@ namespace RePacker.Builder
             public Type Type;
             public bool HasCustomSerializer;
             public bool IsUnmanaged;
-            public bool HasWrapper;
+            public bool IsDirectlyCopyable;
             public FieldInfo[] SerializedFields;
 
             public Info(Type type, bool isUnmanaged)
@@ -25,8 +25,8 @@ namespace RePacker.Builder
                 Type = type;
                 IsUnmanaged = isUnmanaged;
 
+                IsDirectlyCopyable = false;
                 HasCustomSerializer = false;
-                HasWrapper = false;
                 SerializedFields = new FieldInfo[0];
             }
         }
@@ -131,8 +131,8 @@ namespace RePacker.Builder
                 {
                     Type = type,
                     IsUnmanaged = type.IsUnmanaged(),
-                    HasCustomSerializer = !type.IsValueType,
-                    HasWrapper = false,
+                    HasCustomSerializer = false,
+                    IsDirectlyCopyable = false,
                 };
 
                 List<FieldInfo> serializedFields = new List<FieldInfo>();
@@ -165,7 +165,7 @@ namespace RePacker.Builder
                 {
                     if (ReflectionUtils.GetAllFields(type).Count() == serializedFields.Count)
                     {
-                        tci.HasCustomSerializer = false;
+                        tci.IsDirectlyCopyable = true;
                     }
                 }
 
@@ -196,13 +196,20 @@ namespace RePacker.Builder
                     continue;
                 }
 
+                var isCopyableField = type.GetField("IsCopyable", BindingFlags.Static | BindingFlags.Public);
+                bool isDirectlyCopyable = false;
+                if (isCopyableField is FieldInfo fieldInfo)
+                {
+                    isDirectlyCopyable = (bool)fieldInfo.GetValue(null);
+                }
+
                 var typeInfo = new Info
                 {
                     Type = wrapperFor,
-                    HasCustomSerializer = !wrapperFor.IsValueType,
+                    HasCustomSerializer = true,
+                    IsDirectlyCopyable = isDirectlyCopyable,
                     IsUnmanaged = wrapperFor.IsUnmanaged(),
                     SerializedFields = null,
-                    HasWrapper = true,
                 };
 
                 typeCache.Add(wrapperFor, typeInfo);
@@ -214,7 +221,7 @@ namespace RePacker.Builder
         {
             foreach (var kv in typeCache)
             {
-                if (!kv.Value.HasWrapper) continue;
+                if (!kv.Value.HasCustomSerializer) continue;
 
                 if (wrapperTypeLookup.TryGetValue(kv.Key, out Type wrapper))
                 {
@@ -240,7 +247,7 @@ namespace RePacker.Builder
 
             foreach (var kv in typeCache)
             {
-                if (kv.Value.HasWrapper) continue;
+                if (kv.Value.HasCustomSerializer) continue;
 
                 if (packerLookup.ContainsKey(kv.Key)) continue;
                 (Type type, Info info) = (kv.Key, kv.Value);
@@ -287,10 +294,6 @@ namespace RePacker.Builder
 
                 try
                 {
-                    /* var constructor = typeof(TypePacker<>)
-                        .MakeGenericType(kv.Key)
-                        .GetConstructor(new Type[] { typeof(MethodInfo), typeof(MethodInfo) }); */
-
                     var typePacker = (ITypePacker)Activator
                         .CreateInstance(
                             typeof(TypePacker<>).MakeGenericType(kv.Key),
@@ -349,7 +352,7 @@ namespace RePacker.Builder
         }
 
         #region Runtime
-        static void AddTypeHandler(Type type)
+        static void AddRuntimeTypeInfo(Type type)
         {
             var info = new Info
             {
@@ -366,7 +369,7 @@ namespace RePacker.Builder
             {
                 if (runtimePackerProducers.TryGetValue(iface, out var producer))
                 {
-                    AddTypeHandler(type);
+                    AddRuntimeTypeInfo(type);
                     SetupTypeResolver(type, producer.GetProducer(type));
                     return true;
                 }
@@ -385,7 +388,7 @@ namespace RePacker.Builder
             {
                 if (runtimePackerProducers.TryGetValue(targetType, out var producer))
                 {
-                    AddTypeHandler(type);
+                    AddRuntimeTypeInfo(type);
                     SetupTypeResolver(type, producer.GetProducer(type));
                     return true;
                 }

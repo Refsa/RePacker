@@ -70,11 +70,6 @@ namespace RePacker
             return TypeCache.Unpack<T>(buffer);
         }
 
-        // public static object Unpack(BoxedBuffer buffer, Type type)
-        // {
-
-        // }
-
         /// <summary>
         /// Unpacks value of type T into an out parameter
         /// </summary>

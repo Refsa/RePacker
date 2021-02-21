@@ -6,7 +6,7 @@ namespace RePacker.Builder
 {
     public abstract class RePackerWrapper<T> : IPacker<T>
     {
-        public virtual bool IsDirectlyCopyable { get; } = false;
+        public static bool IsCopyable = false;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public abstract void Pack(BoxedBuffer buffer, ref T value);
@@ -14,13 +14,13 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void Unpack(BoxedBuffer buffer, out T value)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public virtual void UnpackInto(BoxedBuffer buffer, ref T value)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
     }
 
