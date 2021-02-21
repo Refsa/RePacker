@@ -5,6 +5,8 @@ namespace RePacker.Builder
 {
     internal class IntPacker : RePackerWrapper<int>
     {
+        public static new bool IsCopyable = true;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(BoxedBuffer buffer, ref int value)
         {

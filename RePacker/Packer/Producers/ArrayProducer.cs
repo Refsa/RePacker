@@ -13,7 +13,7 @@ namespace RePacker.Builder
 
             ITypePacker instance = null;
 
-            if (TypeCache.TryGetTypeInfo(elementType, out var ti) && ti.HasCustomSerializer)
+            if (TypeCache.TryGetTypeInfo(elementType, out var ti) && !ti.IsDirectlyCopyable)
             {
                 instance = (ITypePacker)Activator
                     .CreateInstance(typeof(ArrayPacker<>)
