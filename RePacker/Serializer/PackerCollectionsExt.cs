@@ -49,6 +49,169 @@ namespace RePacker.Builder
             }
         }
 
+        public static void PackArray2D<T>(this BoxedBuffer buffer, ref T[,] data)
+        {
+            if (data == null)
+            {
+                ulong zero = 0;
+                buffer.Buffer.Pack(ref zero);
+                buffer.Buffer.Pack(ref zero);
+                return;
+            }
+
+            ulong width = (ulong)data.GetLength(0);
+            ulong height = (ulong)data.GetLength(1);
+
+            buffer.Buffer.Pack(ref width);
+            buffer.Buffer.Pack(ref height);
+
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
+
+            for (int x = 0; x < (int)width; x++)
+            {
+                for (int y = 0; y < (int)height; y++)
+                {
+                    buffer.Pack(ref data[x, y]);
+                }
+            }
+        }
+
+        public static void UnpackArray2D<T>(this BoxedBuffer buffer, out T[,] data)
+        {
+            buffer.Buffer.Unpack<ulong>(out ulong width);
+            buffer.Buffer.Unpack<ulong>(out ulong height);
+
+            data = new T[(int)width, (int)height];
+
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
+
+            for (int x = 0; x < (int)width; x++)
+            {
+                for (int y = 0; y < (int)height; y++)
+                {
+                    data[x, y] = buffer.Unpack<T>();
+                }
+            }
+        }
+
+        public static void PackArray3D<T>(this BoxedBuffer buffer, ref T[,,] data)
+        {
+            if (data == null)
+            {
+                ulong zero = 0;
+                buffer.Buffer.Pack(ref zero);
+                buffer.Buffer.Pack(ref zero);
+                buffer.Buffer.Pack(ref zero);
+                return;
+            }
+
+            ulong width = (ulong)data.GetLength(0);
+            ulong height = (ulong)data.GetLength(1);
+            ulong depth = (ulong)data.GetLength(2);
+
+            buffer.Buffer.Pack(ref width);
+            buffer.Buffer.Pack(ref height);
+            buffer.Buffer.Pack(ref depth);
+
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
+
+            for (int x = 0; x < (int)width; x++)
+                for (int y = 0; y < (int)height; y++)
+                    for (int z = 0; z < (int)depth; z++)
+                    {
+                        buffer.Pack(ref data[x, y, z]);
+                    }
+        }
+
+        public static void UnpackArray3D<T>(this BoxedBuffer buffer, out T[,,] data)
+        {
+            buffer.Buffer.Unpack<ulong>(out ulong width);
+            buffer.Buffer.Unpack<ulong>(out ulong height);
+            buffer.Buffer.Unpack<ulong>(out ulong depth);
+
+            data = new T[(int)width, (int)height, (int)depth];
+
+            if (width == 0 || height == 0 || depth == 0)
+            {
+                return;
+            }
+
+            for (int x = 0; x < (int)width; x++)
+                for (int y = 0; y < (int)height; y++)
+                    for (int z = 0; z < (int)depth; z++)
+                    {
+                        data[x, y, z] = buffer.Unpack<T>();
+                    }
+        }
+
+        public static void PackArray4D<T>(this BoxedBuffer buffer, ref T[,,,] data)
+        {
+            if (data == null)
+            {
+                ulong zero = 0;
+                buffer.Buffer.Pack(ref zero);
+                buffer.Buffer.Pack(ref zero);
+                buffer.Buffer.Pack(ref zero);
+                buffer.Buffer.Pack(ref zero);
+                return;
+            }
+
+            ulong width = (ulong)data.GetLength(0);
+            ulong height = (ulong)data.GetLength(1);
+            ulong depth = (ulong)data.GetLength(2);
+            ulong seg = (ulong)data.GetLength(3);
+
+            buffer.Buffer.Pack(ref width);
+            buffer.Buffer.Pack(ref height);
+            buffer.Buffer.Pack(ref depth);
+            buffer.Buffer.Pack(ref seg);
+
+            if (width == 0 || height == 0)
+            {
+                return;
+            }
+
+            for (int x = 0; x < (int)width; x++)
+                for (int y = 0; y < (int)height; y++)
+                    for (int z = 0; z < (int)depth; z++)
+                        for (int w = 0; w < (int)seg; w++)
+                        {
+                            buffer.Pack(ref data[x, y, z, w]);
+                        }
+        }
+
+        public static void UnpackArray4D<T>(this BoxedBuffer buffer, out T[,,,] data)
+        {
+            buffer.Buffer.Unpack<ulong>(out ulong width);
+            buffer.Buffer.Unpack<ulong>(out ulong height);
+            buffer.Buffer.Unpack<ulong>(out ulong depth);
+            buffer.Buffer.Unpack<ulong>(out ulong seg);
+
+            data = new T[(int)width, (int)height, (int)depth, (int)seg];
+
+            if (width == 0 || height == 0 || depth == 0 || seg == 0)
+            {
+                return;
+            }
+
+            for (int x = 0; x < (int)width; x++)
+                for (int y = 0; y < (int)height; y++)
+                    for (int z = 0; z < (int)depth; z++)
+                        for (int w = 0; w < (int)seg; w++)
+                        {
+                            data[x, y, z, w] = buffer.Unpack<T>();
+                        }
+        }
+
         public static T[] UnpackArrayAsRet<T>(this BoxedBuffer buffer)
         {
             UnpackArray<T>(buffer, out var data);
@@ -79,7 +242,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find packer for list with elements of {typeof(T)}");
+                RePacker.Logger.Error($"Couldnt find packer for IList with elements of {typeof(T)}");
             }
         }
 
@@ -98,7 +261,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find unpacker for list with elements of {typeof(T)}");
+                RePacker.Logger.Error($"Couldnt find unpacker for IList with elements of {typeof(T)}");
                 data = null;
             }
         }
@@ -191,7 +354,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find packer for list with elements of {typeof(T)}");
+                RePacker.Logger.Error($"Couldnt find packer for ICollection with elements of {typeof(T)}");
             }
         }
 
@@ -210,7 +373,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find unpacker for list with elements of {typeof(T)}");
+                RePacker.Logger.Error($"Couldnt find unpacker for ICollection with elements of {typeof(T)}");
                 data = null;
             }
         }
@@ -263,7 +426,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find packer for stack with elements of {typeof(T)}");
+                RePacker.Logger.Error($"Couldnt find packer for Stack with elements of {typeof(T)}");
             }
         }
 

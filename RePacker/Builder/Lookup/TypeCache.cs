@@ -370,9 +370,14 @@ namespace RePacker.Builder
             {
                 if (runtimePackerProducers.TryGetValue(iface, out var producer))
                 {
-                    AddRuntimeTypeInfo(type);
-                    SetupTypeResolver(type, producer.GetProducer(type));
-                    return true;
+                    var prod = producer.GetProducer(type);
+                    if (prod != null)
+                    {
+                        AddRuntimeTypeInfo(type);
+                        SetupTypeResolver(type, prod);
+                        return true;
+                    }
+                    return false;
                 }
             }
 
@@ -389,9 +394,14 @@ namespace RePacker.Builder
             {
                 if (runtimePackerProducers.TryGetValue(targetType, out var producer))
                 {
-                    AddRuntimeTypeInfo(type);
-                    SetupTypeResolver(type, producer.GetProducer(type));
-                    return true;
+                    var prod = producer.GetProducer(type);
+                    if (prod != null)
+                    {
+                        AddRuntimeTypeInfo(type);
+                        SetupTypeResolver(type, prod);
+                        return true;
+                    }
+                    return false;
                 }
             }
 
