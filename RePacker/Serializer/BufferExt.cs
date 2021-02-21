@@ -17,18 +17,17 @@ namespace RePacker.Builder
         {
             if (string.IsNullOrEmpty(str))
             {
-                buffer.PushULong(ref ZERO_ULONG);
+                buffer.Pack(ref ZERO_ULONG);
                 return;
             }
 
-            var bufData = buffer.GetArray();
             int count = 0;
-            if (bufData != null)
+            if (buffer.Array != null)
             {
-                count = StringHelper.CopyString(str, bufData, buffer.WriteCursor() + sizeof(ulong));
+                count = StringHelper.CopyString(str, buffer.Array, buffer.WriteCursor() + sizeof(ulong));
                 
                 ulong c = (ulong)count;
-                buffer.PushULong(ref c);
+                buffer.Pack(ref c);
 
                 buffer.MoveWriteCursor(count);
             }
@@ -37,7 +36,7 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string UnpackString(this ref Buffer buffer)
         {
-            buffer.PopULong(out ulong length);
+            buffer.Unpack(out ulong length);
 
             if (length == 0)
             {
@@ -45,11 +44,10 @@ namespace RePacker.Builder
             }
 
             int start = buffer.ReadCursor();
-            var bufData = buffer.GetArray();
 
-            if (bufData != null)
+            if (buffer.Array != null)
             {
-                string s = StringHelper.GetString(bufData, start, (int)length);
+                string s = StringHelper.GetString(buffer.Array, start, (int)length);
                 buffer.MoveReadCursor((int)length);
                 return s;
             }

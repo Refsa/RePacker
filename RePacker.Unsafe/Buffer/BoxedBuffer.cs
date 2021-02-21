@@ -25,8 +25,7 @@ namespace RePacker.Buffers
 
         public BoxedBuffer(ref Buffer buffer)
         {
-            var array = buffer.GetArray();
-            Data = array;
+            Data = buffer.Array;
             Buffer = buffer;
         }
         public unsafe void MemoryCopy<T>(T[] array) where T : unmanaged
@@ -117,7 +116,7 @@ namespace RePacker.Buffers
 
         public byte[] GetArray()
         {
-            return Buffer.GetArray();
+            return Buffer.Array;
         }
         #endregion
     }

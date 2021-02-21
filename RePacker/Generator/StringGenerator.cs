@@ -22,7 +22,6 @@ namespace RePacker.Builder
             var encodeStringParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
             var encodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.PackString), encodeStringParams);
             ilGen.Emit(OpCodes.Call, encodeString);
-            // ilGen.Emit(OpCodes.Pop);
         }
     }
 }

@@ -14,6 +14,8 @@ namespace RePacker.Buffers
         Memory<byte> buffer;
         MemoryHandle bufferHandle;
 
+        public byte[] Array => array;
+
         int writeCursor;
         int readCursor;
         public int Index;
@@ -43,6 +45,17 @@ namespace RePacker.Buffers
 
             this.array = null;
             this.array = GetArray();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        byte[] GetArray()
+        {
+            if (MemoryMarshal.TryGetArray<byte>(buffer, out var seg))
+            {
+                return seg.Array;
+            }
+
+            return null;
         }
 
         public MemoryHandle GetHandle()
@@ -127,9 +140,7 @@ namespace RePacker.Buffers
             int pos = WriteCursor();
             int size = Marshal.SizeOf<T>();
 
-            var data = GetArray();
-
-            fixed (void* src = array, dest = &data[pos])
+            fixed (void* src = array, dest = &Array[pos])
             {
                 System.Buffer.MemoryCopy(src, dest, array.Length * size, array.Length * size);
             }
@@ -159,9 +170,7 @@ namespace RePacker.Buffers
             int size = Marshal.SizeOf<T>();
             int pos = ReadCursor();
 
-            var data = GetArray();
-
-            fixed (void* src = &data[pos], dest = destArray)
+            fixed (void* src = &array[pos], dest = destArray)
             {
                 System.Buffer.MemoryCopy(src, dest, len * (ulong)size, len * (ulong)size);
             }
@@ -199,9 +208,7 @@ namespace RePacker.Buffers
             int pos = WriteCursor();
             int size = Marshal.SizeOf<T>();
 
-            var data = GetArray();
-
-            Span<byte> dest = new Span<byte>(data, pos, size * (int)len);
+            Span<byte> dest = new Span<byte>(Array, pos, size * (int)len);
             Span<byte> src = MemoryMarshal.Cast<T, byte>(new Span<T>(array));
             CopyBlockUnaligned(
                 ref MemoryMarshal.GetReference<byte>(dest),
@@ -226,9 +233,7 @@ namespace RePacker.Buffers
             int size = Marshal.SizeOf<T>();
             int pos = ReadCursor();
 
-            var data = GetArray();
-
-            Span<T> src = MemoryMarshal.Cast<byte, T>(new Span<byte>(data));
+            Span<T> src = MemoryMarshal.Cast<byte, T>(new Span<byte>(Array));
             Span<T> dest = new Span<T>(destArray);
             CopyBlockUnaligned(
                 ref As<T, byte>(ref MemoryMarshal.GetReference<T>(dest)),
@@ -324,17 +329,6 @@ namespace RePacker.Buffers
         public bool CanFit<T>(int count)
         {
             return writeCursor + (count * Marshal.SizeOf<T>()) <= buffer.Length;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public byte[] GetArray()
-        {
-            if (MemoryMarshal.TryGetArray<byte>(buffer, out var seg))
-            {
-                return seg.Array;
-            }
-
-            return null;
         }
         #endregion
 
