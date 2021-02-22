@@ -60,15 +60,15 @@ public struct SupportMe
 Any properties needs to be explicitly marked for serialization.
 
 ```cs
-[RePacker(false)]
+[RePacker]
 public struct SupportMe
 {
     [RePack] public float Float { get; set; } // Serialized
-    [RePack] public int Int; // Serialized
+    public int Int; // Serialized
 }
 ```
 
-Alternatively, any struct with only unmanaged fields can be directly packed/unpacked. This is all handled internally though, but best practice is probably to have the [RePackerAttribute] present.
+Alternatively, any struct with only unmanaged fields can be directly packed/unpacked.
 
 ```cs
 public struct ImUnmanaged

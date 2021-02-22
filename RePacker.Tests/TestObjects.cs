@@ -404,4 +404,42 @@ namespace RePacker.Tests
         public int? Int;
         public bool? Bool;
     }
+
+    [RePacker]
+    public sealed class SealedClass
+    {
+        public int Int;
+        public float Float;
+        [RePack]
+        public NestedSealedClass Class { get; set; }
+    }
+
+    [RePacker(false)]
+    public sealed class NestedSealedClass
+    {
+        [RePack]
+        public long Long { get; set; }
+        [RePack]
+        public double Double { get; set; }
+    }
+
+    [RePacker]
+    internal sealed class InternalSealedClass
+    {
+        public long Long;
+        public float Float;
+    }
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+#nullable enable
+
+    [RePacker(false)]
+    public struct HasNullableList
+    {
+        [RePack]
+        public float Float;
+        [RePack]
+        public List<float>? Floats {get; set;}
+    }
+#endif
 }
