@@ -1165,5 +1165,48 @@ namespace RePacker.Tests
                 Assert.Equal(wantedValue.Int, value.Int);
             }
         }
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+        [Fact]
+        public void struct_with_nullable_list_with_value()
+        {
+            var hasNullableList = new HasNullableList
+            {
+                Float = 1.23456f,
+                Floats = Enumerable.Range(0, 100).Select(e => (float)e).ToList()
+            };
+
+            buffer.Reset();
+
+            buffer.Pack(ref hasNullableList);
+            var fromBuf = buffer.Unpack<HasNullableList>();
+
+            Assert.Equal(hasNullableList.Float, fromBuf.Float);
+
+            for (int i = 0; i < hasNullableList.Floats.Count; i++)
+            {
+                Assert.Equal(
+                    hasNullableList.Floats[i],
+                    fromBuf.Floats[i]
+                );
+            }
+        }
+        
+        [Fact]
+        public void nullable_list_direct()
+        {
+            buffer.Reset();
+
+            List<int>? test = Enumerable.Range(0, 1000).ToList();
+
+            buffer.Pack(ref test);
+            List<int>? fromBuf = buffer.Unpack<List<int>>();
+
+            for (int i = 0; i < test.Count; i++)
+            {
+                Assert.Equal(test[i], fromBuf[i]);
+            }
+        }
+#endif
     }
 }

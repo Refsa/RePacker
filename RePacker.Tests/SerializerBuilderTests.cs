@@ -634,14 +634,48 @@ namespace RePacker.Tests
             Assert.Equal(val2, fromBuf2);
         }
 
-#if NETCOREAPP30 || NETCOREAPP31 || NET473
         [Fact]
-        public void nullable_list_direct()
+        public void sealed_class()
         {
+            var data = new SealedClass
+            {
+                Int = 10,
+                Float = 1.23456f,
+                Class = new NestedSealedClass
+                {
+                    Double = 234.345234f,
+                    Long = 2345645,
+                }
+            };
+
             buffer.Reset();
 
-            List<int>? test = new List<int>();
+            buffer.Pack(ref data);
+            var fromBuf = buffer.Unpack<SealedClass>();
+
+            Assert.Equal(data.Int, fromBuf.Int);
+            Assert.Equal(data.Float, fromBuf.Float);
+
+            Assert.Equal(data.Class.Double, fromBuf.Class.Double);
+            Assert.Equal(data.Class.Long, fromBuf.Class.Long);
         }
-#endif
+
+        [Fact]
+        public void internal_sealed_class()
+        {
+            var data = new InternalSealedClass
+            {
+                Long = 12352345234,
+                Float = 12.234235f,
+            };
+
+            buffer.Reset();
+
+            buffer.Pack(ref data);
+            var fromBuf = buffer.Unpack<InternalSealedClass>();
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Float, fromBuf.Float);
+        }
     }
 }
