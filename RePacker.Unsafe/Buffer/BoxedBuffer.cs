@@ -104,11 +104,6 @@ namespace RePacker.Buffers
         {
             return Buffer.CanFit<T>(count);
         }
-
-        public byte[] GetArray()
-        {
-            return Buffer.Array;
-        }
         #endregion
     }
 }

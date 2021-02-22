@@ -4,6 +4,7 @@ RePacker is built in net4.6.1 mode
 
 Ran on an I5-4670K @ 4.3GHz
 
+```
 Small Object(int,string,string,enum) 10000 Iteration
 
 MessagePack C#
@@ -80,11 +81,6 @@ RePacker
       Serialize   0.6807 ms
     Deserialize   1.1537 ms
     Binary Size   34.00 B
-
-Bois
-      Serialize   7.2038 ms
-    Deserialize   8.2216 ms
-    Binary Size   20.00 B
 
 Large Array(SmallObject[1000]) 10000 Iteration
 
@@ -255,11 +251,6 @@ RePacker
     Deserialize   0.2121 ms
     Binary Size   12.00 B
 
-Bois
-      Serialize   3.6414 ms
-    Deserialize   2.9275 ms
-    Binary Size   15.00 B
-
 HtmlString(309081bytes) 10000 Iteration
 
 MessagePack C#
@@ -343,3 +334,4 @@ RePacker
       Serialize   0.9229 ms
     Deserialize   1.5679 ms
     Binary Size   1.18 KB
+```
