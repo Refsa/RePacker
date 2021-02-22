@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System;
 using System.Runtime.CompilerServices;
 using RePacker.Utils;
+using RePacker.Unsafe;
 
 namespace RePacker.Buffers
 {
@@ -46,6 +47,8 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Pack<T>(ref T value) where T : unmanaged
         {
+            // int size = UnsafeUtils.SizeOf<T>();
+
             if (writeCursor + sizeof(T) > array.Length)
             {
                 throw new IndexOutOfRangeException($"Trying to write type {typeof(T)} outside of range of buffer");
@@ -61,6 +64,8 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Unpack<T>(out T value) where T : unmanaged
         {
+            // int size = UnsafeUtils.SizeOf<T>();
+
             if (readCursor + sizeof(T) > array.Length)
             {
                 throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
@@ -91,7 +96,7 @@ namespace RePacker.Buffers
             PushULong(ref len);
 
             int pos = WriteCursor();
-            int size = Marshal.SizeOf<T>();
+            int size = UnsafeUtils.SizeOf<T>();
 
             fixed (void* src = array, dest = &Array[pos])
             {
@@ -120,8 +125,8 @@ namespace RePacker.Buffers
                 return destArray;
             }
 
-            int size = Marshal.SizeOf<T>();
             int pos = ReadCursor();
+            int size = UnsafeUtils.SizeOf<T>();
 
             fixed (void* src = &array[pos], dest = destArray)
             {
