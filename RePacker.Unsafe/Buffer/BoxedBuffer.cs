@@ -97,7 +97,7 @@ namespace RePacker.Buffers
 
         public bool CanFit(int count)
         {
-            return Buffer.CanFit(count);
+            return Buffer.CanFitBytes(count);
         }
 
         public bool CanFit<T>(int count)
