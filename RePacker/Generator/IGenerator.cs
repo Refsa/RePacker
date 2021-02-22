@@ -13,6 +13,7 @@ namespace RePacker.Builder
         Object,
         String,
         DateTime,
+        TimeSpan,
     }
 
     internal interface IGenerator

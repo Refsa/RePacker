@@ -76,6 +76,20 @@ namespace RePacker.Builder
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PackTimeSpan(this ref Buffer buffer, ref TimeSpan value)
+        {
+            long ticks = value.Ticks;
+            buffer.PushLong(ref ticks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void UnpackTimeSpan(this ref Buffer buffer, out TimeSpan value)
+        {
+            buffer.PopLong(out long ticks);
+            value = new TimeSpan(ticks);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackEnum<TEnum>(this ref Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
             TypeCode enumType = target.GetTypeCode();
