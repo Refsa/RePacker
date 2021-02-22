@@ -1,6 +1,7 @@
 using Xunit;
 using RePacker.Buffers;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace RePacker.Buffers.Tests
 {
@@ -22,15 +23,13 @@ namespace RePacker.Buffers.Tests
             int testVal = 100;
             buffer.Pack<int>(ref testVal);
 
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => buffer.Unpack<ulong>(out ulong outVal));
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.Unpack<ulong>(out ulong outVal));
         }
 
         [Fact]
-        public void get_array_gives_array()
+        public void null_array_throws()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
-
-            Assert.Equal(buf, buffer.Array);
+            Assert.Throws<System.ArgumentNullException>(() => new Buffer(null));
         }
 
         [Fact]
@@ -309,21 +308,6 @@ namespace RePacker.Buffers.Tests
             }
         }
 
-        public struct TestNonBlittableStruct
-        {
-            public string String;
-        }
-
-        // [Fact]
-        // public void push_and_pop_non_blittable_struct_throws()
-        // {
-        //     (byte[] buf, Buffer buffer) = MakeBuffer(800);
-
-        //     var testStruct = new TestNonBlittableStruct { String = "ABCD" };
-
-        //     Assert.Throws<System.ArgumentException>(() => buffer.Push(ref testStruct));
-        // }
-
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
         public struct TestPaddingStruct
         {
@@ -357,6 +341,17 @@ namespace RePacker.Buffers.Tests
         }
 
         [Fact]
+        public void direct_packing_char_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[3]);
+
+            char value = 'G';
+
+            buffer.PushChar(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushChar(ref value));
+        }
+
+        [Fact]
         public void direct_packing_chars()
         {
             var buffer = new Buffer(new byte[2 * 256]);
@@ -384,6 +379,18 @@ namespace RePacker.Buffers.Tests
             buffer.PushBool(ref value);
             buffer.PopBool(out bool posFromBuf);
             Assert.Equal(value, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_bool_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[2]);
+
+            bool value = true;
+
+            buffer.PushBool(ref value);
+            buffer.PushBool(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushBool(ref value));
         }
 
         [Fact]
@@ -415,6 +422,17 @@ namespace RePacker.Buffers.Tests
             buffer.PushUShort(ref positive);
             buffer.PopUShort(out ushort posFromBuf);
             Assert.Equal(positive, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_ushort_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[3]);
+
+            ushort value = 'G';
+
+            buffer.PushUShort(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushUShort(ref value));
         }
 
         [Fact]
@@ -454,6 +472,17 @@ namespace RePacker.Buffers.Tests
         }
 
         [Fact]
+        public void direct_packing_int_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[7]);
+
+            int value = 'G';
+
+            buffer.PushInt(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushInt(ref value));
+        }
+
+        [Fact]
         public void direct_packing_uint()
         {
             var buffer = new Buffer(new byte[1024]);
@@ -462,6 +491,17 @@ namespace RePacker.Buffers.Tests
             buffer.PushUInt(ref positive);
             buffer.PopUInt(out uint posFromBuf);
             Assert.Equal(positive, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_uint_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[7]);
+
+            uint value = 'G';
+
+            buffer.PushUInt(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushUInt(ref value));
         }
 
         [Fact]
@@ -482,6 +522,17 @@ namespace RePacker.Buffers.Tests
         }
 
         [Fact]
+        public void direct_packing_long_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[15]);
+
+            long value = 'G';
+
+            buffer.PushLong(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushLong(ref value));
+        }
+
+        [Fact]
         public void direct_packing_ulong()
         {
             var buffer = new Buffer(new byte[1024]);
@@ -491,6 +542,17 @@ namespace RePacker.Buffers.Tests
             buffer.PushULong(ref positive);
             buffer.PopULong(out ulong posFromBuf);
             Assert.Equal(positive, posFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_ulong_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[15]);
+
+            ulong value = 'G';
+
+            buffer.PushULong(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushULong(ref value));
         }
 
 
@@ -535,6 +597,17 @@ namespace RePacker.Buffers.Tests
         }
 
         [Fact]
+        public void direct_packing_float_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[7]);
+
+            float value = 'G';
+
+            buffer.PushFloat(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushFloat(ref value));
+        }
+
+        [Fact]
         public void direct_packing_double()
         {
             var buffer = new Buffer(new byte[8]);
@@ -575,6 +648,17 @@ namespace RePacker.Buffers.Tests
         }
 
         [Fact]
+        public void direct_packing_double_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[15]);
+
+            double value = 'G';
+
+            buffer.PushDouble(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushDouble(ref value));
+        }
+
+        [Fact]
         public void direct_packing_decimal()
         {
             var buffer = new Buffer(new byte[24]);
@@ -591,6 +675,43 @@ namespace RePacker.Buffers.Tests
             buffer.PushDecimal(ref negative);
             buffer.PopDecimal(out decimal negFromBuf);
             Assert.Equal(negative, negFromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_decimal_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[47]);
+
+            decimal value = 'G';
+
+            buffer.PushDecimal(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushDecimal(ref value));
+        }
+        #endregion
+
+        #region Array
+        [Fact]
+        public void direct_packing_int_array()
+        {
+            var buffer = new Buffer(new byte[sizeof(int) * 101 + sizeof(ulong)]);
+            var data = Enumerable.Range(1, 100).ToArray();
+
+            buffer.MemoryCopyFromUnsafe(data);
+            var fromBuf = buffer.MemoryCopyToUnsafe<int>();
+
+            for (int i = 0; i < 100; i++)
+            {
+                Assert.Equal(data[i], fromBuf[i]);
+            }
+        }
+
+        [Fact]
+        public void direct_packing_int_array_out_of_bounds()
+        {
+            var buffer = new Buffer(new byte[sizeof(int) * 100 + sizeof(ulong)]);
+            var data = Enumerable.Range(1, 100).ToArray();
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MemoryCopyFromUnsafe(data));
         }
         #endregion
     }

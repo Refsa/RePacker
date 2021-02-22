@@ -100,7 +100,7 @@ namespace RePacker.Buffers
             return Buffer.CanFitBytes(count);
         }
 
-        public bool CanFit<T>(int count)
+        public bool CanFit<T>(int count) where T : unmanaged
         {
             return Buffer.CanFit<T>(count);
         }

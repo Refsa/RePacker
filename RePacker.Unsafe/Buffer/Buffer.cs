@@ -225,9 +225,9 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool CanFit<T>(int count = 1)
+        public bool CanFit<T>(int count = 1) where T : unmanaged
         {
-            return (writeCursor + (count * Marshal.SizeOf<T>())) <= array.Length;
+            return (writeCursor + (count * UnsafeUtils.SizeOf<T>())) <= array.Length;
         }
         #endregion
 
@@ -265,7 +265,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushShort(ref short value)
         {
-            if (writeCursor + 2 >= array.Length)
+            if (writeCursor + 2 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write short outside of buffer range");
             }
@@ -280,7 +280,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopShort(out short value)
         {
-            if (readCursor + 2 >= array.Length)
+            if (readCursor + 2 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read short outside of buffer range");
             }
@@ -295,7 +295,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushUShort(ref ushort value)
         {
-            if (writeCursor + 2 >= array.Length)
+            if (writeCursor + 2 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write ushort outside of buffer range");
             }
@@ -310,7 +310,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopUShort(out ushort value)
         {
-            if (readCursor + 2 >= array.Length)
+            if (readCursor + 2 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read ushort outside of buffer range");
             }
@@ -325,7 +325,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushInt(ref int value)
         {
-            if (writeCursor + 4 >= array.Length)
+            if (writeCursor + 4 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write int outside of buffer range");
             }
@@ -340,7 +340,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopInt(out int value)
         {
-            if (readCursor + 4 >= array.Length)
+            if (readCursor + 4 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read int outside of buffer range");
             }
@@ -355,7 +355,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushUInt(ref uint value)
         {
-            if (writeCursor + 4 >= array.Length)
+            if (writeCursor + 4 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write uint outside of buffer range");
             }
@@ -370,7 +370,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopUInt(out uint value)
         {
-            if (readCursor + 4 >= array.Length)
+            if (readCursor + 4 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read uint outside of buffer range");
             }
@@ -385,7 +385,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushLong(ref long value)
         {
-            if (writeCursor + 8 >= array.Length)
+            if (writeCursor + 8 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write long outside of buffer range");
             }
@@ -400,7 +400,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopLong(out long value)
         {
-            if (readCursor + 8 >= array.Length)
+            if (readCursor + 8 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read long outside of buffer range");
             }
@@ -415,7 +415,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushULong(ref ulong value)
         {
-            if (writeCursor + 8 >= array.Length)
+            if (writeCursor + 8 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write ulong outside of buffer range");
             }
@@ -430,7 +430,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopULong(out ulong value)
         {
-            if (readCursor + 8 >= array.Length)
+            if (readCursor + 8 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read ulong outside of buffer range");
             }
@@ -445,7 +445,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushChar(ref char value)
         {
-            if (writeCursor + 2 >= array.Length)
+            if (writeCursor + 2 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write char outside of buffer range");
             }
@@ -460,7 +460,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopChar(out char value)
         {
-            if (readCursor + 2 >= array.Length)
+            if (readCursor + 2 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read char outside of buffer range");
             }
@@ -500,7 +500,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushFloat(ref float value)
         {
-            if (writeCursor + 4 >= array.Length)
+            if (writeCursor + 4 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write float outside of buffer range");
             }
@@ -539,7 +539,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopFloat(out float value)
         {
-            if (readCursor + 4 >= array.Length)
+            if (readCursor + 4 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read float outside of buffer range");
             }
@@ -557,7 +557,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushDouble(ref double value)
         {
-            if (writeCursor + 8 >= array.Length)
+            if (writeCursor + 8 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write double outside of buffer range");
             }
@@ -572,7 +572,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopDouble(out double value)
         {
-            if (readCursor + 8 >= array.Length)
+            if (readCursor + 8 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read double outside of buffer range");
             }
@@ -590,7 +590,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PushDecimal(ref decimal value)
         {
-            if (writeCursor + 24 >= array.Length)
+            if (writeCursor + 24 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to write decimal outside of buffer range");
             }
@@ -605,7 +605,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void PopDecimal(out decimal value)
         {
-            if (readCursor + 24 >= array.Length)
+            if (readCursor + 24 > array.Length)
             {
                 throw new IndexOutOfRangeException("Trying to read decimal outside of buffer range");
             }
