@@ -1,4 +1,8 @@
+Benchmarks from https://github.com/neuecc/ZeroFormatter
 
+RePacker is built in net4.6.1 mode
+
+Ran on an I5-4670K @ 4.3GHz
 
 Small Object(int,string,string,enum) 10000 Iteration
 

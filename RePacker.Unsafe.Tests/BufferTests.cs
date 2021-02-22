@@ -170,14 +170,14 @@ namespace RePacker.Buffers.Tests
         public void can_fit_should_succeed()
         {
             var buffer = MakeBuffer(4);
-            Assert.True(buffer.buffer.CanFit(sizeof(int)));
+            Assert.True(buffer.buffer.CanFitBytes(sizeof(int)));
         }
 
         [Fact]
         public void can_fit_should_fail()
         {
             var buffer = MakeBuffer(4);
-            Assert.False(buffer.buffer.CanFit(sizeof(ulong)));
+            Assert.False(buffer.buffer.CanFitBytes(sizeof(ulong)));
         }
 
         [Fact]
