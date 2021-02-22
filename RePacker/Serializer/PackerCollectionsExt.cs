@@ -29,6 +29,10 @@ namespace RePacker.Builder
                     packer.Pack(buffer, ref data[i]);
                 }
             }
+            else
+            {
+                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+            }
         }
 
         public static void UnpackArray<T>(this BoxedBuffer buffer, out T[] data)
@@ -45,7 +49,7 @@ namespace RePacker.Builder
             }
             else
             {
-                data = null;
+                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
@@ -236,7 +240,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find packer for IList with elements of {typeof(T)}");
+                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
@@ -255,8 +259,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find unpacker for IList with elements of {typeof(T)}");
-                data = null;
+                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
@@ -292,6 +295,10 @@ namespace RePacker.Builder
                     packer.Pack(buffer, ref ele);
                 }
             }
+            else
+            {
+                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+            }
         }
 
         public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, out IEnumerable<T> data)
@@ -309,7 +316,7 @@ namespace RePacker.Builder
             }
             else
             {
-                data = new T[0];
+                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
@@ -348,7 +355,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find packer for ICollection with elements of {typeof(T)}");
+                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
@@ -367,8 +374,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find unpacker for ICollection with elements of {typeof(T)}");
-                data = null;
+                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
@@ -420,7 +426,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Logger.Error($"Couldnt find packer for Stack with elements of {typeof(T)}");
+                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
@@ -440,6 +446,10 @@ namespace RePacker.Builder
                     packer.Unpack(buffer, out var item);
                     predicate.Invoke(item);
                 }
+            }
+            else
+            {
+                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 

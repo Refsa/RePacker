@@ -463,7 +463,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Packer for {typeof(T)} not found");
+                throw new NotSupportedException($"Packer for {typeof(T)} not found");
             }
         }
 
@@ -480,7 +480,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
+                throw new NotSupportedException($"Unpacker for {typeof(T)} not found");
             }
 
             return default(T);
@@ -509,7 +509,7 @@ namespace RePacker.Builder
             }
             else
             {
-                RePacker.Settings.Log.Warn($"Unpacker for {typeof(T)} not found");
+                throw new NotSupportedException($"Unpacker for {typeof(T)} not found");
             }
         }
         #endregion
