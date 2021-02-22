@@ -1,4 +1,4 @@
-# RePacker - Flexible and Fast C# Non-Persistent Binary Packer
+# RePacker - Yet Another Flexible and Fast C# Non-Persistent Binary Packer
 
 The aim for this project is to create a flexible and fast serializer/binary packer that works with both standalone C# projects and within the Unity Engine ecosystem.
 
@@ -7,7 +7,7 @@ What you get:
 - Single entry point to serialization
 - Ability to mark specific fields/properties for serialization
 - Ability to wrap types outside of your control for serialization
-- Supports NET4.6.1 through NET4.7.3 and Net Core 3.0/3.1
+- Supports NET4.6.1 through NET4.8 and Net Core 3.0/3.1
 
 What you dont get:
 - Versioning
@@ -17,8 +17,12 @@ What you dont get:
 Long Term Goals:
 - Unity AOT(IL2CPP) Support
 - Tested cross-language support
-- Control over stride/padding
-- Versioning and dirty bits
+- Control over stride/padding and endianess
+
+## How
+Using IL generated at runtime and a healthy does of unsafe code we can achieve fast and stable serialization speeds. This is done by sacrificing control over stride and endianess and directly copying what the .NET runtime itself creates at runtime. 
+
+From the benchmarks I've done this package provides the fastest way to serialize to a binary format across all supported .NET versions. Even if it is the fastest there are still many packages that provides more features for versioning and binary size if that is a requirement.
 
 You can find benchmarks under the [performance](#performance) section.
 
@@ -27,10 +31,7 @@ You can find benchmarks under the [performance](#performance) section.
 Currently both bootstrapping and logging is enabled by default, but can be toggled with the NO_BOOTSTRAP and NO_LOGGING compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
 
 ### BoxedBuffer
-
-Packing and Unpacking requires the use of **BoxedBuffer** that is a class that wraps around the Buffer struct. Buffer internally has a **Memory\<byte\>** that is pointing to a byte array. **You are responsible for pooling the byte array and/or the BoxedBuffer for now.**
-
-Because of how Buffer works internally it's important that you call `buffer.Reset()` after you're finished unpacking data from it. It stores both a read and a write index internally to facilitate reads and writes.
+Packing and Unpacking requires the use of **BoxedBuffer** that is a class that wraps around the **Buffer** struct. **Buffer** again is a simple wrapper around a byte array and contains most functionality for handling unmanaged data. This means that the user is responsible for pooling the arrays that you work on. More information on this can be found in the [Buffer & BoxedBuffer](#buffer-and-boxedbuffer) section below.
 
 ### Auto-Generate packer:
 
@@ -152,10 +153,10 @@ You can also add the `public static new bool IsCopyable = true;` field to your `
 
 ### Handling generic types
 
-Generic types is a special case that requires some additional work to support. They need an additional class that is responsible for producing a packer/unpacker for a specific set of generic arguments. There is currently no pre-generating for generic types but they only need to run once when the first call to packing/unpacking is done. This is hopefully something that can be reworked in the future to reduce the amount of boilerplate.
+Generic types is a special case that requires some additional work to support. They need an additional class that is responsible for producing a packer/unpacker for a specific set of generic arguments. There is currently no pre-generating for generic types but they only need to run once when the first call to packing/unpacking is done. This is hopefully something that can be reworked in the future to reduce the amount of boilerplate, but is worth knowing if such needs exists.
 
 ```cs
-public struct MyGenericType<T1, T2>
+public struct MyGenericType<T1, T2> where T1 : unmanaged
 {
     public T1 Value1;
     public T2 Value2
@@ -165,14 +166,14 @@ public class MyGenericTypePacker<T1, T2> : RePackerWrapper<MyGenericType<T1, T2>
 {
     public override void Pack(BoxedBuffer buffer, ref MyGenericType<T1, T2> value)
     {
-        RePacker.Pack(buffer, ref value.Value1);
+        buffer.Buffer.Pack<T1>(ref value.Value1);
         RePacker.Pack(buffer, ref value.Value2);
     }
 
     public override void Unpack(BoxedBuffer buffer, out MyGenericType<T1, T2> value)
     {
         value = new MyGenericType<T1, T2>();
-        value.Value1 = RePacker.Unpack<T1>(buffer);
+        buffer.Buffer.Unpack<T1>(out value.Value1);
         value.Value2 = RePacker.Unpack<T2>(buffer);
     }
 }
@@ -211,7 +212,7 @@ Collections:
 - Stack<T>
 - Queue<T>
 - HashSet<T>
-- Array
+- Array (up to rank 4)
 ```
 
 Additionally:
@@ -235,18 +236,20 @@ Transform, Color, Color32, Vector2, Vector3, Vector4, Quaternion, Vector3Int, Ve
 ```
 
 ## Buffer and BoxedBuffer
-
 This library uses a struct known as `Buffer` in order to to read and writes into a byte array. Main reason for this is to avoid having to handle pooling of the arrays internally and rather leave that to the end user. Buffer also has a wrapper class known as BoxedBuffer in order to make it easier to synchronize the state of the Buffer when it's passed around the internals.
 
 You can use the Buffer and BoxedBuffer alone in order to do packing and unpacking without the rest of the framework. These are contained inside the RePacker.Unsafe project. This is also how you implement custom packers for types you might not have control over.
 
+Since no byte array is allocated internally it also means that you need to assign a byte array that can fit the data you want. It will not resize the byte array in order to avoid losing the reference externally and as such requires some more careful planning around use. If you push anything that can't fit it will throw an exception you need to catch. This is mostly a design decision around the specific use case for this library and you could alter it to expand the byte array by using the Buffer::Expand method when appropriate.
+
 ### Buffer Extensions
 
-Buffer itself has access to a bunch of utility methods to pack different types. Some of them have direct support, but any type wrapped by RePacker needs to use the framework itself.
+Buffer itself has access to a bunch of utility methods to pack different unmanaged types. This type is only ment for unmanaged data and does not support any managed types. It's a simple wrapper around a byte array and is the core functionality of the entire library.
 
-```md
+```
 Pack<T> where T : unmanaged
-Supports any unmanaged type by direct memory copy.
+Unpack<T> where T : unmanaged
+  Supports any unmanaged type by direct memory copy.
 
 All of these methods are directly copied by memory:
 PushBool/PopBool
@@ -262,101 +265,119 @@ PushFloat/PopFloat
 PushDouble/PopDouble
 PushDecimal/PopDecimal
 
+MemoryCopyFromUnsafe<T> where T : unmanaged
+  Copies an array by memory into buffer
+MemoryCopyToUnsafe<T> where T : unmanaged
+  Copes an array by memory from buffer
+
+CanFit<T>(int count) where T : unmanaged
+  Checks if buffer can fit x amount of T
+
 Extensions:
 PackString/UnpackString
-UTF8 Encoding
+  UTF8 Encoding
 PackDateTime/UnpackDateTime
-Packs the Ticks as a ulong
+  Packs the Ticks as a ulong
 PackEnum<TEnum>/UnpackEnum<TEnum>
-All unmanaged underlying types are supported
-PackBlittableArray/PackBlittableArray
-Any blittable/unmanaged types such as primitives and structs with only primitives
-EncodeArray/DecodeArray
-Only able to support types that are supported by the RePacker framework
+  All unmanaged underlying types are supported
+PackBlittableArray/UnpackBlittableArray
+  Any blittable/unmanaged types such as primitives and structs with only primitives
 ```
 
 ### BoxedBuffer Extensions
 
-BoxedBuffer contains a field, Buffer, that points to a Buffer instance. On top of this it has some additional utility extensions.
+BoxedBuffer contains a field, Buffer, that points to a Buffer instance. On top of this it has some additional utility extensions. This is the main class for handling managed types.
 
-```md
-PackDateTime/UnpackDateTime
+```
+Pack/Unpack - Redirects to RePacker::Pack/RePacker::Unpack
+Push/Pop - Redirects to contained buffers Buffer::Pack/Buffer::Unpack
+
 PackKeyValuePair/UnpackKeyValuePair
 PackValueTuple<T1,T2,...>/UnpackValueTuple<T1,T2,...>
+PackString/UnpackString
+PackDateTime/UnpackDateTime
+PackTimeSpan/UnpackTimeSpan
+PackNullable/UnpackNullable
 
 PackArray/UnpackArray
+PackArray2D/UnpackArray2D
+PackArray3D/UnpackArray3D
+PackArray4D/UnpackArray4D
 
 PackIList/UnpackIList
-PackIListBlittable/UnpackIListBlittable
-Internall this is unpacked as List
-Blittable version utilizes `stackalloc` meaning it avoids heap allocations
+PackIListBlittable/UnpackIListBlittable - Do not this returns an array as IList
 
 PackIEnumerable/UnpackIEnumerable
 PackIEnumerableBlittable/UnpackIEnumerableBlittable
-Internally it supports Stack, Queue and HashSet but defaults to List
-Blittable version utilizes `stackalloc` meaning it avoids heap allocations
+
+PackICollection/UnpackICollection
+PackICollectionBlittable/UnpackICollectionBlittable
+
+PackQueue/UnpackQueue
+PackStack/UnpackStack
+PackHashSet/UnpackHashSet
 
 PackDictionary/UnpackDictionary
 ```
 
 ## Logging
 
-Package provides an ILogger interface and you can set the logger when initializing it at runtime. A default logger using Console exists, while the Unity version has one for it's Debug logging. You can also turn logging completely off if you want.
+You can turn on logging for more information about the state of the packing. Mostly useful for information about fields or types that arent supported, which will be skipped automatically. 
+
+Package provides an ILogger interface and you can set the logger when initializing it at runtime. A default logger using Console exists, while the Unity version has one for it's Debug logging.
 
 ## Performance:
 
 Benchmarks are performed on an i5-4670k@4.3GHz with Windows 10. All benchmark code can be found under the RePacker.Bench project.
 
 ```cs
+// Benches found in ZeroFormatterBench.cs
+
 /* netcoreapp3.1
                               Method |            Mean
 ------------------------------------ |----------------
-       ILGen_SmallObjectSerialize10K |       727.38 us
-     ILGen_SmallObjectDeserialize10K |     1,128.23 us
-            ILGen_VectorSerialize10K |        96.32 us
-          ILGen_VectorDeserialize10K |       155.38 us
-               ILGen_IntSerialize10K |        51.53 us
-             ILGen_IntDeserialize10K |       103.11 us
-                     IntSerialize10K |        21.49 us
-                   IntDeserialize10K |        18.28 us
-                 PackIntSerialize10K |        21.48 us
-               PackIntDeserialize10K |        18.28 us
-  ILGen_SmallObjectArraySerialize10K |   691,455.41 us
-ILGen_SmallObjectArrayDeserialize10K | 1,089,353.67 us
-       ILGen_VectorArraySerialize10K |       677.41 us
-     ILGen_VectorArrayDeserialize10K |     1,548.71 us
-          ILGen_IntArraySerialize10K |     1,018.70 us
-        ILGen_IntArrayDeserialize10K |     1,044.99 us
-          ILGen_LargeStringSerialize |   342,457.98 us
-        ILGen_LargeStringDeserialize | 2,004,193.04 us
-*/
+       ILGen_SmallObjectSerialize10K |       463.22 us
+     ILGen_SmallObjectDeserialize10K |       870.49 us
+            ILGen_VectorSerialize10K |       119.37 us
+          ILGen_VectorDeserialize10K |       135.90 us
+               ILGen_IntSerialize10K |        51.54 us
+             ILGen_IntDeserialize10K |        51.49 us
+                     IntSerialize10K |        30.93 us
+                   IntDeserialize10K |        28.42 us
+                 PackIntSerialize10K |        63.23 us
+               PackIntDeserialize10K |        30.40 us
+  ILGen_SmallObjectArraySerialize10K |   420,579.11 us
+ILGen_SmallObjectArrayDeserialize10K |   773,566.65 us
+       ILGen_VectorArraySerialize10K |       659.67 us
+     ILGen_VectorArrayDeserialize10K |     1,220.17 us
+          ILGen_IntArraySerialize10K |       948.97 us
+        ILGen_IntArrayDeserialize10K |       654.16 us
+          ILGen_LargeStringSerialize |   339,452.53 us
+        ILGen_LargeStringDeserialize | 1,996,564.20 us
 
 /* net4.6.1
                               Method |            Mean
 ------------------------------------ |----------------
-       ILGen_SmallObjectSerialize10K |     1,082.88 us
-     ILGen_SmallObjectDeserialize10K |     1,396.81 us
-            ILGen_VectorSerialize10K |       217.88 us
-          ILGen_VectorDeserialize10K |       235.53 us
-               ILGen_IntSerialize10K |       105.54 us
-             ILGen_IntDeserialize10K |       105.72 us
-                     IntSerialize10K |        21.82 us
-                   IntDeserialize10K |        17.69 us
-                 PackIntSerialize10K |        21.95 us
-               PackIntDeserialize10K |        17.67 us
-  ILGen_SmallObjectArraySerialize10K | 1,002,928.50 us
-ILGen_SmallObjectArrayDeserialize10K | 1,395,526.24 us
-       ILGen_VectorArraySerialize10K |       928.49 us
-     ILGen_VectorArrayDeserialize10K |     1,580.59 us
-          ILGen_IntArraySerialize10K |     1,412.97 us
-        ILGen_IntArrayDeserialize10K |     1,006.31 us
-          ILGen_LargeStringSerialize | 1,510,192.95 us
-        ILGen_LargeStringDeserialize | 3,074,888.27 us
+       ILGen_SmallObjectSerialize10K |       573.19 us
+     ILGen_SmallObjectDeserialize10K |       977.45 us
+            ILGen_VectorSerialize10K |       119.48 us
+          ILGen_VectorDeserialize10K |       142.76 us
+               ILGen_IntSerialize10K |        49.17 us
+             ILGen_IntDeserialize10K |        51.57 us
+                     IntSerialize10K |        27.43 us
+                   IntDeserialize10K |        26.57 us
+                 PackIntSerialize10K |        30.79 us
+               PackIntDeserialize10K |        28.23 us
+  ILGen_SmallObjectArraySerialize10K |   529,452.41 us
+ILGen_SmallObjectArrayDeserialize10K |   962,823.00 us
+       ILGen_VectorArraySerialize10K |       858.31 us
+     ILGen_VectorArrayDeserialize10K |     1,287.13 us
+          ILGen_IntArraySerialize10K |     1,389.04 us
+        ILGen_IntArrayDeserialize10K |       735.67 us
+          ILGen_LargeStringSerialize | 1,506,050.15 us
+        ILGen_LargeStringDeserialize | 3,069,118.35 us
 */
 ```
 
-You can also find the ZeroFormatter benchmark results [here](RePacker.Bench/ZeroFormatterBench.md).
-
-### Unity:
-
-For Unity 2048 packs and unpacks of a Transform takes about 3ms on a 4670k @ 4.3GHz.
+ZeroFormatter benchmark results can be found [here](RePacker.Bench/ExternalBenchResults/ZeroFormatterBench.md) (NET 4.6.1).  
+StructPacker benchmark results can be found [here](RePacker.Bench/ExternalBenchResults/StructPacker.md) (Net Core 3.1).  
