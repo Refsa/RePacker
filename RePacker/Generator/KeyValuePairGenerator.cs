@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using RePacker.Utils;
 
 namespace RePacker.Builder
 {
@@ -12,8 +13,9 @@ namespace RePacker.Builder
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            var genArgs = fieldInfo.FieldType.GetGenericArguments();
+            ilGen.LoadArgsUnpack(fieldInfo);
 
+            var genArgs = fieldInfo.FieldType.GetGenericArguments();
             var unpackMethod = typeof(BoxedBufferExt)
                 .GetMethod(nameof(BoxedBufferExt.UnpackKeyValuePair))
                 .MakeGenericMethod(genArgs);
@@ -23,6 +25,8 @@ namespace RePacker.Builder
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsPack(fieldInfo);
+
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
             var packMethod = typeof(BoxedBufferExt)
                 .GetMethod(nameof(BoxedBufferExt.PackKeyValuePair))

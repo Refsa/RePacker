@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using RePacker.Utils;
 
 namespace RePacker.Builder
 {
@@ -14,6 +15,8 @@ namespace RePacker.Builder
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsUnpack(fieldInfo);
+            
             var genericSerializer = deserializeTypeMethod.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, genericSerializer);
             ilGen.Emit(OpCodes.Pop);
@@ -21,6 +24,8 @@ namespace RePacker.Builder
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsPack(fieldInfo);
+
             var genericSerializer = serializeTypeMethod.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, genericSerializer);
         }

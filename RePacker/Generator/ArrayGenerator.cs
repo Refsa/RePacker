@@ -26,16 +26,13 @@ namespace RePacker.Builder
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             var elementType = fieldInfo.FieldType.GetElementType();
 
             int rank = fieldInfo.FieldType.GetArrayRank();
 
             if (rank == 1)
             {
-                if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
+                if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo) && !typeInfo.IsDirectlyCopyable)
                 {
                     ilGen.Emit(OpCodes.Ldarg_0);
 
@@ -107,16 +104,13 @@ namespace RePacker.Builder
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             var elementType = fieldInfo.FieldType.GetElementType();
 
             int rank = fieldInfo.FieldType.GetArrayRank();
 
             if (rank == 1)
             {
-                if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo))
+                if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo) && !typeInfo.IsDirectlyCopyable)
                 {
                     ilGen.Emit(OpCodes.Ldarg_0);
                     ilGen.Emit(OpCodes.Ldarga_S, 1);

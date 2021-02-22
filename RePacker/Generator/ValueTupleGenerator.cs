@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using RePacker.Utils;
 
 namespace RePacker.Builder
 {
@@ -18,6 +19,8 @@ namespace RePacker.Builder
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsUnpack(fieldInfo);
+            
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
 
             var meth = typeof(PackerValueTupleExt)
@@ -33,6 +36,8 @@ namespace RePacker.Builder
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsPack(fieldInfo);
+
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
 
             var meth = typeof(PackerValueTupleExt)

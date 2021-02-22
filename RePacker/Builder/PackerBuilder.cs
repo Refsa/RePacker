@@ -69,7 +69,6 @@ namespace RePacker.Builder
                 bufferPopGeneric = bufferPop.MakeGenericMethod(parameters);
 
                 ilGen.EmitCall(OpCodes.Call, bufferPopGeneric, parameters);
-                ilGen.Emit(OpCodes.Pop);
 
                 goto Finished;
 
@@ -77,25 +76,6 @@ namespace RePacker.Builder
                 for (int i = 0; i < info.SerializedFields.Length; i++)
                 {
                     var field = info.SerializedFields[i];
-
-                    // PERF: Do we need to push/pop this from the stack??
-                    // BoxedBuffer -> buffer -> caller
-                    ilGen.Emit(OpCodes.Ldarg_0);
-                    if (Type.GetTypeCode(field.FieldType) != TypeCode.Object)
-                    {
-                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-                    }
-
-                    // Byte -> output field
-                    if (info.Type.IsValueType)
-                    {
-                        ilGen.Emit(OpCodes.Ldloca_S, 0);
-                    }
-                    else
-                    {
-                        ilGen.Emit(OpCodes.Ldloc_S, 0);
-                    }
-                    ilGen.Emit(OpCodes.Ldflda, field);
 
                     (GeneratorType gt, Type t) = (GeneratorType.None, null);
 
@@ -143,8 +123,6 @@ namespace RePacker.Builder
                     else
                     {
                         ilGen.EmitLog($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
-                        ilGen.Emit(OpCodes.Pop);
-                        ilGen.Emit(OpCodes.Pop);
                     }
                 }
                 goto Finished;
@@ -210,7 +188,6 @@ namespace RePacker.Builder
 
                 // Call serializer
                 ilGen.EmitCall(OpCodes.Call, bufferPushGeneric, parameters);
-                ilGen.Emit(OpCodes.Pop);
 
                 goto Finished;
 
@@ -218,22 +195,6 @@ namespace RePacker.Builder
                 for (int i = 0; i < info.SerializedFields.Length; i++)
                 {
                     var field = info.SerializedFields[i];
-
-                    ilGen.Emit(OpCodes.Ldarg_0);
-                    if (Type.GetTypeCode(field.FieldType) != TypeCode.Object)
-                    {
-                        ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-                    }
-
-                    if (info.Type.IsValueType)
-                    {
-                        ilGen.Emit(OpCodes.Ldarga_S, 1);
-                    }
-                    else
-                    {
-                        ilGen.Emit(OpCodes.Ldarg_S, 1);
-                    }
-                    ilGen.Emit(OpCodes.Ldflda, field);
 
                     (GeneratorType gt, Type t) = (GeneratorType.None, null);
 
@@ -281,8 +242,6 @@ namespace RePacker.Builder
                     else
                     {
                         ilGen.EmitLog($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
-                        ilGen.Emit(OpCodes.Pop);
-                        ilGen.Emit(OpCodes.Pop);
                     }
                 }
                 goto Finished;

@@ -25,9 +25,6 @@ namespace RePacker.Builder
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             // [Key Key Key Value Value Value]
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             Type[] kvTypes = fieldInfo.FieldType.GenericTypeArguments;
             (Type keyType, Type valueType) = (kvTypes[0], kvTypes[1]);
 
@@ -60,6 +57,8 @@ namespace RePacker.Builder
                 }
                 else
                 {
+                    ilGen.Emit(OpCodes.Pop);
+                    ilGen.Emit(OpCodes.Pop);
                     ilGen.EmitLog($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
                 }
             }
@@ -81,6 +80,8 @@ namespace RePacker.Builder
                 }
                 else
                 {
+                    ilGen.Emit(OpCodes.Pop);
+                    ilGen.Emit(OpCodes.Pop);
                     ilGen.EmitLog($"RePacker - Pack: Dictionary of type {fieldInfo.FieldType.Name} is not supported");
                 }
             }
@@ -101,9 +102,6 @@ namespace RePacker.Builder
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             Type[] kvTypes = fieldInfo.FieldType.GenericTypeArguments;
             (Type keyType, Type valueType) = (kvTypes[0], kvTypes[1]);
 

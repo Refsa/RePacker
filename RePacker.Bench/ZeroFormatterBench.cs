@@ -36,24 +36,24 @@ namespace RePacker.Benchmarks
         /* net4.6.1
                                       Method |            Mean
         ------------------------------------ |----------------
-               ILGen_SmallObjectSerialize10K |       651.51 us
-             ILGen_SmallObjectDeserialize10K |       996.21 us
-                    ILGen_VectorSerialize10K |       212.77 us
-                  ILGen_VectorDeserialize10K |       218.37 us
-                       ILGen_IntSerialize10K |       107.70 us
-                     ILGen_IntDeserialize10K |       105.23 us
-                             IntSerialize10K |        21.87 us
-                           IntDeserialize10K |        18.16 us
-                         PackIntSerialize10K |        21.78 us
-                       PackIntDeserialize10K |        17.65 us
-          ILGen_SmallObjectArraySerialize10K |   547,967.70 us
-        ILGen_SmallObjectArrayDeserialize10K | 1,013,161.29 us
-               ILGen_VectorArraySerialize10K |       887.09 us
-             ILGen_VectorArrayDeserialize10K |     1,412.28 us
-                  ILGen_IntArraySerialize10K |     1,403.97 us
-                ILGen_IntArrayDeserialize10K |       836.91 us
-                  ILGen_LargeStringSerialize | 1,502,409.65 us
-                ILGen_LargeStringDeserialize | 3,101,025.40 us
+               ILGen_SmallObjectSerialize10K |       656.38 us
+             ILGen_SmallObjectDeserialize10K |       974.51 us
+                    ILGen_VectorSerialize10K |       212.66 us
+                  ILGen_VectorDeserialize10K |       218.84 us
+                       ILGen_IntSerialize10K |       105.20 us
+                     ILGen_IntDeserialize10K |       108.01 us
+                             IntSerialize10K |        23.56 us
+                           IntDeserialize10K |        18.92 us
+                         PackIntSerialize10K |        21.75 us
+                       PackIntDeserialize10K |        18.93 us
+          ILGen_SmallObjectArraySerialize10K |   562,578.19 us
+        ILGen_SmallObjectArrayDeserialize10K |   916,597.95 us
+               ILGen_VectorArraySerialize10K |       921.05 us
+             ILGen_VectorArrayDeserialize10K |     1,359.91 us
+                  ILGen_IntArraySerialize10K |     1,301.56 us
+                ILGen_IntArrayDeserialize10K |       792.07 us
+                  ILGen_LargeStringSerialize | 1,503,845.62 us
+                ILGen_LargeStringDeserialize | 3,051,454.12 us
         */
 
         static byte[] backingBuffer;

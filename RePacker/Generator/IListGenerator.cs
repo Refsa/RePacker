@@ -22,9 +22,6 @@ namespace RePacker.Builder
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             ilGen.Emit(OpCodes.Ldarg_0);
 
             ilGen.Emit(OpCodes.Ldloca_S, 0);
@@ -52,9 +49,6 @@ namespace RePacker.Builder
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             ilGen.Emit(OpCodes.Ldarg_0);
 
             ilGen.Emit(OpCodes.Ldarga_S, 1);

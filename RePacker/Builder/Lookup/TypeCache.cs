@@ -12,7 +12,7 @@ namespace RePacker.Builder
 {
     internal static class TypeCache
     {
-        public struct Info
+        internal struct Info
         {
             public Type Type;
             public bool HasCustomSerializer;

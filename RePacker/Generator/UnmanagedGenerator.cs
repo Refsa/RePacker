@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Buffers;
+using RePacker.Utils;
 using Buffer = RePacker.Buffers.Buffer;
 
 namespace RePacker.Builder
@@ -24,12 +25,16 @@ namespace RePacker.Builder
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsUnpack(fieldInfo);
+            
             bufferPopGeneric = bufferUnpack.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, bufferPopGeneric);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
+            ilGen.LoadArgsPack(fieldInfo);
+
             bufferPushGeneric = bufferPack.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, bufferPushGeneric);
         }

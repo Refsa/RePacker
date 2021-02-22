@@ -27,9 +27,6 @@ namespace RePacker.Builder
         {
             Type[] parameters = new Type[1];
 
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
-
             ilGen.Emit(OpCodes.Ldarg_0);
             ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
@@ -44,9 +41,6 @@ namespace RePacker.Builder
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             Type[] parameters = new Type[1];
-
-            ilGen.Emit(OpCodes.Pop);
-            ilGen.Emit(OpCodes.Pop);
 
             ilGen.Emit(OpCodes.Ldarg_0);
             ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
