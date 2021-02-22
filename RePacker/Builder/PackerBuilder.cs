@@ -116,13 +116,13 @@ namespace RePacker.Builder
                             break;
                     }
 
-                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator))
+                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator) && generator != null)
                     {
                         generator.GenerateDeserializer(ilGen, field);
                     }
                     else
                     {
-                        ilGen.EmitLog($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        RePacker.Logger.Warn($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
                     }
                 }
                 goto Finished;
@@ -241,7 +241,7 @@ namespace RePacker.Builder
                     }
                     else
                     {
-                        ilGen.EmitLog($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        RePacker.Logger.Warn($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
                     }
                 }
                 goto Finished;
