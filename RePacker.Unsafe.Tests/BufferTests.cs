@@ -713,6 +713,118 @@ namespace RePacker.Buffers.Tests
 
             Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MemoryCopyFromUnsafe(data));
         }
+
+        T[] GenerateArray<T>(int length, System.Func<int, T> generator) where T : unmanaged
+        {
+            var array = new T[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                array[i] = generator.Invoke(i);
+            }
+
+            return array;
+        }
+
+        [Fact]
+        public void direct_pack_array_multiple()
+        {
+            var buffer = new Buffer(new byte[1 << 16]);
+
+            var bytes = GenerateArray<byte>(32, i => (byte)(i % 255));
+            var shorts = GenerateArray<short>(32, i => (short)(i % 255));
+            var ints = GenerateArray<int>(32, i => (int)(i % 255));
+            var longs = GenerateArray<long>(32, i => (long)(i % 255));
+            var floats = GenerateArray<float>(32, i => (float)(i % 255));
+
+            buffer.MemoryCopyFromUnsafe(bytes);
+            buffer.MemoryCopyFromUnsafe(shorts);
+            buffer.MemoryCopyFromUnsafe(ints);
+            buffer.MemoryCopyFromUnsafe(longs);
+            buffer.MemoryCopyFromUnsafe(floats);
+
+            var bytesFromBuf = buffer.MemoryCopyToUnsafe<byte>();
+            var shortsFromBuf = buffer.MemoryCopyToUnsafe<short>();
+            var intsFromBuf = buffer.MemoryCopyToUnsafe<int>();
+            var longsFromBuf = buffer.MemoryCopyToUnsafe<long>();
+            var floatsFromBuf = buffer.MemoryCopyToUnsafe<float>();
+
+            Assert.Equal(32, bytesFromBuf.Length);
+            Assert.Equal(32, shortsFromBuf.Length);
+            Assert.Equal(32, intsFromBuf.Length);
+            Assert.Equal(32, longsFromBuf.Length);
+            Assert.Equal(32, floatsFromBuf.Length);
+
+            for (int i = 0; i < 32; i++)
+            {
+                Assert.Equal(bytes[i], bytesFromBuf[i]);
+                Assert.Equal(shorts[i], shortsFromBuf[i]);
+                Assert.Equal(ints[i], intsFromBuf[i]);
+                Assert.Equal(longs[i], longsFromBuf[i]);
+                Assert.Equal(floats[i], floatsFromBuf[i]);
+            }
+        }
         #endregion
+
+        [Fact]
+        public void moving_write_cursor()
+        {
+            var buffer = new Buffer(new byte[10]);
+
+            buffer.MoveWriteCursor(9);
+
+            Assert.Equal(buffer.WriteCursor(), 9);
+        }
+
+        [Fact]
+        public void moving_write_cursor_throws()
+        {
+            var buffer = new Buffer(new byte[10]);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MoveWriteCursor(11));
+        }
+
+        [Fact]
+        public void moving_read_cursor()
+        {
+            var buffer = new Buffer(new byte[10]);
+
+            buffer.MoveReadCursor(9);
+
+            Assert.Equal(buffer.ReadCursor(), 9);
+        }
+
+        [Fact]
+        public void moving_read_cursor_throws()
+        {
+            var buffer = new Buffer(new byte[10]);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MoveReadCursor(11));
+        }
+
+        [Fact]
+        public void can_fit_types()
+        {
+            var buffer = new Buffer(new byte[24]);
+
+            Assert.True(buffer.CanFit<short>(12));
+            Assert.True(buffer.CanFit<int>(6));
+            Assert.True(buffer.CanFit<long>(3));
+            Assert.True(buffer.CanFit<decimal>());
+
+            Assert.False(buffer.CanFit<short>(13));
+            Assert.False(buffer.CanFit<int>(7));
+            Assert.False(buffer.CanFit<long>(4));
+            Assert.False(buffer.CanFit<decimal>(2));
+        }
+
+        [Fact]
+        public void can_fit_bytes()
+        {
+            var buffer = new Buffer(new byte[24]);
+
+            Assert.True(buffer.CanFitBytes(24));
+            Assert.False(buffer.CanFitBytes(25));
+        }
     }
 }
