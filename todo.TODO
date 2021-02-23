@@ -1,14 +1,11 @@
 - clean up the csproj files
 - clean up test cases
 - clean up benchmarks
-- Add a IPacker<T> work as an override for serialization
 - make ILogger support object and formatting
 - ability to check if a managed object fits the buffer
-- unroll the last serialization if the entire object didnt fit
-- move extensions methods out of the RePacker.Builder namespace
+    Could genrate a method to do this
 
 Base Serializer:
-    Still missing support for a lot of standard types
     - ISet<T>
 
 Ideas:
@@ -20,6 +17,9 @@ CR:
     - RePacker::AddTypePackerProvider<T> has no use atm?
 
 Archive:
+  ✘ Add a IPacker<T> work as an override for serialization @cancelled(21-02-23 14:09)
+  ✔ move extensions methods out of the RePacker.Builder namespace @done(21-02-23 10:30)
+  ✔ unroll the last serialization if the entire object didnt fit @done(21-02-23 09:54)
   ✔ ICollection<T> @done(21-02-22 16:31) @project(Base Serializer)
   ✔ test cases for filling a buffer of large size with all primitive types @done(21-02-22 16:31)
   ✔ missing null handling when packing/unpacking @done(21-02-22 16:31)
