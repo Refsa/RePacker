@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Utils;
+using RePacker.Buffers;
 using Buffer = RePacker.Buffers.Buffer;
 
 namespace RePacker.Builder

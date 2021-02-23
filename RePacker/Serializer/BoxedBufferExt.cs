@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using RePacker.Buffers;
 
-namespace RePacker.Builder
+namespace RePacker.Buffers
 {
     public static class BoxedBufferExt
     {

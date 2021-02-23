@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Utils;
+using RePacker.Buffers;
 
 namespace RePacker.Builder
 {

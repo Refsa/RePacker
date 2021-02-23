@@ -5,7 +5,7 @@ using RePacker.Buffers;
 using RePacker.Unsafe;
 using Buffer = RePacker.Buffers.Buffer;
 
-namespace RePacker.Builder
+namespace RePacker.Buffers
 {
     public static class BufferExt
     {
