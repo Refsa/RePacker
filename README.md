@@ -7,7 +7,7 @@ What you get:
 - Single entry point to serialization
 - Ability to mark specific fields/properties for serialization
 - Ability to wrap types outside of your control for serialization
-- Supports NET4.6.1 through NET4.8 and Net Core 3.0/3.1
+- Supports NET4.6.1 through NET5.0 and Net Core 3.0/3.1
 
 What you dont get:
 - Versioning
@@ -28,7 +28,7 @@ You can find benchmarks under the [performance](#performance) section.
 
 ## General Use
 
-Currently both bootstrapping and logging is enabled by default, but can be toggled with the NO_BOOTSTRAP and NO_LOGGING compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
+Currently both bootstrapping is enabled by default, but can be toggled with the NO_BOOTSTRAP compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
 
 ### BoxedBuffer
 Packing and Unpacking requires the use of **BoxedBuffer** that is a class that wraps around the **Buffer** struct. **Buffer** again is a simple wrapper around a byte array and contains most functionality for handling unmanaged data. This means that the user is responsible for pooling the arrays that you work on. More information on this can be found in the [Buffer & BoxedBuffer](#buffer-and-boxedbuffer) section below.
