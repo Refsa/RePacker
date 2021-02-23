@@ -455,7 +455,16 @@ namespace RePacker.Builder
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
-                packer.Pack(buffer, ref value);
+                int writeCursor = buffer.WriteCursor();
+                try
+                {
+                    packer.Pack(buffer, ref value);
+                }
+                catch (Exception e)
+                {
+                    buffer.SetWriteCursor(writeCursor);
+                    throw e;
+                }
             }
             else if (AttemptToCreatePacker(typeof(T)))
             {
@@ -471,8 +480,17 @@ namespace RePacker.Builder
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
-                packer.Unpack(buffer, out T value);
-                return value;
+                int readCursor = buffer.ReadCursor();
+                try
+                {
+                    packer.Unpack(buffer, out T value);
+                    return value;
+                }
+                catch (Exception e)
+                {
+                    buffer.SetReadCursor(readCursor);
+                    throw e;
+                }
             }
             else if (AttemptToCreatePacker(typeof(T)))
             {
@@ -501,7 +519,16 @@ namespace RePacker.Builder
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
-                packer.UnpackInto(buffer, ref target);
+                int readCursor = buffer.ReadCursor();
+                try
+                {
+                    packer.UnpackInto(buffer, ref target);
+                }
+                catch (Exception e)
+                {
+                    buffer.SetReadCursor(readCursor);
+                    throw e;
+                }
             }
             else if (AttemptToCreatePacker(typeof(T)))
             {
