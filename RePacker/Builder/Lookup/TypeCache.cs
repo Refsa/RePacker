@@ -33,7 +33,7 @@ namespace RePacker.Builder
 
         static IEnumerable<Type> allTypes;
 
-        static Dictionary<Type, Info> typeCache;
+        static ConcurrentDictionary<Type, Info> typeCache;
         static Dictionary<Type, Type> wrapperTypeLookup;
 
         static Dictionary<Type, ITypePacker> packerLookup;
@@ -88,7 +88,7 @@ namespace RePacker.Builder
             {
                 RePacker.Logger.Warn($"type of {type} does not have a valid packer");
 
-                typeCache.Remove(type);
+                typeCache.TryRemove(type, out var _);
                 packerLookup.Remove(type);
             }
         }
@@ -114,7 +114,7 @@ namespace RePacker.Builder
 
         static void BuildTypeCache()
         {
-            typeCache = new Dictionary<Type, Info>();
+            typeCache = new ConcurrentDictionary<Type, Info>();
 
             foreach (Type type in allTypes
                 .WithAttribute(typeof(RePackerAttribute)))
@@ -171,7 +171,7 @@ namespace RePacker.Builder
 
                 tci.SerializedFields = serializedFields.ToArray();
 
-                typeCache.Add(type, tci);
+                typeCache.TryAdd(type, tci);
             }
 
             foreach (Type type in allTypes
@@ -213,7 +213,7 @@ namespace RePacker.Builder
                     SerializedFields = null,
                 };
 
-                typeCache.Add(wrapperFor, typeInfo);
+                typeCache.TryAdd(wrapperFor, typeInfo);
                 wrapperTypeLookup.Add(wrapperFor, type);
             }
         }
@@ -359,7 +359,7 @@ namespace RePacker.Builder
             {
                 Type = type,
             };
-            typeCache.Add(type, info);
+            typeCache.TryAdd(type, info);
         }
 
         internal static bool AttemptToCreatePacker(Type type)
