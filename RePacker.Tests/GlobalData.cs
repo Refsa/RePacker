@@ -2,7 +2,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+// [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace RePacker.Tests
 {

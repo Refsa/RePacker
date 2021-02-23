@@ -18,6 +18,24 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void unmarked_and_unmanaged_struct()
+        {
+            var data = new UnmanagedStruct
+            {
+                Int = 12345,
+                ULong = 4523426435,
+            };
+
+            buffer.Reset();
+
+            buffer.Pack(ref data);
+            var fromBuf = buffer.Unpack<UnmanagedStruct>();
+
+            Assert.Equal(data.Int, fromBuf.Int);
+            Assert.Equal(data.ULong, fromBuf.ULong);
+        }
+
+        [Fact]
         public void can_handle_struct_with_blittable_fields()
         {
             TestStruct ts2 = new TestStruct

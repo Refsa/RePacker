@@ -1,5 +1,5 @@
 using Xunit;
-using RePacker.Builder;
+using RePacker.Buffers;
 using System.Runtime.InteropServices;
 using System;
 using Buffer = RePacker.Buffers.Buffer;
