@@ -82,6 +82,7 @@ public struct ImUnmanaged
 Another benefit is that any struct where all fields are serialized can be directly copied. This means that an array of "ImUnmanaged" structs will be copied with MemoryCopy and as such provide no overhead.
 
 ### Pack and Unpack:
+As long as you are not using the Untiy version you need to initialize the library with `RePacker.RePacker.Init();` before any of the packing will work.
 
 ```cs
 SupportMe packMe = new SupportMe{Float = 1.337f, Int = 1337};
@@ -319,12 +320,6 @@ PackHashSet/UnpackHashSet
 
 PackDictionary/UnpackDictionary
 ```
-
-## Logging
-
-You can turn on logging for more information about the state of the packing. Mostly useful for information about fields or types that arent supported, which will be skipped automatically. 
-
-Package provides an ILogger interface and you can set the logger when initializing it at runtime. A default logger using Console exists, while the Unity version has one for it's Debug logging.
 
 ## Performance:
 

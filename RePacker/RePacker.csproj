@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net4.6.1;net4.7.1;net4.7.2;net4.8;netstandard2.1;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.Contains('Debug'))">
@@ -12,7 +13,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.Contains('Release'))">
-    <DefineConstants>NO_BOOTSTRAP;NO_LOGGING</DefineConstants>
+    <DefineConstants>NO_LOGGING</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unity|AnyCPU' ">
