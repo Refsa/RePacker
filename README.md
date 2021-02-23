@@ -26,6 +26,13 @@ From the benchmarks I've done this package provides the fastest way to serialize
 
 You can find benchmarks under the [performance](#performance) section.
 
+## Where
+Library is hosted on [nuget](https://www.nuget.org/packages/RePacker/).
+
+You can also find the Unsafe portion, with just the Buffer and BoxedBuffer at [nuget](https://www.nuget.org/packages/RePacker.Unsafe/), but these are included in the main package.
+
+You can also directly build the project under "RePackage" or "RePackage.Unity" with `dotnet build -c Release`.
+
 ## General Use
 
 Currently both bootstrapping is enabled by default, but can be toggled with the NO_BOOTSTRAP compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
