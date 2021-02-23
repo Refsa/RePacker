@@ -677,5 +677,59 @@ namespace RePacker.Tests
             Assert.Equal(data.Long, fromBuf.Long);
             Assert.Equal(data.Float, fromBuf.Float);
         }
+
+        [Fact]
+        public void cant_fit_object_should_unroll()
+        {
+            var obj = new SomeManagedObject();
+
+            var buffer = new BoxedBuffer(4);
+
+            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+
+            Assert.Equal(0, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void cant_fit_nested_object_should_unroll()
+        {
+            var obj = new ParentWithNestedClass();
+            obj.Child = new ChildClass();
+
+            var buffer = new BoxedBuffer(8);
+
+            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+
+            Assert.Equal(0, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void cant_fit_multiple_object_should_unroll()
+        {
+            var obj = new SomeManagedObject();
+
+            var buffer = new BoxedBuffer(20);
+
+            buffer.Pack(ref obj);
+            buffer.Pack(ref obj);
+            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+
+            Assert.Equal(16, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void cant_fit_multiple_nested_object_should_unroll()
+        {
+            var obj = new ParentWithNestedClass();
+            obj.Child = new ChildClass();
+
+            var buffer = new BoxedBuffer(38);
+
+            buffer.Pack(ref obj);
+            buffer.Pack(ref obj);
+            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+
+            Assert.Equal(34, buffer.WriteCursor());
+        }
     }
 }

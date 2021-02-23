@@ -37,7 +37,7 @@ public class TestClass
         Console.WriteLine(p.LastName == fromBuf.LastName);
         Console.WriteLine(p.Sex == fromBuf.Sex);
 
-        Console.WriteLine(buffer.Count());
+        Console.WriteLine(buffer.WriteCursor());
 
         /* var swp = new StructWithMarkedProperties
         {
