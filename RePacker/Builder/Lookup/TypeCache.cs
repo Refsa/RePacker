@@ -401,8 +401,18 @@ namespace RePacker.Builder
                         SetupTypeResolver(type, prod);
                         return true;
                     }
-                    return false;
                 }
+            }
+            else if (type.IsUnmanaged() || type.IsUnmanagedStruct())
+            {
+                try
+                {
+                    var packer = (ITypePacker)Activator.CreateInstance(typeof(UnmanagedPacker<>).MakeGenericType(type));
+                    AddRuntimeTypeInfo(type);
+                    SetupTypeResolver(type, packer);
+                    return true;
+                }
+                catch { }
             }
 
             return false;
