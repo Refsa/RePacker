@@ -3,7 +3,7 @@
   <metadata>
     <id>RePacker.Unsafe</id>
     <version>1.0.0</version>
-    <title>RePacker Unsafe</title>
+    <title>RePacker.Unsafe</title>
     <authors>Ole-Gustav Røed</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -15,6 +15,6 @@
     <tags>Binary Packer Low-Level</tags>
   </metadata>
   <files>
-    <file src="README.md" />
+    <file src="../README.md" />
   </files>
 </package>

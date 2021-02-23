@@ -13,8 +13,12 @@
     <releaseNotes></releaseNotes>
     <copyright>Ole-Gustav Røed</copyright>
     <tags>Serialization Binary Formatter Packer</tags>
+
+    <dependencies>
+      <dependency id="RePacker.Unsafe" version="1.0.0" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="README.md" />
+    <file src="../README.md" />
   </files>
 </package>
