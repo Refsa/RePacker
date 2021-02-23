@@ -36,17 +36,17 @@ namespace RePacker.Buffers
         public static void PackKeyValuePair<T1, T2>(this BoxedBuffer buffer, ref KeyValuePair<T1, T2> value)
         {
             var k = value.Key;
-            RePacker.Pack<T1>(buffer, ref k);
+            RePacking.Pack<T1>(buffer, ref k);
 
             var v = value.Value;
-            RePacker.Pack<T2>(buffer, ref v);
+            RePacking.Pack<T2>(buffer, ref v);
         }
 
         public static void UnpackKeyValuePair<T1, T2>(this BoxedBuffer buffer, out KeyValuePair<T1, T2> value)
         {
             value = new KeyValuePair<T1, T2>(
-                RePacker.Unpack<T1>(buffer),
-                RePacker.Unpack<T2>(buffer)
+                RePacking.Unpack<T1>(buffer),
+                RePacking.Unpack<T2>(buffer)
             );
         }
 
@@ -78,12 +78,12 @@ namespace RePacker.Buffers
 
         public static void Pack<T>(this BoxedBuffer self, ref T value)
         {
-            RePacker.Pack(self, ref value);
+            RePacking.Pack(self, ref value);
         }
 
         public static T Unpack<T>(this BoxedBuffer self)
         {
-            return RePacker.Unpack<T>(self);
+            return RePacking.Unpack<T>(self);
         }
     }
 }

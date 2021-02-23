@@ -237,13 +237,13 @@ namespace RePacker.Benchmarks
         public override void Pack(BoxedBuffer buffer, ref Transform value)
         {
             Vector3 pos = value.Position;
-            RePacker.Pack<Vector3>(buffer, ref pos);
+            RePacking.Pack<Vector3>(buffer, ref pos);
 
             Vector3 rot = value.Rotation;
-            RePacker.Pack<Vector3>(buffer, ref rot);
+            RePacking.Pack<Vector3>(buffer, ref rot);
 
             Vector3 scale = value.Scale;
-            RePacker.Pack<Vector3>(buffer, ref scale);
+            RePacking.Pack<Vector3>(buffer, ref scale);
         }
 
         public override void Unpack(BoxedBuffer buffer, out Transform value)
@@ -253,9 +253,9 @@ namespace RePacker.Benchmarks
 
         public override void UnpackInto(BoxedBuffer buffer, ref Transform value)
         {
-            value.Position = RePacker.Unpack<Vector3>(buffer);
-            value.Rotation = RePacker.Unpack<Vector3>(buffer);
-            value.Scale = RePacker.Unpack<Vector3>(buffer);
+            value.Position = RePacking.Unpack<Vector3>(buffer);
+            value.Rotation = RePacking.Unpack<Vector3>(buffer);
+            value.Scale = RePacking.Unpack<Vector3>(buffer);
         }
     }
 

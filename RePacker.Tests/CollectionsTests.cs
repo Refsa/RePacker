@@ -108,8 +108,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<StructWithUnmanagedArray>(buffer, ref swa);
-            var fromBuf = RePacker.Unpack<StructWithUnmanagedArray>(buffer);
+            RePacking.Pack<StructWithUnmanagedArray>(buffer, ref swa);
+            var fromBuf = RePacking.Unpack<StructWithUnmanagedArray>(buffer);
 
             Assert.Equal(swa.Int, fromBuf.Int);
             Assert.Equal(swa.Long, fromBuf.Long);
@@ -154,8 +154,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<StructWithBlittableArray>(buffer, ref swa);
-            var fromBuf = RePacker.Unpack<StructWithBlittableArray>(buffer);
+            RePacking.Pack<StructWithBlittableArray>(buffer, ref swa);
+            var fromBuf = RePacking.Unpack<StructWithBlittableArray>(buffer);
 
             Assert.Equal(swa.Int, fromBuf.Int);
             Assert.Equal(swa.Long, fromBuf.Long);
@@ -197,8 +197,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<HasClassArray>(buffer, ref iac);
-            var fromBuf = RePacker.Unpack<HasClassArray>(buffer);
+            RePacking.Pack<HasClassArray>(buffer, ref iac);
+            var fromBuf = RePacking.Unpack<HasClassArray>(buffer);
 
             Assert.Equal(iac.Byte, fromBuf.Byte);
             Assert.Equal(iac.Long, fromBuf.Long);
@@ -405,9 +405,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasUnmanagedIList>(buffer);
+            var fromBuf = RePacking.Unpack<HasUnmanagedIList>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -427,9 +427,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<IList<int>>(buffer);
+            var fromBuf = RePacking.Unpack<IList<int>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -451,9 +451,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasUnmanagedList>(buffer);
+            var fromBuf = RePacking.Unpack<HasUnmanagedList>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -473,9 +473,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<List<int>>(buffer);
+            var fromBuf = RePacking.Unpack<List<int>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -497,9 +497,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasUnmanagedQueue>(buffer);
+            var fromBuf = RePacking.Unpack<HasUnmanagedQueue>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -519,9 +519,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<Queue<int>>(buffer);
+            var fromBuf = RePacking.Unpack<Queue<int>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -543,9 +543,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasUnmanagedStack>(buffer);
+            var fromBuf = RePacking.Unpack<HasUnmanagedStack>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -565,9 +565,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<Stack<int>>(buffer);
+            var fromBuf = RePacking.Unpack<Stack<int>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -589,9 +589,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasUnmanagedHashSet>(buffer);
+            var fromBuf = RePacking.Unpack<HasUnmanagedHashSet>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -611,9 +611,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HashSet<int>>(buffer);
+            var fromBuf = RePacking.Unpack<HashSet<int>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -640,9 +640,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasManagedIList>(buffer);
+            var fromBuf = RePacking.Unpack<HasManagedIList>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -668,9 +668,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<IList<SomeManagedObject>>(buffer);
+            var fromBuf = RePacking.Unpack<IList<SomeManagedObject>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -698,9 +698,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasManagedList>(buffer);
+            var fromBuf = RePacking.Unpack<HasManagedList>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -726,9 +726,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<List<SomeManagedObject>>(buffer);
+            var fromBuf = RePacking.Unpack<List<SomeManagedObject>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -758,9 +758,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasManagedQueue>(buffer);
+            var fromBuf = RePacking.Unpack<HasManagedQueue>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -790,9 +790,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<Queue<SomeManagedObject>>(buffer);
+            var fromBuf = RePacking.Unpack<Queue<SomeManagedObject>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -824,9 +824,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasManagedStack>(buffer);
+            var fromBuf = RePacking.Unpack<HasManagedStack>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -856,9 +856,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<Stack<SomeManagedObject>>(buffer);
+            var fromBuf = RePacking.Unpack<Stack<SomeManagedObject>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -890,9 +890,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HasManagedHashSet>(buffer);
+            var fromBuf = RePacking.Unpack<HasManagedHashSet>(buffer);
 
             Assert.Equal(hml.Float, fromBuf.Float);
             Assert.Equal(hml.Double, fromBuf.Double);
@@ -922,9 +922,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hml);
+            RePacking.Pack(buffer, ref hml);
 
-            var fromBuf = RePacker.Unpack<HashSet<SomeManagedObject>>(buffer);
+            var fromBuf = RePacking.Unpack<HashSet<SomeManagedObject>>(buffer);
 
             Assert.False(fromBuf == null);
 
@@ -956,8 +956,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<HasUnmanagedDictionary>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<HasUnmanagedDictionary>(buffer);
 
             foreach (var key in dictCont.Dict.Keys)
             {
@@ -982,8 +982,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<Dictionary<int, float>>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<Dictionary<int, float>>(buffer);
 
             foreach (var key in dictCont.Keys)
             {
@@ -1011,8 +1011,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<HasManagedKeyUnmanagedValueDict>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<HasManagedKeyUnmanagedValueDict>(buffer);
 
             Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
 
@@ -1043,8 +1043,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<Dictionary<SomeManagedObject, float>>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<Dictionary<SomeManagedObject, float>>(buffer);
 
             for (int i = 0; i < dictCont.Count; i++)
             {
@@ -1078,8 +1078,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<HasUnmanagedKeyManagedValueDict>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<HasUnmanagedKeyManagedValueDict>(buffer);
 
             Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
 
@@ -1110,8 +1110,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<Dictionary<int, SomeManagedObject>>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<Dictionary<int, SomeManagedObject>>(buffer);
 
             for (int i = 0; i < dictCont.Count; i++)
             {
@@ -1145,8 +1145,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref dictCont);
-            var fromBuf = RePacker.Unpack<HasManagedKeyManagedValueDict>(buffer);
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack<HasManagedKeyManagedValueDict>(buffer);
 
             Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
 

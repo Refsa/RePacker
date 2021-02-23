@@ -22,7 +22,7 @@ namespace RePacker.Utils
                 }
                 catch (Exception e)
                 {
-                    RePacker.Logger.Exception(e);
+                    RePacking.Logger.Exception(e);
                 }
             }
 

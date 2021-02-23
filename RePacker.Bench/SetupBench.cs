@@ -12,7 +12,7 @@ namespace RePacker.Benchmarks
         {
             int val = 123456789;
             intBuffer = new BoxedBuffer(1024);
-            RePacker.Pack<int>(intBuffer, ref val);
+            RePacking.Pack<int>(intBuffer, ref val);
         }
 
         /* [Benchmark]

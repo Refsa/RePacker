@@ -17,13 +17,13 @@ namespace RePacker.Tests
         {
             Logger = new TestLogger(output);
             var settings = new RePackerSettings(Logger);
-            if (!RePacker.IsSetup)
+            if (!RePacking.IsSetup)
             {
-                RePacker.Init(settings);
+                RePacking.Init(settings);
             }
             else
             {
-                RePacker.SetSettings(settings);
+                RePacking.SetSettings(settings);
             }
         }
 

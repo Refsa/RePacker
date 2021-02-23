@@ -86,7 +86,7 @@ namespace RePacker.Builder
 
             foreach (Type type in invalid)
             {
-                RePacker.Logger.Warn($"type of {type} does not have a valid packer");
+                RePacking.Logger.Warn($"type of {type} does not have a valid packer");
 
                 typeCache.TryRemove(type, out var _);
                 packerLookup.Remove(type);
@@ -121,7 +121,7 @@ namespace RePacker.Builder
             {
                 if (typeCache.ContainsKey(type))
                 {
-                    RePacker.Settings.Log.Warn($"Packer already exists for type {type}");
+                    RePacking.Settings.Log.Warn($"Packer already exists for type {type}");
                     continue;
                 }
 
@@ -186,13 +186,13 @@ namespace RePacker.Builder
 
                 if (wrapperFor == null)
                 {
-                    RePacker.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
+                    RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
                     continue;
                 }
 
                 if (typeCache.TryGetValue(type, out var _))
                 {
-                    RePacker.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
+                    RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
                     continue;
                 }
 
@@ -231,16 +231,16 @@ namespace RePacker.Builder
                 }
                 else
                 {
-                    RePacker.Logger.Warn($"Could not create wrapper for type {kv.Key}, Type instance was null");
+                    RePacking.Logger.Warn($"Could not create wrapper for type {kv.Key}, Type instance was null");
                 }
             }
         }
 
         static void BuildPackers()
         {
-            if (!RePacker.Settings.GenerateIL)
+            if (!RePacking.Settings.GenerateIL)
             {
-                RePacker.Settings.Log.Warn("IL Generation is turned off");
+                RePacking.Settings.Log.Warn("IL Generation is turned off");
                 return;
             }
 
@@ -255,7 +255,7 @@ namespace RePacker.Builder
 
                 if (info.SerializedFields == null)
                 {
-                    RePacker.Logger.Error($"No serialized fields found on {type}");
+                    RePacking.Logger.Error($"No serialized fields found on {type}");
                     continue;
                 }
 
@@ -269,8 +269,8 @@ namespace RePacker.Builder
                 }
                 catch (Exception e)
                 {
-                    RePacker.Settings.Log.Error($"Error when generating packer for {type}");
-                    RePacker.Settings.Log.Exception(e);
+                    RePacking.Settings.Log.Error($"Error when generating packer for {type}");
+                    RePacking.Settings.Log.Exception(e);
                     continue;
                 }
 
@@ -281,8 +281,8 @@ namespace RePacker.Builder
                 }
                 catch (Exception e)
                 {
-                    RePacker.Settings.Log.Error($"Error when generating unpacker for {type}");
-                    RePacker.Settings.Log.Exception(e);
+                    RePacking.Settings.Log.Error($"Error when generating unpacker for {type}");
+                    RePacking.Settings.Log.Exception(e);
                     continue;
                 }
 
@@ -307,7 +307,7 @@ namespace RePacker.Builder
                 }
                 catch (Exception e)
                 {
-                    RePacker.Logger.Exception(e);
+                    RePacking.Logger.Exception(e);
                 }
             }
         }
@@ -342,7 +342,7 @@ namespace RePacker.Builder
             var forType = type;
             if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
             {
-                RePacker.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
+                RePacking.Logger.Warn($"Generic producer for {forType} already exists under {currProducer.GetType().Name}");
                 return;
             }
 

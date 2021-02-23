@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using RePacker.Buffers;
 using RePacker.Builder;
-using static RePacker.RePacker;
+using static RePacker.RePacking;
 
 namespace RePacker.Unity
 {
@@ -90,14 +90,14 @@ namespace RePacker.Unity
 
             buffer.Buffer.PackEnum(ref preMode);
             buffer.Buffer.PackEnum(ref postMode);
-            RePacker.Pack(buffer, ref keys);
+            RePacking.Pack(buffer, ref keys);
         }
 
         public override void Unpack(BoxedBuffer buffer, out AnimationCurve value)
         {
             var preMode = buffer.Buffer.UnpackEnum<WrapMode>();
             var postMode = buffer.Buffer.UnpackEnum<WrapMode>();
-            var keys = RePacker.Unpack<Keyframe[]>(buffer);
+            var keys = RePacking.Unpack<Keyframe[]>(buffer);
 
             value = new AnimationCurve(keys);
             value.preWrapMode = preMode;

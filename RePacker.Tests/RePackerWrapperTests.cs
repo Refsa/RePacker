@@ -54,20 +54,20 @@ namespace RePacker.Tests
             public override void Pack(BoxedBuffer buffer, ref Transform value)
             {
                 Vector3 pos = value.Position;
-                RePacker.Pack<Vector3>(buffer, ref pos);
+                RePacking.Pack<Vector3>(buffer, ref pos);
 
                 Vector3 rot = value.Rotation;
-                RePacker.Pack<Vector3>(buffer, ref rot);
+                RePacking.Pack<Vector3>(buffer, ref rot);
 
                 Vector3 scale = value.Scale;
-                RePacker.Pack<Vector3>(buffer, ref scale);
+                RePacking.Pack<Vector3>(buffer, ref scale);
             }
 
             public override void UnpackInto(BoxedBuffer buffer, ref Transform value)
             {
-                value.Position = RePacker.Unpack<Vector3>(buffer);
-                value.Rotation = RePacker.Unpack<Vector3>(buffer);
-                value.Scale = RePacker.Unpack<Vector3>(buffer);
+                value.Position = RePacking.Unpack<Vector3>(buffer);
+                value.Rotation = RePacking.Unpack<Vector3>(buffer);
+                value.Scale = RePacking.Unpack<Vector3>(buffer);
             }
         }
 
@@ -76,8 +76,8 @@ namespace RePacker.Tests
         {
             Vector3 testVec3 = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f };
             var buffer = new BoxedBuffer(1024);
-            RePacker.Pack<Vector3>(buffer, ref testVec3);
-            var fromBuf = RePacker.Unpack<Vector3>(buffer);
+            RePacking.Pack<Vector3>(buffer, ref testVec3);
+            var fromBuf = RePacking.Unpack<Vector3>(buffer);
 
             Assert.Equal(testVec3.X, fromBuf.X);
             Assert.Equal(testVec3.Y, fromBuf.Y);
@@ -95,10 +95,10 @@ namespace RePacker.Tests
             };
 
             var buffer = new BoxedBuffer(1024);
-            RePacker.Pack<Transform>(buffer, ref testTransform);
+            RePacking.Pack<Transform>(buffer, ref testTransform);
 
             var fromBuf = new Transform();
-            RePacker.UnpackInto<Transform>(buffer, ref fromBuf);
+            RePacking.UnpackInto<Transform>(buffer, ref fromBuf);
 
             Assert.Equal(testTransform.Position.X, fromBuf.Position.X);
             Assert.Equal(testTransform.Position.Y, fromBuf.Position.Y);
@@ -124,10 +124,10 @@ namespace RePacker.Tests
             };
 
             var buffer = new BoxedBuffer(1024);
-            RePacker.Pack<Transform>(buffer, ref testTransform);
+            RePacking.Pack<Transform>(buffer, ref testTransform);
 
             var targetTransform = new Transform();
-            RePacker.UnpackInto<Transform>(buffer, ref targetTransform);
+            RePacking.UnpackInto<Transform>(buffer, ref targetTransform);
 
             Assert.Equal(testTransform.Position.X, targetTransform.Position.X);
             Assert.Equal(testTransform.Position.Y, targetTransform.Position.Y);

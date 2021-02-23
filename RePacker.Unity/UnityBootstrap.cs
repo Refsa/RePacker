@@ -13,7 +13,7 @@ namespace RePacker.Unity
                 unitySettings.LoggingEnabled = false;
 #endif
 
-            RePacker.Init(unitySettings);
+            RePacking.Init(unitySettings);
         }
 
         [UnityEngine.RuntimeInitializeOnLoadMethod]

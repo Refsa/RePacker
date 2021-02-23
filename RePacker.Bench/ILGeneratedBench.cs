@@ -34,8 +34,8 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < RUNS; i++)
             {
-                RePacker.Pack<TestStruct2>(boxedBuffer, ref ts2);
-                var _ = RePacker.Unpack<TestStruct2>(boxedBuffer);
+                RePacking.Pack<TestStruct2>(boxedBuffer, ref ts2);
+                var _ = RePacking.Unpack<TestStruct2>(boxedBuffer);
 
                 boxedBuffer.Buffer.Reset();
             }
@@ -96,8 +96,8 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < RUNS; i++)
             {
-                RePacker.Pack<TestClass2>(boxedBuffer, ref ts2);
-                var _ = RePacker.Unpack<TestClass2>(boxedBuffer);
+                RePacking.Pack<TestClass2>(boxedBuffer, ref ts2);
+                var _ = RePacking.Unpack<TestClass2>(boxedBuffer);
 
                 boxedBuffer.Buffer.Reset();
             }
@@ -121,8 +121,8 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < RUNS; i++)
             {
-                RePacker.Pack<Parent>(buffer, ref p);
-                var fromBuf = RePacker.Unpack<Parent>(buffer);
+                RePacking.Pack<Parent>(buffer, ref p);
+                var fromBuf = RePacking.Unpack<Parent>(buffer);
                 buffer.Buffer.Reset();
             }
         }

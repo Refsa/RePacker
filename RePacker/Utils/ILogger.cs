@@ -17,7 +17,7 @@ namespace RePacker.Utils
     {
         public static MethodInfo GetLogger()
         {
-            return typeof(RePacker).GetProperty(nameof(RePacker.Logger)).GetMethod;
+            return typeof(RePacking).GetProperty(nameof(RePacking.Logger)).GetMethod;
         }
 
         public static MethodInfo GetLogMethod()

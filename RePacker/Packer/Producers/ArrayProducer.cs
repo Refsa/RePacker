@@ -23,7 +23,7 @@ namespace RePacker.Builder
                 case 4:
                     return FourDimensionalArray(elementType);
                 default:
-                    RePacker.Logger.Warn($"Array of rank {type.GetArrayRank()} is not supported");
+                    RePacking.Logger.Warn($"Array of rank {type.GetArrayRank()} is not supported");
                     break;
             }
 

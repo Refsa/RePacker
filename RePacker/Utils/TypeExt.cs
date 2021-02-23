@@ -64,7 +64,7 @@ namespace RePacker.Utils
 
         public static bool HasInterface(this Type type, Type interfaceType)
         {
-            RePacker.Settings.Log.Log(type + " - " + interfaceType.MakeGenericType(type.GenericTypeArguments[0]));
+            RePacking.Settings.Log.Log(type + " - " + interfaceType.MakeGenericType(type.GenericTypeArguments[0]));
             foreach (var it in type.GetInterfaces())
             {
                 if (interfaceType == it)

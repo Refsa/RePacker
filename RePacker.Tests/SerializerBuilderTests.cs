@@ -56,9 +56,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<TestStruct>(buffer, ref ts2);
+            RePacking.Pack<TestStruct>(buffer, ref ts2);
 
-            TestStruct fromBuf = RePacker.Unpack<TestStruct>(buffer);
+            TestStruct fromBuf = RePacking.Unpack<TestStruct>(buffer);
 
             Assert.Equal(ts2.Bool, fromBuf.Bool);
             Assert.Equal(ts2.Sbyte, fromBuf.Sbyte);
@@ -97,9 +97,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<TestClass>(buffer, ref ts2);
+            RePacking.Pack<TestClass>(buffer, ref ts2);
 
-            TestClass fromBuf = RePacker.Unpack<TestClass>(buffer);
+            TestClass fromBuf = RePacking.Unpack<TestClass>(buffer);
 
             Assert.Equal(ts2.Bool, fromBuf.Bool);
             Assert.Equal(ts2.Sbyte, fromBuf.Sbyte);
@@ -128,9 +128,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<StructWithString>(buffer, ref sws);
+            RePacking.Pack<StructWithString>(buffer, ref sws);
 
-            var fromBuf = RePacker.Unpack<StructWithString>(buffer);
+            var fromBuf = RePacking.Unpack<StructWithString>(buffer);
 
             Assert.Equal(sws.Float, fromBuf.Float);
             Assert.Equal(sws.String1, fromBuf.String1);
@@ -151,9 +151,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<ClassWithString>(buffer, ref sws);
+            RePacking.Pack<ClassWithString>(buffer, ref sws);
 
-            var fromBuf = RePacker.Unpack<ClassWithString>(buffer);
+            var fromBuf = RePacking.Unpack<ClassWithString>(buffer);
 
             Assert.Equal(sws.Float, fromBuf.Float);
             Assert.Equal(sws.String1, fromBuf.String1);
@@ -174,8 +174,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<StructWithEnum>(buffer, ref sws);
-            var fromBuf = RePacker.Unpack<StructWithEnum>(buffer);
+            RePacking.Pack<StructWithEnum>(buffer, ref sws);
+            var fromBuf = RePacking.Unpack<StructWithEnum>(buffer);
 
             Assert.Equal(sws.Float, fromBuf.Float);
             Assert.Equal(sws.ByteEnum, fromBuf.ByteEnum);
@@ -196,8 +196,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<ClassWithEnum>(buffer, ref sws);
-            var fromBuf = RePacker.Unpack<ClassWithEnum>(buffer);
+            RePacking.Pack<ClassWithEnum>(buffer, ref sws);
+            var fromBuf = RePacking.Unpack<ClassWithEnum>(buffer);
 
             Assert.Equal(sws.Float, fromBuf.Float);
             Assert.Equal(sws.ByteEnum, fromBuf.ByteEnum);
@@ -218,8 +218,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<Person>(buffer, ref p);
-            var fromBuf = RePacker.Unpack<Person>(buffer);
+            RePacking.Pack<Person>(buffer, ref p);
+            var fromBuf = RePacking.Unpack<Person>(buffer);
 
             Assert.Equal(p.Age, fromBuf.Age);
             Assert.Equal(p.FirstName, fromBuf.FirstName);
@@ -244,8 +244,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<ParentWithNestedStruct>(buffer, ref p);
-            var fromBuf = RePacker.Unpack<ParentWithNestedStruct>(buffer);
+            RePacking.Pack<ParentWithNestedStruct>(buffer, ref p);
+            var fromBuf = RePacking.Unpack<ParentWithNestedStruct>(buffer);
 
             Assert.Equal(p.Float, fromBuf.Float);
             Assert.Equal(p.ULong, fromBuf.ULong);
@@ -269,8 +269,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<ParentWithNestedClass>(buffer, ref p);
-            var fromBuf = RePacker.Unpack<ParentWithNestedClass>(buffer);
+            RePacking.Pack<ParentWithNestedClass>(buffer, ref p);
+            var fromBuf = RePacking.Unpack<ParentWithNestedClass>(buffer);
 
             Assert.Equal(p.Float, fromBuf.Float);
             Assert.Equal(p.ULong, fromBuf.ULong);
@@ -294,8 +294,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<RootType>(buffer, ref rt);
-            var fromBuf = RePacker.Unpack<RootType>(buffer);
+            RePacking.Pack<RootType>(buffer, ref rt);
+            var fromBuf = RePacking.Unpack<RootType>(buffer);
 
             Assert.Equal(rt.Float, fromBuf.Float);
             Assert.Equal(rt.Double, fromBuf.Double);
@@ -315,8 +315,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref data);
-            var fromBuf = RePacker.Unpack<HasUnsupportedField>(buffer);
+            RePacking.Pack(buffer, ref data);
+            var fromBuf = RePacking.Unpack<HasUnsupportedField>(buffer);
 
             Assert.Equal(data.Int, fromBuf.Int);
             Assert.Equal(data.Float, fromBuf.Float);
@@ -329,40 +329,40 @@ namespace RePacker.Tests
             buffer.Reset();
 
             int intValue = 10;
-            RePacker.Pack<int>(buffer, ref intValue);
-            Assert.Equal(intValue, RePacker.Unpack<int>(buffer));
+            RePacking.Pack<int>(buffer, ref intValue);
+            Assert.Equal(intValue, RePacking.Unpack<int>(buffer));
 
             uint uintValue = 10;
-            RePacker.Pack<uint>(buffer, ref uintValue);
-            Assert.Equal(uintValue, RePacker.Unpack<uint>(buffer));
+            RePacking.Pack<uint>(buffer, ref uintValue);
+            Assert.Equal(uintValue, RePacking.Unpack<uint>(buffer));
 
             byte byteValue = 10;
-            RePacker.Pack<byte>(buffer, ref byteValue);
-            Assert.Equal(byteValue, RePacker.Unpack<byte>(buffer));
+            RePacking.Pack<byte>(buffer, ref byteValue);
+            Assert.Equal(byteValue, RePacking.Unpack<byte>(buffer));
 
             sbyte sbyteValue = 10;
-            RePacker.Pack<sbyte>(buffer, ref sbyteValue);
-            Assert.Equal(sbyteValue, RePacker.Unpack<sbyte>(buffer));
+            RePacking.Pack<sbyte>(buffer, ref sbyteValue);
+            Assert.Equal(sbyteValue, RePacking.Unpack<sbyte>(buffer));
 
             long longValue = 10;
-            RePacker.Pack<long>(buffer, ref longValue);
-            Assert.Equal(longValue, RePacker.Unpack<long>(buffer));
+            RePacking.Pack<long>(buffer, ref longValue);
+            Assert.Equal(longValue, RePacking.Unpack<long>(buffer));
 
             ulong ulongValue = 10;
-            RePacker.Pack<ulong>(buffer, ref ulongValue);
-            Assert.Equal(ulongValue, RePacker.Unpack<ulong>(buffer));
+            RePacking.Pack<ulong>(buffer, ref ulongValue);
+            Assert.Equal(ulongValue, RePacking.Unpack<ulong>(buffer));
 
             float floatValue = 10.1234f;
-            RePacker.Pack<float>(buffer, ref floatValue);
-            Assert.Equal(floatValue, RePacker.Unpack<float>(buffer));
+            RePacking.Pack<float>(buffer, ref floatValue);
+            Assert.Equal(floatValue, RePacking.Unpack<float>(buffer));
 
             double doubleValue = 10.1234;
-            RePacker.Pack<double>(buffer, ref doubleValue);
-            Assert.Equal(doubleValue, RePacker.Unpack<double>(buffer));
+            RePacking.Pack<double>(buffer, ref doubleValue);
+            Assert.Equal(doubleValue, RePacking.Unpack<double>(buffer));
 
             decimal decimalValue = 10.1234M;
-            RePacker.Pack<decimal>(buffer, ref decimalValue);
-            Assert.Equal(decimalValue, RePacker.Unpack<decimal>(buffer));
+            RePacking.Pack<decimal>(buffer, ref decimalValue);
+            Assert.Equal(decimalValue, RePacking.Unpack<decimal>(buffer));
         }
 
         #region DateTime
@@ -386,8 +386,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hdt);
-            var fromBuf = RePacker.Unpack<HasDateTime>(buffer);
+            RePacking.Pack(buffer, ref hdt);
+            var fromBuf = RePacking.Unpack<HasDateTime>(buffer);
 
             Assert.Equal(hdt.Float, fromBuf.Float);
             Assert.Equal(hdt.DateTime, fromBuf.DateTime);
@@ -400,8 +400,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack<DateTime>(buffer, ref dt);
-            DateTime fromBuf = RePacker.Unpack<DateTime>(buffer);
+            RePacking.Pack<DateTime>(buffer, ref dt);
+            DateTime fromBuf = RePacking.Unpack<DateTime>(buffer);
 
             Assert.Equal(dt.Ticks, fromBuf.Ticks);
         }
@@ -415,8 +415,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref hs);
-            var fromBuf = RePacker.Unpack<HasString>(buffer);
+            RePacking.Pack(buffer, ref hs);
+            var fromBuf = RePacking.Unpack<HasString>(buffer);
 
             Assert.Equal(hs.Float, fromBuf.Float);
             Assert.Equal(hs.String, fromBuf.String);
@@ -429,8 +429,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref value);
-            string fromBuf = RePacker.Unpack<string>(buffer);
+            RePacking.Pack(buffer, ref value);
+            string fromBuf = RePacking.Unpack<string>(buffer);
 
             Assert.Equal(value, fromBuf);
         }
@@ -443,10 +443,10 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref largeString);
+            RePacking.Pack(buffer, ref largeString);
             Assert.Equal(asBytes.Length, buffer.Buffer.WriteCursor() - sizeof(ulong));
 
-            string fromBuf = RePacker.Unpack<string>(buffer);
+            string fromBuf = RePacking.Unpack<string>(buffer);
 
             Assert.Equal(largeString.Length, fromBuf.Length);
             Assert.Equal(largeString, fromBuf);
@@ -473,9 +473,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref kvp);
+            RePacking.Pack(buffer, ref kvp);
 
-            var fromBuf = RePacker.Unpack<KeyValuePair<int, int>>(buffer);
+            var fromBuf = RePacking.Unpack<KeyValuePair<int, int>>(buffer);
 
             Assert.Equal(kvp.Key, fromBuf.Key);
             Assert.Equal(kvp.Value, fromBuf.Value);
@@ -488,9 +488,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref kvp);
+            RePacking.Pack(buffer, ref kvp);
 
-            var fromBuf = RePacker.Unpack<KeyValuePair<SimpleClass, int>>(buffer);
+            var fromBuf = RePacking.Unpack<KeyValuePair<SimpleClass, int>>(buffer);
 
             Assert.Equal(kvp.Key.Float, fromBuf.Key.Float);
             Assert.Equal(kvp.Value, fromBuf.Value);
@@ -503,9 +503,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref kvp);
+            RePacking.Pack(buffer, ref kvp);
 
-            var fromBuf = RePacker.Unpack<KeyValuePair<int, SimpleClass>>(buffer);
+            var fromBuf = RePacking.Unpack<KeyValuePair<int, SimpleClass>>(buffer);
 
             Assert.Equal(kvp.Key, fromBuf.Key);
             Assert.Equal(kvp.Value.Float, fromBuf.Value.Float);
@@ -522,9 +522,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref wanted);
+            RePacking.Pack(buffer, ref wanted);
 
-            var fromBuf = RePacker.Unpack<StructWithKeyValuePair>(buffer);
+            var fromBuf = RePacking.Unpack<StructWithKeyValuePair>(buffer);
 
             Assert.Equal(wanted.Float, fromBuf.Float);
             Assert.Equal(wanted.KeyValuePair.Key, fromBuf.KeyValuePair.Key);
@@ -543,9 +543,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref opsf);
+            RePacking.Pack(buffer, ref opsf);
 
-            var fromBuf = RePacker.Unpack<OnlyPackSelectedFields>(buffer);
+            var fromBuf = RePacking.Unpack<OnlyPackSelectedFields>(buffer);
 
             Assert.Equal(opsf.PackFloat, fromBuf.PackFloat);
             Assert.Equal(opsf.PackLong, fromBuf.PackLong);
@@ -564,9 +564,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref swp);
+            RePacking.Pack(buffer, ref swp);
 
-            var fromBuf = RePacker.Unpack<StructWithUnmarkedProperties>(buffer);
+            var fromBuf = RePacking.Unpack<StructWithUnmarkedProperties>(buffer);
 
             Assert.Equal(0f, fromBuf.Float);
             Assert.Equal(0, fromBuf.Int);
@@ -584,9 +584,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref swp);
+            RePacking.Pack(buffer, ref swp);
 
-            var fromBuf = RePacker.Unpack<StructWithMarkedProperties>(buffer);
+            var fromBuf = RePacking.Unpack<StructWithMarkedProperties>(buffer);
 
             Assert.Equal(swp.Float, fromBuf.Float);
             Assert.Equal(swp.Int, fromBuf.Int);
@@ -605,9 +605,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            RePacker.Pack(buffer, ref t);
+            RePacking.Pack(buffer, ref t);
 
-            var fromBuf = RePacker.Unpack<IHavePrivateType.IAmPrivate>(buffer);
+            var fromBuf = RePacking.Unpack<IHavePrivateType.IAmPrivate>(buffer);
 
             Assert.Equal(t.Float, fromBuf.Float);
             Assert.Equal(t.Int, fromBuf.Int);

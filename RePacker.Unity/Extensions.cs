@@ -1,6 +1,6 @@
 using RePacker.Buffers;
 using UnityEngine;
-using static RePacker.RePacker;
+using static RePacker.RePacking;
 
 namespace RePacker.Unity
 {
@@ -8,32 +8,32 @@ namespace RePacker.Unity
     {
         public static void Pack(this Transform self, BoxedBuffer buffer)
         {
-            RePacker.Pack(buffer, ref self);
+            RePacking.Pack(buffer, ref self);
         }
 
         public static void Pack(this ref Vector3 self, BoxedBuffer buffer)
         {
-            RePacker.Pack(buffer, ref self);
+            RePacking.Pack(buffer, ref self);
         }
 
         public static void Pack(this ref Quaternion self, BoxedBuffer buffer)
         {
-            RePacker.Pack(buffer, ref self);
+            RePacking.Pack(buffer, ref self);
         }
 
         public static void Unpack(this Transform self, BoxedBuffer buffer)
         {
-            RePacker.UnpackInto(buffer, ref self);
+            RePacking.UnpackInto(buffer, ref self);
         }
 
         public static void Unpack(this Vector3 self, BoxedBuffer buffer)
         {
-            RePacker.UnpackInto(buffer, ref self);
+            RePacking.UnpackInto(buffer, ref self);
         }
 
         public static void Unpack(this Quaternion self, BoxedBuffer buffer)
         {
-            RePacker.UnpackInto(buffer, ref self);
+            RePacking.UnpackInto(buffer, ref self);
         }
     }
 }

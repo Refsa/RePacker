@@ -87,9 +87,9 @@ class BaseStructPacker<A, B, C> : RePackerWrapper<BaseStruct<A, B, C>>
 {
     public override void Pack(BoxedBuffer buffer, ref BaseStruct<A, B, C> value)
     {
-        RePacker.RePacker.Pack(buffer, ref value.AValue);
-        RePacker.RePacker.Pack(buffer, ref value.BValue);
-        RePacker.RePacker.Pack(buffer, ref value.CValue);
+        RePacker.RePacking.Pack(buffer, ref value.AValue);
+        RePacker.RePacking.Pack(buffer, ref value.BValue);
+        RePacker.RePacking.Pack(buffer, ref value.CValue);
     }
 }
 

@@ -4,7 +4,7 @@ using RePacker.Builder;
 
 namespace RePacker
 {
-    public static class RePacker
+    public static class RePacking
     {
 #if NO_LOGGING
         static RePackerSettings settings = new RePackerSettings(false);
@@ -17,7 +17,7 @@ namespace RePacker
         public static bool IsSetup => TypeCache.IsSetup;
 
 #if !NO_BOOTSTRAP
-        static RePacker()
+        static RePacking()
         {
             Init();
         }

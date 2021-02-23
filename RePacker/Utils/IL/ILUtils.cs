@@ -66,10 +66,10 @@ namespace RePacker.Utils
 
         public static void LogList<T>(List<T> list)
         {
-            RePacker.Logger.Log("Logging List");
+            RePacking.Logger.Log("Logging List");
             foreach (var item in list)
             {
-                RePacker.Logger.Log($"{item}");
+                RePacking.Logger.Log($"{item}");
             }
         }
 

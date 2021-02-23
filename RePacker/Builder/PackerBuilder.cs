@@ -122,7 +122,7 @@ namespace RePacker.Builder
                     }
                     else
                     {
-                        RePacker.Logger.Warn($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        RePacking.Logger.Warn($"RePacker - Unpack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
                     }
                 }
                 goto Finished;
@@ -241,7 +241,7 @@ namespace RePacker.Builder
                     }
                     else
                     {
-                        RePacker.Logger.Warn($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                        RePacking.Logger.Warn($"RePacker - Pack: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
                     }
                 }
                 goto Finished;

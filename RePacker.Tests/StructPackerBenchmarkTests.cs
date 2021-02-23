@@ -19,8 +19,8 @@ namespace RePacker.Tests
         {
             var buffer = new BoxedBuffer(1 << 24);
 
-            RePacker.Pack(buffer, ref _largeValueMsg);
-            var fromBuf = RePacker.Unpack<LargeValueMsg>(buffer);
+            RePacking.Pack(buffer, ref _largeValueMsg);
+            var fromBuf = RePacking.Unpack<LargeValueMsg>(buffer);
 
             for (int i = 0; i < _largeValueMsg.Prop1.Length; i++)
             {

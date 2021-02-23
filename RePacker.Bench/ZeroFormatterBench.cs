@@ -102,7 +102,7 @@ namespace RePacker.Benchmarks
                 personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
 
                 personBoxedBuffer = new BoxedBuffer(1024);
-                RePacker.Pack<Person>(personBoxedBuffer, ref p);
+                RePacking.Pack<Person>(personBoxedBuffer, ref p);
 
                 personArrayBoxedBuffer = new BoxedBuffer(1 << 24);
                 personArrayBoxedBuffer.Pack(ref personArray);
@@ -110,7 +110,7 @@ namespace RePacker.Benchmarks
 
             {
                 vectorBuffer = new BoxedBuffer(1024);
-                RePacker.Pack<Vector>(vectorBuffer, ref vector);
+                RePacking.Pack<Vector>(vectorBuffer, ref vector);
             }
 
             {
@@ -122,7 +122,7 @@ namespace RePacker.Benchmarks
             {
                 int val = 123456789;
                 intBuffer = new BoxedBuffer(1024);
-                RePacker.Pack<int>(intBuffer, ref val);
+                RePacking.Pack<int>(intBuffer, ref val);
             }
 
             {
@@ -138,7 +138,7 @@ namespace RePacker.Benchmarks
             boxedBuffer.Buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack<Person>(boxedBuffer, ref p);
+                RePacking.Pack<Person>(boxedBuffer, ref p);
                 // boxedBuffer.Buffer.Reset();
             }
         }
@@ -148,7 +148,7 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var _ = RePacker.Unpack<Person>(personBoxedBuffer);
+                var _ = RePacking.Unpack<Person>(personBoxedBuffer);
                 personBoxedBuffer.Buffer.Reset();
             }
         }
@@ -158,7 +158,7 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack<Vector>(boxedBuffer, ref vector);
+                RePacking.Pack<Vector>(boxedBuffer, ref vector);
                 boxedBuffer.Buffer.Reset();
             }
         }
@@ -168,7 +168,7 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var _ = RePacker.Unpack<Vector>(vectorBuffer);
+                var _ = RePacking.Unpack<Vector>(vectorBuffer);
                 vectorBuffer.Buffer.Reset();
             }
         }
@@ -181,7 +181,7 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack<int>(boxedBuffer, ref val);
+                RePacking.Pack<int>(boxedBuffer, ref val);
                 boxedBuffer.Buffer.Reset();
             }
         }
@@ -192,7 +192,7 @@ namespace RePacker.Benchmarks
             intBuffer.Buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                var _ = RePacker.Unpack<int>(intBuffer);
+                var _ = RePacking.Unpack<int>(intBuffer);
                 intBuffer.Buffer.Reset();
             }
         }
@@ -260,7 +260,7 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack(boxedBuffer, ref personArray);
+                RePacking.Pack(boxedBuffer, ref personArray);
                 boxedBuffer.Buffer.Reset();
             }
         }
@@ -270,7 +270,7 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacker.Unpack<Person[]>(personArrayBoxedBuffer);
+                var p = RePacking.Unpack<Person[]>(personArrayBoxedBuffer);
                 personArrayBoxedBuffer.Buffer.Reset();
             }
         }
@@ -281,7 +281,7 @@ namespace RePacker.Benchmarks
             boxedBuffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack(boxedBuffer, ref vectorArray);
+                RePacking.Pack(boxedBuffer, ref vectorArray);
                 boxedBuffer.Reset();
             }
         }
@@ -291,7 +291,7 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacker.Unpack<Vector[]>(vectorArrayBoxedBuffer);
+                var p = RePacking.Unpack<Vector[]>(vectorArrayBoxedBuffer);
                 vectorArrayBoxedBuffer.Reset();
             }
         }
@@ -302,7 +302,7 @@ namespace RePacker.Benchmarks
             boxedBuffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                RePacker.Pack(boxedBuffer, ref intArray);
+                RePacking.Pack(boxedBuffer, ref intArray);
                 boxedBuffer.Reset();
             }
         }
@@ -312,7 +312,7 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacker.Unpack<int[]>(vectorArrayBoxedBuffer);
+                var p = RePacking.Unpack<int[]>(vectorArrayBoxedBuffer);
                 vectorArrayBoxedBuffer.Reset();
             }
         }

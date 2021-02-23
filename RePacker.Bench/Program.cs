@@ -19,7 +19,7 @@ namespace RePacker.Benchmarks
     {
         public static void Main(string[] args)
         {
-            RePacker.Init();
+            RePacking.Init();
             Console.WriteLine("Benchmark Start");
 
             // var bufferBench = BenchmarkRunner.Run<BufferBench>();

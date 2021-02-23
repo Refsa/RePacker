@@ -82,14 +82,14 @@ public struct ImUnmanaged
 Another benefit is that any struct where all fields are serialized can be directly copied. This means that an array of "ImUnmanaged" structs will be copied with MemoryCopy and as such provide no overhead.
 
 ### Pack and Unpack:
-As long as you are not using the Untiy version you need to initialize the library with `RePacker.RePacker.Init();` before any of the packing will work.
+As long as the NO_BOOTSTRAP flag is set you need to initialize the library with `RePacker.RePacker.Init();` before any of the packing will work.
 
 ```cs
 SupportMe packMe = new SupportMe{Float = 1.337f, Int = 1337};
 BoxedBuffer buffer = new BoxedBuffer(1024);
 
-RePacker.Pack(buffer, ref packMe);
-SupportMe unpacked = RePacker.Unpack<SupportMe>(buffer);
+RePacking.Pack(buffer, ref packMe);
+SupportMe unpacked = RePacking.Unpack<SupportMe>(buffer);
 ```
 
 ### Pack and Unpack into existing instance
@@ -106,10 +106,10 @@ public class IntoInstance
 IntoInstance packMe = new IntoInstance{Float = 13.37f};
 BoxedBuffer buffer = new BoxedBuffer(1024);
 
-RePacker.Pack(buffer, ref packMe);
+RePacking.Pack(buffer, ref packMe);
 
 IntoInstance unpackIntoMe = new IntoInstance();
-RePacker.UnpackInto(buffer, ref unpackIntoMe);
+RePacking.UnpackInto(buffer, ref unpackIntoMe);
 ```
 
 ### Wrap an existing type
@@ -122,7 +122,6 @@ Additionally any type that has a custom packer can also be packed/unpacked with 
 public class CantModifyMe
 {
     public float Float;
-    public SupportMe SupportMe;
 }
 
 [RePackerWrapper(typeof(CantModifyMe))]
@@ -130,21 +129,18 @@ public class CantModifyMeWrapper : RePackerWrapper<CantModifyMe>
 {
     public override void Pack(BoxedBuffer buffer, ref CantModifyMe value)
     {
-        buffer.PushFloat(ref value.Float);
-        RePacker.Pack(buffer, ref value.SupportMe);
+        buffer.Buffer.PushFloat(ref value.Float);
     }
 
     public override void Unpack(BoxedBuffer buffer, out CantModifyMe value)
     {
         value = new CantModifyMe();
-        buffer.PopFloat(out value.Float);
-        RePacker.Unpack(buffer, ref value.SupportMe);
+        buffer.Buffer.PopFloat(out value.Float);
     }
 
-    public override void UnpackInto(BoxedBuffer buffer, ref Vector2 value)
+    public override void UnpackInto(BoxedBuffer buffer, ref CantModifyMe value)
     {
-        buffer.PopFloat(out value.Float);
-        RePacker.Unpack(buffer, ref value.SupportMe);
+        buffer.Buffer.PopFloat(out value.Float);
     }
 }
 // Pack/Unpack as shown above
@@ -160,22 +156,22 @@ Generic types is a special case that requires some additional work to support. T
 public struct MyGenericType<T1, T2> where T1 : unmanaged
 {
     public T1 Value1;
-    public T2 Value2
+    public T2 Value2;
 }
 
-public class MyGenericTypePacker<T1, T2> : RePackerWrapper<MyGenericType<T1, T2>>
+public class MyGenericTypePacker<T1, T2> : RePackerWrapper<MyGenericType<T1, T2>> where T1 : unmanaged
 {
     public override void Pack(BoxedBuffer buffer, ref MyGenericType<T1, T2> value)
     {
         buffer.Buffer.Pack<T1>(ref value.Value1);
-        RePacker.Pack(buffer, ref value.Value2);
+        RePacking.Pack(buffer, ref value.Value2);
     }
 
     public override void Unpack(BoxedBuffer buffer, out MyGenericType<T1, T2> value)
     {
         value = new MyGenericType<T1, T2>();
         buffer.Buffer.Unpack<T1>(out value.Value1);
-        value.Value2 = RePacker.Unpack<T2>(buffer);
+        value.Value2 = RePacking.Unpack<T2>(buffer);
     }
 }
 
@@ -186,7 +182,7 @@ public class MyGenericTypeProducer : GenericProducer
     public override ITypePacker GetProducer(Type type)
     {
         var elementTypes = type.GetGenericArguments();
-        var instance = Activator.CreateInstance(typeof(MyGenericTypeWrapper<,>).MakeGenericType(elementTypes));
+        var instance = Activator.CreateInstance(typeof(MyGenericTypePacker<,>).MakeGenericType(elementTypes));
         return (ITypePacker)instance;
     }
 }
@@ -214,6 +210,8 @@ Collections:
 - Queue<T>
 - HashSet<T>
 - Array (up to rank 4)
+  Although it supports dimensionality up to rank 4 it's much more optimal to split it into 4 seperate arrays.
+  Only 1 dimensional arrays support direct copying
 ```
 
 Additionally:
@@ -290,7 +288,7 @@ PackBlittableArray/UnpackBlittableArray
 BoxedBuffer contains a field, Buffer, that points to a Buffer instance. On top of this it has some additional utility extensions. This is the main class for handling managed types.
 
 ```
-Pack/Unpack - Redirects to RePacker::Pack/RePacker::Unpack
+Pack/Unpack - Redirects to RePacking::Pack/RePacking::Unpack
 Push/Pop - Redirects to contained buffers Buffer::Pack/Buffer::Unpack
 
 PackKeyValuePair/UnpackKeyValuePair
