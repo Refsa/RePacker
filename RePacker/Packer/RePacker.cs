@@ -6,7 +6,11 @@ namespace RePacker
 {
     public static class RePacker
     {
+#if NO_LOGGING
+        static RePackerSettings settings = new RePackerSettings(false);
+#else
         static RePackerSettings settings = new RePackerSettings();
+#endif
         public static RePackerSettings Settings => settings;
         public static ILogger Logger => settings.Log;
 

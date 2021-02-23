@@ -11,6 +11,10 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(Configuration.Contains('Release'))">
+    <DefineConstants>NO_BOOTSTRAP;NO_LOGGING</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unity|AnyCPU' ">
     <!-- <OutputPath>bin2\$(Configuration)\</OutputPath> -->
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -20,7 +24,7 @@
     <Optimize>true</Optimize>
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
-    <DefineConstants>NO_BOOTSTRAP</DefineConstants>
+    <DefineConstants>NO_BOOTSTRAP;NO_LOGGING</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

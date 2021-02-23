@@ -33,5 +33,11 @@ namespace RePacker
             log = logger;
             log.Enabled = loggingEnabled;
         }
+        
+        public RePackerSettings(bool enableLogging)
+        {
+            log = new ConsoleLogger();
+            log.Enabled = enableLogging;
+        }
     }
 }

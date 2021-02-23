@@ -1,4 +1,4 @@
-# RePacker - Yet Another Flexible and Fast C# Non-Persistent Binary Packer
+# RePacker - Flexible and Fast C# Non-Persistent Binary Packer
 
 The aim for this project is to create a flexible and fast serializer/binary packer that works with both standalone C# projects and within the Unity Engine ecosystem.
 
@@ -20,9 +20,9 @@ Long Term Goals:
 - Control over stride/padding and endianess
 
 ## How
-Using IL generated at runtime and a healthy does of unsafe code we can achieve fast and stable serialization speeds. This is done by sacrificing control over stride and endianess and directly copying what the .NET runtime itself creates at runtime. 
+Using IL generated at runtime and a healthy does of unsafe code we can achieve fast and stable serialization speeds. This is done by sacrificing control over stride and endianess and directly copying what the .NET runtime itself creates. 
 
-From the benchmarks I've done this package provides the fastest way to serialize to a binary format across all supported .NET versions. Even if it is the fastest there are still many packages that provides more features for versioning and binary size if that is a requirement.
+From the benchmarks I've done this package provides the fastest way to serialize to a binary format across all supported .NET versions. Even if it is the fastest there are still many packages that provides more features for versioning and smaller binary size if that is a requirement.
 
 You can find benchmarks under the [performance](#performance) section.
 
