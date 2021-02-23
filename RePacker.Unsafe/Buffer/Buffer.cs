@@ -189,9 +189,15 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetReadCursor(int count)
+        public void SetReadCursor(int pos)
         {
-            writeCursor = count;
+            readCursor = pos;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetWriteCursor(int pos)
+        {
+            writeCursor = pos;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

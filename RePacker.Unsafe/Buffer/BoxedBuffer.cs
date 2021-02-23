@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using Buffer = RePacker.Buffers.Buffer;
@@ -28,78 +29,105 @@ namespace RePacker.Buffers
             Data = buffer.Array;
             Buffer = buffer;
         }
+
+        #region Buffer Wrappers
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void MemoryCopy<T>(T[] array) where T : unmanaged
         {
             Buffer.MemoryCopyFromUnsafe(array);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe T[] MemoryCopy<T>() where T : unmanaged
         {
             return Buffer.MemoryCopyToUnsafe<T>();
         }
 
-        #region Buffer Wrappers
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Push<T>(ref T value) where T : unmanaged
         {
             Buffer.Pack(ref value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pop<T>(out T value) where T : unmanaged
         {
             Buffer.Unpack<T>(out value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Pop<T>() where T : unmanaged
         {
             Buffer.Unpack<T>(out T value);
             return value;
         }
 
-        public int Count()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int WriteCursor()
         {
             return Buffer.WriteCursor();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Length()
         {
             return Buffer.Length();
         }
 
-        public int Cursor()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int ReadCursor()
         {
             return Buffer.ReadCursor();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int FreeSpace()
         {
             return Buffer.FreeSpace();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flush()
         {
             Buffer.Flush();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Reset()
         {
             Buffer.Reset();
         }
 
-        public void SetCount(int count)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void MoveReadCursor(int amount)
         {
-            Buffer.SetReadCursor(count);
+            Buffer.MoveReadCursor(amount);
         }
 
-        public void MoveOffset(int amount)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void MoveWriteCursor(int amount)
         {
             Buffer.MoveWriteCursor(amount);
-            // TODO: Make sure cursor doesnt move outside of buffer
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetWriteCursor(int pos)
+        {
+            Buffer.SetWriteCursor(pos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetReadCursor(int pos)
+        {
+            Buffer.SetReadCursor(pos);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit(int count)
         {
             return Buffer.CanFitBytes(count);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit<T>(int count) where T : unmanaged
         {
             return Buffer.CanFit<T>(count);
