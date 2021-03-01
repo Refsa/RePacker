@@ -30,11 +30,21 @@ namespace RePacker.Buffers
             Buffer = buffer;
         }
 
+        public void Copy(ref Buffer other)
+        {
+            Buffer.Copy(ref other);
+        }
+
+        public void Copy(BoxedBuffer other)
+        {
+            Buffer.Copy(ref other.Buffer);
+        }
+
         #region Buffer Wrappers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public unsafe void MemoryCopy<T>(T[] array) where T : unmanaged
+        public unsafe void MemoryCopy<T>(T[] array, int offset = 0, int count = 0) where T : unmanaged
         {
-            Buffer.MemoryCopyFromUnsafe(array);
+            Buffer.MemoryCopyFromUnsafe(array, offset, count);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe T[] MemoryCopy<T>() where T : unmanaged
@@ -59,6 +69,12 @@ namespace RePacker.Buffers
         {
             Buffer.Unpack<T>(out T value);
             return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T Peek<T>() where T : unmanaged
+        {
+            return Buffer.Peek<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -826,5 +826,41 @@ namespace RePacker.Buffers.Tests
             Assert.True(buffer.CanFitBytes(24));
             Assert.False(buffer.CanFitBytes(25));
         }
+
+        [Fact]
+        public void can_copy_buffer()
+        {
+            var buffer1 = new Buffer(new byte[1024]);
+            var buffer2 = new Buffer(new byte[1024]);
+
+            for (int i = 0; i < 10; i++)
+            {
+                buffer1.Pack(ref i);
+            }
+
+            buffer1.Copy(ref buffer2);
+
+            for (int i = 0; i < 10; i++)
+            {
+                buffer1.Unpack<int>(out int b1);
+                buffer2.Unpack<int>(out int b2);
+
+                Assert.Equal(b1, b2);
+            }
+        }
+
+        [Fact]
+        public void copy_buffer_out_of_bounds()
+        {
+            var buffer1 = new Buffer(new byte[1024]);
+            var buffer2 = new Buffer(new byte[8]);
+
+            for (int i = 0; i < 10; i++)
+            {
+                buffer1.Pack(ref i);
+            }
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer1.Copy(ref buffer2));
+        }
     }
 }

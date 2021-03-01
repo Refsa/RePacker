@@ -78,40 +78,48 @@ namespace RePacker.Buffers
             readCursor += sizeof(T);
         }
 
-        public unsafe void MemoryCopyFromUnsafe<T>(T[] array) where T : unmanaged
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe T Peek<T>() where T : unmanaged
         {
-            if (array == null || array.Length == 0)
+            if (readCursor + sizeof(T) > array.Length)
+            {
+                throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
+            }
+
+            fixed (byte* data = &array[readCursor])
+            {
+                return *(T*)data;
+            }
+        }
+
+        public unsafe void MemoryCopyFromUnsafe<T>(T[] array, int offset = 0, int length = 0) where T : unmanaged
+        {
+            if (length == 0) length = array.Length;
+
+            if (array == null || length == 0)
             {
                 ulong zero = 0;
                 PushULong(ref zero);
                 return;
             }
 
-            if (!CanFit<T>(array.Length))
+            if (!CanFit<T>(length))
             {
                 throw new IndexOutOfRangeException();
             }
 
-            ulong len = (ulong)array.Length;
+            ulong len = (ulong)length;
             PushULong(ref len);
 
             int pos = WriteCursor();
             int size = UnsafeUtils.SizeOf<T>();
 
-            fixed (void* src = array, dest = &Array[pos])
+            fixed (void* src = &array[offset], dest = &Array[pos])
             {
-                System.Buffer.MemoryCopy(src, dest, array.Length * size, array.Length * size);
+                System.Buffer.MemoryCopy(src, dest, length * size, length * size);
             }
 
-            /* fixed (T* src = array) fixed (byte* dest = &data[pos])
-            {
-                for (int i = 0; i < array.Length; i++)
-                {
-                    *((T*)(dest + i * size)) = *(src + i);
-                }
-            } */
-
-            MoveWriteCursor(array.Length * size);
+            MoveWriteCursor(length * size);
         }
 
         public unsafe T[] MemoryCopyToUnsafe<T>() where T : unmanaged
@@ -133,17 +141,25 @@ namespace RePacker.Buffers
                 System.Buffer.MemoryCopy(src, dest, len * (ulong)size, len * (ulong)size);
             }
 
-            /* fixed (byte* src = &data[pos]) fixed (T* dest = destArray)
-            {
-                for (int i = 0; i < (int)len; i++)
-                {
-                    *(dest + i) = *(T*)(src + i * size);
-                }
-            } */
-
             MoveReadCursor(size * (int)len);
 
             return destArray;
+        }
+
+        public unsafe void Copy(ref Buffer destination)
+        {
+            int length = Length();
+            if (!destination.CanFitBytes(length))
+            {
+                throw new IndexOutOfRangeException("Cant copy Buffer, destination too small");
+            }
+
+            fixed (void* src = &array[readCursor], dest = &destination.array[destination.writeCursor])
+            {
+                System.Buffer.MemoryCopy(src, dest, length, length);
+            }
+
+            destination.MoveWriteCursor(length);
         }
 
         #region General
