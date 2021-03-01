@@ -1,5 +1,8 @@
 # RePacker - Flexible and Fast C# Non-Persistent Binary Packer
 
+![Nuget](https://img.shields.io/nuget/v/RePacker?label=nuget%3A%20RePacker)
+![Nuget](https://img.shields.io/nuget/v/RePacker.Unsafe?label=nuget%3A%20RePacker.Unsafe)
+
 The aim for this project is to create a flexible and fast serializer/binary packer that works with both standalone C# projects and within the Unity Engine ecosystem.
 
 What you get:
