@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackSByte(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref sbyte value)
+        {
+            return sizeof(sbyte);
+        }
     }
 }

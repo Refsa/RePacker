@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackDouble(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref double value)
+        {
+            return sizeof(double);
+        }
     }
 }

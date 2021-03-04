@@ -22,5 +22,11 @@ namespace RePacker.Builder
         {
             buffer.Unpack<T>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int SizeOf(ref T value)
+        {
+            return RePacker.Unsafe.UnsafeUtils.SizeOf<T>();
+        }
     }
 }

@@ -22,5 +22,18 @@ namespace RePacker.Builder
         {
             buffer.UnpackString(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref string value)
+        {
+            if (value == null)
+            {
+                return sizeof(ulong);
+            }
+            else
+            {
+                return System.Text.Encoding.UTF8.GetByteCount(value) + sizeof(ulong);
+            }
+        }
     }
 }

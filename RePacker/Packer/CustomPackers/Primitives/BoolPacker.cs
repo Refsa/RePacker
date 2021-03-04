@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackBool(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref bool value)
+        {
+            return sizeof(bool);
+        }
     }
 }

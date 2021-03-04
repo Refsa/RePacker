@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackUInt(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref uint value)
+        {
+            return sizeof(uint);
+        }
     }
 }

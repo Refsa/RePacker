@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackDecimal(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref decimal value)
+        {
+            return sizeof(decimal);
+        }
     }
 }

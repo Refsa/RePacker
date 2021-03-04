@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackLong(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref long value)
+        {
+            return sizeof(long);
+        }
     }
 }

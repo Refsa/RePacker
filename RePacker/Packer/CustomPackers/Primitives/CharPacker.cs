@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackChar(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref char value)
+        {
+            return sizeof(char);
+        }
     }
 }

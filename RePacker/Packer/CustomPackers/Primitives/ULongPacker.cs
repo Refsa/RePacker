@@ -25,5 +25,11 @@ namespace RePacker.Builder
         {
             buffer.UnpackULong(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref ulong value)
+        {
+            return sizeof(ulong);
+        }
     }
 }
