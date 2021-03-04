@@ -65,7 +65,7 @@ namespace RePacker
 
         public static Buffer Pack<T>(ref T value)
         {
-            var buffer = new Buffer(0, true);
+            var buffer = new Buffer(TypeCache.GetSize<T>(ref value), true);
             Pack(buffer, ref value);
             return buffer;
         }
@@ -103,6 +103,11 @@ namespace RePacker
         public static void UnpackInto<T>(Buffer buffer, ref T target)
         {
             TypeCache.UnpackInto<T>(buffer, ref target);
+        }
+
+        public static int SizeOf<T>(ref T value)
+        {
+            return TypeCache.GetSize<T>(ref value);
         }
 
         internal static void AddTypePackerProvider<T>(GenericProducer producer)

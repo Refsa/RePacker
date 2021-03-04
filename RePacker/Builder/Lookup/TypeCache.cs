@@ -5,7 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using RePacker.Buffers;
+using RePacker.Generator;
 using RePacker.Utils;
 
 using Buffer = RePacker.Buffers.Buffer;
@@ -246,7 +248,8 @@ namespace RePacker.Builder
                 return;
             }
 
-            Dictionary<Type, (MethodInfo packer, MethodInfo unpacker)> packers = new Dictionary<Type, (MethodInfo packer, MethodInfo unpacker)>();
+            Dictionary<Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)> packers =
+                new Dictionary<Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)>();
 
             foreach (var kv in typeCache)
             {
@@ -263,6 +266,7 @@ namespace RePacker.Builder
 
                 MethodInfo packer = null;
                 MethodInfo unpacker = null;
+                MethodInfo getSizer = null;
 
                 // Generate Packer Method
                 try
@@ -288,7 +292,20 @@ namespace RePacker.Builder
                     continue;
                 }
 
-                packers.Add(type, (packer, unpacker));
+                try
+                {
+                    getSizer = (MethodInfo)typeof(GetSizeGenerator<>)
+                        .MakeGenericType(info.Type)
+                        .GetMethod("Create")
+                        .Invoke(null, new object[] { info });
+                }
+                catch (Exception e)
+                {
+                    RePacking.Settings.Log.Error($"Error when generating getSizer for {type}");
+                    RePacking.Settings.Log.Exception(e);
+                }
+
+                packers.Add(type, (packer, unpacker, getSizer));
             }
 
             foreach (var kv in packers)
@@ -300,7 +317,7 @@ namespace RePacker.Builder
                     var typePacker = (ITypePacker)Activator
                         .CreateInstance(
                             typeof(TypePacker<>).MakeGenericType(kv.Key),
-                            kv.Value.packer, kv.Value.unpacker);
+                            kv.Value.packer, kv.Value.unpacker, kv.Value.getSizer);
 
                     packerLookup.TryAdd(
                         kv.Key,
@@ -549,6 +566,19 @@ namespace RePacker.Builder
             else
             {
                 throw new NotSupportedException($"Unpacker for {typeof(T)} not found");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetSize<T>(ref T value)
+        {
+            if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
+            {
+                return packer.SizeOf(ref value);
+            }
+            else
+            {
+                throw new NotSupportedException($"GetSizer for {typeof(T)} not found");
             }
         }
         #endregion
