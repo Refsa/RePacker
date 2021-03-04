@@ -11,19 +11,19 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(Buffer buffer, ref decimal value)
         {
-            buffer.PushDecimal(ref value);
+            buffer.PackDecimal(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Unpack(Buffer buffer, out decimal value)
         {
-            buffer.PopDecimal(out value);
+            buffer.UnpackDecimal(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void UnpackInto(Buffer buffer, ref decimal value)
         {
-            buffer.PopDecimal(out value);
+            buffer.UnpackDecimal(out value);
         }
     }
 }

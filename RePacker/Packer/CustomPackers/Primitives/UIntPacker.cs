@@ -11,19 +11,19 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(Buffer buffer, ref uint value)
         {
-            buffer.PushUInt(ref value);
+            buffer.PackUInt(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Unpack(Buffer buffer, out uint value)
         {
-            buffer.PopUInt(out value);
+            buffer.UnpackUInt(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void UnpackInto(Buffer buffer, ref uint value)
         {
-            buffer.PopUInt(out value);
+            buffer.UnpackUInt(out value);
         }
     }
 }
