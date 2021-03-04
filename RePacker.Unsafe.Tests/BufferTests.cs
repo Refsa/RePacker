@@ -336,8 +336,8 @@ namespace RePacker.Buffers.Tests
 
             char value = 'G';
 
-            buffer.PushChar(ref value);
-            buffer.PopChar(out char posFromBuf);
+            buffer.PackChar(ref value);
+            buffer.UnpackChar(out char posFromBuf);
             Assert.Equal(value, posFromBuf);
         }
 
@@ -348,8 +348,8 @@ namespace RePacker.Buffers.Tests
 
             char value = 'G';
 
-            buffer.PushChar(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushChar(ref value));
+            buffer.PackChar(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackChar(ref value));
         }
 
         [Fact]
@@ -360,12 +360,12 @@ namespace RePacker.Buffers.Tests
             for (int i = 0; i < 255; i++)
             {
                 char val = (char)i;
-                buffer.PushChar(ref val);
+                buffer.PackChar(ref val);
             }
 
             for (int i = 0; i < 255; i++)
             {
-                buffer.PopChar(out char posFromBuf);
+                buffer.UnpackChar(out char posFromBuf);
                 Assert.Equal((char)i, posFromBuf);
             }
         }
@@ -377,8 +377,8 @@ namespace RePacker.Buffers.Tests
 
             bool value = true;
 
-            buffer.PushBool(ref value);
-            buffer.PopBool(out bool posFromBuf);
+            buffer.PackBool(ref value);
+            buffer.UnpackBool(out bool posFromBuf);
             Assert.Equal(value, posFromBuf);
         }
 
@@ -389,9 +389,9 @@ namespace RePacker.Buffers.Tests
 
             bool value = true;
 
-            buffer.PushBool(ref value);
-            buffer.PushBool(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushBool(ref value));
+            buffer.PackBool(ref value);
+            buffer.PackBool(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackBool(ref value));
         }
 
         [Fact]
@@ -402,14 +402,14 @@ namespace RePacker.Buffers.Tests
             short positive = 23423;
             short negative = -5342;
 
-            buffer.PushShort(ref positive);
-            buffer.PopShort(out short posFromBuf);
+            buffer.PackShort(ref positive);
+            buffer.UnpackShort(out short posFromBuf);
             Assert.Equal(positive, posFromBuf);
 
             buffer.Reset();
 
-            buffer.PushShort(ref negative);
-            buffer.PopShort(out short negFromBuf);
+            buffer.PackShort(ref negative);
+            buffer.UnpackShort(out short negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
 
@@ -420,8 +420,8 @@ namespace RePacker.Buffers.Tests
 
             ushort positive = 23423;
 
-            buffer.PushUShort(ref positive);
-            buffer.PopUShort(out ushort posFromBuf);
+            buffer.PackUShort(ref positive);
+            buffer.UnpackUShort(out ushort posFromBuf);
             Assert.Equal(positive, posFromBuf);
         }
 
@@ -432,8 +432,8 @@ namespace RePacker.Buffers.Tests
 
             ushort value = 'G';
 
-            buffer.PushUShort(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushUShort(ref value));
+            buffer.PackUShort(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackUShort(ref value));
         }
 
         [Fact]
@@ -444,14 +444,14 @@ namespace RePacker.Buffers.Tests
             int positive = 1234567890;
             int negative = -1234567890;
 
-            buffer.PushInt(ref positive);
-            buffer.PopInt(out int posFromBuf);
+            buffer.PackInt(ref positive);
+            buffer.UnpackInt(out int posFromBuf);
             Assert.Equal(positive, posFromBuf);
 
             buffer.Reset();
 
-            buffer.PushInt(ref negative);
-            buffer.PopInt(out int negFromBuf);
+            buffer.PackInt(ref negative);
+            buffer.UnpackInt(out int negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
 
@@ -462,12 +462,12 @@ namespace RePacker.Buffers.Tests
 
             for (int i = int.MinValue; i < int.MaxValue - 100_000_000; i += 100_000_000)
             {
-                buffer.PushInt(ref i);
+                buffer.PackInt(ref i);
             }
 
             for (int i = int.MinValue; i < int.MaxValue - 100_000_000; i += 100_000_000)
             {
-                buffer.PopInt(out int val);
+                buffer.UnpackInt(out int val);
                 Assert.Equal(i, val);
             }
         }
@@ -479,8 +479,8 @@ namespace RePacker.Buffers.Tests
 
             int value = 'G';
 
-            buffer.PushInt(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushInt(ref value));
+            buffer.PackInt(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackInt(ref value));
         }
 
         [Fact]
@@ -489,8 +489,8 @@ namespace RePacker.Buffers.Tests
             var buffer = new Buffer(new byte[1024]);
 
             uint positive = 1234567890;
-            buffer.PushUInt(ref positive);
-            buffer.PopUInt(out uint posFromBuf);
+            buffer.PackUInt(ref positive);
+            buffer.UnpackUInt(out uint posFromBuf);
             Assert.Equal(positive, posFromBuf);
         }
 
@@ -501,8 +501,8 @@ namespace RePacker.Buffers.Tests
 
             uint value = 'G';
 
-            buffer.PushUInt(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushUInt(ref value));
+            buffer.PackUInt(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackUInt(ref value));
         }
 
         [Fact]
@@ -513,12 +513,12 @@ namespace RePacker.Buffers.Tests
             long positive = 12345678901234123;
             long negative = -1234567890123435;
 
-            buffer.PushLong(ref positive);
-            buffer.PopLong(out long posFromBuf);
+            buffer.PackLong(ref positive);
+            buffer.UnpackLong(out long posFromBuf);
             Assert.Equal(positive, posFromBuf);
 
-            buffer.PushLong(ref negative);
-            buffer.PopLong(out long negFromBuf);
+            buffer.PackLong(ref negative);
+            buffer.UnpackLong(out long negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
 
@@ -529,8 +529,8 @@ namespace RePacker.Buffers.Tests
 
             long value = 'G';
 
-            buffer.PushLong(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushLong(ref value));
+            buffer.PackLong(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackLong(ref value));
         }
 
         [Fact]
@@ -540,8 +540,8 @@ namespace RePacker.Buffers.Tests
 
             ulong positive = 12345678902345243623;
 
-            buffer.PushULong(ref positive);
-            buffer.PopULong(out ulong posFromBuf);
+            buffer.PackULong(ref positive);
+            buffer.UnpackULong(out ulong posFromBuf);
             Assert.Equal(positive, posFromBuf);
         }
 
@@ -552,8 +552,8 @@ namespace RePacker.Buffers.Tests
 
             ulong value = 'G';
 
-            buffer.PushULong(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushULong(ref value));
+            buffer.PackULong(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackULong(ref value));
         }
 
 
@@ -565,14 +565,14 @@ namespace RePacker.Buffers.Tests
             float positive = 3.141598f;
             float negative = -6.2826f;
 
-            buffer.PushFloat(ref positive);
-            buffer.PopFloat(out float posFromBuf);
+            buffer.PackFloat(ref positive);
+            buffer.UnpackFloat(out float posFromBuf);
             Assert.Equal(positive, posFromBuf);
 
             buffer.Reset();
 
-            buffer.PushFloat(ref negative);
-            buffer.PopFloat(out float negFromBuf);
+            buffer.PackFloat(ref negative);
+            buffer.UnpackFloat(out float negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
 
@@ -586,12 +586,12 @@ namespace RePacker.Buffers.Tests
 
             for (float f = -val; f < val; f += step)
             {
-                buffer.PushFloat(ref f);
+                buffer.PackFloat(ref f);
             }
 
             for (float f = -val; f < val; f += step)
             {
-                buffer.PopFloat(out float posFromBuf);
+                buffer.UnpackFloat(out float posFromBuf);
 
                 Assert.Equal(f, posFromBuf);
             }
@@ -604,8 +604,8 @@ namespace RePacker.Buffers.Tests
 
             float value = 'G';
 
-            buffer.PushFloat(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushFloat(ref value));
+            buffer.PackFloat(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackFloat(ref value));
         }
 
         [Fact]
@@ -616,14 +616,14 @@ namespace RePacker.Buffers.Tests
             double positive = 3.1415989283475918234120012341276357816438762142736507821634783617856417856812736481723645781236481237657619871263497812635871236;
             double negative = -6.28269283475918234120012341276357816438762142736507821634783617856417856812736481723645781236481237657619871263497812635871236;
 
-            buffer.PushDouble(ref positive);
-            buffer.PopDouble(out double posFromBuf);
+            buffer.PackDouble(ref positive);
+            buffer.UnpackDouble(out double posFromBuf);
             Assert.Equal(positive, posFromBuf);
 
             buffer.Reset();
 
-            buffer.PushDouble(ref negative);
-            buffer.PopDouble(out double negFromBuf);
+            buffer.PackDouble(ref negative);
+            buffer.UnpackDouble(out double negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
 
@@ -637,12 +637,12 @@ namespace RePacker.Buffers.Tests
 
             for (double f = -val; f < val; f += step)
             {
-                buffer.PushDouble(ref f);
+                buffer.PackDouble(ref f);
             }
 
             for (double f = -val; f < val; f += step)
             {
-                buffer.PopDouble(out double posFromBuf);
+                buffer.UnpackDouble(out double posFromBuf);
 
                 Assert.Equal(f, posFromBuf);
             }
@@ -655,8 +655,8 @@ namespace RePacker.Buffers.Tests
 
             double value = 'G';
 
-            buffer.PushDouble(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushDouble(ref value));
+            buffer.PackDouble(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackDouble(ref value));
         }
 
         [Fact]
@@ -667,14 +667,14 @@ namespace RePacker.Buffers.Tests
             decimal positive = 3.141598234523423452345234623455423762345234565346234544236234554264235423526243523452562345234536234523462345243623452364564567456786784567845624356568234623455324521343432435234532234523452346354665344523542354326234576562345234541890123457812348913489071345789012347890123483458972345912357983477659127481275913480712893471298579485723894719823419234712973598234758932075981327948718943567239485128934579843769283745918798523798234596832495874390857190873401298567129034697123456134784239889123471289356102734982316523648712638571293845M;
             decimal negative = -6.28476345623423452345234623455423762345234565346234544236234554264235423526243523452562345234536234523462345243623452364564567456786784567845624356568234623455342525624523452345623234523452346354665344523542354326234545345236234521890123457812348913489071345789012347890123483458972345912357983477659127481275913480712893471298579485723894719823419234712973598234758932075981327948718943567239485128934579843769283745918798523798234596832495874390857190873401298567129034697123456134784239889123471289356102734982316523648712638571293846M;
 
-            buffer.PushDecimal(ref positive);
-            buffer.PopDecimal(out decimal posFromBuf);
+            buffer.PackDecimal(ref positive);
+            buffer.UnpackDecimal(out decimal posFromBuf);
             Assert.Equal(positive, posFromBuf);
 
             buffer.Reset();
 
-            buffer.PushDecimal(ref negative);
-            buffer.PopDecimal(out decimal negFromBuf);
+            buffer.PackDecimal(ref negative);
+            buffer.UnpackDecimal(out decimal negFromBuf);
             Assert.Equal(negative, negFromBuf);
         }
 
@@ -685,8 +685,8 @@ namespace RePacker.Buffers.Tests
 
             decimal value = 'G';
 
-            buffer.PushDecimal(ref value);
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PushDecimal(ref value));
+            buffer.PackDecimal(ref value);
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackDecimal(ref value));
         }
         #endregion
 
@@ -839,7 +839,7 @@ namespace RePacker.Buffers.Tests
                 buffer1.Pack(ref i);
             }
 
-            buffer1.Copy(buffer2);
+            buffer2.Copy(buffer1);
 
             for (int i = 0; i < 10; i++)
             {
@@ -861,7 +861,29 @@ namespace RePacker.Buffers.Tests
                 buffer1.Pack(ref i);
             }
 
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer1.Copy(buffer2));
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer2.Copy(buffer1));
+        }
+
+        [Fact]
+        public void copy_buffer_into_new_buffer()
+        {
+            var buffer = new Buffer(new byte[128]);
+            for (int i = 0; i < 10; i++)
+            {
+                buffer.Pack(ref i);
+            }
+
+            var copy = buffer.Clone();
+
+            Assert.Equal(40, copy.Array.Length);
+            Assert.Equal(40, copy.Length());
+
+            for (int i = 0; i < 10; i++)
+            {
+                buffer.Unpack<int>(out int b);
+                copy.Unpack<int>(out int c);
+                Assert.Equal(b, c);
+            }
         }
     }
 }

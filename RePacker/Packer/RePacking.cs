@@ -63,6 +63,13 @@ namespace RePacker
             TypeCache.Pack<T>(buffer, ref value);
         }
 
+        public static Buffer Pack<T>(ref T value)
+        {
+            var buffer = new Buffer(0, true);
+            Pack(buffer, ref value);
+            return buffer;
+        }
+
         /// <summary>
         /// Unpack value of type T from buffer
         /// </summary>

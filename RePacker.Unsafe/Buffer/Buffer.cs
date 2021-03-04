@@ -14,19 +14,23 @@ namespace RePacker.Buffers
         int writeCursor;
         int readCursor;
 
-        public Buffer(int size)
+        bool expand;
+
+        public Buffer(int size, bool expand = false)
         {
             this.array = new byte[size];
             this.writeCursor = 0;
             this.readCursor = 0;
+            this.expand = expand;
         }
 
-        public Buffer(byte[] buffer, int index = 0, int offset = 0)
+        public Buffer(byte[] buffer, int offset = 0, bool expand = false)
         {
             this.writeCursor = offset;
             this.readCursor = 0;
 
             this.array = buffer;
+            this.expand = expand;
 
             if (this.array == null)
             {
@@ -52,31 +56,45 @@ namespace RePacker.Buffers
             }
         }
 
-        public unsafe void Copy(Buffer destination)
+        public unsafe void Copy(Buffer source)
         {
-            int length = Length();
-            if (!destination.CanWriteBytes(length))
+            int length = source.writeCursor;
+            if (!CanWriteBytes(length))
             {
                 throw new IndexOutOfRangeException("Cant copy Buffer, destination too small");
             }
 
-            fixed (void* src = &array[readCursor], dest = &destination.array[destination.writeCursor])
+            fixed (void* src = &source.array[readCursor], dest = &array[writeCursor])
             {
                 System.Buffer.MemoryCopy(src, dest, length, length);
             }
 
-            destination.MoveWriteCursor(length);
+            MoveWriteCursor(length);
+        }
+
+        public unsafe Buffer Clone()
+        {
+            var buffer = new Buffer(writeCursor);
+
+            fixed (void* src = &array[readCursor], dest = buffer.array)
+            {
+                System.Buffer.MemoryCopy(src, dest, writeCursor, writeCursor);
+            }
+
+            buffer.writeCursor = writeCursor;
+
+            return buffer;
         }
 
         #region General
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flush()
         {
-            Reset();
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < writeCursor; i++)
             {
                 array[i] = 0;
             }
+            Reset();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -149,7 +167,14 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanWriteBytes(int count)
         {
-            return writeCursor + count <= array.Length;
+            if (writeCursor + count > array.Length)
+            {
+                if (!expand) return false;
+
+                Expand<byte>(count);
+            }
+
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -161,7 +186,14 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool CanWrite<T>(int count = 1) where T : unmanaged
         {
-            return (writeCursor + (count * sizeof(T))) <= array.Length;
+            if ((writeCursor + (count * sizeof(T))) > array.Length)
+            {
+                if (!expand) return false;
+
+                Expand<T>();
+            }
+
+            return true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -172,16 +204,16 @@ namespace RePacker.Buffers
         #endregion
 
         #region Size
-        unsafe void Expand()
+        unsafe void Expand<T>(int count = 1) where T : unmanaged
         {
-            const float GOLDEN_RATIO = 1.618f;
+            byte[] newBuffer = new byte[writeCursor + sizeof(T)];
 
-            int newSize = (int)((float)array.Length * GOLDEN_RATIO);
-            byte[] newBuffer = new byte[newSize];
-
-            fixed (void* src = array, dest = newBuffer)
+            if (writeCursor > 0)
             {
-                System.Buffer.MemoryCopy(src, dest, writeCursor, writeCursor);
+                fixed (void* src = array, dest = newBuffer)
+                {
+                    System.Buffer.MemoryCopy(src, dest, writeCursor, writeCursor);
+                }
             }
 
             array = newBuffer;
