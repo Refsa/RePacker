@@ -21,7 +21,7 @@ namespace RePacker.Builder
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Length;
-                buffer.PushULong(ref dataLen);
+                buffer.Pack(ref dataLen);
 
                 for (int i = 0; i < data.Length; i++)
                 {
@@ -38,7 +38,7 @@ namespace RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.PopULong(out ulong len);
+                buffer.Unpack(out ulong len);
                 data = new T[(int)len];
 
                 for (int i = 0; i < data.Length; i++)
@@ -222,14 +222,14 @@ namespace RePacker.Builder
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.PushULong(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.PushULong(ref dataLen);
+                buffer.Pack(ref dataLen);
 
                 for (int i = 0; i < data.Count; i++)
                 {
@@ -247,7 +247,7 @@ namespace RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.PopULong(out ulong len);
+                buffer.Unpack(out ulong len);
 
                 data = new List<T>();
                 for (int i = 0; i < (int)len; i++)
@@ -279,14 +279,14 @@ namespace RePacker.Builder
             if (data == null || data.Count() == 0)
             {
                 ulong zero = 0;
-                buffer.PushULong(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count();
-                buffer.PushULong(ref dataLen);
+                buffer.Pack(ref dataLen);
 
                 foreach (var element in data)
                 {
@@ -304,7 +304,7 @@ namespace RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.PopULong(out ulong len);
+                buffer.Unpack(out ulong len);
 
                 T[] temp_data = new T[(int)len];
                 for (int i = 0; i < (int)len; i++)
@@ -337,14 +337,14 @@ namespace RePacker.Builder
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.PushULong(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.PushULong(ref dataLen);
+                buffer.Pack(ref dataLen);
 
                 foreach (var d in data)
                 {
@@ -362,7 +362,7 @@ namespace RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.PopULong(out ulong len);
+                buffer.Unpack(out ulong len);
 
                 data = new T[(int)len];
                 for (int i = 0; i < (int)len; i++)
@@ -408,14 +408,14 @@ namespace RePacker.Builder
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.PushULong(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.PushULong(ref dataLen);
+                buffer.Pack(ref dataLen);
 
                 for (int i = (int)dataLen - 1; i >= 0; i--)
                 {
@@ -438,7 +438,7 @@ namespace RePacker.Builder
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.PopULong(out ulong len);
+                buffer.Unpack(out ulong len);
 
                 for (int i = 0; i < (int)len; i++)
                 {

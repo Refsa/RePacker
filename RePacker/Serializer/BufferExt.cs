@@ -66,13 +66,13 @@ namespace RePacker.Buffers
         public static void PackDateTime(this Buffer buffer, ref DateTime value)
         {
             long ticks = value.Ticks;
-            buffer.PushLong(ref ticks);
+            buffer.Pack(ref ticks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackDateTime(this Buffer buffer, out DateTime value)
         {
-            buffer.PopLong(out long ticks);
+            buffer.Unpack(out long ticks);
             value = new DateTime(ticks);
         }
 
@@ -80,92 +80,27 @@ namespace RePacker.Buffers
         public static void PackTimeSpan(this Buffer buffer, ref TimeSpan value)
         {
             long ticks = value.Ticks;
-            buffer.PushLong(ref ticks);
+            buffer.Pack(ref ticks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackTimeSpan(this Buffer buffer, out TimeSpan value)
         {
-            buffer.PopLong(out long ticks);
+            buffer.Unpack(out long ticks);
             value = new TimeSpan(ticks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackEnum<TEnum>(this Buffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
-            TypeCode enumType = target.GetTypeCode();
-
-            switch (enumType)
-            {
-                case TypeCode.Byte:
-                    byte bval = target.ToUnderlyingType<TEnum, byte>();
-                    buffer.PushByte(ref bval);
-                    break;
-                case TypeCode.SByte:
-                    sbyte sbval = target.ToUnderlyingType<TEnum, sbyte>();
-                    buffer.PushSByte(ref sbval);
-                    break;
-                case TypeCode.Int16:
-                    short i16 = target.ToUnderlyingType<TEnum, short>();
-                    buffer.PushShort(ref i16);
-                    break;
-                case TypeCode.Int32:
-                    int i32 = target.ToUnderlyingType<TEnum, int>();
-                    buffer.PushInt(ref i32);
-                    break;
-                case TypeCode.Int64:
-                    long i64 = target.ToUnderlyingType<TEnum, long>();
-                    buffer.PushLong(ref i64);
-                    break;
-                case TypeCode.UInt16:
-                    ushort u16 = target.ToUnderlyingType<TEnum, ushort>();
-                    buffer.PushUShort(ref u16);
-                    break;
-                case TypeCode.UInt32:
-                    uint u32 = target.ToUnderlyingType<TEnum, uint>();
-                    buffer.PushUInt(ref u32);
-                    break;
-                case TypeCode.UInt64:
-                    ulong u64 = target.ToUnderlyingType<TEnum, ulong>();
-                    buffer.PushULong(ref u64);
-                    break;
-            }
+            buffer.Pack(ref target);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TEnum UnpackEnum<TEnum>(this Buffer buffer) where TEnum : unmanaged, Enum
         {
-            TypeCode enumType = System.Type.GetTypeCode(System.Enum.GetUnderlyingType(typeof(TEnum)));
-
-            switch (enumType)
-            {
-                case TypeCode.Byte:
-                    buffer.PopByte(out byte bval);
-                    return EnumHelper.ToEnum<byte, TEnum>(ref bval);
-                case TypeCode.SByte:
-                    buffer.PopSByte(out sbyte sbval);
-                    return EnumHelper.ToEnum<sbyte, TEnum>(ref sbval);
-                case TypeCode.Int16:
-                    buffer.PopShort(out short i16);
-                    return EnumHelper.ToEnum<short, TEnum>(ref i16);
-                case TypeCode.Int32:
-                    buffer.PopInt(out int i32);
-                    return EnumHelper.ToEnum<int, TEnum>(ref i32);
-                case TypeCode.Int64:
-                    buffer.PopLong(out long i64);
-                    return EnumHelper.ToEnum<long, TEnum>(ref i64);
-                case TypeCode.UInt16:
-                    buffer.PopUShort(out ushort u16);
-                    return EnumHelper.ToEnum<ushort, TEnum>(ref u16);
-                case TypeCode.UInt32:
-                    buffer.PopUInt(out uint u32);
-                    return EnumHelper.ToEnum<uint, TEnum>(ref u32);
-                case TypeCode.UInt64:
-                    buffer.PopULong(out ulong u64);
-                    return EnumHelper.ToEnum<ulong, TEnum>(ref u64);
-            }
-
-            return default(TEnum);
+            buffer.Unpack(out TEnum value);
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
