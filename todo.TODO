@@ -4,6 +4,12 @@
 - make ILogger support object and formatting
 - ability to check if a managed object fits the buffer
     Could genrate a method to do this
+- prepend/append to allow for circular buffer functionality
+- make BoxedBuffer/Buffer be packable
+- rename MemoryCopyFromUnsafe/MemoryCopyToUnsafe to something more sensible
+- alternative mode where the buffer grows/shrinks to fit the data
+    Requires the buffer to be created internally to avoid unecessary GC pressure
+- At this point the Buffer struct could be removed all together and instead move functionality into an extensions class for BoxedBuffer
 
 Base Serializer:
     - ISet<T>
