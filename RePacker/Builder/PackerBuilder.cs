@@ -12,7 +12,7 @@ namespace RePacker.Builder
     {
         public static MethodInfo CreateUnpacker(TypeCache.Info info)
         {
-            Type[] typeParams = new Type[] { typeof(BoxedBuffer) };
+            Type[] typeParams = new Type[] { typeof(Buffer) };
 
             var deserBuilder = new DynamicMethod(
                 $"{info.Type.FullName}_Deserialize",
@@ -23,12 +23,6 @@ namespace RePacker.Builder
             );
 
             var paramBuilder = deserBuilder.DefineParameter(0, ParameterAttributes.None, "buffer");
-
-            FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
-            // MethodInfo bufferPop = typeof(Buffer)
-            //     .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            //     .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
 
             MethodInfo bufferPop = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Unpack));
 
@@ -58,9 +52,8 @@ namespace RePacker.Builder
                 }
 
             Blittable:
-                // BoxedBuffer -> buffer -> caller
+                // Buffer -> buffer -> caller
                 ilGen.Emit(OpCodes.Ldarg_0);
-                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
                 // Load output target
                 ilGen.Emit(OpCodes.Ldloca_S, 0);
@@ -138,7 +131,7 @@ namespace RePacker.Builder
 
         public static MethodInfo CreatePacker(TypeCache.Info info)
         {
-            Type[] typeParams = new Type[2] { typeof(BoxedBuffer), info.Type };
+            Type[] typeParams = new Type[2] { typeof(Buffer), info.Type };
 
             var serBuilder = new DynamicMethod(
                 $"{info.Type.FullName}_Serialize",
@@ -151,13 +144,7 @@ namespace RePacker.Builder
             serBuilder.DefineParameter(0, ParameterAttributes.None, "buffer");
             serBuilder.DefineParameter(1, ParameterAttributes.In, info.Type.Name.ToLower());
 
-            // MethodInfo bufferPush = typeof(Buffer)
-            // .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            // .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
-
             MethodInfo bufferPush = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Pack));
-
-            FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
             var parameters = new Type[1];
             MethodInfo bufferPushGeneric = null;
@@ -181,7 +168,6 @@ namespace RePacker.Builder
 
                 // Load Buffer
                 ilGen.Emit(OpCodes.Ldarg_0);
-                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
                 // Load target for serialization
                 ilGen.Emit(OpCodes.Ldarga_S, 1);

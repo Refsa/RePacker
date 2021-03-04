@@ -12,8 +12,6 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(Array);
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         MethodInfo serializeBlittableArrayMethod = typeof(BufferExt)
             .GetMethod(nameof(BufferExt.PackBlittableArray));
         MethodInfo serializeArrayMethod = typeof(PackerCollectionsExt)
@@ -45,7 +43,6 @@ namespace RePacker.Builder
                 else if (elementType.IsValueType || elementType.IsUnmanagedStruct())
                 {
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
                     ilGen.Emit(OpCodes.Ldloca_S, 0);
                     ilGen.Emit(OpCodes.Ldflda, fieldInfo);
@@ -122,7 +119,6 @@ namespace RePacker.Builder
                 else if (elementType.IsValueType || elementType.IsUnmanagedStruct())
                 {
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
                     ilGen.Emit(OpCodes.Ldarga_S, 1);
                     ilGen.Emit(OpCodes.Ldfld, fieldInfo);

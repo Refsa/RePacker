@@ -58,7 +58,7 @@ namespace RePacker
         /// <param name="buffer">target buffer</param>
         /// <param name="value">target value</param>
         /// <typeparam name="T">type of value</typeparam>
-        public static void Pack<T>(BoxedBuffer buffer, ref T value)
+        public static void Pack<T>(Buffer buffer, ref T value)
         {
             TypeCache.Pack<T>(buffer, ref value);
         }
@@ -69,7 +69,7 @@ namespace RePacker
         /// <param name="buffer">target buffer</param>
         /// <typeparam name="T">Wanted type to extract</typeparam>
         /// <returns>The extracted value as a new instance of type T</returns>
-        public static T Unpack<T>(BoxedBuffer buffer)
+        public static T Unpack<T>(Buffer buffer)
         {
             return TypeCache.Unpack<T>(buffer);
         }
@@ -80,7 +80,7 @@ namespace RePacker
         /// <param name="buffer">target buffer</param>
         /// <param name="target">output target</param>
         /// <typeparam name="T">type of value</typeparam>
-        public static void UnpackOut<T>(BoxedBuffer buffer, out T target)
+        public static void UnpackOut<T>(Buffer buffer, out T target)
         {
             target = TypeCache.Unpack<T>(buffer);
         }
@@ -93,7 +93,7 @@ namespace RePacker
         /// <param name="buffer">buffer to unpack from</param>
         /// <param name="target">target object to unpack into</param>
         /// <typeparam name="T">type of object to unpack</typeparam>
-        public static void UnpackInto<T>(BoxedBuffer buffer, ref T target)
+        public static void UnpackInto<T>(Buffer buffer, ref T target)
         {
             TypeCache.UnpackInto<T>(buffer, ref target);
         }

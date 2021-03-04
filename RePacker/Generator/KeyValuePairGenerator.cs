@@ -17,8 +17,8 @@ namespace RePacker.Builder
             ilGen.LoadArgsUnpack(fieldInfo);
 
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
-            var unpackMethod = typeof(BoxedBufferExt)
-                .GetMethod(nameof(BoxedBufferExt.UnpackKeyValuePair))
+            var unpackMethod = typeof(BufferExt)
+                .GetMethod(nameof(BufferExt.UnpackKeyValuePair))
                 .MakeGenericMethod(genArgs);
 
             ilGen.Emit(OpCodes.Call, unpackMethod);
@@ -29,8 +29,8 @@ namespace RePacker.Builder
             ilGen.LoadArgsPack(fieldInfo);
 
             var genArgs = fieldInfo.FieldType.GetGenericArguments();
-            var packMethod = typeof(BoxedBufferExt)
-                .GetMethod(nameof(BoxedBufferExt.PackKeyValuePair))
+            var packMethod = typeof(BufferExt)
+                .GetMethod(nameof(BufferExt.PackKeyValuePair))
                 .MakeGenericMethod(genArgs);
 
             ilGen.Emit(OpCodes.Call, packMethod);

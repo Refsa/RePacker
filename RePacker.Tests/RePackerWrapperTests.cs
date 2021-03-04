@@ -33,25 +33,25 @@ namespace RePacker.Tests
         [RePackerWrapper(typeof(Vector3))]
         public class Vector3Packer : RePackerWrapper<Vector3>
         {
-            public override void Pack(BoxedBuffer buffer, ref Vector3 value)
+            public override void Pack(Buffer buffer, ref Vector3 value)
             {
-                buffer.Buffer.PushFloat(ref value.X);
-                buffer.Buffer.PushFloat(ref value.Y);
-                buffer.Buffer.PushFloat(ref value.Z);
+                buffer.PushFloat(ref value.X);
+                buffer.PushFloat(ref value.Y);
+                buffer.PushFloat(ref value.Z);
             }
 
-            public override void Unpack(BoxedBuffer buffer, out Vector3 value)
+            public override void Unpack(Buffer buffer, out Vector3 value)
             {
-                buffer.Buffer.PopFloat(out value.X);
-                buffer.Buffer.PopFloat(out value.Y);
-                buffer.Buffer.PopFloat(out value.Z);
+                buffer.PopFloat(out value.X);
+                buffer.PopFloat(out value.Y);
+                buffer.PopFloat(out value.Z);
             }
         }
 
         [RePackerWrapper(typeof(Transform))]
         public class TransformPacker : RePackerWrapper<Transform>
         {
-            public override void Pack(BoxedBuffer buffer, ref Transform value)
+            public override void Pack(Buffer buffer, ref Transform value)
             {
                 Vector3 pos = value.Position;
                 RePacking.Pack<Vector3>(buffer, ref pos);
@@ -63,7 +63,7 @@ namespace RePacker.Tests
                 RePacking.Pack<Vector3>(buffer, ref scale);
             }
 
-            public override void UnpackInto(BoxedBuffer buffer, ref Transform value)
+            public override void UnpackInto(Buffer buffer, ref Transform value)
             {
                 value.Position = RePacking.Unpack<Vector3>(buffer);
                 value.Rotation = RePacking.Unpack<Vector3>(buffer);
@@ -75,7 +75,7 @@ namespace RePacker.Tests
         public void simple_custom_wrapped_type()
         {
             Vector3 testVec3 = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f };
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacking.Pack<Vector3>(buffer, ref testVec3);
             var fromBuf = RePacking.Unpack<Vector3>(buffer);
 
@@ -94,7 +94,7 @@ namespace RePacker.Tests
                 Scale = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacking.Pack<Transform>(buffer, ref testTransform);
 
             var fromBuf = new Transform();
@@ -123,7 +123,7 @@ namespace RePacker.Tests
                 Scale = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacking.Pack<Transform>(buffer, ref testTransform);
 
             var targetTransform = new Transform();

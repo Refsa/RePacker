@@ -10,6 +10,7 @@
 - alternative mode where the buffer grows/shrinks to fit the data
     Requires the buffer to be created internally to avoid unecessary GC pressure
 - At this point the Buffer struct could be removed all together and instead move functionality into an extensions class for BoxedBuffer
+- clean up generators for collecitons
 
 Base Serializer:
     - ISet<T>

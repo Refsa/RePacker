@@ -8,6 +8,8 @@ using System.Reflection.Emit;
 using RePacker.Buffers;
 using RePacker.Utils;
 
+using Buffer = RePacker.Buffers.Buffer;
+
 namespace RePacker.Builder
 {
     internal static class TypeCache
@@ -461,7 +463,7 @@ namespace RePacker.Builder
             return false;
         }
 
-        public static void Pack<T>(BoxedBuffer buffer, ref T value)
+        public static void Pack<T>(Buffer buffer, ref T value)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
@@ -486,7 +488,7 @@ namespace RePacker.Builder
             }
         }
 
-        static T UnpackInternal<T>(BoxedBuffer buffer)
+        static T UnpackInternal<T>(Buffer buffer)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
@@ -514,18 +516,18 @@ namespace RePacker.Builder
             return default(T);
         }
 
-        public static T Unpack<T>(BoxedBuffer buffer)
+        public static T Unpack<T>(Buffer buffer)
         {
             return UnpackInternal<T>(buffer);
         }
 
-        public static bool UnpackOut<T>(BoxedBuffer buffer, out T value)
+        public static bool UnpackOut<T>(Buffer buffer, out T value)
         {
             value = UnpackInternal<T>(buffer);
             return value != null;
         }
 
-        public static void UnpackInto<T>(BoxedBuffer buffer, ref T target)
+        public static void UnpackInto<T>(Buffer buffer, ref T target)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {

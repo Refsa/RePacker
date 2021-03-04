@@ -21,14 +21,11 @@ namespace RePacker.Builder
             .GetMethod(nameof(BufferUtils.Unpack));
         MethodInfo bufferPopGeneric = null;
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             Type[] parameters = new Type[1];
 
             ilGen.Emit(OpCodes.Ldarg_0);
-            ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
             ilGen.Emit(OpCodes.Ldloca_S, 0);
             ilGen.Emit(OpCodes.Ldflda, fieldInfo);
@@ -43,7 +40,6 @@ namespace RePacker.Builder
             Type[] parameters = new Type[1];
 
             ilGen.Emit(OpCodes.Ldarg_0);
-            ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
 
             ilGen.Emit(OpCodes.Ldarga_S, 1);
             ilGen.Emit(OpCodes.Ldflda, fieldInfo);

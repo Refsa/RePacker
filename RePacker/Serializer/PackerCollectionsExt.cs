@@ -1,4 +1,3 @@
-using System;
 using RePacker.Buffers;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,19 +9,19 @@ namespace RePacker.Builder
     public static class PackerCollectionsExt
     {
         #region Array
-        public static void PackArray<T>(this BoxedBuffer buffer, T[] data)
+        public static void PackArray<T>(this Buffer buffer, T[] data)
         {
             if (data == null || data.Length == 0)
             {
                 ulong zero = 0;
-                buffer.Buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Length;
-                buffer.Buffer.PushULong(ref dataLen);
+                buffer.PushULong(ref dataLen);
 
                 for (int i = 0; i < data.Length; i++)
                 {
@@ -31,15 +30,15 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
-        public static void UnpackArray<T>(this BoxedBuffer buffer, out T[] data)
+        public static void UnpackArray<T>(this Buffer buffer, out T[] data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.Buffer.PopULong(out ulong len);
+                buffer.PopULong(out ulong len);
                 data = new T[(int)len];
 
                 for (int i = 0; i < data.Length; i++)
@@ -49,25 +48,25 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
-        public static void PackArray2D<T>(this BoxedBuffer buffer, ref T[,] data)
+        public static void PackArray2D<T>(this Buffer buffer, ref T[,] data)
         {
             if (data == null)
             {
                 int zero = 0;
-                buffer.Buffer.Pack(ref zero);
-                buffer.Buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
             int width = data.GetLength(0);
             int height = data.GetLength(1);
 
-            buffer.Buffer.Pack(ref width);
-            buffer.Buffer.Pack(ref height);
+            buffer.Pack(ref width);
+            buffer.Pack(ref height);
 
             if (width == 0 || height == 0)
             {
@@ -78,15 +77,15 @@ namespace RePacker.Builder
             {
                 for (int y = 0; y < (int)height; y++)
                 {
-                    buffer.Pack(ref data[x, y]);
+                    RePacking.Pack(buffer, ref data[x, y]);
                 }
             }
         }
 
-        public static void UnpackArray2D<T>(this BoxedBuffer buffer, out T[,] data)
+        public static void UnpackArray2D<T>(this Buffer buffer, out T[,] data)
         {
-            buffer.Buffer.Unpack<int>(out int width);
-            buffer.Buffer.Unpack<int>(out int height);
+            buffer.Unpack<int>(out int width);
+            buffer.Unpack<int>(out int height);
 
             data = new T[width, height];
 
@@ -99,19 +98,19 @@ namespace RePacker.Builder
             {
                 for (int y = 0; y < height; y++)
                 {
-                    data[x, y] = buffer.Unpack<T>();
+                    data[x, y] = RePacking.Unpack<T>(buffer);
                 }
             }
         }
 
-        public static void PackArray3D<T>(this BoxedBuffer buffer, ref T[,,] data)
+        public static void PackArray3D<T>(this Buffer buffer, ref T[,,] data)
         {
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.Buffer.Pack(ref zero);
-                buffer.Buffer.Pack(ref zero);
-                buffer.Buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
@@ -119,9 +118,9 @@ namespace RePacker.Builder
             ulong height = (ulong)data.GetLength(1);
             ulong depth = (ulong)data.GetLength(2);
 
-            buffer.Buffer.Pack(ref width);
-            buffer.Buffer.Pack(ref height);
-            buffer.Buffer.Pack(ref depth);
+            buffer.Pack(ref width);
+            buffer.Pack(ref height);
+            buffer.Pack(ref depth);
 
             if (width == 0 || height == 0)
             {
@@ -132,15 +131,15 @@ namespace RePacker.Builder
                 for (int y = 0; y < (int)height; y++)
                     for (int z = 0; z < (int)depth; z++)
                     {
-                        buffer.Pack(ref data[x, y, z]);
+                        RePacking.Pack(buffer, ref data[x, y, z]);
                     }
         }
 
-        public static void UnpackArray3D<T>(this BoxedBuffer buffer, out T[,,] data)
+        public static void UnpackArray3D<T>(this Buffer buffer, out T[,,] data)
         {
-            buffer.Buffer.Unpack<ulong>(out ulong width);
-            buffer.Buffer.Unpack<ulong>(out ulong height);
-            buffer.Buffer.Unpack<ulong>(out ulong depth);
+            buffer.Unpack<ulong>(out ulong width);
+            buffer.Unpack<ulong>(out ulong height);
+            buffer.Unpack<ulong>(out ulong depth);
 
             data = new T[(int)width, (int)height, (int)depth];
 
@@ -153,19 +152,19 @@ namespace RePacker.Builder
                 for (int y = 0; y < (int)height; y++)
                     for (int z = 0; z < (int)depth; z++)
                     {
-                        data[x, y, z] = buffer.Unpack<T>();
+                        data[x, y, z] = RePacking.Unpack<T>(buffer);
                     }
         }
 
-        public static void PackArray4D<T>(this BoxedBuffer buffer, ref T[,,,] data)
+        public static void PackArray4D<T>(this Buffer buffer, ref T[,,,] data)
         {
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.Buffer.Pack(ref zero);
-                buffer.Buffer.Pack(ref zero);
-                buffer.Buffer.Pack(ref zero);
-                buffer.Buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
+                buffer.Pack(ref zero);
                 return;
             }
 
@@ -174,10 +173,10 @@ namespace RePacker.Builder
             ulong depth = (ulong)data.GetLength(2);
             ulong seg = (ulong)data.GetLength(3);
 
-            buffer.Buffer.Pack(ref width);
-            buffer.Buffer.Pack(ref height);
-            buffer.Buffer.Pack(ref depth);
-            buffer.Buffer.Pack(ref seg);
+            buffer.Pack(ref width);
+            buffer.Pack(ref height);
+            buffer.Pack(ref depth);
+            buffer.Pack(ref seg);
 
             if (width == 0 || height == 0)
             {
@@ -189,16 +188,16 @@ namespace RePacker.Builder
                     for (int z = 0; z < (int)depth; z++)
                         for (int w = 0; w < (int)seg; w++)
                         {
-                            buffer.Pack(ref data[x, y, z, w]);
+                            RePacking.Pack(buffer, ref data[x, y, z, w]);
                         }
         }
 
-        public static void UnpackArray4D<T>(this BoxedBuffer buffer, out T[,,,] data)
+        public static void UnpackArray4D<T>(this Buffer buffer, out T[,,,] data)
         {
-            buffer.Buffer.Unpack<ulong>(out ulong width);
-            buffer.Buffer.Unpack<ulong>(out ulong height);
-            buffer.Buffer.Unpack<ulong>(out ulong depth);
-            buffer.Buffer.Unpack<ulong>(out ulong seg);
+            buffer.Unpack<ulong>(out ulong width);
+            buffer.Unpack<ulong>(out ulong height);
+            buffer.Unpack<ulong>(out ulong depth);
+            buffer.Unpack<ulong>(out ulong seg);
 
             data = new T[(int)width, (int)height, (int)depth, (int)seg];
 
@@ -212,25 +211,25 @@ namespace RePacker.Builder
                     for (int z = 0; z < (int)depth; z++)
                         for (int w = 0; w < (int)seg; w++)
                         {
-                            data[x, y, z, w] = buffer.Unpack<T>();
+                            data[x, y, z, w] = RePacking.Unpack<T>(buffer);
                         }
         }
         #endregion
 
         #region IList
-        public static void PackIList<T>(this BoxedBuffer buffer, IList<T> data)
+        public static void PackIList<T>(this Buffer buffer, IList<T> data)
         {
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.Buffer.PushULong(ref zero);
+                buffer.PushULong(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.Buffer.PushULong(ref dataLen);
+                buffer.PushULong(ref dataLen);
 
                 for (int i = 0; i < data.Count; i++)
                 {
@@ -240,15 +239,15 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
-        public static void UnpackIList<T>(this BoxedBuffer buffer, out IList<T> data)
+        public static void UnpackIList<T>(this Buffer buffer, out IList<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.Buffer.PopULong(out ulong len);
+                buffer.PopULong(out ulong len);
 
                 data = new List<T>();
                 for (int i = 0; i < (int)len; i++)
@@ -259,35 +258,35 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
-        public static void PackIListBlittable<T>(this BoxedBuffer buffer, IList<T> data) where T : unmanaged
+        public static void PackIListBlittable<T>(this Buffer buffer, IList<T> data) where T : unmanaged
         {
-            buffer.MemoryCopy((T[])data);
+            buffer.PackArray((T[])data);
         }
 
-        public static void UnpackIListBlittable<T>(this BoxedBuffer buffer, out IList<T> data) where T : unmanaged
+        public static void UnpackIListBlittable<T>(this Buffer buffer, out IList<T> data) where T : unmanaged
         {
-            data = buffer.MemoryCopy<T>();
+            data = buffer.UnpackArray<T>();
         }
         #endregion
 
         #region IEnumerable
-        public static void PackIEnumerable<T>(this BoxedBuffer buffer, IEnumerable<T> data)
+        public static void PackIEnumerable<T>(this Buffer buffer, IEnumerable<T> data)
         {
             if (data == null || data.Count() == 0)
             {
                 ulong zero = 0;
-                buffer.Buffer.PushULong(ref zero);
+                buffer.PushULong(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count();
-                buffer.Buffer.PushULong(ref dataLen);
+                buffer.PushULong(ref dataLen);
 
                 foreach (var element in data)
                 {
@@ -297,15 +296,15 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
-        public static void UnpackIEnumerable<T>(this BoxedBuffer buffer, out IEnumerable<T> data)
+        public static void UnpackIEnumerable<T>(this Buffer buffer, out IEnumerable<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.Buffer.PopULong(out ulong len);
+                buffer.PopULong(out ulong len);
 
                 T[] temp_data = new T[(int)len];
                 for (int i = 0; i < (int)len; i++)
@@ -316,36 +315,36 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
-        public static void PackIEnumerableBlittable<T>(this BoxedBuffer buffer, IEnumerable<T> data) where T : unmanaged
+        public static void PackIEnumerableBlittable<T>(this Buffer buffer, IEnumerable<T> data) where T : unmanaged
         {
-            buffer.MemoryCopy((T[])data);
+            buffer.PackArray((T[])data);
         }
 
-        public static void UnpackIEnumerableBlittable<T>(this BoxedBuffer buffer, out IEnumerable<T> data) where T : unmanaged
+        public static void UnpackIEnumerableBlittable<T>(this Buffer buffer, out IEnumerable<T> data) where T : unmanaged
         {
-            T[] temp = buffer.MemoryCopy<T>();
+            T[] temp = buffer.UnpackArray<T>();
             data = temp;
         }
         #endregion
 
         #region ICollection
-        public static void PackICollection<T>(this BoxedBuffer buffer, ICollection<T> data)
+        public static void PackICollection<T>(this Buffer buffer, ICollection<T> data)
         {
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.Buffer.PushULong(ref zero);
+                buffer.PushULong(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.Buffer.PushULong(ref dataLen);
+                buffer.PushULong(ref dataLen);
 
                 foreach (var d in data)
                 {
@@ -355,15 +354,15 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
-        public static void UnpackICollection<T>(this BoxedBuffer buffer, out ICollection<T> data)
+        public static void UnpackICollection<T>(this Buffer buffer, out ICollection<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.Buffer.PopULong(out ulong len);
+                buffer.PopULong(out ulong len);
 
                 data = new T[(int)len];
                 for (int i = 0; i < (int)len; i++)
@@ -374,18 +373,18 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
-        public static void PackICollectionBlittable<T>(this BoxedBuffer buffer, ICollection<T> data) where T : unmanaged
+        public static void PackICollectionBlittable<T>(this Buffer buffer, ICollection<T> data) where T : unmanaged
         {
-            buffer.MemoryCopy((T[])data);
+            buffer.PackArray((T[])data);
         }
 
-        public static void UnpackICollectionBlittable<T>(this BoxedBuffer buffer, out ICollection<T> data) where T : unmanaged
+        public static void UnpackICollectionBlittable<T>(this Buffer buffer, out ICollection<T> data) where T : unmanaged
         {
-            data = buffer.MemoryCopy<T>();
+            data = buffer.UnpackArray<T>();
         }
         #endregion
 
@@ -399,24 +398,24 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackQueue<T>(this BoxedBuffer buffer, Queue<T> data)
+        public static void PackQueue<T>(this Buffer buffer, Queue<T> data)
         {
             PackIEnumerable<T>(buffer, data);
         }
 
-        public static void PackStack<T>(this BoxedBuffer buffer, Stack<T> data)
+        public static void PackStack<T>(this Buffer buffer, Stack<T> data)
         {
             if (data == null)
             {
                 ulong zero = 0;
-                buffer.Buffer.PushULong(ref zero);
+                buffer.PushULong(ref zero);
                 return;
             }
 
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
                 ulong dataLen = (ulong)data.Count;
-                buffer.Buffer.PushULong(ref dataLen);
+                buffer.PushULong(ref dataLen);
 
                 for (int i = (int)dataLen - 1; i >= 0; i--)
                 {
@@ -426,20 +425,20 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find packer for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find packer for {typeof(T)}");
             }
         }
 
-        public static void PackHashSet<T>(this BoxedBuffer buffer, HashSet<T> data)
+        public static void PackHashSet<T>(this Buffer buffer, HashSet<T> data)
         {
             PackIEnumerable<T>(buffer, data);
         }
 
-        static void UnpackCollectionInternal<T>(this BoxedBuffer buffer, Action<T> predicate)
+        static void UnpackCollectionInternal<T>(this Buffer buffer, System.Action<T> predicate)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
-                buffer.Buffer.PopULong(out ulong len);
+                buffer.PopULong(out ulong len);
 
                 for (int i = 0; i < (int)len; i++)
                 {
@@ -449,23 +448,23 @@ namespace RePacker.Builder
             }
             else
             {
-                throw new NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
+                throw new System.NotSupportedException($"Couldnt find unpacker for {typeof(T)}");
             }
         }
 
-        public static void UnpackQueue<T>(this BoxedBuffer buffer, out Queue<T> data)
+        public static void UnpackQueue<T>(this Buffer buffer, out Queue<T> data)
         {
             data = new Queue<T>();
             UnpackCollectionInternal<T>(buffer, data.Enqueue);
         }
 
-        public static void UnpackStack<T>(this BoxedBuffer buffer, out Stack<T> data)
+        public static void UnpackStack<T>(this Buffer buffer, out Stack<T> data)
         {
             data = new Stack<T>();
             UnpackCollectionInternal<T>(buffer, data.Push);
         }
 
-        public static void UnpackHashSet<T>(this BoxedBuffer buffer, out HashSet<T> data)
+        public static void UnpackHashSet<T>(this Buffer buffer, out HashSet<T> data)
         {
             data = new HashSet<T>();
             UnpackCollectionInternal<T>(buffer, data.HashSetAdd);

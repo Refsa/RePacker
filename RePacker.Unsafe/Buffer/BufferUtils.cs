@@ -7,7 +7,7 @@ namespace RePacker.Buffers
     public static class BufferUtils
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Pack<T>(this ref Buffer buffer, ref T value)
+        public static unsafe void Pack<T>(this Buffer buffer, ref T value)
             where T : unmanaged
         {
             if (!buffer.CanWrite<T>())
@@ -24,7 +24,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Unpack<T>(this ref Buffer buffer, out T value)
+        public static unsafe void Unpack<T>(this Buffer buffer, out T value)
             where T : unmanaged
         {
             if (!buffer.CanRead<T>())
@@ -55,7 +55,7 @@ namespace RePacker.Buffers
             }
         }
 
-        public static unsafe void PackArray<T>(this ref Buffer buffer, T[] array, int offset = 0, int length = 0)
+        public static unsafe void PackArray<T>(this Buffer buffer, T[] array, int offset = 0, int length = 0)
             where T : unmanaged
         {
             if (array == null || (length == 0 && array.Length == 0))
@@ -85,7 +85,7 @@ namespace RePacker.Buffers
             buffer.MoveWriteCursor(length * size);
         }
 
-        public static unsafe T[] UnpackArray<T>(this ref Buffer buffer)
+        public static unsafe T[] UnpackArray<T>(this Buffer buffer)
             where T : unmanaged
         {
             buffer.PopULong(out ulong len);
@@ -111,14 +111,14 @@ namespace RePacker.Buffers
 
         #region DirectPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushBool(this ref Buffer buffer, ref bool value)
+        public static unsafe void PushBool(this Buffer buffer, ref bool value)
         {
             buffer.Array[buffer.WriteCursor()] = value ? (byte)1 : (byte)0;
             buffer.MoveWriteCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PopBool(this ref Buffer buffer, out bool value)
+        public static void PopBool(this Buffer buffer, out bool value)
         {
             byte val = buffer.Array[buffer.ReadCursor()];
             buffer.MoveReadCursor(1);
@@ -126,7 +126,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushShort(this ref Buffer buffer, ref short value)
+        public static unsafe void PushShort(this Buffer buffer, ref short value)
         {
             if (buffer.WriteCursor() + 2 > buffer.Array.Length)
             {
@@ -141,7 +141,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopShort(this ref Buffer buffer, out short value)
+        public static unsafe void PopShort(this Buffer buffer, out short value)
         {
             if (buffer.ReadCursor() + 2 > buffer.Array.Length)
             {
@@ -156,7 +156,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushUShort(this ref Buffer buffer, ref ushort value)
+        public static unsafe void PushUShort(this Buffer buffer, ref ushort value)
         {
             if (buffer.WriteCursor() + 2 > buffer.Array.Length)
             {
@@ -171,7 +171,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopUShort(this ref Buffer buffer, out ushort value)
+        public static unsafe void PopUShort(this Buffer buffer, out ushort value)
         {
             if (buffer.ReadCursor() + 2 > buffer.Array.Length)
             {
@@ -186,7 +186,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushInt(this ref Buffer buffer, ref int value)
+        public static unsafe void PushInt(this Buffer buffer, ref int value)
         {
             if (buffer.WriteCursor() + 4 > buffer.Array.Length)
             {
@@ -201,7 +201,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopInt(this ref Buffer buffer, out int value)
+        public static unsafe void PopInt(this Buffer buffer, out int value)
         {
             if (buffer.ReadCursor() + 4 > buffer.Array.Length)
             {
@@ -216,7 +216,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushUInt(this ref Buffer buffer, ref uint value)
+        public static unsafe void PushUInt(this Buffer buffer, ref uint value)
         {
             if (buffer.WriteCursor() + 4 > buffer.Array.Length)
             {
@@ -231,7 +231,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopUInt(this ref Buffer buffer, out uint value)
+        public static unsafe void PopUInt(this Buffer buffer, out uint value)
         {
             if (buffer.ReadCursor() + 4 > buffer.Array.Length)
             {
@@ -246,7 +246,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushLong(this ref Buffer buffer, ref long value)
+        public static unsafe void PushLong(this Buffer buffer, ref long value)
         {
             if (buffer.WriteCursor() + 8 > buffer.Array.Length)
             {
@@ -261,7 +261,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopLong(this ref Buffer buffer, out long value)
+        public static unsafe void PopLong(this Buffer buffer, out long value)
         {
             if (buffer.ReadCursor() + 8 > buffer.Array.Length)
             {
@@ -276,7 +276,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushULong(this ref Buffer buffer, ref ulong value)
+        public static unsafe void PushULong(this Buffer buffer, ref ulong value)
         {
             if (buffer.WriteCursor() + 8 > buffer.Array.Length)
             {
@@ -291,7 +291,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopULong(this ref Buffer buffer, out ulong value)
+        public static unsafe void PopULong(this Buffer buffer, out ulong value)
         {
             if (buffer.ReadCursor() + 8 > buffer.Array.Length)
             {
@@ -306,7 +306,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushChar(this ref Buffer buffer, ref char value)
+        public static unsafe void PushChar(this Buffer buffer, ref char value)
         {
             if (buffer.WriteCursor() + 2 > buffer.Array.Length)
             {
@@ -321,7 +321,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopChar(this ref Buffer buffer, out char value)
+        public static unsafe void PopChar(this Buffer buffer, out char value)
         {
             if (buffer.ReadCursor() + 2 > buffer.Array.Length)
             {
@@ -336,28 +336,28 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PushByte(this ref Buffer buffer, ref byte value)
+        public static void PushByte(this Buffer buffer, ref byte value)
         {
             buffer.Array[buffer.WriteCursor()] = value;
             buffer.MoveWriteCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PopByte(this ref Buffer buffer, out byte value)
+        public static void PopByte(this Buffer buffer, out byte value)
         {
             value = buffer.Array[buffer.ReadCursor()];
             buffer.MoveReadCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PushSByte(this ref Buffer buffer, ref sbyte value)
+        public static void PushSByte(this Buffer buffer, ref sbyte value)
         {
             buffer.Array[buffer.WriteCursor()] = (byte)value;
             buffer.MoveWriteCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PopSByte(this ref Buffer buffer, out sbyte value)
+        public static void PopSByte(this Buffer buffer, out sbyte value)
         {
             value = (sbyte)buffer.Array[buffer.ReadCursor()];
             buffer.MoveReadCursor(1);
@@ -365,7 +365,7 @@ namespace RePacker.Buffers
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushFloat(this ref Buffer buffer, ref float value)
+        public static unsafe void PushFloat(this Buffer buffer, ref float value)
         {
             if (buffer.WriteCursor() + 4 > buffer.Array.Length)
             {
@@ -404,7 +404,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopFloat(this ref Buffer buffer, out float value)
+        public static unsafe void PopFloat(this Buffer buffer, out float value)
         {
             if (buffer.ReadCursor() + 4 > buffer.Array.Length)
             {
@@ -422,7 +422,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushDouble(this ref Buffer buffer, ref double value)
+        public static unsafe void PushDouble(this Buffer buffer, ref double value)
         {
             if (buffer.WriteCursor() + 8 > buffer.Array.Length)
             {
@@ -437,7 +437,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopDouble(this ref Buffer buffer, out double value)
+        public static unsafe void PopDouble(this Buffer buffer, out double value)
         {
             if (buffer.ReadCursor() + 8 > buffer.Array.Length)
             {
@@ -455,7 +455,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PushDecimal(this ref Buffer buffer, ref decimal value)
+        public static unsafe void PushDecimal(this Buffer buffer, ref decimal value)
         {
             if (buffer.WriteCursor() + 24 > buffer.Array.Length)
             {
@@ -470,7 +470,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PopDecimal(this ref Buffer buffer, out decimal value)
+        public static unsafe void PopDecimal(this Buffer buffer, out decimal value)
         {
             if (buffer.ReadCursor() + 24 > buffer.Array.Length)
             {

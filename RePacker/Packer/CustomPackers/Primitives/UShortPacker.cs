@@ -8,21 +8,21 @@ namespace RePacker.Builder
         public static new bool IsCopyable = true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref ushort value)
+        public override void Pack(Buffer buffer, ref ushort value)
         {
-            buffer.Buffer.PushUShort(ref value);
+            buffer.PushUShort(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out ushort value)
+        public override void Unpack(Buffer buffer, out ushort value)
         {
-            buffer.Buffer.PopUShort(out value);
+            buffer.PopUShort(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(BoxedBuffer buffer, ref ushort value)
+        public override void UnpackInto(Buffer buffer, ref ushort value)
         {
-            buffer.Buffer.PopUShort(out value);
+            buffer.PopUShort(out value);
         }
     }
 }

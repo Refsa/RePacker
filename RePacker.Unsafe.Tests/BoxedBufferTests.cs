@@ -18,12 +18,12 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_int_single()
         {
-            var buffer = new BoxedBuffer(2048);
+            var buffer = new Buffer(2048);
 
             int[] array = Enumerable.Range(0, 256).ToArray();
 
-            buffer.MemoryCopy(array);
-            int[] fromBuf = buffer.MemoryCopy<int>();
+            buffer.PackArray(array);
+            int[] fromBuf = buffer.UnpackArray<int>();
 
             for (int i = 0; i < 256; i++)
             {
@@ -34,33 +34,33 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_int_multiple()
         {
-            var buffer = new BoxedBuffer(2048);
+            var buffer = new Buffer(2048);
 
             int[] array = Enumerable.Range(0, 64).ToArray();
 
             for (int i = 0; i < 4; i++)
             {
-                buffer.MemoryCopy(array);
+                buffer.PackArray(array);
             }
 
             Assert.Equal(sizeof(int) * 64 * 4 + sizeof(ulong) * 4, buffer.Length());
 
             for (int i = 1; i < 5; i++)
             {
-                int[] fromBuf = buffer.MemoryCopy<int>();
+                int[] fromBuf = buffer.UnpackArray<int>();
                 for (int j = 0; j < 64; j++)
                 {
                     Assert.Equal(array[j], fromBuf[j]);
                 }
 
-                Assert.Equal(sizeof(int) * 64 * i + sizeof(ulong) * i, buffer.Buffer.ReadCursor());
+                Assert.Equal(sizeof(int) * 64 * i + sizeof(ulong) * i, buffer.ReadCursor());
             }
         }
 
         [Fact]
         public void array_memory_copy_struct_single()
         {
-            var buffer = new BoxedBuffer(2048);
+            var buffer = new Buffer(2048);
 
             Ints[] array = Enumerable.Range(0, 64)
                 .Select(e => new Ints
@@ -72,9 +72,9 @@ namespace RePacker.Buffers.Tests
                 })
                 .ToArray();
 
-            buffer.MemoryCopy(array);
+            buffer.PackArray(array);
 
-            Ints[] fromBuf = buffer.MemoryCopy<Ints>();
+            Ints[] fromBuf = buffer.UnpackArray<Ints>();
 
             for (int i = 0; i < 64; i++)
             {
@@ -88,7 +88,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_struct_multiple()
         {
-            var buffer = new BoxedBuffer(2048 * 4);
+            var buffer = new Buffer(2048 * 4);
 
             Ints[] array = Enumerable.Range(0, 64)
                 .Select(e => new Ints
@@ -102,14 +102,14 @@ namespace RePacker.Buffers.Tests
 
             for (int i = 0; i < 4; i++)
             {
-                buffer.MemoryCopy(array);
+                buffer.PackArray(array);
             }
 
             Assert.Equal(Marshal.SizeOf<Ints>() * 64 * 4 + sizeof(ulong) * 4, buffer.Length());
 
             for (int i = 1; i < 5; i++)
             {
-                Ints[] fromBuf = buffer.MemoryCopy<Ints>();
+                Ints[] fromBuf = buffer.UnpackArray<Ints>();
                 for (int j = 0; j < 64; j++)
                 {
                     Assert.Equal(array[j].Int1, fromBuf[j].Int1);
@@ -118,7 +118,7 @@ namespace RePacker.Buffers.Tests
                     Assert.Equal(array[j].Int4, fromBuf[j].Int4);
                 }
 
-                Assert.Equal(Marshal.SizeOf<Ints>() * 64 * i + sizeof(ulong) * i, buffer.Buffer.ReadCursor());
+                Assert.Equal(Marshal.SizeOf<Ints>() * 64 * i + sizeof(ulong) * i, buffer.ReadCursor());
             }
         }
     }

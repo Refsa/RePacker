@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 using RePacker.Buffers;
 
@@ -9,27 +8,27 @@ namespace RePacker.Builder
         public static bool IsCopyable = false;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void Pack(BoxedBuffer buffer, ref T value);
+        public abstract void Pack(Buffer buffer, ref T value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Unpack(BoxedBuffer buffer, out T value)
+        public virtual void Unpack(Buffer buffer, out T value)
         {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void UnpackInto(BoxedBuffer buffer, ref T value)
+        public virtual void UnpackInto(Buffer buffer, ref T value)
         {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
     }
 
-    [AttributeUsage(AttributeTargets.Class)]
+    [System.AttributeUsage(System.AttributeTargets.Class)]
     public sealed class RePackerWrapperAttribute : System.Attribute
     {
-        public Type WrapperFor;
+        public System.Type WrapperFor;
 
-        public RePackerWrapperAttribute(Type wrapperFor)
+        public RePackerWrapperAttribute(System.Type wrapperFor)
         {
             WrapperFor = wrapperFor;
         }

@@ -7,11 +7,11 @@ namespace RePacker.Benchmarks
     [MemoryDiagnoser]
     public class SetupBench
     {
-        BoxedBuffer intBuffer;
+        Buffer intBuffer;
         public SetupBench()
         {
             int val = 123456789;
-            intBuffer = new BoxedBuffer(1024);
+            intBuffer = new Buffer(1024);
             RePacking.Pack<int>(intBuffer, ref val);
         }
 
@@ -59,7 +59,7 @@ namespace RePacker.Benchmarks
         /* [Benchmark]
         public void ILGen_IntSerialize10K()
         {
-            var buffer = new BoxedBuffer(1 << 16);
+            var buffer = new Buffer(1 << 16);
             int val = 123456789;
 
             for (int i = 0; i < 10_000; i++)
@@ -73,8 +73,8 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var val = intBuffer.Unpack<int>();
-                intBuffer.Buffer.Reset();
+                var val = RePacking.Unpack<int>(intBuffer);
+                intBuffer.Reset();
             }
         }
 
@@ -90,10 +90,10 @@ namespace RePacker.Benchmarks
         public void ILGen_VectorSerialize10K()
         {
             Vector vector = new Vector { X = 1f, Y = 2f, Z = 3f };
-            var boxedBuffer = new BoxedBuffer(1 << 20);
+            var Buffer = new Buffer(1 << 20);
             for (int i = 0; i < 10_000; i++)
             {
-                boxedBuffer.Pack(ref vector);
+                Buffer.Pack(ref vector);
             }
         } */
 
@@ -126,7 +126,7 @@ namespace RePacker.Benchmarks
         /* [Benchmark]
         public void WrappedIntSerialize10K()
         {
-            var buffer = new BoxedBuffer(1 << 16);
+            var buffer = new Buffer(1 << 16);
             var val = new JustFiller673 { Int = 123456789 };
 
             for (int i = 0; i < 10_000; i++)
@@ -138,7 +138,7 @@ namespace RePacker.Benchmarks
         [Benchmark]
         public void WrappedIntDeserialize10K()
         {
-            var buffer = new BoxedBuffer(1 << 16);
+            var buffer = new Buffer(1 << 16);
             var val = new JustFiller673 { Int = 123456789 };
             buffer.Push(ref val);
 
@@ -153,7 +153,7 @@ namespace RePacker.Benchmarks
         {
             var js = new JustFiller673 { Int = 1234567890 };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             for (int i = 0; i < 10_000; i++)
             {

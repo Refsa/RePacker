@@ -6,13 +6,20 @@ using RePacker.Unsafe;
 
 namespace RePacker.Buffers
 {
-    public struct Buffer
+    public class Buffer
     {
         byte[] array;
         public byte[] Array => array;
 
         int writeCursor;
         int readCursor;
+
+        public Buffer(int size)
+        {
+            this.array = new byte[size];
+            this.writeCursor = 0;
+            this.readCursor = 0;
+        }
 
         public Buffer(byte[] buffer, int index = 0, int offset = 0)
         {
@@ -27,8 +34,13 @@ namespace RePacker.Buffers
             }
         }
 
-        public Buffer(ref Buffer buffer)
+        public Buffer (Buffer buffer)
         {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("Buffer is null");
+            }
+
             this.writeCursor = buffer.writeCursor;
             this.readCursor = buffer.readCursor;
 
@@ -40,7 +52,7 @@ namespace RePacker.Buffers
             }
         }
 
-        public unsafe void Copy(ref Buffer destination)
+        public unsafe void Copy(Buffer destination)
         {
             int length = Length();
             if (!destination.CanWriteBytes(length))

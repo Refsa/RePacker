@@ -1,30 +1,29 @@
-using System;
 using System.Runtime.CompilerServices;
 using RePacker.Buffers;
 
 namespace RePacker.Builder
 {
-    internal class TimeSpanPacker : RePackerWrapper<TimeSpan>
+    internal class TimeSpanPacker : RePackerWrapper<System.TimeSpan>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref TimeSpan value)
+        public override void Pack(Buffer buffer, ref System.TimeSpan value)
         {
             long ticks = value.Ticks;
-            buffer.Buffer.PushLong(ref ticks);
+            buffer.PushLong(ref ticks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out TimeSpan value)
+        public override void Unpack(Buffer buffer, out System.TimeSpan value)
         {
-            buffer.Buffer.PopLong(out long ticks);
-            value = new TimeSpan(ticks);
+            buffer.PopLong(out long ticks);
+            value = new System.TimeSpan(ticks);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(BoxedBuffer buffer, ref TimeSpan value)
+        public override void UnpackInto(Buffer buffer, ref System.TimeSpan value)
         {
-            buffer.Buffer.PopLong(out long ticks);
-            value = new TimeSpan(ticks);
+            buffer.PopLong(out long ticks);
+            value = new System.TimeSpan(ticks);
         }
     }
 }

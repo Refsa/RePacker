@@ -18,7 +18,7 @@ namespace RePacker.Buffers.Tests
         public void pop_wrong_type_too_large()
         {
             byte[] buf = new byte[sizeof(int)];
-            Buffer buffer = new Buffer(buf, 0);
+            var buffer = new Buffer(buf, 0);
 
             int testVal = 100;
             buffer.Pack<int>(ref testVal);
@@ -150,47 +150,47 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void get_array_gives_used_length()
         {
-            var buffer = MakeBuffer(1024);
+            var buffer = MakeBuffer(1024).buffer;
 
             int testVal = 10;
 
-            buffer.buffer.Pack<int>(ref testVal);
-            buffer.buffer.Pack<int>(ref testVal);
-            buffer.buffer.Pack<int>(ref testVal);
-            buffer.buffer.Pack<int>(ref testVal);
-            buffer.buffer.Pack<int>(ref testVal);
+            buffer.Pack<int>(ref testVal);
+            buffer.Pack<int>(ref testVal);
+            buffer.Pack<int>(ref testVal);
+            buffer.Pack<int>(ref testVal);
+            buffer.Pack<int>(ref testVal);
 
-            var arrayFromBuffer = buffer.buffer.Array;
+            var arrayFromBuffer = buffer.Array;
 
-            Assert.Equal(5 * sizeof(int), buffer.buffer.Length());
+            Assert.Equal(5 * sizeof(int), buffer.Length());
         }
 
         [Fact]
         public void can_fit_should_succeed()
         {
-            var buffer = MakeBuffer(4);
-            Assert.True(buffer.buffer.CanWriteBytes(sizeof(int)));
+            var buffer = MakeBuffer(4).buffer;
+            Assert.True(buffer.CanWriteBytes(sizeof(int)));
         }
 
         [Fact]
         public void can_fit_should_fail()
         {
-            var buffer = MakeBuffer(4);
-            Assert.False(buffer.buffer.CanWriteBytes(sizeof(ulong)));
+            var buffer = MakeBuffer(4).buffer;
+            Assert.False(buffer.CanWriteBytes(sizeof(ulong)));
         }
 
         [Fact]
         public void can_fit_generic_unmanaged_should_succeed()
         {
-            var buffer = MakeBuffer(4);
-            Assert.True(buffer.buffer.CanWrite<int>(1));
+            var buffer = MakeBuffer(4).buffer;
+            Assert.True(buffer.CanWrite<int>(1));
         }
 
         [Fact]
         public void can_fit_generic_unmanaged_should_fail()
         {
-            var buffer = MakeBuffer(4);
-            Assert.False(buffer.buffer.CanWrite<ulong>(1));
+            var buffer = MakeBuffer(4).buffer;
+            Assert.False(buffer.CanWrite<ulong>(1));
         }
 
         [Theory]
@@ -201,7 +201,7 @@ namespace RePacker.Buffers.Tests
         public void push_int_pop_int_1(int data)
         {
             byte[] buf = new byte[sizeof(int)];
-            Buffer buffer = new Buffer(buf, 0);
+            var buffer = new Buffer(buf, 0);
 
             buffer.Pack<int>(ref data);
 
@@ -218,7 +218,7 @@ namespace RePacker.Buffers.Tests
         public void push_int_pop_int_100(int data)
         {
             byte[] buf = new byte[sizeof(int) * 100];
-            Buffer buffer = new Buffer(buf, 0);
+            var buffer = new Buffer(buf, 0);
 
             for (int i = 0; i < 100; i++)
                 buffer.Pack<int>(ref data);
@@ -238,7 +238,7 @@ namespace RePacker.Buffers.Tests
         public void push_float_pop_float_1(float data)
         {
             byte[] buf = new byte[sizeof(float)];
-            Buffer buffer = new Buffer(buf, 0);
+            var buffer = new Buffer(buf, 0);
 
             buffer.Pack<float>(ref data);
 
@@ -255,7 +255,7 @@ namespace RePacker.Buffers.Tests
         public void push_float_pop_float_100(float data)
         {
             byte[] buf = new byte[sizeof(float) * 100];
-            Buffer buffer = new Buffer(buf, 0);
+            var buffer = new Buffer(buf, 0);
 
             for (float i = 0; i < 100; i++)
                 buffer.Pack<float>(ref data);
@@ -838,7 +838,7 @@ namespace RePacker.Buffers.Tests
                 buffer1.Pack(ref i);
             }
 
-            buffer1.Copy(ref buffer2);
+            buffer1.Copy(buffer2);
 
             for (int i = 0; i < 10; i++)
             {
@@ -860,7 +860,7 @@ namespace RePacker.Buffers.Tests
                 buffer1.Pack(ref i);
             }
 
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer1.Copy(ref buffer2));
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer1.Copy(buffer2));
         }
     }
 }

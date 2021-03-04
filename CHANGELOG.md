@@ -8,6 +8,7 @@
 - Added CanRead and CanReadBytes
 
 ### Changes
+- Buffer is now a class, replacing BoxedBuffer entirely
 - Moved packing/unpacking utils from Buffer into extension class
 - renamed Buffer::CanFit to CanWrite
 - renamed Buffer::CanFitBytes to CanWriteBytes

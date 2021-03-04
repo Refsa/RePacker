@@ -5,7 +5,7 @@ namespace RePacker.Benchmarks
     {
         public static void Run()
         {
-            /* var buffer = new BoxedBuffer(1024);
+            /* var buffer = new Buffer(1024);
             ArrayWrapper awrapper = new ArrayWrapper();
             Array testArray = Enumerable.Range(0, 10).Select(e => (float)e).ToArray();
             awrapper.Pack(buffer, ref testArray);
@@ -16,7 +16,7 @@ namespace RePacker.Benchmarks
             Console.WriteLine(targetArray.GetValue(5)); */
 
             /* Vector3[] testArray = Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e * 2, Z = e * 4 }).ToArray();
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack<Vector3[]>(buffer, ref testArray);
             var fromBuf = RePacker.Unpack<Vector3[]>(buffer);
@@ -28,7 +28,7 @@ namespace RePacker.Benchmarks
 
 
             /* List<Vector3> testList = Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e * 2, Z = e * 4 }).ToList();
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref testList);
             var fromBuf = RePacker.Unpack<List<Vector3>>(buffer);
@@ -39,7 +39,7 @@ namespace RePacker.Benchmarks
             }  */
 
             /* Queue<Vector3> testList = new Queue<Vector3>(Enumerable.Range(0, 10).Select(e => new Vector3 { X = e, Y = e * 2, Z = e * 4 }));
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref testList);
             var fromBuf = RePacker.Unpack<Queue<Vector3>>(buffer);
@@ -56,7 +56,7 @@ namespace RePacker.Benchmarks
                 testDict.Add(i, i * i);
             }
 
-            var buffer = new BoxedBuffer(1024); */
+            var buffer = new Buffer(1024); */
 
             /* RePacker.Pack(buffer, ref testDict);
             var fromBuf = RePacker.Unpack<Dictionary<int, int>>(buffer);
@@ -88,7 +88,7 @@ namespace RePacker.Benchmarks
             /* var personArray = Enumerable.Range(0, 1000).Select(e => new ZeroFormatterBench.Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = ZeroFormatterBench.Sex.Female }).ToArray();
             var container = new ZeroFormatterBench.PersonArrayContainer { Persons = personArray };
 
-            var buffer = new BoxedBuffer(1 << 16);
+            var buffer = new Buffer(1 << 16);
 
             RePacker.Pack(buffer, ref container);
             var fromBuf = RePacker.Unpack<ZeroFormatterBench.PersonArrayContainer>(buffer);
@@ -131,17 +131,17 @@ namespace RePacker.Benchmarks
                 Double = 100,
                 Decimal = 1000,
             };
-            Buffer buffer = new Buffer(new byte[1024], 0);
-            BoxedBuffer boxedBuffer = new BoxedBuffer(ref buffer);
+            buffer = new Buffer(new byte[1024], 0);
+            buffer = new buffer);
 
             // Serialize
-            TypeCache.Serialize<TestClass2>(boxedBuffer, ref ts2);
-            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}");
+            TypeCache.Serialize<TestClass2>(Buffer, ref ts2);
+            Console.WriteLine($"Buffer Size: {buffer.Length()}");
 
             // Deserialize
-            TestClass2 des = TypeCache.Deserialize<TestClass2>(boxedBuffer);
+            TestClass2 des = TypeCache.Deserialize<TestClass2>(Buffer);
             Console.WriteLine($"{des}");
-            Console.WriteLine($"Buffer Size: {boxedBuffer.Buffer.Length()}"); */
+            Console.WriteLine($"Buffer Size: {buffer.Length()}"); */
 
             /* StructWithString sws = new StructWithString
             {
@@ -151,13 +151,13 @@ namespace RePacker.Benchmarks
                 Int = 1337,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer = new Buffer(1024);
 
             RePacker.Pack<StructWithString>(buffer, ref sws);
-            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            Console.WriteLine($"Buffer Size: {buffer.Length()}");
 
             var fromBuf = RePacker.Unpack<StructWithString>(buffer);
-            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}"); */
+            Console.WriteLine($"Buffer Size: {buffer.Length()}"); */
 
             /* StructWithEnum sws = new StructWithEnum
             {
@@ -167,13 +167,13 @@ namespace RePacker.Benchmarks
                 Int = 1337,
             };
 
-            BoxedBuffer buffer = new BoxedBuffer(1024);
+            buffer = new Buffer(1024);
 
             RePacker.Pack<StructWithEnum>(buffer, ref sws);
-            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            Console.WriteLine($"Buffer Size: {buffer.Length()}");
 
             var fromBuf = RePacker.Unpack<StructWithEnum>(buffer);
-            Console.WriteLine($"Buffer Size: {buffer.Buffer.Length()}");
+            Console.WriteLine($"Buffer Size: {buffer.Length()}");
 
             RePacker.Log<StructWithEnum>(ref fromBuf); */
 
@@ -188,7 +188,7 @@ namespace RePacker.Benchmarks
                 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack<Parent>(buffer, ref p);
 
@@ -206,7 +206,7 @@ namespace RePacker.Benchmarks
                 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack<RootType>(buffer, ref rt);
             var fromBuf = RePacker.Unpack<RootType>(buffer);
@@ -222,7 +222,7 @@ namespace RePacker.Benchmarks
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack<StructWithArray>(buffer, ref swa);
             
@@ -236,7 +236,7 @@ namespace RePacker.Benchmarks
                 Ints = new List<int>{1,2,3,4,5,6,7,8,9,0},
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref hml);
             var fromBuf = RePacker.Unpack<HasUnmanagedIList>(buffer);
@@ -250,7 +250,7 @@ namespace RePacker.Benchmarks
                 Ints = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref hml);
             var fromBuf = RePacker.Unpack<HasUnmanagedList>(buffer);
@@ -263,7 +263,7 @@ namespace RePacker.Benchmarks
                 Double = 2345613491441234,
                 Ints = new Queue<int>(System.Linq.Enumerable.Range(1, 10)),
             };
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacker.Pack(buffer, ref hml);
             var fromBuf = RePacker.Unpack<HasUnmanagedQueue>(buffer);
 
@@ -278,7 +278,7 @@ namespace RePacker.Benchmarks
                 ULong = 9876543210,
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacker.Pack(buffer, ref um);
             var fromBuf = RePacker.Unpack<UnmanagedStruct>(buffer);
 
@@ -298,32 +298,32 @@ namespace RePacker.Benchmarks
                 }
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref dictCont);
 
-            Console.WriteLine("Buf Size" + buffer.Buffer.Length());
+            Console.WriteLine("Buf Size" + buffer.Length());
 
             var fromBuf = RePacker.Unpack<HasUnmanagedDictionary>(buffer);
 
             RePacker.Log<HasUnmanagedDictionary>(ref fromBuf); */
 
             /* Vector3 testVec3 = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f };
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacker.Pack<Vector3>(buffer, ref testVec3);
             var fromBuf = RePacker.Unpack<Vector3>(buffer);
             Console.WriteLine(testVec3.X == fromBuf.X && testVec3.Y == fromBuf.Y && testVec3.Z == fromBuf.Z); */
 
             /* var hdt = new HasDateTime { Float = 1.2344534f, DateTime = DateTime.Now };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref hdt);
             var fromBuf = RePacker.Unpack<HasDateTime>(buffer); */
 
             /* string value = "abrakadabra this is a magic trick";
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
 
             RePacker.Pack(buffer, ref value);
             string fromBuf = RePacker.Unpack<string>(buffer); */
@@ -334,7 +334,7 @@ namespace RePacker.Benchmarks
                 KeyValuePair = new KeyValuePair<int, int>(10, 100)
             };
 
-            var buffer = new BoxedBuffer(1024);
+            var buffer = new Buffer(1024);
             RePacker.Pack(buffer, ref wanted);
 
             var valuetuples = new StructWithValueTuple

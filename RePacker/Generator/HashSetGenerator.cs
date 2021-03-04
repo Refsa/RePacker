@@ -13,8 +13,6 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(HashSet<>);
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         MethodInfo deserializeHashSetMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackHashSet));
         // MethodInfo deserializeHashSetBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackHashSetBlittable));
 

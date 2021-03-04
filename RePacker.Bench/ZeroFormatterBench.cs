@@ -54,24 +54,43 @@ namespace RePacker.Benchmarks
                 ILGen_IntArrayDeserialize10K |       712.72 us
                   ILGen_LargeStringSerialize | 1,516,295.97 us
                 ILGen_LargeStringDeserialize | 3,420,358.10 us
+
+                                      Method |            Mean
+        ------------------------------------ |----------------
+               ILGen_SmallObjectSerialize10K |     2,097.11 us
+             ILGen_SmallObjectDeserialize10K |     2,559.01 us
+                    ILGen_VectorSerialize10K |     1,309.62 us
+                  ILGen_VectorDeserialize10K |     1,330.98 us
+                       ILGen_IntSerialize10K |        55.16 us
+                     ILGen_IntDeserialize10K |        58.75 us
+                             IntSerialize10K |        29.26 us
+                           IntDeserialize10K |        28.86 us
+                         PackIntSerialize10K |       416.97 us
+                       PackIntDeserialize10K |       413.60 us
+          ILGen_SmallObjectArraySerialize10K | 1,994,053.45 us
+        ILGen_SmallObjectArrayDeserialize10K | 2,552,074.20 us
+               ILGen_VectorArraySerialize10K |     1,192.39 us
+             ILGen_VectorArrayDeserialize10K |     1,821.62 us
+                  ILGen_IntArraySerialize10K |     1,555.60 us
+                ILGen_IntArrayDeserialize10K |     1,309.03 us
+                  ILGen_LargeStringSerialize | 1,515,993.05 us
+                ILGen_LargeStringDeserialize | 3,450,938.04 us
         */
 
-        static byte[] backingBuffer;
         static Buffer buffer;
-        static BoxedBuffer boxedBuffer;
 
         Person[] personArray;
-        BoxedBuffer personBoxedBuffer;
-        BoxedBuffer personArrayBoxedBuffer;
+        Buffer personBuffer;
+        Buffer personArrayBuffer;
 
         Vector[] vectorArray;
-        BoxedBuffer vectorArrayBoxedBuffer;
+        Buffer vectorArrayBuffer;
 
         int[] intArray;
-        BoxedBuffer intArrayBuffer;
+        Buffer intArrayBuffer;
 
         string largeString;
-        BoxedBuffer largeStringBoxedBuffer;
+        Buffer largeStringBuffer;
 
         Person p = new Person
         {
@@ -82,64 +101,62 @@ namespace RePacker.Benchmarks
         };
 
         Vector vector = new Vector { X = 1.234f, Y = 2.345f, Z = 3.456f };
-        BoxedBuffer vectorBuffer;
+        Buffer vectorBuffer;
 
-        BoxedBuffer intBuffer;
+        Buffer intBuffer;
 
         public ZeroFormatterBench()
         {
-            backingBuffer = new byte[1 << 24];
-            buffer = new Buffer(backingBuffer, 0);
-            boxedBuffer = new BoxedBuffer(1 << 24);
+            buffer = new Buffer(1 << 24);
 
             {
                 largeString = System.IO.File.ReadAllText("CSharpHtml.txt");
-                largeStringBoxedBuffer = new BoxedBuffer(1 << 24);
-                largeStringBoxedBuffer.Pack(ref largeString);
+                largeStringBuffer = new Buffer(1 << 24);
+                RePacking.Pack(largeStringBuffer, ref largeString);
             }
 
             {
                 personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
 
-                personBoxedBuffer = new BoxedBuffer(1024);
-                RePacking.Pack<Person>(personBoxedBuffer, ref p);
+                personBuffer = new Buffer(1024);
+                RePacking.Pack<Person>(personBuffer, ref p);
 
-                personArrayBoxedBuffer = new BoxedBuffer(1 << 24);
-                personArrayBoxedBuffer.Pack(ref personArray);
+                personArrayBuffer = new Buffer(1 << 24);
+                RePacking.Pack(personArrayBuffer, ref personArray);
             }
 
             {
-                vectorBuffer = new BoxedBuffer(1024);
+                vectorBuffer = new Buffer(1024);
                 RePacking.Pack<Vector>(vectorBuffer, ref vector);
             }
 
             {
                 vectorArray = Enumerable.Range(1, 100).Select(_ => new Vector { X = 12345.12345f, Y = 3994.35226f, Z = 325125.52426f }).ToArray();
-                vectorArrayBoxedBuffer = new BoxedBuffer(1 << 24);
-                vectorArrayBoxedBuffer.Pack(ref vectorArray);
+                vectorArrayBuffer = new Buffer(1 << 24);
+                RePacking.Pack(vectorArrayBuffer, ref vectorArray);
             }
 
             {
                 int val = 123456789;
-                intBuffer = new BoxedBuffer(1024);
+                intBuffer = new Buffer(1024);
                 RePacking.Pack<int>(intBuffer, ref val);
             }
 
             {
                 intArray = Enumerable.Range(0, 1000).ToArray();
-                intArrayBuffer = new BoxedBuffer(sizeof(int) * 1100);
-                intArrayBuffer.Pack(ref intArray);
+                intArrayBuffer = new Buffer(sizeof(int) * 1100);
+                RePacking.Pack(intArrayBuffer, ref intArray);
             }
         }
 
         [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
-            boxedBuffer.Buffer.Reset();
+            buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                RePacking.Pack<Person>(boxedBuffer, ref p);
-                // boxedBuffer.Buffer.Reset();
+                RePacking.Pack<Person>(buffer, ref p);
+                // buffer.Reset();
             }
         }
 
@@ -148,18 +165,18 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var _ = RePacking.Unpack<Person>(personBoxedBuffer);
-                personBoxedBuffer.Buffer.Reset();
+                var _ = RePacking.Unpack<Person>(personBuffer);
+                personBuffer.Reset();
             }
         }
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_VectorSerialize10K()
         {
             for (int i = 0; i < 10_000; i++)
             {
-                RePacking.Pack<Vector>(boxedBuffer, ref vector);
-                boxedBuffer.Buffer.Reset();
+                RePacking.Pack<Vector>(buffer, ref vector);
+                buffer.Reset();
             }
         }
 
@@ -169,31 +186,31 @@ namespace RePacker.Benchmarks
             for (int i = 0; i < 10_000; i++)
             {
                 var _ = RePacking.Unpack<Vector>(vectorBuffer);
-                vectorBuffer.Buffer.Reset();
+                vectorBuffer.Reset();
             }
         }
 
         [Benchmark]
         public void ILGen_IntSerialize10K()
         {
-            boxedBuffer.Buffer.Reset();
+            buffer.Reset();
             int val = 123456789;
 
             for (int i = 0; i < 10_000; i++)
             {
-                RePacking.Pack<int>(boxedBuffer, ref val);
-                boxedBuffer.Buffer.Reset();
+                RePacking.Pack<int>(buffer, ref val);
+                buffer.Reset();
             }
         }
 
         [Benchmark]
         public void ILGen_IntDeserialize10K()
         {
-            intBuffer.Buffer.Reset();
+            intBuffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
                 var _ = RePacking.Unpack<int>(intBuffer);
-                intBuffer.Buffer.Reset();
+                intBuffer.Reset();
             }
         }
 
@@ -256,12 +273,12 @@ namespace RePacker.Benchmarks
         [Benchmark]
         public void ILGen_SmallObjectArraySerialize10K()
         {
-            boxedBuffer.Reset();
+            buffer.Reset();
 
             for (int i = 0; i < 10_000; i++)
             {
-                RePacking.Pack(boxedBuffer, ref personArray);
-                boxedBuffer.Buffer.Reset();
+                RePacking.Pack(buffer, ref personArray);
+                buffer.Reset();
             }
         }
 
@@ -270,19 +287,19 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacking.Unpack<Person[]>(personArrayBoxedBuffer);
-                personArrayBoxedBuffer.Buffer.Reset();
+                var p = RePacking.Unpack<Person[]>(personArrayBuffer);
+                personArrayBuffer.Reset();
             }
         }
 
         [Benchmark]
         public void ILGen_VectorArraySerialize10K()
         {
-            boxedBuffer.Reset();
+            buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                RePacking.Pack(boxedBuffer, ref vectorArray);
-                boxedBuffer.Reset();
+                RePacking.Pack(buffer, ref vectorArray);
+                buffer.Reset();
             }
         }
 
@@ -291,19 +308,19 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacking.Unpack<Vector[]>(vectorArrayBoxedBuffer);
-                vectorArrayBoxedBuffer.Reset();
+                var p = RePacking.Unpack<Vector[]>(vectorArrayBuffer);
+                vectorArrayBuffer.Reset();
             }
         }
 
         [Benchmark]
         public void ILGen_IntArraySerialize10K()
         {
-            boxedBuffer.Reset();
+            buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                RePacking.Pack(boxedBuffer, ref intArray);
-                boxedBuffer.Reset();
+                RePacking.Pack(buffer, ref intArray);
+                buffer.Reset();
             }
         }
 
@@ -312,8 +329,8 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                var p = RePacking.Unpack<int[]>(vectorArrayBoxedBuffer);
-                vectorArrayBoxedBuffer.Reset();
+                var p = RePacking.Unpack<int[]>(vectorArrayBuffer);
+                vectorArrayBuffer.Reset();
             }
         }
 
@@ -322,8 +339,8 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                boxedBuffer.Reset();
-                boxedBuffer.Pack(ref largeString);
+                buffer.Reset();
+                RePacking.Pack(buffer, ref largeString);
             }
         }
 
@@ -332,10 +349,10 @@ namespace RePacker.Benchmarks
         {
             for (int i = 0; i < 10_000; i++)
             {
-                largeStringBoxedBuffer.Reset();
-                var _ = largeStringBoxedBuffer.Unpack<string>();
+                largeStringBuffer.Reset();
+                var _ = RePacking.Unpack<string>(largeStringBuffer);
             }
-        }
+        } */
 
         public enum Sex : sbyte
         {

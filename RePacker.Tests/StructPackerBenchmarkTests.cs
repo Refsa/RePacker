@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using RePacker.Buffers;
 using Xunit;
@@ -17,7 +16,7 @@ namespace RePacker.Tests
         [Fact]
         public void can_pack_large_value_msg()
         {
-            var buffer = new BoxedBuffer(1 << 24);
+            var buffer = new Buffer(1 << 24);
 
             RePacking.Pack(buffer, ref _largeValueMsg);
             var fromBuf = RePacking.Unpack<LargeValueMsg>(buffer);
@@ -82,7 +81,7 @@ namespace RePacker.Tests
 
         static void GenerateLargeValueMessage()
         {
-            var rnd = new Random(123456);
+            var rnd = new System.Random(123456);
 
             var bytes = new byte[512 * 1024];
 
@@ -98,7 +97,7 @@ namespace RePacker.Tests
             for (int i = 0; i < decimals.Length; i++)
                 decimals[i] = (decimal)rnd.NextDouble();
 
-            T[] GenerateSequence<T>() => Enumerable.Range(0, 1500).Select(v => (T)((IConvertible)(v % 128)).ToType(typeof(T), null)).ToArray();
+            T[] GenerateSequence<T>() => Enumerable.Range(0, 1500).Select(v => (T)((System.IConvertible)(v % 128)).ToType(typeof(T), null)).ToArray();
 
             _largeValueMsg = new LargeValueMsg
             {
@@ -109,8 +108,8 @@ namespace RePacker.Tests
                 Prop5 = GenerateSequence<uint>(),
                 Prop6 = GenerateSequence<ulong>(),
                 Prop8 = GenerateSequence<sbyte>(),
-                Prop10 = Enumerable.Repeat(new DateTime(2020, 3, 20, 10, 20, 30, DateTimeKind.Utc), 250).ToArray(),
-                Prop11 = Enumerable.Repeat(new TimeSpan(20, 55, 12), 250).ToArray(),
+                Prop10 = Enumerable.Repeat(new System.DateTime(2020, 3, 20, 10, 20, 30, System.DateTimeKind.Utc), 250).ToArray(),
+                Prop11 = Enumerable.Repeat(new System.TimeSpan(20, 55, 12), 250).ToArray(),
                 Prop12 = Enumerable.Range(0, 512).Select(e => e % 2 == 0 ? false : true).ToArray(),
                 Prop13 = strings.SelectMany(s => s).ToArray(),
                 Prop7 = bytes,
@@ -151,10 +150,10 @@ namespace RePacker.Tests
         public string[] Prop9 { get; set; }
 
         [RePack]
-        public DateTime[] Prop10 { get; set; }
+        public System.DateTime[] Prop10 { get; set; }
 
         [RePack]
-        public TimeSpan[] Prop11 { get; set; }
+        public System.TimeSpan[] Prop11 { get; set; }
 
         [RePack]
         public bool[] Prop12 { get; set; }

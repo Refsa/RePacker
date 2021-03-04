@@ -21,8 +21,6 @@ namespace RePacker.Builder
         MethodInfo bufferUnpack = typeof(BufferUtils)
             .GetMethod(nameof(BufferUtils.Unpack));
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.LoadArgsUnpack(fieldInfo);

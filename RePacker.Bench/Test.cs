@@ -4,6 +4,8 @@ using RePacker;
 using RePacker.Buffers;
 using RePacker.Builder;
 
+using Buffer = RePacker.Buffers.Buffer;
+
 public class TestClass
 {
     [RePacker]
@@ -19,7 +21,7 @@ public class TestClass
 
     public TestClass()
     {
-        var buffer = new BoxedBuffer(1024);
+        var buffer = new Buffer(1024);
 
         var p = new Person
         {
@@ -29,8 +31,8 @@ public class TestClass
             Sex = Sex.Male,
         };
 
-        buffer.Pack(ref p);
-        var fromBuf = buffer.Unpack<Person>();
+        RePacking.Pack(buffer, ref p);
+        var fromBuf = RePacking.Unpack<Person>(buffer);
 
         Console.WriteLine(p.Age == fromBuf.Age);
         Console.WriteLine(p.FirstName == fromBuf.FirstName);
@@ -85,7 +87,7 @@ struct BaseStruct<A, B, C>
 
 class BaseStructPacker<A, B, C> : RePackerWrapper<BaseStruct<A, B, C>>
 {
-    public override void Pack(BoxedBuffer buffer, ref BaseStruct<A, B, C> value)
+    public override void Pack(Buffer buffer, ref BaseStruct<A, B, C> value)
     {
         RePacker.RePacking.Pack(buffer, ref value.AValue);
         RePacker.RePacking.Pack(buffer, ref value.BValue);

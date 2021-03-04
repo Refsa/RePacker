@@ -1,5 +1,4 @@
 using Xunit;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RePacker.Buffers;
@@ -10,7 +9,7 @@ namespace RePacker.Tests
 {
     public class CollectionsTests
     {
-        BoxedBuffer buffer = new BoxedBuffer(1 << 24);
+        Buffer buffer = new Buffer(1 << 24);
 
         public CollectionsTests(ITestOutputHelper output)
         {
@@ -25,9 +24,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref array);
+            RePacking.Pack(buffer, ref array);
 
-            var fromBuf = buffer.Unpack<int[]>();
+            var fromBuf = RePacking.Unpack<int[]>(buffer);
 
             Assert.NotNull(fromBuf);
             Assert.Equal(0, fromBuf.Length);
@@ -40,9 +39,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref array);
+            RePacking.Pack(buffer, ref array);
 
-            var fromBuf = buffer.Unpack<SomeManagedObject[]>();
+            var fromBuf = RePacking.Unpack<SomeManagedObject[]>(buffer);
 
             Assert.NotNull(fromBuf);
             Assert.Equal(0, fromBuf.Length);
@@ -60,9 +59,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            var fromBuf = buffer.Unpack<StructWithUnmanagedArray>();
+            var fromBuf = RePacking.Unpack<StructWithUnmanagedArray>(buffer);
 
             Assert.Equal(data.Int, fromBuf.Int);
             Assert.Equal(data.Long, fromBuf.Long);
@@ -83,9 +82,9 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            var fromBuf = buffer.Unpack<HasClassArray>();
+            var fromBuf = RePacking.Unpack<HasClassArray>(buffer);
 
             Assert.Equal(data.Byte, fromBuf.Byte);
             Assert.Equal(data.Long, fromBuf.Long);
@@ -224,9 +223,9 @@ namespace RePacker.Tests
                     data[x, y] = x * y;
                 }
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            int[,] fromBuf = buffer.Unpack<int[,]>();
+            int[,] fromBuf = RePacking.Unpack<int[,]>(buffer);
 
             for (int x = 0; x < 5; x++)
                 for (int y = 0; y < 15; y++)
@@ -254,9 +253,9 @@ namespace RePacker.Tests
                 TwoDimArray = array
             };
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            Has2DArray fromBuf = buffer.Unpack<Has2DArray>();
+            Has2DArray fromBuf = RePacking.Unpack<Has2DArray>(buffer);
 
             Assert.Equal(data.Long, fromBuf.Long);
             Assert.Equal(data.Int, fromBuf.Int);
@@ -281,9 +280,9 @@ namespace RePacker.Tests
                         data[x, y, z] = x * y * z;
                     }
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            int[,,] fromBuf = buffer.Unpack<int[,,]>();
+            int[,,] fromBuf = RePacking.Unpack<int[,,]>(buffer);
 
             for (int x = 0; x < 4; x++)
                 for (int y = 0; y < 6; y++)
@@ -313,9 +312,9 @@ namespace RePacker.Tests
                 ThreeDimArray = array
             };
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            Has3DArray fromBuf = buffer.Unpack<Has3DArray>();
+            Has3DArray fromBuf = RePacking.Unpack<Has3DArray>(buffer);
 
             Assert.Equal(data.Long, fromBuf.Long);
             Assert.Equal(data.Int, fromBuf.Int);
@@ -342,9 +341,9 @@ namespace RePacker.Tests
                             data[x, y, z, w] = x * y * z * w;
                         }
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            int[,,,] fromBuf = buffer.Unpack<int[,,,]>();
+            int[,,,] fromBuf = RePacking.Unpack<int[,,,]>(buffer);
 
             for (int x = 0; x < 2; x++)
                 for (int y = 0; y < 4; y++)
@@ -376,9 +375,9 @@ namespace RePacker.Tests
                 FourDimArray = array
             };
 
-            buffer.Pack(ref data);
+            RePacking.Pack(buffer, ref data);
 
-            Has4DArray fromBuf = buffer.Unpack<Has4DArray>();
+            Has4DArray fromBuf = RePacking.Unpack<Has4DArray>(buffer);
 
             Assert.Equal(data.Long, fromBuf.Long);
             Assert.Equal(data.Int, fromBuf.Int);
@@ -1178,8 +1177,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref hasNullableList);
-            var fromBuf = buffer.Unpack<HasNullableList>();
+            RePacking.Pack(buffer, ref hasNullableList);
+            var fromBuf = RePacking.Unpack<HasNullableList>(buffer);
 
             Assert.Equal(hasNullableList.Float, fromBuf.Float);
 
@@ -1199,8 +1198,8 @@ namespace RePacker.Tests
 
             List<int>? test = Enumerable.Range(0, 1000).ToList();
 
-            buffer.Pack(ref test);
-            List<int>? fromBuf = buffer.Unpack<List<int>>();
+            RePacking.Pack(buffer, ref test);
+            List<int>? fromBuf = RePacking.Unpack<List<int>>(buffer);
 
             for (int i = 0; i < test.Count; i++)
             {

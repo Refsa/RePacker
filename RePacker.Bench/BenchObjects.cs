@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using RePacker.Buffers;
 using RePacker.Builder;
 
+using Buffer = RePacker.Buffers.Buffer;
+
 namespace RePacker.Benchmarks
 {
     [RePacker]
@@ -210,31 +212,31 @@ namespace RePacker.Benchmarks
     [RePackerWrapper(typeof(Vector3))]
     public class Vector3Packer : RePackerWrapper<Vector3>
     {
-        public override void Pack(BoxedBuffer buffer, ref Vector3 value)
+        public override void Pack(Buffer buffer, ref Vector3 value)
         {
-            buffer.Buffer.PushFloat(ref value.X);
-            buffer.Buffer.PushFloat(ref value.Y);
-            buffer.Buffer.PushFloat(ref value.Z);
+            buffer.PushFloat(ref value.X);
+            buffer.PushFloat(ref value.Y);
+            buffer.PushFloat(ref value.Z);
         }
 
-        public override void Unpack(BoxedBuffer buffer, out Vector3 value)
+        public override void Unpack(Buffer buffer, out Vector3 value)
         {
             value = new Vector3();
             UnpackInto(buffer, ref value);
         }
 
-        public override void UnpackInto(BoxedBuffer buffer, ref Vector3 value)
+        public override void UnpackInto(Buffer buffer, ref Vector3 value)
         {
-            buffer.Buffer.PopFloat(out value.X);
-            buffer.Buffer.PopFloat(out value.Y);
-            buffer.Buffer.PopFloat(out value.Z);
+            buffer.PopFloat(out value.X);
+            buffer.PopFloat(out value.Y);
+            buffer.PopFloat(out value.Z);
         }
     }
 
     [RePackerWrapper(typeof(Transform))]
     public class TransformPacker : RePackerWrapper<Transform>
     {
-        public override void Pack(BoxedBuffer buffer, ref Transform value)
+        public override void Pack(Buffer buffer, ref Transform value)
         {
             Vector3 pos = value.Position;
             RePacking.Pack<Vector3>(buffer, ref pos);
@@ -246,12 +248,12 @@ namespace RePacker.Benchmarks
             RePacking.Pack<Vector3>(buffer, ref scale);
         }
 
-        public override void Unpack(BoxedBuffer buffer, out Transform value)
+        public override void Unpack(Buffer buffer, out Transform value)
         {
             throw new NotImplementedException();
         }
 
-        public override void UnpackInto(BoxedBuffer buffer, ref Transform value)
+        public override void UnpackInto(Buffer buffer, ref Transform value)
         {
             value.Position = RePacking.Unpack<Vector3>(buffer);
             value.Rotation = RePacking.Unpack<Vector3>(buffer);
