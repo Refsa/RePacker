@@ -34,7 +34,7 @@ namespace RePacker.Buffers
             }
         }
 
-        public Buffer (Buffer buffer)
+        public Buffer(Buffer buffer)
         {
             if (buffer == null)
             {
@@ -187,5 +187,39 @@ namespace RePacker.Buffers
             array = newBuffer;
         }
         #endregion
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Pack<T>(ref T value)
+            where T : unmanaged
+        {
+            if (!CanWrite<T>())
+            {
+                throw new IndexOutOfRangeException($"Trying to write type {typeof(T)} outside of range of buffer");
+            }
+
+            fixed (byte* data = &Array[writeCursor])
+            {
+                *((T*)data) = value;
+            }
+
+            MoveWriteCursor(sizeof(T));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe void Unpack<T>(out T value)
+            where T : unmanaged
+        {
+            if (!CanRead<T>())
+            {
+                throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
+            }
+
+            fixed (byte* data = &Array[readCursor])
+            {
+                value = *(T*)data;
+            }
+
+            MoveReadCursor(sizeof(T));
+        }
     }
 }

@@ -156,7 +156,7 @@ namespace RePacker.Benchmarks
             for (int i = 0; i < 10_000; i++)
             {
                 RePacking.Pack<Person>(buffer, ref p);
-                // buffer.Reset();
+                buffer.Reset();
             }
         }
 
@@ -188,9 +188,9 @@ namespace RePacker.Benchmarks
                 var _ = RePacking.Unpack<Vector>(vectorBuffer);
                 vectorBuffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_IntSerialize10K()
         {
             buffer.Reset();
@@ -212,9 +212,9 @@ namespace RePacker.Benchmarks
                 var _ = RePacking.Unpack<int>(intBuffer);
                 intBuffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void IntSerialize10K()
         {
             buffer.Reset();
@@ -240,9 +240,9 @@ namespace RePacker.Benchmarks
                 buffer.PopInt(out int _);
                 buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void PackIntSerialize10K()
         {
             buffer.Reset();
@@ -265,12 +265,12 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.Unpack(out int _);
+                buffer.Unpack<int>(out int _);
                 buffer.Reset();
             }
-        }
+        } */
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_SmallObjectArraySerialize10K()
         {
             buffer.Reset();

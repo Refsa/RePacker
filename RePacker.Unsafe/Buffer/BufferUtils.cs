@@ -6,7 +6,7 @@ namespace RePacker.Buffers
 {
     public static class BufferUtils
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        /* [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void Pack<T>(this Buffer buffer, ref T value)
             where T : unmanaged
         {
@@ -38,7 +38,7 @@ namespace RePacker.Buffers
             }
 
             buffer.MoveReadCursor(sizeof(T));
-        }
+        } */
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe T Peek<T>(this Buffer buffer)

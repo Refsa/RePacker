@@ -16,10 +16,8 @@ namespace RePacker.Builder
         MethodInfo bufferPushGeneric = null;
         MethodInfo bufferPopGeneric = null;
 
-        MethodInfo bufferPack = typeof(BufferUtils)
-            .GetMethod(nameof(BufferUtils.Pack));
-        MethodInfo bufferUnpack = typeof(BufferUtils)
-            .GetMethod(nameof(BufferUtils.Unpack));
+        MethodInfo bufferPack = typeof(Buffer).GetMethod(nameof(Buffer.Pack));
+        MethodInfo bufferUnpack = typeof(Buffer).GetMethod(nameof(Buffer.Unpack));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
@@ -35,24 +33,6 @@ namespace RePacker.Builder
 
             bufferPushGeneric = bufferPack.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, bufferPushGeneric);
-        }
-
-        MethodInfo GetPopMethod(string name)
-        {
-            return typeof(Buffer)
-                .GetMethod(
-                    name,
-                    BindingFlags.Public | BindingFlags.Instance
-                );
-        }
-
-        MethodInfo GetPushMethod(string name)
-        {
-            return typeof(Buffer)
-                .GetMethod(
-                    name,
-                    BindingFlags.Public | BindingFlags.Instance
-                );
         }
     }
 }

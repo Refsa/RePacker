@@ -24,7 +24,7 @@ namespace RePacker.Builder
 
             var paramBuilder = deserBuilder.DefineParameter(0, ParameterAttributes.None, "buffer");
 
-            MethodInfo bufferPop = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Unpack));
+            MethodInfo bufferPop = typeof(Buffer).GetMethod(nameof(Buffer.Unpack));
 
             var parameters = new Type[1];
             MethodInfo bufferPopGeneric = null;
@@ -144,14 +144,14 @@ namespace RePacker.Builder
             serBuilder.DefineParameter(0, ParameterAttributes.None, "buffer");
             serBuilder.DefineParameter(1, ParameterAttributes.In, info.Type.Name.ToLower());
 
-            MethodInfo bufferPush = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Pack));
+            MethodInfo bufferPush = typeof(Buffer).GetMethod(nameof(Buffer.Pack));
 
             var parameters = new Type[1];
             MethodInfo bufferPushGeneric = null;
 
             var ilGen = serBuilder.GetILGenerator();
             {
-                // ilGen.EmitLog($"Serializing {info.Type.Name}");
+                // ilGen.EmitLog($"Packing {info.Type.Name}");
 
                 if (info.IsUnmanaged && !info.HasCustomSerializer)
                 {

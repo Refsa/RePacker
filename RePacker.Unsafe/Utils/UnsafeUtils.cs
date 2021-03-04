@@ -1,11 +1,11 @@
-
-
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace RePacker.Unsafe
 {
     public static class UnsafeUtils
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int SizeOf<T>() where T : unmanaged
         {
             if (typeof(T) == typeof(char))
