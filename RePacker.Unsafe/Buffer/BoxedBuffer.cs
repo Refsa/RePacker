@@ -146,7 +146,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit<T>(int count) where T : unmanaged
         {
-            return Buffer.CanFit<T>(count);
+            return Buffer.CanWrite<T>(count);
         }
         #endregion
     }

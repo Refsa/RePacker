@@ -183,14 +183,14 @@ namespace RePacker.Buffers.Tests
         public void can_fit_generic_unmanaged_should_succeed()
         {
             var buffer = MakeBuffer(4);
-            Assert.True(buffer.buffer.CanFit<int>(1));
+            Assert.True(buffer.buffer.CanWrite<int>(1));
         }
 
         [Fact]
         public void can_fit_generic_unmanaged_should_fail()
         {
             var buffer = MakeBuffer(4);
-            Assert.False(buffer.buffer.CanFit<ulong>(1));
+            Assert.False(buffer.buffer.CanWrite<ulong>(1));
         }
 
         [Theory]
@@ -709,7 +709,7 @@ namespace RePacker.Buffers.Tests
         public void direct_packing_int_array_out_of_bounds()
         {
             var buffer = new Buffer(new byte[sizeof(int) * 100 + sizeof(ulong)]);
-            var data = Enumerable.Range(1, 100).ToArray();
+            var data = Enumerable.Range(1, 101).ToArray();
 
             Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MemoryCopyFromUnsafe(data));
         }
@@ -807,15 +807,15 @@ namespace RePacker.Buffers.Tests
         {
             var buffer = new Buffer(new byte[24]);
 
-            Assert.True(buffer.CanFit<short>(12));
-            Assert.True(buffer.CanFit<int>(6));
-            Assert.True(buffer.CanFit<long>(3));
-            Assert.True(buffer.CanFit<decimal>());
+            Assert.True(buffer.CanWrite<short>(12));
+            Assert.True(buffer.CanWrite<int>(6));
+            Assert.True(buffer.CanWrite<long>(3));
+            Assert.True(buffer.CanWrite<decimal>());
 
-            Assert.False(buffer.CanFit<short>(13));
-            Assert.False(buffer.CanFit<int>(7));
-            Assert.False(buffer.CanFit<long>(4));
-            Assert.False(buffer.CanFit<decimal>(2));
+            Assert.False(buffer.CanWrite<short>(13));
+            Assert.False(buffer.CanWrite<int>(7));
+            Assert.False(buffer.CanWrite<long>(4));
+            Assert.False(buffer.CanWrite<decimal>(2));
         }
 
         [Fact]
