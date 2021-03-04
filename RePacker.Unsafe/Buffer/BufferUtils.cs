@@ -55,17 +55,16 @@ namespace RePacker.Buffers
             }
         }
 
-        public static unsafe void MemoryCopyFromUnsafe<T>(this ref Buffer buffer, T[] array, int offset = 0, int length = 0)
+        public static unsafe void PackArray<T>(this ref Buffer buffer, T[] array, int offset = 0, int length = 0)
             where T : unmanaged
         {
-            if (length == 0) length = array.Length;
-
-            if (array == null || length == 0)
+            if (array == null || (length == 0 && array.Length == 0))
             {
                 ulong zero = 0;
                 buffer.PushULong(ref zero);
                 return;
             }
+            if (length == 0) length = array.Length;
 
             if (!buffer.CanWrite<T>(length))
             {
@@ -86,7 +85,7 @@ namespace RePacker.Buffers
             buffer.MoveWriteCursor(length * size);
         }
 
-        public static unsafe T[] MemoryCopyToUnsafe<T>(this ref Buffer buffer)
+        public static unsafe T[] UnpackArray<T>(this ref Buffer buffer)
             where T : unmanaged
         {
             buffer.PopULong(out ulong len);

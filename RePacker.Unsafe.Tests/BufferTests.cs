@@ -169,14 +169,14 @@ namespace RePacker.Buffers.Tests
         public void can_fit_should_succeed()
         {
             var buffer = MakeBuffer(4);
-            Assert.True(buffer.buffer.CanFitBytes(sizeof(int)));
+            Assert.True(buffer.buffer.CanWriteBytes(sizeof(int)));
         }
 
         [Fact]
         public void can_fit_should_fail()
         {
             var buffer = MakeBuffer(4);
-            Assert.False(buffer.buffer.CanFitBytes(sizeof(ulong)));
+            Assert.False(buffer.buffer.CanWriteBytes(sizeof(ulong)));
         }
 
         [Fact]
@@ -696,8 +696,8 @@ namespace RePacker.Buffers.Tests
             var buffer = new Buffer(new byte[sizeof(int) * 101 + sizeof(ulong)]);
             var data = Enumerable.Range(1, 100).ToArray();
 
-            buffer.MemoryCopyFromUnsafe(data);
-            var fromBuf = buffer.MemoryCopyToUnsafe<int>();
+            buffer.PackArray(data);
+            var fromBuf = buffer.UnpackArray<int>();
 
             for (int i = 0; i < 100; i++)
             {
@@ -711,7 +711,7 @@ namespace RePacker.Buffers.Tests
             var buffer = new Buffer(new byte[sizeof(int) * 100 + sizeof(ulong)]);
             var data = Enumerable.Range(1, 101).ToArray();
 
-            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MemoryCopyFromUnsafe(data));
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackArray(data));
         }
 
         T[] GenerateArray<T>(int length, System.Func<int, T> generator) where T : unmanaged
@@ -737,17 +737,17 @@ namespace RePacker.Buffers.Tests
             var longs = GenerateArray<long>(32, i => (long)(i % 255));
             var floats = GenerateArray<float>(32, i => (float)(i % 255));
 
-            buffer.MemoryCopyFromUnsafe(bytes);
-            buffer.MemoryCopyFromUnsafe(shorts);
-            buffer.MemoryCopyFromUnsafe(ints);
-            buffer.MemoryCopyFromUnsafe(longs);
-            buffer.MemoryCopyFromUnsafe(floats);
+            buffer.PackArray(bytes);
+            buffer.PackArray(shorts);
+            buffer.PackArray(ints);
+            buffer.PackArray(longs);
+            buffer.PackArray(floats);
 
-            var bytesFromBuf = buffer.MemoryCopyToUnsafe<byte>();
-            var shortsFromBuf = buffer.MemoryCopyToUnsafe<short>();
-            var intsFromBuf = buffer.MemoryCopyToUnsafe<int>();
-            var longsFromBuf = buffer.MemoryCopyToUnsafe<long>();
-            var floatsFromBuf = buffer.MemoryCopyToUnsafe<float>();
+            var bytesFromBuf = buffer.UnpackArray<byte>();
+            var shortsFromBuf = buffer.UnpackArray<short>();
+            var intsFromBuf = buffer.UnpackArray<int>();
+            var longsFromBuf = buffer.UnpackArray<long>();
+            var floatsFromBuf = buffer.UnpackArray<float>();
 
             Assert.Equal(32, bytesFromBuf.Length);
             Assert.Equal(32, shortsFromBuf.Length);
@@ -823,8 +823,8 @@ namespace RePacker.Buffers.Tests
         {
             var buffer = new Buffer(new byte[24]);
 
-            Assert.True(buffer.CanFitBytes(24));
-            Assert.False(buffer.CanFitBytes(25));
+            Assert.True(buffer.CanWriteBytes(24));
+            Assert.False(buffer.CanWriteBytes(25));
         }
 
         [Fact]

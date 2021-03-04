@@ -43,7 +43,7 @@ namespace RePacker.Buffers
         public unsafe void Copy(ref Buffer destination)
         {
             int length = Length();
-            if (!destination.CanFitBytes(length))
+            if (!destination.CanWriteBytes(length))
             {
                 throw new IndexOutOfRangeException("Cant copy Buffer, destination too small");
             }
@@ -135,9 +135,15 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool CanFitBytes(int count)
+        public bool CanWriteBytes(int count)
         {
             return writeCursor + count <= array.Length;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool CanReadBytes(int count)
+        {
+            return readCursor + count <= array.Length;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

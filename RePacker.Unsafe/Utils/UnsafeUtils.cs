@@ -6,7 +6,7 @@ namespace RePacker.Unsafe
 {
     public static class UnsafeUtils
     {
-        public static int SizeOf<T>() where T : unmanaged
+        public static unsafe int SizeOf<T>() where T : unmanaged
         {
             if (typeof(T) == typeof(char))
             {
@@ -16,7 +16,11 @@ namespace RePacker.Unsafe
             {
                 return 16;
             }
-            
+            else if (typeof(T).IsEnum)
+            {
+                return sizeof(T);
+            }
+
             return Marshal.SizeOf<T>();
         }
     }

@@ -44,12 +44,12 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void MemoryCopy<T>(T[] array, int offset = 0, int count = 0) where T : unmanaged
         {
-            Buffer.MemoryCopyFromUnsafe(array, offset, count);
+            Buffer.PackArray(array, offset, count);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe T[] MemoryCopy<T>() where T : unmanaged
         {
-            return Buffer.MemoryCopyToUnsafe<T>();
+            return Buffer.UnpackArray<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,7 +140,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanFit(int count)
         {
-            return Buffer.CanFitBytes(count);
+            return Buffer.CanWriteBytes(count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

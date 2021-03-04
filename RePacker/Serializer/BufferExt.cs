@@ -170,19 +170,19 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackBlittableArray<T>(this ref Buffer buffer, T[] data) where T : unmanaged
         {
-            buffer.MemoryCopyFromUnsafe(data);
+            buffer.PackArray(data);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] UnpackBlittableArray<T>(this ref Buffer buffer) where T : unmanaged
         {
-            return buffer.MemoryCopyToUnsafe<T>();
+            return buffer.UnpackArray<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackUnmanagedArrayOut<T>(this ref Buffer buffer, out T[] data) where T : unmanaged
         {
-            data = buffer.MemoryCopyToUnsafe<T>();
+            data = buffer.UnpackArray<T>();
         }
     }
 }
