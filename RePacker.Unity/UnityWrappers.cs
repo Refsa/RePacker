@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using RePacker.Buffers;
+using RePacker.Buffers.Extra;
 using RePacker.Builder;
 using static RePacker.RePacking;
 

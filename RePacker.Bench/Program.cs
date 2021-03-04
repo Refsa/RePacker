@@ -23,7 +23,7 @@ namespace RePacker.Benchmarks
             Console.WriteLine("Benchmark Start");
 
             // var bufferBench = BenchmarkRunner.Run<BufferBench>();
-            // var zeroFormatterBench = BenchmarkRunner.Run<ZeroFormatterBench>();
+            var zeroFormatterBench = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var ilGeneratedBench = BenchmarkRunner.Run<ILGenerated>();
             // var generalBenches = BenchmarkRunner.Run<GeneralBenches>();
             // var setupBench = BenchmarkRunner.Run<SetupBench>();
@@ -31,9 +31,9 @@ namespace RePacker.Benchmarks
             // new TestClass();
             // RandomStuff.Run();
 
-            var buffer = new Buffer(1024);
-            var v = new ZeroFormatterBench.Person();
-            RePacking.Pack(buffer, ref v);
+            // var buffer = new Buffer(1024);
+            // var v = new ZeroFormatterBench.Person();
+            // RePacking.Pack(buffer, ref v);
             // var fromBuf = RePacking.Unpack<ZeroFormatterBench.Person>(buffer);
 
             // int val = 10;

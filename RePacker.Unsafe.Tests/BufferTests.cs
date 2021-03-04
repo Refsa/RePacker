@@ -1,5 +1,6 @@
 using Xunit;
 using RePacker.Buffers;
+using RePacker.Buffers.Extra;
 using System.Runtime.InteropServices;
 using System.Linq;
 
