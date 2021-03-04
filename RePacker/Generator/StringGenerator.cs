@@ -16,7 +16,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsUnpack(fieldInfo);
             
-            var stringDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
+            var stringDecParams = new Type[] { typeof(Buffer), typeof(string).MakeByRefType() };
             var decodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackString), stringDecParams);
             ilGen.Emit(OpCodes.Call, decodeString);
         }
@@ -25,7 +25,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsPack(fieldInfo);
 
-            var encodeStringParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(string).MakeByRefType() };
+            var encodeStringParams = new Type[] { typeof(Buffer), typeof(string).MakeByRefType() };
             var encodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.PackString), encodeStringParams);
             ilGen.Emit(OpCodes.Call, encodeString);
         }

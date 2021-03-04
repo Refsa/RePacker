@@ -16,7 +16,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsUnpack(fieldInfo);
             
-            var dateTimeDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(TimeSpan).MakeByRefType() };
+            var dateTimeDecParams = new Type[] { typeof(Buffer), typeof(TimeSpan).MakeByRefType() };
             var decodeTimeSpan = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackTimeSpan), dateTimeDecParams);
             ilGen.Emit(OpCodes.Call, decodeTimeSpan);
         }
@@ -25,7 +25,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsPack(fieldInfo);
 
-            var dateTimeDecParams = new Type[] { typeof(Buffer).MakeByRefType(), typeof(TimeSpan).MakeByRefType() };
+            var dateTimeDecParams = new Type[] { typeof(Buffer), typeof(TimeSpan).MakeByRefType() };
             var encodeTimeSpan = typeof(BufferExt).GetMethod(nameof(BufferExt.PackTimeSpan), dateTimeDecParams);
             ilGen.Emit(OpCodes.Call, encodeTimeSpan);
             // ilGen.Emit(OpCodes.Pop);

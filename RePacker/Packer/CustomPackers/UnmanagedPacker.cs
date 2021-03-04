@@ -6,21 +6,21 @@ namespace RePacker.Builder
     internal class UnmanagedPacker<T> : IPacker<T> where T : unmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Pack(BoxedBuffer buffer, ref T value)
+        public void Pack(Buffer buffer, ref T value)
         {
-            buffer.Buffer.Pack(ref value);
+            buffer.Pack(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Unpack(BoxedBuffer buffer, out T value)
+        public void Unpack(Buffer buffer, out T value)
         {
-            buffer.Buffer.Unpack<T>(out value);
+            buffer.Unpack<T>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void UnpackInto(BoxedBuffer buffer, ref T value)
+        public void UnpackInto(Buffer buffer, ref T value)
         {
-            buffer.Buffer.Unpack<T>(out value);
+            buffer.Unpack<T>(out value);
         }
     }
 }

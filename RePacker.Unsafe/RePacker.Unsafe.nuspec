@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>RePacker.Unsafe</id>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <title>RePacker.Unsafe</title>
     <authors>Ole-Gustav Røed</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

@@ -90,20 +90,5 @@ namespace RePacker.Builder
             generator = null;
             return false;
         }
-
-        public static void RegisterGenerator(Type type, IGenerator generator)
-        {
-            if (generators.TryGetValue(GeneratorType.Object, out var gens))
-            {
-                if (!gens.ContainsKey(type))
-                {
-                    gens.Add(type, generator);
-                }
-                else
-                {
-                    throw new ArgumentException($"Generator for type {type} already exists");
-                }
-            }
-        }
     }
 }

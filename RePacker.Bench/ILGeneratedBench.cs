@@ -30,14 +30,14 @@ namespace RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            BoxedBuffer boxedBuffer = new BoxedBuffer(backingBuffer);
+            var buffer = new Buffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
-                RePacking.Pack<TestStruct2>(boxedBuffer, ref ts2);
-                var _ = RePacking.Unpack<TestStruct2>(boxedBuffer);
+                RePacking.Pack<TestStruct2>(buffer, ref ts2);
+                var _ = RePacking.Unpack<TestStruct2>(buffer);
 
-                boxedBuffer.Buffer.Reset();
+                buffer.Reset();
             }
         }
 
@@ -61,7 +61,7 @@ namespace RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            Buffer buffer = new Buffer(backingBuffer, 0);
+            var buffer = new Buffer(backingBuffer, 0);
 
             for (int i = 0; i < RUNS; i++)
             {
@@ -92,14 +92,14 @@ namespace RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            BoxedBuffer boxedBuffer = new BoxedBuffer(backingBuffer);
+            var buffer = new Buffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
-                RePacking.Pack<TestClass2>(boxedBuffer, ref ts2);
-                var _ = RePacking.Unpack<TestClass2>(boxedBuffer);
+                RePacking.Pack<TestClass2>(buffer, ref ts2);
+                var _ = RePacking.Unpack<TestClass2>(buffer);
 
-                boxedBuffer.Buffer.Reset();
+                buffer.Reset();
             }
         }
 
@@ -117,13 +117,13 @@ namespace RePacker.Benchmarks
                 },
             };
 
-            var buffer = new BoxedBuffer(backingBuffer);
+            var buffer = new Buffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
                 RePacking.Pack<Parent>(buffer, ref p);
                 var fromBuf = RePacking.Unpack<Parent>(buffer);
-                buffer.Buffer.Reset();
+                buffer.Reset();
             }
         }
     }

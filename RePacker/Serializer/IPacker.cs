@@ -5,8 +5,8 @@ namespace RePacker
 {
     internal interface IPacker<T> : ITypePacker
     {
-        void Pack(BoxedBuffer buffer, ref T value);
-        void Unpack(BoxedBuffer buffer, out T value);
-        void UnpackInto(BoxedBuffer buffer, ref T value);
+        void Pack(Buffer buffer, ref T value);
+        void Unpack(Buffer buffer, out T value);
+        void UnpackInto(Buffer buffer, ref T value);
     }
 }

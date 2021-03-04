@@ -7,7 +7,7 @@ namespace RePacker.Benchmarks
     [MemoryDiagnoser]
     public class GeneralBenches
     {
-        BoxedBuffer buffer = new BoxedBuffer(1 << 16);
+        Buffer buffer = new Buffer(1 << 16);
 
         /* [Benchmark]
         public void BenchRePackerSpeedInt()
@@ -31,7 +31,7 @@ namespace RePacker.Benchmarks
                 RePacker.Init();
             }
 
-            var buffer = new BoxedBuffer(1 << 16);
+            var buffer = new Buffer(1 << 16);
             int val = 123456789;
 
             if (TypeCache.TryGetTypePacker<int>(out var packer))
@@ -54,7 +54,7 @@ namespace RePacker.Benchmarks
             buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.Buffer.Pack(ref val);
+                buffer.Pack(ref val);
             }
         }
 
@@ -66,7 +66,7 @@ namespace RePacker.Benchmarks
             buffer.Reset();
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.Buffer.Unpack(out val);
+                buffer.Unpack(out val);
             }
         }
     }

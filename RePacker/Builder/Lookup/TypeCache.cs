@@ -8,6 +8,8 @@ using System.Reflection.Emit;
 using RePacker.Buffers;
 using RePacker.Utils;
 
+using Buffer = RePacker.Buffers.Buffer;
+
 namespace RePacker.Builder
 {
     internal static class TypeCache
@@ -36,7 +38,7 @@ namespace RePacker.Builder
         static ConcurrentDictionary<Type, Info> typeCache;
         static Dictionary<Type, Type> wrapperTypeLookup;
 
-        static Dictionary<Type, ITypePacker> packerLookup;
+        static ConcurrentDictionary<Type, ITypePacker> packerLookup;
         static ConcurrentDictionary<Type, GenericProducer> runtimePackerProducers;
 
         static bool isSetup = false;
@@ -55,7 +57,7 @@ namespace RePacker.Builder
         {
             if (isSetup) return;
 
-            packerLookup = new Dictionary<Type, ITypePacker>();
+            packerLookup = new ConcurrentDictionary<Type, ITypePacker>();
             wrapperTypeLookup = new Dictionary<Type, Type>();
             allTypes = ReflectionUtils.GetAllTypes();
 
@@ -89,7 +91,7 @@ namespace RePacker.Builder
                 RePacking.Logger.Warn($"type of {type} does not have a valid packer");
 
                 typeCache.TryRemove(type, out var _);
-                packerLookup.Remove(type);
+                packerLookup.TryRemove(type, out var _);
             }
         }
 
@@ -227,7 +229,7 @@ namespace RePacker.Builder
                 if (wrapperTypeLookup.TryGetValue(kv.Key, out Type wrapper))
                 {
                     var serializer = Activator.CreateInstance(wrapper);
-                    packerLookup.Add(kv.Value.Type, (ITypePacker)serializer);
+                    packerLookup.TryAdd(kv.Value.Type, (ITypePacker)serializer);
                 }
                 else
                 {
@@ -300,7 +302,7 @@ namespace RePacker.Builder
                             typeof(TypePacker<>).MakeGenericType(kv.Key),
                             kv.Value.packer, kv.Value.unpacker);
 
-                    packerLookup.Add(
+                    packerLookup.TryAdd(
                         kv.Key,
                         typePacker
                     );
@@ -461,7 +463,7 @@ namespace RePacker.Builder
             return false;
         }
 
-        public static void Pack<T>(BoxedBuffer buffer, ref T value)
+        public static void Pack<T>(Buffer buffer, ref T value)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
@@ -486,7 +488,7 @@ namespace RePacker.Builder
             }
         }
 
-        static T UnpackInternal<T>(BoxedBuffer buffer)
+        static T UnpackInternal<T>(Buffer buffer)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
@@ -514,18 +516,18 @@ namespace RePacker.Builder
             return default(T);
         }
 
-        public static T Unpack<T>(BoxedBuffer buffer)
+        public static T Unpack<T>(Buffer buffer)
         {
             return UnpackInternal<T>(buffer);
         }
 
-        public static bool UnpackOut<T>(BoxedBuffer buffer, out T value)
+        public static bool UnpackOut<T>(Buffer buffer, out T value)
         {
             value = UnpackInternal<T>(buffer);
             return value != null;
         }
 
-        public static void UnpackInto<T>(BoxedBuffer buffer, ref T target)
+        public static void UnpackInto<T>(Buffer buffer, ref T target)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {

@@ -16,13 +16,12 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_string()
         {
-            Buffer buffer = CreateBuffer();
+            var buffer = CreateBuffer();
             string testString = "This is a test string";
 
             buffer.PackString(ref testString);
 
-            var readBuffer = new Buffer(ref buffer);
-            string fromBuf = readBuffer.UnpackString();
+            string fromBuf = buffer.UnpackString();
 
             Assert.Equal(testString, fromBuf);
         }
@@ -30,7 +29,7 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_string_multiple()
         {
-            Buffer buffer = CreateBuffer(1 << 16);
+            var buffer = CreateBuffer(1 << 16);
             string testString = "This is a test string";
 
             for (int i = 0; i < 10; i++)
@@ -57,15 +56,14 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_byte_enum()
         {
-            Buffer buffer = CreateBuffer();
+            var buffer = CreateBuffer();
             TestByteEnum testEnum = TestByteEnum.One;
 
             buffer.PackEnum<TestByteEnum>(ref testEnum);
 
             Assert.Equal(sizeof(byte), buffer.WriteCursor());
 
-            var readBuffer = new Buffer(ref buffer);
-            TestByteEnum fromBuf = readBuffer.UnpackEnum<TestByteEnum>();
+            TestByteEnum fromBuf = buffer.UnpackEnum<TestByteEnum>();
 
             Assert.Equal(testEnum, fromBuf);
         }
@@ -81,15 +79,14 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_ulong_enum()
         {
-            Buffer buffer = CreateBuffer();
+            var buffer = CreateBuffer();
             TestULongEnum testEnum = TestULongEnum.One;
 
             buffer.PackEnum<TestULongEnum>(ref testEnum);
 
             Assert.Equal(sizeof(ulong), buffer.WriteCursor());
 
-            var readBuffer = new Buffer(ref buffer);
-            TestULongEnum fromBuf = readBuffer.UnpackEnum<TestULongEnum>();
+            TestULongEnum fromBuf = buffer.UnpackEnum<TestULongEnum>();
 
             Assert.Equal(testEnum, fromBuf);
         }
@@ -97,7 +94,7 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_byte_blittable_array()
         {
-            Buffer buffer = CreateBuffer();
+            var buffer = CreateBuffer();
 
             byte[] testArray = new byte[64];
             for (int i = 0; i < 64; i++) testArray[i] = (byte)i;
@@ -105,8 +102,7 @@ namespace RePacker.Tests
             buffer.PackBlittableArray<byte>(testArray);
             Assert.Equal(64 + sizeof(ulong), buffer.WriteCursor());
 
-            var readBuffer = new Buffer(ref buffer);
-            byte[] fromBuf = readBuffer.UnpackBlittableArray<byte>();
+            byte[] fromBuf = buffer.UnpackBlittableArray<byte>();
 
             for (int i = 0; i < 64; i++)
             {
@@ -117,7 +113,7 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_int_blittable_array()
         {
-            Buffer buffer = CreateBuffer();
+            var buffer = CreateBuffer();
 
             int[] testArray = new int[32];
             for (int i = 0; i < 32; i++) testArray[i] = (int)i;
@@ -125,8 +121,7 @@ namespace RePacker.Tests
             buffer.PackBlittableArray<int>(testArray);
             Assert.Equal(32 * sizeof(int) + sizeof(ulong), buffer.WriteCursor());
 
-            var readBuffer = new Buffer(ref buffer);
-            int[] fromBuf = readBuffer.UnpackBlittableArray<int>();
+            int[] fromBuf = buffer.UnpackBlittableArray<int>();
 
             for (int i = 0; i < 32; i++)
             {
@@ -144,7 +139,7 @@ namespace RePacker.Tests
         [Fact]
         public void can_encode_and_decode_struct_blittable_array()
         {
-            Buffer buffer = CreateBuffer();
+            var buffer = CreateBuffer();
 
             TestBlitStruct[] testData = new TestBlitStruct[32];
             for (int i = 0; i < 32; i++)
@@ -157,8 +152,7 @@ namespace RePacker.Tests
 
             Assert.Equal(32 * Marshal.SizeOf<TestBlitStruct>() + sizeof(ulong), buffer.WriteCursor());
 
-            var readBuffer = new Buffer(ref buffer);
-            TestBlitStruct[] fromBuf = readBuffer.UnpackBlittableArray<TestBlitStruct>();
+            TestBlitStruct[] fromBuf = buffer.UnpackBlittableArray<TestBlitStruct>();
 
             for (int i = 0; i < 32; i++)
             {

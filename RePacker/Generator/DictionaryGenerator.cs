@@ -12,8 +12,6 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(Dictionary<,>);
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         MethodInfo deserializeIListMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIList));
         MethodInfo deserializeIListBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIListBlittable));
 

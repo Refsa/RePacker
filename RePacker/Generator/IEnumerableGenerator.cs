@@ -13,8 +13,6 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(IEnumerable<>);
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         MethodInfo deserializeIEnumerableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIEnumerable));
         MethodInfo deserializeIEnumerableBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackIEnumerableBlittable));
 

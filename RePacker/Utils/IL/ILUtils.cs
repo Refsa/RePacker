@@ -10,15 +10,9 @@ namespace RePacker.Utils
 {
     public static class ILUtils
     {
-        static FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         internal static void LoadArgsPack(this ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.Emit(OpCodes.Ldarg_0);
-            if (Type.GetTypeCode(fieldInfo.FieldType) != TypeCode.Object)
-            {
-                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-            }
 
             if (fieldInfo.DeclaringType.IsValueType)
             {
@@ -34,10 +28,6 @@ namespace RePacker.Utils
         internal static void LoadArgsUnpack(this ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.Emit(OpCodes.Ldarg_0);
-            if (Type.GetTypeCode(fieldInfo.FieldType) != TypeCode.Object)
-            {
-                ilGen.Emit(OpCodes.Ldflda, boxedBufferUnwrap);
-            }
 
             if (fieldInfo.DeclaringType.IsValueType)
             {

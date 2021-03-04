@@ -5,31 +5,31 @@ namespace RePacker.Builder
 {
     internal class TypePacker<T> : IPacker<T>
     {
-        public System.Action<BoxedBuffer, T> packer;
-        public System.Func<BoxedBuffer, T> unpacker;
+        public System.Action<Buffer, T> packer;
+        public System.Func<Buffer, T> unpacker;
 
         public TypePacker(MethodInfo packer, MethodInfo unpacker)
         {
             this.packer =
-                (System.Action<BoxedBuffer, T>)packer
-                    .CreateDelegate(typeof(System.Action<BoxedBuffer, T>));
+                (System.Action<Buffer, T>)packer
+                    .CreateDelegate(typeof(System.Action<Buffer, T>));
 
             this.unpacker =
-                (System.Func<BoxedBuffer, T>)unpacker
-                    .CreateDelegate(typeof(System.Func<BoxedBuffer, T>));
+                (System.Func<Buffer, T>)unpacker
+                    .CreateDelegate(typeof(System.Func<Buffer, T>));
         }
 
-        public void Pack(BoxedBuffer buffer, ref T value)
+        public void Pack(Buffer buffer, ref T value)
         {
             packer.Invoke(buffer, value);
         }
 
-        public void Unpack(BoxedBuffer buffer, out T value)
+        public void Unpack(Buffer buffer, out T value)
         {
             value = unpacker.Invoke(buffer);
         }
 
-        public void UnpackInto(BoxedBuffer buffer, ref T value)
+        public void UnpackInto(Buffer buffer, ref T value)
         {
             value = unpacker.Invoke(buffer);
         }

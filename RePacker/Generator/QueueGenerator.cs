@@ -13,8 +13,6 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(Queue<>);
 
-        FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
-
         MethodInfo deserializeQueueMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackQueue));
         // MethodInfo deserializeQueueBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackQueueBlittable));
 

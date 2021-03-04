@@ -7,13 +7,13 @@ namespace RePacker.Builder
     internal class ArrayPacker<TElement> : RePackerWrapper<TElement[]>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref TElement[] value)
+        public override void Pack(Buffer buffer, ref TElement[] value)
         {
             buffer.PackArray(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out TElement[] value)
+        public override void Unpack(Buffer buffer, out TElement[] value)
         {
             buffer.UnpackArray<TElement>(out value);
         }
@@ -22,28 +22,28 @@ namespace RePacker.Builder
     internal class ArrayUnmanagedPacker<TElement> : RePackerWrapper<TElement[]> where TElement : unmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref TElement[] value)
+        public override void Pack(Buffer buffer, ref TElement[] value)
         {
-            buffer.Buffer.PackBlittableArray(value);
+            buffer.PackBlittableArray(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out TElement[] value)
+        public override void Unpack(Buffer buffer, out TElement[] value)
         {
-            buffer.Buffer.UnpackUnmanagedArrayOut<TElement>(out value);
+            buffer.UnpackUnmanagedArrayOut<TElement>(out value);
         }
     }
 
     internal class Array2DPacker<TElement> : RePackerWrapper<TElement[,]> where TElement : unmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref TElement[,] value)
+        public override void Pack(Buffer buffer, ref TElement[,] value)
         {
             buffer.PackArray2D(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out TElement[,] value)
+        public override void Unpack(Buffer buffer, out TElement[,] value)
         {
             buffer.UnpackArray2D(out value);
         }
@@ -52,13 +52,13 @@ namespace RePacker.Builder
     internal class Array3DPacker<TElement> : RePackerWrapper<TElement[,,]> where TElement : unmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref TElement[,,] value)
+        public override void Pack(Buffer buffer, ref TElement[,,] value)
         {
             buffer.PackArray3D(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out TElement[,,] value)
+        public override void Unpack(Buffer buffer, out TElement[,,] value)
         {
             buffer.UnpackArray3D(out value);
         }
@@ -67,13 +67,13 @@ namespace RePacker.Builder
     internal class Array4DPacker<TElement> : RePackerWrapper<TElement[,,,]> where TElement : unmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref TElement[,,,] value)
+        public override void Pack(Buffer buffer, ref TElement[,,,] value)
         {
             buffer.PackArray4D(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out TElement[,,,] value)
+        public override void Unpack(Buffer buffer, out TElement[,,,] value)
         {
             buffer.UnpackArray4D(out value);
         }

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using RePacker.Buffers;
+using RePacker.Buffers.Extra;
 
 namespace RePacker.Builder
 {
@@ -8,21 +9,21 @@ namespace RePacker.Builder
         public static new bool IsCopyable = true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(BoxedBuffer buffer, ref ushort value)
+        public override void Pack(Buffer buffer, ref ushort value)
         {
-            buffer.Buffer.PushUShort(ref value);
+            buffer.PackUShort(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(BoxedBuffer buffer, out ushort value)
+        public override void Unpack(Buffer buffer, out ushort value)
         {
-            buffer.Buffer.PopUShort(out value);
+            buffer.UnpackUShort(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(BoxedBuffer buffer, ref ushort value)
+        public override void UnpackInto(Buffer buffer, ref ushort value)
         {
-            buffer.Buffer.PopUShort(out value);
+            buffer.UnpackUShort(out value);
         }
     }
 }

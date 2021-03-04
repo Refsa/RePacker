@@ -1,5 +1,4 @@
 using Xunit;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RePacker.Buffers;
@@ -10,7 +9,7 @@ namespace RePacker.Tests
 {
     public class SerializerBuilderTests
     {
-        BoxedBuffer buffer = new BoxedBuffer(1 << 24);
+        Buffer buffer = new Buffer(1 << 24);
 
         public SerializerBuilderTests(ITestOutputHelper output)
         {
@@ -29,7 +28,7 @@ namespace RePacker.Tests
             buffer.Reset();
 
             buffer.Pack(ref data);
-            var fromBuf = buffer.Unpack<UnmanagedStruct>();
+            var fromBuf = RePacking.Unpack<UnmanagedStruct>(buffer);
 
             Assert.Equal(data.Int, fromBuf.Int);
             Assert.Equal(data.ULong, fromBuf.ULong);
@@ -369,12 +368,12 @@ namespace RePacker.Tests
         [Fact]
         public void date_time_buffer_packing()
         {
-            DateTime dt = DateTime.Now;
+            System.DateTime dt = System.DateTime.Now;
 
             buffer.Reset();
 
             buffer.PackDateTime(ref dt);
-            buffer.UnpackDateTime(out DateTime fromBuf);
+            buffer.UnpackDateTime(out System.DateTime fromBuf);
 
             Assert.Equal(dt.Ticks, fromBuf.Ticks);
         }
@@ -382,7 +381,7 @@ namespace RePacker.Tests
         [Fact]
         public void has_date_time_packing()
         {
-            var hdt = new HasDateTime { Float = 1.2344534f, DateTime = DateTime.Now };
+            var hdt = new HasDateTime { Float = 1.2344534f, DateTime = System.DateTime.Now };
 
             buffer.Reset();
 
@@ -396,12 +395,12 @@ namespace RePacker.Tests
         [Fact]
         public void standalone_date_time_repacker()
         {
-            DateTime dt = DateTime.Now;
+            System.DateTime dt = System.DateTime.Now;
 
             buffer.Reset();
 
-            RePacking.Pack<DateTime>(buffer, ref dt);
-            DateTime fromBuf = RePacking.Unpack<DateTime>(buffer);
+            RePacking.Pack<System.DateTime>(buffer, ref dt);
+            System.DateTime fromBuf = RePacking.Unpack<System.DateTime>(buffer);
 
             Assert.Equal(dt.Ticks, fromBuf.Ticks);
         }
@@ -444,7 +443,7 @@ namespace RePacker.Tests
             buffer.Reset();
 
             RePacking.Pack(buffer, ref largeString);
-            Assert.Equal(asBytes.Length, buffer.Buffer.WriteCursor() - sizeof(ulong));
+            Assert.Equal(asBytes.Length, buffer.WriteCursor() - sizeof(ulong));
 
             string fromBuf = RePacking.Unpack<string>(buffer);
 
@@ -458,8 +457,8 @@ namespace RePacker.Tests
             string data = null;
             buffer.Reset();
 
-            buffer.Pack(ref data);
-            string fromBuf = buffer.Unpack<string>();
+            RePacking.Pack(buffer, ref data);
+            string fromBuf = RePacking.Unpack<string>(buffer);
 
             Assert.NotNull(fromBuf);
             Assert.Equal("", fromBuf);
@@ -625,9 +624,9 @@ namespace RePacker.Tests
                 Bool = true,
             };
 
-            buffer.Pack(ref hn);
+            RePacking.Pack(buffer, ref hn);
 
-            var fromBuf = buffer.Unpack<HasNullable>();
+            var fromBuf = RePacking.Unpack<HasNullable>(buffer);
 
             Assert.Equal(hn.Float, fromBuf.Float);
             Assert.Equal(hn.Int, fromBuf.Int);
@@ -642,13 +641,13 @@ namespace RePacker.Tests
             float? val = 10f;
             float? val2 = null;
 
-            buffer.Pack(ref val);
-            buffer.Pack(ref val2);
+            RePacking.Pack(buffer, ref val);
+            RePacking.Pack(buffer, ref val2);
 
-            var fromBuf = buffer.Unpack<float?>();
+            var fromBuf = RePacking.Unpack<float?>(buffer);
             Assert.Equal(val, fromBuf);
 
-            var fromBuf2 = buffer.Unpack<float?>();
+            var fromBuf2 = RePacking.Unpack<float?>(buffer);
             Assert.Equal(val2, fromBuf2);
         }
 
@@ -668,8 +667,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref data);
-            var fromBuf = buffer.Unpack<SealedClass>();
+            RePacking.Pack(buffer, ref data);
+            var fromBuf = RePacking.Unpack<SealedClass>(buffer);
 
             Assert.Equal(data.Int, fromBuf.Int);
             Assert.Equal(data.Float, fromBuf.Float);
@@ -689,8 +688,8 @@ namespace RePacker.Tests
 
             buffer.Reset();
 
-            buffer.Pack(ref data);
-            var fromBuf = buffer.Unpack<InternalSealedClass>();
+            RePacking.Pack(buffer, ref data);
+            var fromBuf = RePacking.Unpack<InternalSealedClass>(buffer);
 
             Assert.Equal(data.Long, fromBuf.Long);
             Assert.Equal(data.Float, fromBuf.Float);
@@ -701,9 +700,9 @@ namespace RePacker.Tests
         {
             var obj = new SomeManagedObject();
 
-            var buffer = new BoxedBuffer(4);
+            var buffer = new Buffer(4);
 
-            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+            Assert.Throws<System.IndexOutOfRangeException>(() => RePacking.Pack(buffer, ref obj));
 
             Assert.Equal(0, buffer.WriteCursor());
         }
@@ -714,9 +713,9 @@ namespace RePacker.Tests
             var obj = new ParentWithNestedClass();
             obj.Child = new ChildClass();
 
-            var buffer = new BoxedBuffer(8);
+            var buffer = new Buffer(8);
 
-            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+            Assert.Throws<System.IndexOutOfRangeException>(() => RePacking.Pack(buffer, ref obj));
 
             Assert.Equal(0, buffer.WriteCursor());
         }
@@ -726,11 +725,11 @@ namespace RePacker.Tests
         {
             var obj = new SomeManagedObject();
 
-            var buffer = new BoxedBuffer(20);
+            var buffer = new Buffer(20);
 
-            buffer.Pack(ref obj);
-            buffer.Pack(ref obj);
-            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+            RePacking.Pack(buffer, ref obj);
+            RePacking.Pack(buffer, ref obj);
+            Assert.Throws<System.IndexOutOfRangeException>(() => RePacking.Pack(buffer, ref obj));
 
             Assert.Equal(16, buffer.WriteCursor());
         }
@@ -741,11 +740,11 @@ namespace RePacker.Tests
             var obj = new ParentWithNestedClass();
             obj.Child = new ChildClass();
 
-            var buffer = new BoxedBuffer(38);
+            var buffer = new Buffer(38);
 
-            buffer.Pack(ref obj);
-            buffer.Pack(ref obj);
-            Assert.Throws<IndexOutOfRangeException>(() => buffer.Pack(ref obj));
+            RePacking.Pack(buffer, ref obj);
+            RePacking.Pack(buffer, ref obj);
+            Assert.Throws<System.IndexOutOfRangeException>(() => RePacking.Pack(buffer, ref obj));
 
             Assert.Equal(34, buffer.WriteCursor());
         }
