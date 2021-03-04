@@ -11,8 +11,8 @@ namespace RePacker
 #else
         static RePackerSettings settings = new RePackerSettings();
 #endif
-        public static RePackerSettings Settings => settings;
-        public static ILogger Logger => settings.Log;
+        internal static RePackerSettings Settings => settings;
+        internal static ILogger Logger => settings.Log;
 
         public static bool IsSetup => TypeCache.IsSetup;
 
@@ -105,12 +105,12 @@ namespace RePacker
             TypeCache.UnpackInto<T>(buffer, ref target);
         }
 
-        public static void AddTypePackerProvider<T>(GenericProducer producer)
+        internal static void AddTypePackerProvider<T>(GenericProducer producer)
         {
             TypeCache.AddTypePackerProvider(typeof(T), producer);
         }
 
-        public static void AttemptToCreatePacker(System.Type type)
+        internal static void AttemptToCreatePacker(System.Type type)
         {
             TypeCache.AttemptToCreatePacker(type);
         }

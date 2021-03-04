@@ -105,7 +105,7 @@ namespace RePacker.Benchmarks
 
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.PushInt(ref val);
+                buffer.PackInt(ref val);
             }
         }
 
@@ -114,11 +114,11 @@ namespace RePacker.Benchmarks
         {
             var buffer = new Buffer(new byte[1 << 16]);
             int val = 123456789;
-            buffer.Push(ref val);
+            buffer.Pack(ref val);
 
             for (int i = 0; i < 10_000; i++)
             {
-                buffer.PopInt(out int _);
+                buffer.UnpackInt(out int _);
                 buffer.Reset();
             }
         } */
@@ -140,7 +140,7 @@ namespace RePacker.Benchmarks
         {
             var buffer = new Buffer(1 << 16);
             var val = new JustFiller673 { Int = 123456789 };
-            buffer.Push(ref val);
+            buffer.Pack(ref val);
 
             for (int i = 0; i < 10_000; i++)
             {

@@ -39,6 +39,18 @@ namespace RePacker.Benchmarks
             // int val = 10;
             // RePacking.Pack(buffer, ref val);
 
+            /* int val = 10;
+            long val2 = 10;
+            var buffer = RePacking.Pack(ref val);
+            for (int i = 0; i < 1023; i++)
+            {
+                if (i % 2 == 0)
+                    RePacking.Pack(buffer, ref val);
+                else
+                    RePacking.Pack(buffer, ref val2);
+            }
+            Console.WriteLine(buffer.WriteCursor()); */
+
             Console.WriteLine("Benchmark End");
         }
     }

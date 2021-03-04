@@ -194,6 +194,17 @@ namespace RePacker.Benchmarks
         }
 
         [Benchmark]
+        public void ILGen_Auto_IntSerialize10K()
+        {
+            int val = 123456789;
+
+            for (int i = 0; i < 10_000; i++)
+            {
+                var _ = RePacking.Pack<int>(ref val);
+            }
+        }
+
+        [Benchmark]
         public void PackIntSerialize10K()
         {
             buffer.Reset();
