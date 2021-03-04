@@ -36,7 +36,7 @@ namespace RePacker.Builder
         static ConcurrentDictionary<Type, Info> typeCache;
         static Dictionary<Type, Type> wrapperTypeLookup;
 
-        static Dictionary<Type, ITypePacker> packerLookup;
+        static ConcurrentDictionary<Type, ITypePacker> packerLookup;
         static ConcurrentDictionary<Type, GenericProducer> runtimePackerProducers;
 
         static bool isSetup = false;
@@ -55,7 +55,7 @@ namespace RePacker.Builder
         {
             if (isSetup) return;
 
-            packerLookup = new Dictionary<Type, ITypePacker>();
+            packerLookup = new ConcurrentDictionary<Type, ITypePacker>();
             wrapperTypeLookup = new Dictionary<Type, Type>();
             allTypes = ReflectionUtils.GetAllTypes();
 
@@ -89,7 +89,7 @@ namespace RePacker.Builder
                 RePacking.Logger.Warn($"type of {type} does not have a valid packer");
 
                 typeCache.TryRemove(type, out var _);
-                packerLookup.Remove(type);
+                packerLookup.TryRemove(type, out var _);
             }
         }
 
@@ -227,7 +227,7 @@ namespace RePacker.Builder
                 if (wrapperTypeLookup.TryGetValue(kv.Key, out Type wrapper))
                 {
                     var serializer = Activator.CreateInstance(wrapper);
-                    packerLookup.Add(kv.Value.Type, (ITypePacker)serializer);
+                    packerLookup.TryAdd(kv.Value.Type, (ITypePacker)serializer);
                 }
                 else
                 {
@@ -300,7 +300,7 @@ namespace RePacker.Builder
                             typeof(TypePacker<>).MakeGenericType(kv.Key),
                             kv.Value.packer, kv.Value.unpacker);
 
-                    packerLookup.Add(
+                    packerLookup.TryAdd(
                         kv.Key,
                         typePacker
                     );

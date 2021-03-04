@@ -16,10 +16,10 @@ namespace RePacker.Builder
         MethodInfo bufferPushGeneric = null;
         MethodInfo bufferPopGeneric = null;
 
-        MethodInfo bufferPack = typeof(Buffer)
-            .GetMethod(nameof(Buffer.Pack));
-        MethodInfo bufferUnpack = typeof(Buffer)
-            .GetMethod(nameof(Buffer.Unpack));
+        MethodInfo bufferPack = typeof(BufferUtils)
+            .GetMethod(nameof(BufferUtils.Pack));
+        MethodInfo bufferUnpack = typeof(BufferUtils)
+            .GetMethod(nameof(BufferUtils.Unpack));
 
         FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 

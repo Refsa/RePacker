@@ -30,7 +30,7 @@ namespace RePacker.Builder
             //     .GetMethods(BindingFlags.Public | BindingFlags.Instance)
             //     .Where(mi => mi.Name == "Pop" && mi.GetParameters().Length == 1).First();
 
-            MethodInfo bufferPop = typeof(Buffer).GetMethod(nameof(Buffer.Unpack));
+            MethodInfo bufferPop = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Unpack));
 
             var parameters = new Type[1];
             MethodInfo bufferPopGeneric = null;
@@ -155,7 +155,7 @@ namespace RePacker.Builder
             // .GetMethods(BindingFlags.Public | BindingFlags.Instance)
             // .Where(mi => mi.Name == "Push" && mi.GetParameters().Length == 1).First();
 
-            MethodInfo bufferPush = typeof(Buffer).GetMethod(nameof(Buffer.Pack));
+            MethodInfo bufferPush = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Pack));
 
             FieldInfo boxedBufferUnwrap = typeof(BoxedBuffer).GetField(nameof(BoxedBuffer.Buffer));
 
