@@ -49,6 +49,14 @@ namespace RePacker.Tests
         // }
 
         [Fact]
+        public void has_untagged_unmanaged_struct()
+        {
+            var rt = new RootType();
+
+            Assert.Equal(24, RePacking.SizeOf(ref rt));
+        }
+
+        [Fact]
         public void get_size_tagged_unmanaged_struct()
         {
             var cs = new ChildStruct();
@@ -81,6 +89,25 @@ namespace RePacker.Tests
             var obj = new StructWithEnum();
 
             Assert.Equal(17, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_has_unmanaged_array()
+        {
+            var hms = new HasStructArray();
+            hms.ArrayOfStruct = new ChildStruct[10];
+
+            Assert.Equal(9 + 50 + 8, RePacking.SizeOf(ref hms));
+        }
+
+        [Fact]
+        public void get_size_has_managed_array()
+        {
+            var hms = new HasClassArray();
+            hms.ArrayOfClass = new InArrayClass[10];
+            for (int i = 0; i < 10; i++) hms.ArrayOfClass[i] = new InArrayClass();
+
+            Assert.Equal(9 + 80 + 8, RePacking.SizeOf(ref hms));
         }
     }
 }

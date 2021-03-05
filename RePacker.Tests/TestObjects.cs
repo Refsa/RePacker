@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace RePacker.Tests
 {
@@ -152,6 +153,7 @@ namespace RePacker.Tests
         public double Double;
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct UnmanagedStruct
     {
         public int Int;
@@ -194,6 +196,14 @@ namespace RePacker.Tests
     {
         public long Long;
         public InArrayClass[] ArrayOfClass;
+        public byte Byte;
+    }
+
+    [RePacker]
+    public struct HasStructArray
+    {
+        public long Long;
+        public ChildStruct[] ArrayOfStruct;
         public byte Byte;
     }
 
