@@ -18,28 +18,14 @@ namespace RePacker.Builder
 
         static StringGenerator()
         {
-            try
-            {
-                getUtf8Encoder = typeof(System.Text.Encoding)
-                    .GetProperty(nameof(System.Text.Encoding.UTF8), BindingFlags.Static | BindingFlags.Public)
-                    .GetMethod;
+            getUtf8Encoder = typeof(System.Text.Encoding)
+                .GetProperty(nameof(System.Text.Encoding.UTF8), BindingFlags.Static | BindingFlags.Public)
+                .GetMethod;
 
-                getStringLengthMethod = typeof(System.Text.Encoding)
-                    .GetMethod(nameof(System.Text.Encoding.GetByteCount), new Type[] { typeof(string) });
+            getStringLengthMethod = typeof(System.Text.Encoding)
+                .GetMethod(nameof(System.Text.Encoding.GetByteCount), new Type[] { typeof(string) });
 
-                if (getUtf8Encoder == null || getStringLengthMethod == null)
-                {
-                    throw new OperationCanceledException("Couldnt find UTF8 Encoder or GetByteCount on UTF8 Encoder");
-                }
-
-                stringIsNullOrEmptyMethod = typeof(string).GetMethod(nameof(string.IsNullOrEmpty));
-            }
-            catch (Exception e)
-            {
-                RePacking.Logger.Exception(e);
-            }
-
-            // Console.WriteLine(getStringLengthMethod.Invoke(getUtf8Encoder.Invoke(null, null), new object[] {"Hello"}));
+            stringIsNullOrEmptyMethod = typeof(string).GetMethod(nameof(string.IsNullOrEmpty));
         }
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
