@@ -27,50 +27,79 @@ namespace RePacker.Generator
 
             var ilGen = builder.GetILGenerator();
             {
-                if (!info.HasCustomSerializer && info.IsUnmanaged)
+                if (info.IsUnmanaged && !info.HasCustomSerializer)
                 {
-                    ilGen.Emit(OpCodes.Sizeof, info.Type);
+                    goto Blittable;
                 }
-                else if (info.SerializedFields != null)
+                else
                 {
-                    ilGen.Emit(OpCodes.Ldc_I4, 0);
+                    goto PerField;
+                }
 
-                    foreach (var field in info.SerializedFields)
+            Blittable:
+                ilGen.Emit(OpCodes.Sizeof, info.Type);
+
+                goto Finished;
+
+            PerField:
+                ilGen.Emit(OpCodes.Ldc_I4, 0);
+
+                for (int i = 0; i < info.SerializedFields.Length; i++)
+                {
+                    var field = info.SerializedFields[i];
+
+                    (GeneratorType gt, Type t) = (GeneratorType.None, null);
+
+                    switch (Type.GetTypeCode(field.FieldType))
                     {
-                        Type fieldType = field.FieldType;
-                        if (fieldType.IsSubclassOf(typeof(Enum)))
-                        {
-                            fieldType = Enum.GetUnderlyingType(fieldType);
-                        }
-
-                        if (TypeCache.TryGetTypeInfo(fieldType, out var typeInfo))
-                        {
-                            if (!typeInfo.HasCustomSerializer && typeInfo.IsUnmanaged)
+                        // MANAGED DATA AND STRUCTS
+                        case TypeCode.Empty:
+                            break;
+                        case TypeCode.DateTime:
+                            (gt, t) = (GeneratorType.DateTime, null);
+                            break;
+                        case TypeCode.Object:
+                            if (TypeCache.TryGetTypeInfo(field.FieldType, out var nestedTypeInfo))
                             {
-                                ilGen.Emit(OpCodes.Sizeof, fieldType);
+                                (gt, t) = (GeneratorType.RePacker, null);
                             }
-                            else
+                            else if (field.FieldType.IsGenericType)
                             {
-                                genericGetSize = getSizeMethod.MakeGenericMethod(fieldType);
-
-                                ilGen.Emit(OpCodes.Ldarg_0);
-                                ilGen.Emit(OpCodes.Ldflda, field);
-                                ilGen.Emit(OpCodes.Call, genericGetSize);
+                                var genType = field.FieldType.GetGenericTypeDefinition();
+                                (gt, t) = (GeneratorType.Object, genType);
                             }
-                        }
-                        else if (fieldType.IsUnmanaged() || fieldType.IsUnmanagedStruct())
-                        {
-                            ilGen.Emit(OpCodes.Sizeof, fieldType);
-                        }
-                        else
-                        {
-                            ilGen.Emit(OpCodes.Ldc_I4, 0);
-                        }
+                            else if (field.FieldType.IsStruct() && field.FieldType.IsUnmanagedStruct())
+                            {
+                                (gt, t) = (GeneratorType.Struct, null);
+                            }
+                            else if (field.FieldType.IsArray)
+                            {
+                                (gt, t) = (GeneratorType.Object, typeof(Array));
+                            }
+                            break;
+                        case TypeCode.String:
+                            (gt, t) = (GeneratorType.String, typeof(string));
+                            break;
 
+                        // UNMANAGED DATA
+                        default:
+                            (gt, t) = (GeneratorType.Unmanaged, null);
+                            break;
+                    }
+
+                    if (gt != GeneratorType.None && GeneratorLookup.TryGet(gt, t, out var generator) && generator != null)
+                    {
+                        generator.GenerateGetSizer(ilGen, field);
                         ilGen.Emit(OpCodes.Add);
                     }
+                    else
+                    {
+                        RePacking.Logger.Warn($"RePacker - GetSizer: Type {field.FieldType.Name} on {info.Type.Name} is not supported");
+                    }
                 }
+                goto Finished;
 
+            Finished:
                 ilGen.Emit(OpCodes.Ret);
             }
 

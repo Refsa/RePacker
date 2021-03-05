@@ -23,5 +23,6 @@ namespace RePacker.Builder
 
         void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo);
         void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo);
+        void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo);
     }
 }

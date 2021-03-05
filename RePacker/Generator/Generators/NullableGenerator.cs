@@ -34,5 +34,10 @@ namespace RePacker.Builder
 
             ilGen.Emit(OpCodes.Call, packMethod);
         }
+
+        public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.Emit(OpCodes.Ldc_I4, 0);
+        }
     }
 }

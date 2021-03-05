@@ -46,5 +46,10 @@ namespace RePacker.Builder
             bufferPushGeneric = bufferPack.MakeGenericMethod(parameters);
             ilGen.Emit(OpCodes.Call, bufferPushGeneric);
         }
+
+        public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.Emit(OpCodes.Sizeof, fieldInfo.FieldType);
+        }
     }
 }

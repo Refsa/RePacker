@@ -22,7 +22,7 @@ namespace RePacker.Builder
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.LoadArgsUnpack(fieldInfo);
-            
+
             bufferPopGeneric = bufferUnpack.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, bufferPopGeneric);
         }
@@ -33,6 +33,11 @@ namespace RePacker.Builder
 
             bufferPushGeneric = bufferPack.MakeGenericMethod(fieldInfo.FieldType);
             ilGen.Emit(OpCodes.Call, bufferPushGeneric);
+        }
+
+        public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.Emit(OpCodes.Sizeof, fieldInfo.FieldType);
         }
     }
 }

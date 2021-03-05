@@ -6,9 +6,15 @@ namespace RePacker.Builder
 {
     internal static class GeneratorLookup
     {
-        static Dictionary<GeneratorType, Dictionary<Type, IGenerator>> generators =
-            new Dictionary<GeneratorType, Dictionary<Type, IGenerator>>
+        static readonly Dictionary<GeneratorType, Dictionary<Type, IGenerator>> generators;
+
+        static GeneratorLookup()
+        {
+            try
             {
+                generators =
+                new Dictionary<GeneratorType, Dictionary<Type, IGenerator>>
+                {
                 {GeneratorType.None, new Dictionary<Type, IGenerator>{}},
                 {GeneratorType.Unmanaged, new Dictionary<Type, IGenerator>{
                     {Type.Missing.GetType(), new UnmanagedGenerator()}
@@ -52,7 +58,13 @@ namespace RePacker.Builder
                 {GeneratorType.DateTime, new Dictionary<Type, IGenerator>() {
                     {Type.Missing.GetType(), new DateTimeGenerator()}
                 }}
-            };
+                };
+            }
+            catch (Exception e)
+            {
+                RePacking.Logger.Exception(e);
+            }
+        }
 
         public static bool TryGet(GeneratorType generatorType, Type targetType, out IGenerator generator)
         {

@@ -72,5 +72,25 @@ namespace RePacker.Builder
                 ilGen.EmitLog($"RePacker - Pack: Stack of type {fieldInfo.FieldType.Name} is not supported");
             }
         }
+
+        public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            var elementType = fieldInfo.FieldType.GetElementType();
+
+            if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo) && !typeInfo.IsDirectlyCopyable)
+            {
+                var sizeMethod = typeof(PackerCollectionsExt)
+                    .GetMethod(nameof(PackerCollectionsExt.SizeOfColleciton))
+                    .MakeGenericMethod(elementType);
+
+                ilGen.Emit(OpCodes.Ldarg_0);
+                ilGen.Emit(OpCodes.Call, fieldInfo.FieldType.GetMethod("GetEnumerator"));
+                ilGen.Emit(OpCodes.Call, sizeMethod);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Ldc_I4, 0);
+            }
+        }
     }
 }
