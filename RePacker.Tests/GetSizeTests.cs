@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -109,5 +110,149 @@ namespace RePacker.Tests
 
             Assert.Equal(9 + 80 + 8, RePacking.SizeOf(ref hms));
         }
+
+        [Fact]
+        public void get_size_list()
+        {
+            var data = new List<int>();
+            for (int i = 0; i < 10; i++) data.Add(i);
+
+            Assert.Equal(8 + 40, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_ilist()
+        {
+            IList<int> data = new List<int>();
+            for (int i = 0; i < 10; i++) data.Add(i);
+
+            Assert.Equal(8 + 40, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_stack()
+        {
+            var data = new Stack<int>();
+            for (int i = 0; i < 10; i++) data.Push(i);
+
+            Assert.Equal(8 + 40, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_queue()
+        {
+            var data = new Queue<int>();
+            for (int i = 0; i < 10; i++) data.Enqueue(i);
+
+            Assert.Equal(8 + 40, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_hashset()
+        {
+            var data = new HashSet<int>();
+            for (int i = 0; i < 10; i++) data.Add(i);
+
+            Assert.Equal(8 + 40, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_dictionary()
+        {
+            var data = new Dictionary<int, float>();
+            for (int i = 0; i < 10; i++) data.Add(i, (float)i);
+
+            Assert.Equal(8 + 40 * 2, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_key_value_pair()
+        {
+            var data = new KeyValuePair<int, int>(10, 20);
+
+            Assert.Equal(8, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_nullable()
+        {
+            int? data = 10;
+            Assert.Equal(5, RePacking.SizeOf(ref data));
+
+            data = null;
+            Assert.Equal(1, RePacking.SizeOf(ref data));
+        }
+        
+        [Fact]
+        public void get_size_time_span()
+        {
+            var data = new System.TimeSpan(128);
+
+            Assert.Equal(8, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_date_time()
+        {
+            var data = System.DateTime.Now;
+
+            Assert.Equal(8, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_value_tuple_2()
+        {
+            var data = (10, 10);
+
+            Assert.Equal(8, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_value_tuple_3()
+        {
+            var data = (10, 10, 10);
+
+            Assert.Equal(12, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_value_tuple_4()
+        {
+            var data = (10, 10, 10, 10);
+
+            Assert.Equal(16, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_value_tuple_5()
+        {
+            var data = (10, 10, 10, 10, 10);
+
+            Assert.Equal(20, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_value_tuple_6()
+        {
+            var data = (10, 10, 10, 10, 10, 10);
+
+            Assert.Equal(24, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_value_tuple_7()
+        {
+            var data = (10, 10, 10, 10, 10, 10, 10);
+
+            Assert.Equal(28, RePacking.SizeOf(ref data));
+        }
+
+        /* [Fact]
+        public void get_size_value_tuple_8()
+        {
+            var data = (10, 10, 10, 10, 10, 10, 10, 10ul);
+
+            Assert.Equal(28 + 16, RePacking.SizeOf(ref data));
+        } */
     }
 }
