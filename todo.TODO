@@ -9,9 +9,17 @@
 - alternative mode where the buffer grows/shrinks to fit the data
     Requires the buffer to be created internally to avoid unecessary GC pressure
 - clean up generators for collecitons
+- fix some of the exception stuff that is handled internally, mostly related to library development pains
+
+Readme:
+    - update with new changes to Buffer (removal of BoxedBuffer)
+    - info on SizeOf
+    - info on auto-expand for Buffer
+    - add info about StructLayout on untagged and blittable structs
 
 Base Serializer:
     - ISet<T>
+    - ValueTuple with TRest value (8th generic argument)
 
 Ideas:
     - Meta data? insert version, type name, etc.

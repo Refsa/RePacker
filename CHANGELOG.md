@@ -6,8 +6,11 @@
 - Copy one buffer into another, as long as the destination can fit it
 - Peek an unmanaged value on the buffer
 - Added CanRead and CanReadBytes methods to Buffer
-- Added "expand" parameter to Buffer constructor, allowing it to grow in size to fit data.
-used in automatically with `RePacking.Pack<T>(ref T value)`.
+- Added "expand" parameter to Buffer constructor, allowing it to grow in size to fit data.  
+    used automatically with `RePacking.Pack<T>(ref T value)`.
+- Added runtime SizeOf calculation for tagged and unmanaged objects  
+    used with `RePacking.SizeOf<T>(ref T value)`
+    any custom wrappers needs to override `RePackerWrapper.SizeOf` unless they're unmanaged/directly copyable
 
 ### Changes
 - Buffer is now a class, replacing BoxedBuffer entirely
