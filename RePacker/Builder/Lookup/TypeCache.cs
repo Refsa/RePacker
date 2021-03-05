@@ -64,11 +64,10 @@ namespace RePacker.Builder
             allTypes = ReflectionUtils.GetAllTypes();
 
             BuildTypeCache();
+            BuildRuntimePackerProviders();
 
             BuildWrapperPackers();
             BuildPackers();
-
-            BuildRuntimePackerProviders();
 
             VerifyPackers();
 
@@ -455,6 +454,10 @@ namespace RePacker.Builder
             {
                 return true;
             }
+            else if (AttemptToCreatePacker(type))
+            {
+                return TryGetTypeInfo(type, out typeCacheInfo);
+            }
             else
             {
                 // RePacker.Settings.Log.Warn($"TypeInfo for {type} not found: \n{System.Environment.StackTrace}");
@@ -465,7 +468,6 @@ namespace RePacker.Builder
 
         public static bool TryGetTypePacker<T>(out IPacker<T> packer)
         {
-            // return TryGetTypePacker(typeof(T), out packer);
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> p)
             {
                 packer = p;
@@ -575,6 +577,10 @@ namespace RePacker.Builder
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
                 return packer.SizeOf(ref value);
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                return GetSize(ref value);
             }
             else
             {
