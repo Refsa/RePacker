@@ -2,11 +2,13 @@ using System.Linq;
 using System.Collections.Generic;
 using RePacker.Buffers;
 using static RePacker.Builder.PackerCollectionsExt;
+using System.Runtime.CompilerServices;
 
 namespace RePacker.Builder
 {
     internal class DictionaryPacker<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(Buffer buffer, ref Dictionary<TKey, TValue> value)
         {
             // buffer.PackIEnumerable(value.Keys);
@@ -16,6 +18,7 @@ namespace RePacker.Builder
             buffer.PackIEnumerable(kvs);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Unpack(Buffer buffer, out Dictionary<TKey, TValue> value)
         {
             // buffer.UnpackIEnumerable<TKey>(out var keys);
@@ -24,6 +27,12 @@ namespace RePacker.Builder
 
             buffer.UnpackIEnumerable(out IEnumerable<KeyValuePair<TKey, TValue>> kvCollection);
             value = kvCollection.ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref Dictionary<TKey, TValue> value)
+        {
+            return PackerCollectionsExt.SizeOfColleciton<KeyValuePair<TKey, TValue>>(value.GetEnumerator());
         }
     }
 }

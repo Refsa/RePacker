@@ -25,5 +25,11 @@ namespace RePacker.Builder
             buffer.Unpack(out long ticks);
             value = new System.DateTime(ticks);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.DateTime value)
+        {
+            return sizeof(long);
+        }
     }
 }

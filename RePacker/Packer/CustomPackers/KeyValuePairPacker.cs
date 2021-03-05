@@ -23,5 +23,13 @@ namespace RePacker.Builder
         {
             buffer.UnpackKeyValuePair<T1, T2>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref KeyValuePair<T1, T2> value)
+        {
+            var refableKey = value.Key;
+            var refableValue = value.Value;
+            return RePacking.SizeOf(ref refableKey) + RePacking.SizeOf(ref refableValue);
+        }
     }
 }
