@@ -41,29 +41,29 @@ namespace RePacker.Benchmarks
         /* net4.6.1
                                          Method |            Mean
         --------------------------------------- |----------------
-                  ILGen_SmallObjectSerialize10K |       635.19 us
-                ILGen_SmallObjectDeserialize10K |     1,008.68 us
-             ILGen_Auto_SmallObjectSerialize10K |     1,262.25 us
-                       ILGen_VectorSerialize10K |       146.59 us
-                     ILGen_VectorDeserialize10K |       163.35 us
-                  ILGen_Auto_VectorSerialize10K |       345.55 us
-                          ILGen_IntSerialize10K |        60.31 us
-                        ILGen_IntDeserialize10K |        61.31 us
-                     ILGen_Auto_IntSerialize10K |       168.85 us
-                            PackIntSerialize10K |        34.54 us
-                          PackIntDeserialize10K |        30.37 us
-             ILGen_SmallObjectArraySerialize10K |   560,322.85 us
-           ILGen_SmallObjectArrayDeserialize10K |   952,862.89 us
-        ILGen_Auto_SmallObjectArraySerialize10K | 1,254,423.56 us
-                  ILGen_VectorArraySerialize10K |       384.81 us
-                ILGen_VectorArrayDeserialize10K |       999.28 us
-             ILGen_Auto_VectorArraySerialize10K |     1,180.23 us
-                     ILGen_IntArraySerialize10K |       741.81 us
-                   ILGen_IntArrayDeserialize10K |       492.17 us
-                ILGen_Auto_IntArraySerialize10K |     2,996.47 us
-                     ILGen_LargeStringSerialize | 1,521,811.69 us
-                   ILGen_LargeStringDeserialize | 3,494,718.41 us
-                ILGen_Auto_LargeStringSerialize | 3,912,139.45 us
+                  ILGen_SmallObjectSerialize10K |       610.88 us
+                ILGen_SmallObjectDeserialize10K |     1,043.60 us
+             ILGen_Auto_SmallObjectSerialize10K |     1,411.37 us
+                       ILGen_VectorSerialize10K |       145.52 us
+                     ILGen_VectorDeserialize10K |       159.96 us
+                  ILGen_Auto_VectorSerialize10K |       276.04 us
+                          ILGen_IntSerialize10K |        62.07 us
+                        ILGen_IntDeserialize10K |        56.58 us
+                     ILGen_Auto_IntSerialize10K |       165.58 us
+                            PackIntSerialize10K |        34.85 us
+                          PackIntDeserialize10K |        30.32 us
+             ILGen_SmallObjectArraySerialize10K |   547,066.33 us
+           ILGen_SmallObjectArrayDeserialize10K |   948,959.85 us
+        ILGen_Auto_SmallObjectArraySerialize10K | 1,385,727.33 us
+                  ILGen_VectorArraySerialize10K |       375.05 us
+                ILGen_VectorArrayDeserialize10K |       987.88 us
+             ILGen_Auto_VectorArraySerialize10K |     1,214.24 us
+                     ILGen_IntArraySerialize10K |       717.80 us
+                   ILGen_IntArrayDeserialize10K |       482.71 us
+                ILGen_Auto_IntArraySerialize10K |     2,929.60 us
+                     ILGen_LargeStringSerialize | 1,518,598.64 us
+                   ILGen_LargeStringDeserialize | 3,454,324.89 us
+                ILGen_Auto_LargeStringSerialize | 3,887,686.05 us
         */
 
         static Buffer buffer;
@@ -138,7 +138,7 @@ namespace RePacker.Benchmarks
             }
         }
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
             buffer.Reset();
@@ -157,7 +157,7 @@ namespace RePacker.Benchmarks
                 var _ = RePacking.Unpack<Person>(personBuffer);
                 personBuffer.Reset();
             }
-        }
+        } */
 
         [Benchmark]
         public void ILGen_Auto_SmallObjectSerialize10K()
@@ -168,7 +168,7 @@ namespace RePacker.Benchmarks
             }
         }
 
-        [Benchmark]
+        /* [Benchmark]
         public void ILGen_VectorSerialize10K()
         {
             for (int i = 0; i < 10_000; i++)
@@ -378,7 +378,7 @@ namespace RePacker.Benchmarks
             {
                 RePacking.Pack(ref largeString);
             }
-        }
+        } */
 
         public enum Sex : sbyte
         {
