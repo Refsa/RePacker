@@ -3,14 +3,13 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Builder;
+using RePacker.Utils;
 
 namespace RePacker.Generator
 {
     internal static class GetSizeGenerator<T>
     {
         static readonly MethodInfo getSizeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.GetSize));
-        static readonly MethodInfo sizeOfMethod = typeof(RePacker.Unsafe.UnsafeUtils)
-            .GetMethod(nameof(RePacker.Unsafe.UnsafeUtils.SizeOf));
 
         public static MethodInfo Create(TypeCache.Info info)
         {
@@ -28,10 +27,14 @@ namespace RePacker.Generator
 
             var ilGen = builder.GetILGenerator();
             {
-                ilGen.Emit(OpCodes.Ldc_I4, 0);
-
-                if (info.SerializedFields != null)
+                if (!info.HasCustomSerializer && info.IsUnmanaged)
                 {
+                    ilGen.Emit(OpCodes.Sizeof, info.Type);
+                }
+                else if (info.SerializedFields != null)
+                {
+                    ilGen.Emit(OpCodes.Ldc_I4, 0);
+
                     foreach (var field in info.SerializedFields)
                     {
                         Type fieldType = field.FieldType;
@@ -40,24 +43,34 @@ namespace RePacker.Generator
                             fieldType = Enum.GetUnderlyingType(fieldType);
                         }
 
-                        if (info.IsUnmanaged && !info.HasCustomSerializer)
+                        if (TypeCache.TryGetTypeInfo(fieldType, out var typeInfo))
+                        {
+                            if (!typeInfo.HasCustomSerializer && typeInfo.IsUnmanaged)
+                            {
+                                ilGen.Emit(OpCodes.Sizeof, fieldType);
+                            }
+                            else
+                            {
+                                genericGetSize = getSizeMethod.MakeGenericMethod(fieldType);
+
+                                ilGen.Emit(OpCodes.Ldarg_0);
+                                ilGen.Emit(OpCodes.Ldflda, field);
+                                ilGen.Emit(OpCodes.Call, genericGetSize);
+                            }
+                        }
+                        else if (fieldType.IsUnmanaged() || fieldType.IsUnmanagedStruct())
                         {
                             ilGen.Emit(OpCodes.Sizeof, fieldType);
                         }
-                        else if (TypeCache.TryGetTypeInfo(fieldType, out var typeInfo))
+                        else
                         {
-                            genericGetSize = getSizeMethod.MakeGenericMethod(fieldType);
-
-                            ilGen.Emit(OpCodes.Ldarg_0);
-                            ilGen.Emit(OpCodes.Ldflda, field);
-                            ilGen.Emit(OpCodes.Call, genericGetSize);
+                            ilGen.Emit(OpCodes.Ldc_I4, 0);
                         }
 
                         ilGen.Emit(OpCodes.Add);
                     }
                 }
 
-                // ilGen.Emit(OpCodes.Ldloc_0);
                 ilGen.Emit(OpCodes.Ret);
             }
 

@@ -17,10 +17,18 @@ namespace RePacker.Builder
         {
             buffer.UnpackArray<TElement>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref TElement[] value)
+        {
+            return PackerCollectionsExt.SizeOfColleciton<TElement>(value.GetEnumerator());
+        }
     }
 
     internal class ArrayUnmanagedPacker<TElement> : RePackerWrapper<TElement[]> where TElement : unmanaged
     {
+        static int TElementSize = 0;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(Buffer buffer, ref TElement[] value)
         {
@@ -31,6 +39,15 @@ namespace RePacker.Builder
         public override void Unpack(Buffer buffer, out TElement[] value)
         {
             buffer.UnpackUnmanagedArrayOut<TElement>(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref TElement[] value)
+        {
+            if (value == null || value.Length == 0) return sizeof(ulong);
+            if (TElementSize == 0) TElementSize = TypeCache.GetSize(ref value[0]);
+
+            return sizeof(ulong) + TElementSize * value.Length;
         }
     }
 
@@ -47,6 +64,12 @@ namespace RePacker.Builder
         {
             buffer.UnpackArray2D(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref TElement[,] value)
+        {
+            return PackerCollectionsExt.SizeOfColleciton<TElement>(value.GetEnumerator());
+        }
     }
 
     internal class Array3DPacker<TElement> : RePackerWrapper<TElement[,,]> where TElement : unmanaged
@@ -62,6 +85,12 @@ namespace RePacker.Builder
         {
             buffer.UnpackArray3D(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref TElement[,,] value)
+        {
+            return PackerCollectionsExt.SizeOfColleciton<TElement>(value.GetEnumerator());
+        }
     }
 
     internal class Array4DPacker<TElement> : RePackerWrapper<TElement[,,,]> where TElement : unmanaged
@@ -76,6 +105,12 @@ namespace RePacker.Builder
         public override void Unpack(Buffer buffer, out TElement[,,,] value)
         {
             buffer.UnpackArray4D(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref TElement[,,,] value)
+        {
+            return PackerCollectionsExt.SizeOfColleciton<TElement>(value.GetEnumerator());
         }
     }
 }
