@@ -39,10 +39,17 @@ namespace RePacker.Builder
 
             ilGen.Emit(OpCodes.Call, resolverGetPacker);
 
-            ilGen.Emit(OpCodes.Ldarg_0);
+            if (fieldInfo.DeclaringType.IsValueType)
+            {
+                ilGen.Emit(OpCodes.Ldarga_S, 0);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Ldarg_S, 0);
+            }
             ilGen.Emit(OpCodes.Ldflda, fieldInfo);
 
-            ilGen.Emit(OpCodes.Call, sizeOfMethod);
+            ilGen.Emit(OpCodes.Callvirt, sizeOfMethod);
         }
     }
 }
