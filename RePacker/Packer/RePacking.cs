@@ -63,6 +63,12 @@ namespace RePacker
             TypeCache.Pack<T>(buffer, ref value);
         }
 
+        /// <summary>
+        /// Auto sizes a buffer and packs value into it
+        /// </summary>
+        /// <param name="value"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static Buffer Pack<T>(ref T value)
         {
             var buffer = new Buffer(SizeOf(ref value), true);
@@ -105,6 +111,12 @@ namespace RePacker
             TypeCache.UnpackInto<T>(buffer, ref target);
         }
 
+        /// <summary>
+        /// Returns the byte size of value
+        /// </summary>
+        /// <param name="value">value to get size of</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>size of value in bytes</returns>
         public static int SizeOf<T>(ref T value)
         {
             return TypeCache.GetSize<T>(ref value);
