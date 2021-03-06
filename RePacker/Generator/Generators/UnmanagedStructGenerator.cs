@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Buffers;
+using RePacker.Unsafe;
 using RePacker.Utils;
 using Buffer = RePacker.Buffers.Buffer;
 
@@ -13,11 +14,12 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Struct;
         public Type ForType => null;
 
-        MethodInfo bufferPushGeneric = null;
-
         MethodInfo bufferPack = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Pack));
         MethodInfo bufferUnpack = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Unpack));
         MethodInfo bufferPopGeneric = null;
+        MethodInfo bufferPushGeneric = null;
+
+        MethodInfo unsafeSizeOfMethod = typeof(UnsafeUtils).GetMethod(nameof(UnsafeUtils.SizeOf));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
@@ -49,7 +51,11 @@ namespace RePacker.Builder
 
         public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            ilGen.Emit(OpCodes.Sizeof, fieldInfo.FieldType);
+            var genMethod = unsafeSizeOfMethod.MakeGenericMethod(fieldInfo.FieldType);
+
+            ilGen.Emit(OpCodes.Ldarga_S, 0);
+            ilGen.Emit(OpCodes.Ldflda, fieldInfo);
+            ilGen.Emit(OpCodes.Call, genMethod);
         }
     }
 }

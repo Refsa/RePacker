@@ -54,7 +54,7 @@ namespace RePacker.Builder
 
             // Null Check
             {
-                ilGen.Emit(OpCodes.Ldarga_S, 0);
+                ilGen.Emit(OpCodes.Ldarg_S, 0);
                 ilGen.Emit(OpCodes.Ldfld, fieldInfo);
 
                 ilGen.Emit(OpCodes.Call, stringIsNullOrEmptyMethod);
@@ -64,9 +64,18 @@ namespace RePacker.Builder
             // Byte count in string
             {
                 ilGen.Emit(OpCodes.Call, getUtf8Encoder);
-                ilGen.Emit(OpCodes.Ldarga_S, 0);
+
+                if (fieldInfo.FieldType.IsValueType)
+                {
+                    ilGen.Emit(OpCodes.Ldarga_S, 0);
+                }
+                else
+                {
+                    ilGen.Emit(OpCodes.Ldarg_S, 0);
+                }
+
                 ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-                ilGen.Emit(OpCodes.Call, getStringLengthMethod);
+                ilGen.Emit(OpCodes.Callvirt, getStringLengthMethod);
 
                 ilGen.Emit(OpCodes.Add);
             }
