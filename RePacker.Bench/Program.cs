@@ -30,6 +30,8 @@ namespace RePacker.Benchmarks
 
             // new TestClass();
             // RandomStuff.Run();
+
+            Console.WriteLine("Benchmark End");
         }
     }
 }

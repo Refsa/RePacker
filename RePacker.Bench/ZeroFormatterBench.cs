@@ -138,7 +138,7 @@ namespace RePacker.Benchmarks
             }
         }
 
-        /* [Benchmark]
+        [Benchmark]
         public void ILGen_SmallObjectSerialize10K()
         {
             buffer.Reset();
@@ -157,7 +157,7 @@ namespace RePacker.Benchmarks
                 var _ = RePacking.Unpack<Person>(personBuffer);
                 personBuffer.Reset();
             }
-        } */
+        }
 
         [Benchmark]
         public void ILGen_Auto_SmallObjectSerialize10K()
@@ -168,7 +168,7 @@ namespace RePacker.Benchmarks
             }
         }
 
-        /* [Benchmark]
+        [Benchmark]
         public void ILGen_VectorSerialize10K()
         {
             for (int i = 0; i < 10_000; i++)
@@ -378,7 +378,7 @@ namespace RePacker.Benchmarks
             {
                 RePacking.Pack(ref largeString);
             }
-        } */
+        }
 
         public enum Sex : sbyte
         {

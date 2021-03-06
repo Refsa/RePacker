@@ -74,9 +74,56 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void get_size_string()
+        {
+            string obj = "abcdefg";
+            Assert.Equal(8 + 7, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_string_with_utf8_chars()
+        {
+            string obj = "abcdefgəʌʜ";
+            Assert.Equal(8 + 13, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_array_of_strings()
+        {
+            string[] obj = new string[] {
+                "abcdefg","abcdefg","abcdefg","abcdefg","abcdefg",
+                "abcdefg","abcdefg","abcdefg","abcdefg","abcdefg",
+                "abc","abc","abc","abc","abc",
+                "abcdefg","abcdefg","abcdefg","abcdefg","abcdefg",
+                "abcdefg","abcdefg","abcdefg","abcdefg","abcdefg",
+            };
+            Assert.Equal(8 + 8 * 25 + 7 * 20 + 3 * 5, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_large_string()
+        {
+            string largeString = System.IO.File.ReadAllText("CSharpHtml.txt");
+
+            int size = RePacking.SizeOf(ref largeString);
+            Assert.Equal(309081 + 8, size);
+        }
+
+        [Fact]
         public void get_size_has_string()
         {
             var obj = new StructWithString
+            {
+                String1 = "abcdefg"
+            };
+
+            Assert.Equal(31, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_class_has_string()
+        {
+            var obj = new ClassWithString
             {
                 String1 = "abcdefg"
             };
@@ -182,7 +229,7 @@ namespace RePacker.Tests
             data = null;
             Assert.Equal(1, RePacking.SizeOf(ref data));
         }
-        
+
         [Fact]
         public void get_size_time_span()
         {
