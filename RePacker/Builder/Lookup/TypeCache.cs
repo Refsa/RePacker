@@ -89,7 +89,7 @@ namespace RePacker.Builder
 
             foreach (Type type in invalid)
             {
-                RePacking.Logger.Warn($"type of {type} does not have a valid packer");
+                // RePacking.Logger.Warn($"type of {type} does not have a valid packer");
 
                 typeCache.TryRemove(type, out var _);
                 packerLookup.TryRemove(type, out var _);
@@ -124,7 +124,7 @@ namespace RePacker.Builder
             {
                 if (typeCache.ContainsKey(type))
                 {
-                    RePacking.Settings.Log.Warn($"Packer already exists for type {type}");
+                    // RePacking.Settings.Log.Warn($"Packer already exists for type {type}");
                     continue;
                 }
 
@@ -189,13 +189,13 @@ namespace RePacker.Builder
 
                 if (wrapperFor == null)
                 {
-                    RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
+                    // RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
                     continue;
                 }
 
                 if (typeCache.TryGetValue(type, out var _))
                 {
-                    RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
+                    // RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
                     continue;
                 }
 
@@ -259,7 +259,7 @@ namespace RePacker.Builder
 
                 if (info.SerializedFields == null)
                 {
-                    RePacking.Logger.Error($"No serialized fields found on {type}");
+                    // RePacking.Logger.Error($"No serialized fields found on {type}");
                     continue;
                 }
 

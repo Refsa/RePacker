@@ -65,7 +65,7 @@ namespace RePacker
 
         public static Buffer Pack<T>(ref T value)
         {
-            var buffer = new Buffer(TypeCache.GetSize<T>(ref value), true);
+            var buffer = new Buffer(SizeOf(ref value), true);
             Pack(buffer, ref value);
             return buffer;
         }
