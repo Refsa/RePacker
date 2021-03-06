@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using RePacker.Utils;
 using RePacker.Buffers;
 using Buffer = RePacker.Buffers.Buffer;
+using RePacker.Unsafe;
 
 namespace RePacker.Builder
 {
@@ -48,39 +49,21 @@ namespace RePacker.Builder
 
         public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            var eomLabel = ilGen.DefineLabel();
+            var stringSizeOfMethod = typeof(StringHelper).GetMethod(nameof(StringHelper.SizeOf));
 
             ilGen.Emit(OpCodes.Ldc_I4, sizeof(long));
 
-            // Null Check
+            if (fieldInfo.FieldType.IsValueType)
+            {
+                ilGen.Emit(OpCodes.Ldarga_S, 0);
+            }
+            else
             {
                 ilGen.Emit(OpCodes.Ldarg_S, 0);
-                ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-
-                ilGen.Emit(OpCodes.Call, stringIsNullOrEmptyMethod);
-                ilGen.Emit(OpCodes.Brtrue, eomLabel);
             }
-
-            // Byte count in string
-            {
-                ilGen.Emit(OpCodes.Call, getUtf8Encoder);
-
-                if (fieldInfo.FieldType.IsValueType)
-                {
-                    ilGen.Emit(OpCodes.Ldarga_S, 0);
-                }
-                else
-                {
-                    ilGen.Emit(OpCodes.Ldarg_S, 0);
-                }
-
-                ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-                ilGen.Emit(OpCodes.Callvirt, getStringLengthMethod);
-
-                ilGen.Emit(OpCodes.Add);
-            }
-
-            ilGen.MarkLabel(eomLabel);
+            ilGen.Emit(OpCodes.Ldfld, fieldInfo);
+            ilGen.Emit(OpCodes.Call, stringSizeOfMethod);
+            ilGen.Emit(OpCodes.Add);
         }
     }
 }

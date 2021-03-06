@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using RePacker.Buffers;
+using RePacker.Unsafe;
 
 namespace RePacker.Builder
 {
@@ -26,14 +27,7 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SizeOf(ref string value)
         {
-            if (value == null)
-            {
-                return sizeof(ulong);
-            }
-            else
-            {
-                return System.Text.Encoding.UTF8.GetByteCount(value) + sizeof(ulong);
-            }
+            return StringHelper.SizeOf(value) + sizeof(ulong);
         }
     }
 }
