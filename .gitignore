@@ -6,6 +6,8 @@
 .vscode/
 workspace.code-workspace
 
+RePacker.Tests/TestCoverage/
+
 */UnityDlls/
 
 # User-specific files
