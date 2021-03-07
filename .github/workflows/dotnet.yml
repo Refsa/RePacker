@@ -1,0 +1,27 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet: [ '4.6.1', '3.0.x', '3.1.x', '4.7.x' ]
+    name: Dotnet ${{ matrix.dotnet }} Test
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    - name: Restore dependencies
+      run: dotnet restore RePacker.Tests/RePacker.Tests.csproj
+    - name: Build
+      run: dotnet build RePacker.Tests/RePacker.Tests.csproj --no-restore
+    - name: Test
+      run: dotnet test RePacker.Tests/RePacker.Tests.csproj --no-build --verbosity normal
