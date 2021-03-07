@@ -42,6 +42,7 @@ namespace RePacker.Builder
                     {typeof(Nullable<>), new NullableGenerator()},
 
 #if NET461
+                    {typeof(ValueTuple<>), new ValueTupleGenerator()},
                     {typeof(ValueTuple<,>), new ValueTupleGenerator()},
                     {typeof(ValueTuple<,,>), new ValueTupleGenerator()},
                     {typeof(ValueTuple<,,,>), new ValueTupleGenerator()},

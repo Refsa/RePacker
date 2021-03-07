@@ -7,6 +7,11 @@ namespace RePacker.Builder
 {
     public static class PackerValueTupleExt
     {
+        public static void PackValueTuple<T1>(this ReBuffer buffer, ref ValueTuple<T1> value)
+        {
+            RePacking.Pack<T1>(buffer, ref value.Item1);
+        }
+
         public static void PackValueTuple<T1, T2>(this ReBuffer buffer, ref ValueTuple<T1, T2> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -80,6 +85,11 @@ namespace RePacker.Builder
             RePacking.Pack<T6>(buffer, ref value.Item6);
             RePacking.Pack<T7>(buffer, ref value.Item7);
             RePacking.Pack<TRest>(buffer, ref value.Rest);
+        }
+
+        public static void UnpackValueTuple<T1>(this ReBuffer buffer, out ValueTuple<T1> value)
+        {
+            value = new ValueTuple<T1>(RePacking.Unpack<T1>(buffer));
         }
 
         public static void UnpackValueTuple<T1, T2>(this ReBuffer buffer, out ValueTuple<T1, T2> value)

@@ -502,6 +502,54 @@ namespace RePacker.Tests
         public RePacker.Buffers.ReBuffer Buffer;
     }
 
+    [RePacker]
+    public struct HasValueTuple1
+    {
+        public ValueTuple<int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple2
+    {
+        public ValueTuple<int, int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple3
+    {
+        public ValueTuple<int, int, int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple4
+    {
+        public ValueTuple<int, int, int, int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple5
+    {
+        public ValueTuple<int, int, int, int, int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple6
+    {
+        public ValueTuple<int, int, int, int, int, int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple7
+    {
+        public ValueTuple<int, int, int, int, int, int, int> VT;
+    }
+
+    [RePacker]
+    public struct HasValueTuple8
+    {
+        public ValueTuple<int, int, int, int, int, int, int, ValueTuple<int>> VT;
+    }
+
 #if NETCOREAPP3_0 || NETCOREAPP3_1
 #nullable enable
 
