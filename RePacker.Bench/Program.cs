@@ -23,9 +23,9 @@ namespace RePacker.Benchmarks
             Console.WriteLine("Benchmark Start");
 
             // var bufferBench = BenchmarkRunner.Run<BufferBench>();
-            // var zeroFormatterBench = BenchmarkRunner.Run<ZeroFormatterBench>();
+            var zeroFormatterBench = BenchmarkRunner.Run<ZeroFormatterBench>();
             // var ilGeneratedBench = BenchmarkRunner.Run<ILGenerated>();
-            var generalBenches = BenchmarkRunner.Run<GeneralBenches>();
+            // var generalBenches = BenchmarkRunner.Run<GeneralBenches>();
             // var setupBench = BenchmarkRunner.Run<SetupBench>();
 
             // new TestClass();

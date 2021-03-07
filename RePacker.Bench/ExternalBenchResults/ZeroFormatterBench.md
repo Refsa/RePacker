@@ -8,155 +8,157 @@ Ran on an I5-4670K @ 4.3GHz
 Small Object(int,string,string,enum) 10000 Iteration
 
 MessagePack C#
-      Serialize   1.4161 ms
-    Deserialize   1.3619 ms
+      Serialize   1.5543 ms
+    Deserialize   1.5426 ms
     Binary Size   22.00 B
 
 MessagePack C# LZ4
-      Serialize   1.775 ms
-    Deserialize   1.6123 ms
+      Serialize   1.7279 ms
+    Deserialize   1.7142 ms
     Binary Size   22.00 B
 
 ZeroFormatter
-      Serialize   2.4384 ms
-    Deserialize   2.044 ms
+      Serialize   2.7639 ms
+    Deserialize   3.3335 ms
     Binary Size   50.00 B
 
 protobuf-net
-      Serialize   4.2191 ms
-    Deserialize   5.1431 ms
+      Serialize   5.7789 ms
+    Deserialize   5.7004 ms
     Binary Size   23.00 B
 
 MsgPack-CLI
-      Serialize   6.0679 ms
-    Deserialize   10.0801 ms
+      Serialize   8.1921 ms
+    Deserialize   11.8135 ms
     Binary Size   26.00 B
 
 JSON.NET
-      Serialize   21.3305 ms
-    Deserialize   25.244 ms
+      Serialize   20.0928 ms
+    Deserialize   27.5261 ms
     Binary Size   66.00 B
 
 Jil
-      Serialize   10.1206 ms
-    Deserialize   10.3804 ms
+      Serialize   9.1675 ms
+    Deserialize   9.8863 ms
     Binary Size   71.00 B
 
 FsPickler
-      Serialize   10.188 ms
-    Deserialize   8.0458 ms
+      Serialize   10.0456 ms
+    Deserialize   9.6722 ms
     Binary Size   44.00 B
 
 BinaryFormatter
-      Serialize   42.7625 ms
-    Deserialize   49.4241 ms
+      Serialize   51.8232 ms
+    Deserialize   59.9197 ms
     Binary Size   285.00 B
 
 DataContractSerializer
-      Serialize   13.1998 ms
-    Deserialize   47.4062 ms
+      Serialize   16.5106 ms
+    Deserialize   53.2821 ms
     Binary Size   206.00 B
 
 FlatBuffers
-      Serialize   7.5222 ms
-    Deserialize   0.3583 ms
+      Serialize   8.7233 ms
+    Deserialize   0.3543 ms
     Binary Size   60.00 B
 
 Google.Protobuf
-      Serialize   4.6144 ms
-    Deserialize   1.5204 ms
+      Serialize   11.147 ms
+    Deserialize   1.6414 ms
     Binary Size   23.00 B
 
 Wire
-      Serialize   4.6084 ms
-    Deserialize   7.0546 ms
+      Serialize   5.6071 ms
+    Deserialize   9.5124 ms
     Binary Size   119.00 B
 
 NetSerializer
-      Serialize   3.6722 ms
-    Deserialize   2.7285 ms
+      Serialize   3.0544 ms
+    Deserialize   2.7097 ms
     Binary Size   21.00 B
 
 RePacker
-      Serialize   0.6807 ms
-    Deserialize   1.1537 ms
+      Serialize   0.6502 ms
+ Serialize-Auto   1.5272 ms
+    Deserialize   1.0732 ms
     Binary Size   34.00 B
 
 Large Array(SmallObject[1000]) 10000 Iteration
 
 MessagePack C#
-      Serialize   922.6622 ms
-    Deserialize   1364.6661 ms
+      Serialize   1116.0047 ms
+    Deserialize   1545.7527 ms
     Binary Size   19.53 KB
 
 MessagePack C# LZ4
-      Serialize   1052.8201 ms
-    Deserialize   1427.228 ms
+      Serialize   1195.1753 ms
+    Deserialize   1583.4883 ms
     Binary Size   4.92 KB
 
 ZeroFormatter
-      Serialize   1181.9315 ms
-    Deserialize   1571.3185 ms
+      Serialize   1352.9125 ms
+    Deserialize   1812.3203 ms
     Binary Size   48.83 KB
 
 protobuf-net
-      Serialize   3105.8202 ms
-    Deserialize   4432.4646 ms
+      Serialize   3423.9146 ms
+    Deserialize   4899.3281 ms
     Binary Size   23.44 KB
 
 MsgPack-CLI
-      Serialize   2967.8371 ms
-    Deserialize   9455.4117 ms
+      Serialize   3279.2549 ms
+    Deserialize   10536.4166 ms
     Binary Size   25.39 KB
 
 JSON.NET
-      Serialize   8675.4526 ms
-    Deserialize   15884.4734 ms
+      Serialize   9633.3952 ms
+    Deserialize   17120.9545 ms
     Binary Size   61.53 KB
 
 Jil
-      Serialize   2673.4804 ms
-    Deserialize   5024.777 ms
+      Serialize   2823.454 ms
+    Deserialize   5478.5762 ms
     Binary Size   68.36 KB
 
 FsPickler
-      Serialize   3209.1945 ms
-    Deserialize   3346.5425 ms
+      Serialize   3793.0897 ms
+    Deserialize   3748.5347 ms
     Binary Size   25.42 KB
 
 BinaryFormatter
-      Serialize   19028.9329 ms
-    Deserialize   20239.759 ms
+      Serialize   21323.0215 ms
+    Deserialize   22704.7738 ms
     Binary Size   37.38 KB
 
 DataContractSerializer
-      Serialize   5740.4942 ms
-    Deserialize   18444.361 ms
+      Serialize   6246.1163 ms
+    Deserialize   20147.5255 ms
     Binary Size   103.64 KB
 
 FlatBuffers
-      Serialize   2595.5348 ms
-    Deserialize   0.3582 ms
+      Serialize   2877.8423 ms
+    Deserialize   0.414 ms
     Binary Size   46.91 KB
 
 Google.Protobuf
-      Serialize   971.1356 ms
-    Deserialize   1571.7644 ms
+      Serialize   1158.691 ms
+    Deserialize   1757.6393 ms
     Binary Size   23.44 KB
 
 Wire
-      Serialize   2872.0506 ms
-    Deserialize   3527.8949 ms
+      Serialize   3161.1446 ms
+    Deserialize   3889.2075 ms
     Binary Size   25.54 KB
 
 NetSerializer
-      Serialize   1902.7132 ms
-    Deserialize   2753.3041 ms
+      Serialize   2115.4307 ms
+    Deserialize   2968.4544 ms
     Binary Size   20.51 KB
 
 RePacker
-      Serialize   559.9482 ms
-    Deserialize   1053.6444 ms
+      Serialize   616.9024 ms
+ Serialize-Auto   1219.7565 ms
+    Deserialize   1217.0159 ms
     Binary Size   33.21 KB
 
 
@@ -165,173 +167,172 @@ Additional Benchmarks
 Int32(1) 10000 Iteration
 
 MessagePack C#
-      Serialize   0.4748 ms
-    Deserialize   0.2196 ms
+      Serialize   0.4006 ms
+    Deserialize   0.1951 ms
     Binary Size   5.00 B
 
 MessagePack C# LZ4
-      Serialize   0.71 ms
-    Deserialize   0.2691 ms
+      Serialize   0.6965 ms
+    Deserialize   0.2593 ms
     Binary Size   5.00 B
 
 ZeroFormatter
-      Serialize   0.3034 ms
-    Deserialize   0.16 ms
+      Serialize   0.2967 ms
+    Deserialize   0.1842 ms
     Binary Size   4.00 B
 
 MsgPack-CLI
-      Serialize   2.9334 ms
-    Deserialize   2.5216 ms
+      Serialize   3.1773 ms
+    Deserialize   2.4179 ms
     Binary Size   5.00 B
 
 protobuf-net
-      Serialize   7.5828 ms
-    Deserialize   6.5364 ms
+      Serialize   7.6466 ms
+    Deserialize   6.8099 ms
     Binary Size   6.00 B
 
 Wire
-      Serialize   1.8877 ms
-    Deserialize   0.4625 ms
+      Serialize   2.7654 ms
+    Deserialize   0.5529 ms
     Binary Size   5.00 B
 
 NetSerializer
-      Serialize   1.4918 ms
-    Deserialize   0.3571 ms
+      Serialize   1.9052 ms
+    Deserialize   0.2851 ms
     Binary Size   5.00 B
 
 RePacker
-      Serialize   0.1078 ms
-    Deserialize   0.1027 ms
+      Serialize   0.0685 ms
+ Serialize-Auto   0.1831 ms
+    Deserialize   0.0611 ms
     Binary Size   4.00 B
-
-Bois
-      Serialize   4.627 ms
-    Deserialize   3.5584 ms
-    Binary Size   5.00 B
 
 Vector3(float, float, float) 10000 Iteration
 
 MessagePack C#
-      Serialize   0.5641 ms
-    Deserialize   0.3813 ms
+      Serialize   0.6729 ms
+    Deserialize   0.3959 ms
     Binary Size   16.00 B
 
 MessagePack C# LZ4
-      Serialize   0.853 ms
-    Deserialize   0.519 ms
+      Serialize   0.9389 ms
+    Deserialize   0.5578 ms
     Binary Size   16.00 B
 
 ZeroFormatter
-      Serialize   0.4516 ms
-    Deserialize   0.3233 ms
+      Serialize   0.4954 ms
+    Deserialize   0.2868 ms
     Binary Size   12.00 B
 
 MsgPack-CLI
-      Serialize   4.6473 ms
-    Deserialize   5.3198 ms
+      Serialize   4.9352 ms
+    Deserialize   5.8993 ms
     Binary Size   17.00 B
 
 protobuf-net
-      Serialize   3.6408 ms
-    Deserialize   3.3201 ms
+      Serialize   5.8201 ms
+    Deserialize   3.5913 ms
     Binary Size   15.00 B
 
 Wire
-      Serialize   2.6402 ms
-    Deserialize   2.8844 ms
+      Serialize   4.8677 ms
+    Deserialize   2.897 ms
     Binary Size   64.00 B
 
 NetSerializer
-      Serialize   1.8287 ms
-    Deserialize   0.9415 ms
+      Serialize   2.3143 ms
+    Deserialize   0.7617 ms
     Binary Size   15.00 B
 
 RePacker
-      Serialize   0.2242 ms
-    Deserialize   0.2121 ms
+      Serialize   0.1531 ms
+ Serialize-Auto   0.2904 ms
+    Deserialize   0.2189 ms
     Binary Size   12.00 B
 
 HtmlString(309081bytes) 10000 Iteration
 
 MessagePack C#
-      Serialize   3841.9993 ms
-    Deserialize   2243.1229 ms
+      Serialize   4286.5655 ms
+    Deserialize   2494.7379 ms
     Binary Size   301.84 KB
 
 MessagePack C# LZ4
-      Serialize   8985.3819 ms
-    Deserialize   3654.6184 ms
+      Serialize   10210.3636 ms
+    Deserialize   4157.8598 ms
     Binary Size   85.93 KB
 
 ZeroFormatter
-      Serialize   3297.5321 ms
-    Deserialize   2267.5609 ms
+      Serialize   3588.7474 ms
+    Deserialize   2548.7291 ms
     Binary Size   301.84 KB
 
 MsgPack-CLI
-      Serialize   4359.5222 ms
-    Deserialize   2692.8862 ms
+      Serialize   4928.5177 ms
+    Deserialize   3065.3257 ms
     Binary Size   301.84 KB
 
 protobuf-net
-      Serialize   3899.4917 ms
-    Deserialize   5968.0224 ms
+      Serialize   4364.5253 ms
+    Deserialize   6983.2975 ms
     Binary Size   301.84 KB
 
 Wire
-      Serialize   3846.2853 ms
-    Deserialize   2692.9901 ms
+      Serialize   4498.3491 ms
+    Deserialize   3174.176 ms
     Binary Size   301.84 KB
 
 NetSerializer
-      Serialize   5129.5196 ms
-    Deserialize   3512.0454 ms
+      Serialize   5555.3857 ms
+    Deserialize   4050.7059 ms
     Binary Size   301.84 KB
 
 RePacker
-      Serialize   1519.1072 ms
-    Deserialize   2115.3295 ms
+      Serialize   1676.7775 ms
+ Serialize-Auto   4042.0152 ms
+    Deserialize   2428.1084 ms
     Binary Size   301.84 KB
 
 Vector3[100] 10000 Iteration
 
 MessagePack C#
-      Serialize   21.1086 ms
-    Deserialize   31.2557 ms
+      Serialize   25.2017 ms
+    Deserialize   38.6729 ms
     Binary Size   1.57 KB
 
 MessagePack C# LZ4
-      Serialize   51.4363 ms
-    Deserialize   33.5014 ms
+      Serialize   59.6591 ms
+    Deserialize   37.6376 ms
     Binary Size   45.00 B
 
 ZeroFormatter
-      Serialize   20.1812 ms
-    Deserialize   16.523 ms
+      Serialize   22.4488 ms
+    Deserialize   19.7394 ms
     Binary Size   1.18 KB
 
 MsgPack-CLI
-      Serialize   146.9428 ms
-    Deserialize   492.2714 ms
+      Serialize   217.0555 ms
+    Deserialize   576.4621 ms
     Binary Size   1.66 KB
 
 protobuf-net
-      Serialize   381.8467 ms
-    Deserialize   411.2946 ms
+      Serialize   458.7125 ms
+    Deserialize   473.4946 ms
     Binary Size   1.66 KB
 
 Wire
-      Serialize   116.8124 ms
-    Deserialize   125.6865 ms
+      Serialize   136.7039 ms
+    Deserialize   147.3404 ms
     Binary Size   1.57 KB
 
 NetSerializer
-      Serialize   70.193 ms
-    Deserialize   53.7789 ms
+      Serialize   83.0969 ms
+    Deserialize   63.6148 ms
     Binary Size   1.47 KB
 
 RePacker
-      Serialize   0.9229 ms
-    Deserialize   1.5679 ms
+      Serialize   0.4082 ms
+ Serialize-Auto   3.1202 ms
+    Deserialize   1.7196 ms
     Binary Size   1.18 KB
 ```
