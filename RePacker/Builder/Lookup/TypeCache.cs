@@ -142,7 +142,13 @@ namespace RePacker.Builder
 
                 // fields
                 {
-                    IEnumerable<FieldInfo> fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                    IEnumerable<FieldInfo> fields = type
+                        .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                        .Concat(
+                            type
+                                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                                .Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null)
+                        );
 
                     var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
                     if (!rpattr.UseOnAllPublicFields)
