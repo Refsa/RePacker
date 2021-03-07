@@ -30,7 +30,7 @@ namespace RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            var buffer = new Buffer(backingBuffer);
+            var buffer = new ReBuffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
@@ -61,7 +61,7 @@ namespace RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            var buffer = new Buffer(backingBuffer, 0);
+            var buffer = new ReBuffer(backingBuffer, 0);
 
             for (int i = 0; i < RUNS; i++)
             {
@@ -92,7 +92,7 @@ namespace RePacker.Benchmarks
                 Decimal = 1000,
             };
 
-            var buffer = new Buffer(backingBuffer);
+            var buffer = new ReBuffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {
@@ -117,7 +117,7 @@ namespace RePacker.Benchmarks
                 },
             };
 
-            var buffer = new Buffer(backingBuffer);
+            var buffer = new ReBuffer(backingBuffer);
 
             for (int i = 0; i < RUNS; i++)
             {

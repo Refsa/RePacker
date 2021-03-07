@@ -8,16 +8,16 @@ namespace RePacker.Builder
         public static bool IsCopyable = false;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public abstract void Pack(Buffer buffer, ref T value);
+        public abstract void Pack(ReBuffer buffer, ref T value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void Unpack(Buffer buffer, out T value)
+        public virtual void Unpack(ReBuffer buffer, out T value)
         {
             throw new System.NotImplementedException();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public virtual void UnpackInto(Buffer buffer, ref T value)
+        public virtual void UnpackInto(ReBuffer buffer, ref T value)
         {
             throw new System.NotImplementedException();
         }

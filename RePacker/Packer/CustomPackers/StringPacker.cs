@@ -7,19 +7,19 @@ namespace RePacker.Builder
     internal class StringPacker : RePackerWrapper<string>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref string value)
+        public override void Pack(ReBuffer buffer, ref string value)
         {
             buffer.PackString(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out string value)
+        public override void Unpack(ReBuffer buffer, out string value)
         {
             buffer.UnpackString(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref string value)
+        public override void UnpackInto(ReBuffer buffer, ref string value)
         {
             buffer.UnpackString(out value);
         }

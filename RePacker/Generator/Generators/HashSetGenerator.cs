@@ -14,10 +14,8 @@ namespace RePacker.Builder
         public Type ForType => typeof(HashSet<>);
 
         MethodInfo deserializeHashSetMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackHashSet));
-        // MethodInfo deserializeHashSetBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackHashSetBlittable));
 
         MethodInfo serializeHashSetMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackHashSet));
-        // MethodInfo serializeHashSetBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackHashSetBlittable));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
@@ -33,11 +31,6 @@ namespace RePacker.Builder
                 var enumerableDeserializer = deserializeHashSetMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, enumerableDeserializer);
             }
-            // else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-            // {
-            //     var enumerableDeserializer = deserializeHashSetBlittableMethod.MakeGenericMethod(elementType);
-            //     ilGen.Emit(OpCodes.Call, enumerableDeserializer);
-            // }
             else
             {
                 ilGen.Emit(OpCodes.Pop);
@@ -60,11 +53,6 @@ namespace RePacker.Builder
                 var enumerableSerializer = serializeHashSetMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, enumerableSerializer);
             }
-            // else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-            // {
-            //     var enumerableSerializer = serializeHashSetBlittableMethod.MakeGenericMethod(elementType);
-            //     ilGen.Emit(OpCodes.Call, enumerableSerializer);
-            // }
             else
             {
                 ilGen.Emit(OpCodes.Pop);
@@ -80,7 +68,7 @@ namespace RePacker.Builder
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo) && !typeInfo.IsDirectlyCopyable)
             {
                 var sizeMethod = typeof(PackerCollectionsExt)
-                    .GetMethod(nameof(PackerCollectionsExt.SizeOfColleciton))
+                    .GetMethod(nameof(PackerCollectionsExt.SizeOfCollection))
                     .MakeGenericMethod(elementType);
 
                 ilGen.Emit(OpCodes.Ldarg_0);

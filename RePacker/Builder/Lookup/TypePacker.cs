@@ -5,19 +5,19 @@ namespace RePacker.Builder
 {
     internal class TypePacker<T> : IPacker<T>
     {
-        System.Action<Buffer, T> packer;
-        System.Func<Buffer, T> unpacker;
+        System.Action<ReBuffer, T> packer;
+        System.Func<ReBuffer, T> unpacker;
         System.Func<T, int> getSize;
 
         public TypePacker(MethodInfo packer, MethodInfo unpacker, MethodInfo getSize)
         {
             this.packer =
-                (System.Action<Buffer, T>)packer
-                    .CreateDelegate(typeof(System.Action<Buffer, T>));
+                (System.Action<ReBuffer, T>)packer
+                    .CreateDelegate(typeof(System.Action<ReBuffer, T>));
 
             this.unpacker =
-                (System.Func<Buffer, T>)unpacker
-                    .CreateDelegate(typeof(System.Func<Buffer, T>));
+                (System.Func<ReBuffer, T>)unpacker
+                    .CreateDelegate(typeof(System.Func<ReBuffer, T>));
 
             if (getSize != null)
             {
@@ -27,17 +27,17 @@ namespace RePacker.Builder
             }
         }
 
-        public void Pack(Buffer buffer, ref T value)
+        public void Pack(ReBuffer buffer, ref T value)
         {
             packer.Invoke(buffer, value);
         }
 
-        public void Unpack(Buffer buffer, out T value)
+        public void Unpack(ReBuffer buffer, out T value)
         {
             value = unpacker.Invoke(buffer);
         }
 
-        public void UnpackInto(Buffer buffer, ref T value)
+        public void UnpackInto(ReBuffer buffer, ref T value)
         {
             value = unpacker.Invoke(buffer);
         }

@@ -3,7 +3,7 @@ using RePacker.Buffers;
 using RePacker;
 using System.Runtime.InteropServices;
 using System;
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -20,11 +20,24 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void ValueTuple_1_unmanaged()
+        {
+            var vt2 = new ValueTuple<int>(10);
+
+            var buffer = new ReBuffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack<ValueTuple<int>>(buffer);
+
+            Assert.Equal(vt2.Item1, fromBuf.Item1);
+        }
+
+        [Fact]
         public void ValueTuple_2_unmanaged()
         {
             var vt2 = new ValueTuple<int, int>(10, 100);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int>>(buffer);
@@ -38,7 +51,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int>(10, 100, 1000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int>>(buffer);
@@ -53,7 +66,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int, int>(10, 100, 1000, 10000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int, int>>(buffer);
@@ -69,7 +82,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int, int, int>(10, 100, 1000, 10000, 100000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int, int, int>>(buffer);
@@ -86,7 +99,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int, int, int, int>(10, 100, 1000, 10000, 100000, 1000000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int, int, int, int>>(buffer);
@@ -100,11 +113,24 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void ValueTuple_1_managed()
+        {
+            var vt2 = new ValueTuple<SimpleClass>(new SimpleClass { Float = 12.34f });
+
+            var buffer = new ReBuffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass>>(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+        }
+
+        [Fact]
         public void ValueTuple_2_managed()
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass>>(buffer);
@@ -118,7 +144,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -133,7 +159,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -149,7 +175,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -166,7 +192,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -177,6 +203,44 @@ namespace RePacker.Tests
             Assert.Equal(vt2.Item4.Float, fromBuf.Item4.Float);
             Assert.Equal(vt2.Item5.Float, fromBuf.Item5.Float);
             Assert.Equal(vt2.Item6.Float, fromBuf.Item6.Float);
+        }
+
+        [Fact]
+        public void ValueTuple_7_managed()
+        {
+            var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
+
+            var buffer = new ReBuffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+            Assert.Equal(vt2.Item3.Float, fromBuf.Item3.Float);
+            Assert.Equal(vt2.Item4.Float, fromBuf.Item4.Float);
+            Assert.Equal(vt2.Item5.Float, fromBuf.Item5.Float);
+            Assert.Equal(vt2.Item6.Float, fromBuf.Item6.Float);
+            Assert.Equal(vt2.Item7.Float, fromBuf.Item7.Float);
+        }
+
+        [Fact]
+        public void ValueTuple_8_managed()
+        {
+            var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, ValueTuple<SimpleClass>>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new ValueTuple<SimpleClass>(new SimpleClass { Float = 12.34f }));
+
+            var buffer = new ReBuffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, ValueTuple<SimpleClass>>>(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+            Assert.Equal(vt2.Item3.Float, fromBuf.Item3.Float);
+            Assert.Equal(vt2.Item4.Float, fromBuf.Item4.Float);
+            Assert.Equal(vt2.Item5.Float, fromBuf.Item5.Float);
+            Assert.Equal(vt2.Item6.Float, fromBuf.Item6.Float);
+            Assert.Equal(vt2.Item7.Float, fromBuf.Item7.Float);
         }
 
         [RePacker]
@@ -201,7 +265,7 @@ namespace RePacker.Tests
                 VT6 = (10, 100, 1000, 10000, 100000, 1000000),
             };
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
             RePacking.Pack(buffer, ref valuetuples);
 
             var frombuf = RePacking.Unpack<StructWithValueTuple>(buffer);
@@ -246,7 +310,7 @@ namespace RePacker.Tests
                 VT2 = (new SimpleClass { Float = 1.2345f }, new SimpleClass { Float = 1.2345f })
             };
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref wanted);
 

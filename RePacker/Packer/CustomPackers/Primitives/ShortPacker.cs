@@ -9,19 +9,19 @@ namespace RePacker.Builder
         public static new bool IsCopyable = true;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref short value)
+        public override void Pack(ReBuffer buffer, ref short value)
         {
             buffer.PackShort(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out short value)
+        public override void Unpack(ReBuffer buffer, out short value)
         {
             buffer.UnpackShort(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref short value)
+        public override void UnpackInto(ReBuffer buffer, ref short value)
         {
             buffer.UnpackShort(out value);
         }

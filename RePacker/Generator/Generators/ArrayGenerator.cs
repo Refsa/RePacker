@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Buffers;
 using RePacker.Utils;
-using Buffer = RePacker.Buffers.Buffer;
+using Buffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Builder
 {
@@ -182,7 +182,7 @@ namespace RePacker.Builder
             if (TypeCache.TryGetTypeInfo(elementType, out var typeInfo) && !typeInfo.IsDirectlyCopyable)
             {
                 var sizeMethod = typeof(PackerCollectionsExt)
-                    .GetMethod(nameof(PackerCollectionsExt.SizeOfColleciton))
+                    .GetMethod(nameof(PackerCollectionsExt.SizeOfCollection))
                     .MakeGenericMethod(elementType);
 
                 ilGen.Emit(OpCodes.Ldarg_0);

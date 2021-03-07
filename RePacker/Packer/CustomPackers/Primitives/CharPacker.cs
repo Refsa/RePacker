@@ -9,19 +9,19 @@ namespace RePacker.Builder
         public static new bool IsCopyable = true;
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref char value)
+        public override void Pack(ReBuffer buffer, ref char value)
         {
             buffer.PackChar(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out char value)
+        public override void Unpack(ReBuffer buffer, out char value)
         {
             buffer.UnpackChar(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref char value)
+        public override void UnpackInto(ReBuffer buffer, ref char value)
         {
             buffer.UnpackChar(out value);
         }

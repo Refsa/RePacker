@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Utils;
 using RePacker.Buffers;
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 using RePacker.Unsafe;
 
 namespace RePacker.Builder
@@ -33,7 +33,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsUnpack(fieldInfo);
 
-            var stringDecParams = new Type[] { typeof(Buffer), typeof(string).MakeByRefType() };
+            var stringDecParams = new Type[] { typeof(ReBuffer), typeof(string).MakeByRefType() };
             var decodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackString), stringDecParams);
             ilGen.Emit(OpCodes.Call, decodeString);
         }
@@ -42,7 +42,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsPack(fieldInfo);
 
-            var encodeStringParams = new Type[] { typeof(Buffer), typeof(string).MakeByRefType() };
+            var encodeStringParams = new Type[] { typeof(ReBuffer), typeof(string).MakeByRefType() };
             var encodeString = typeof(BufferExt).GetMethod(nameof(BufferExt.PackString), encodeStringParams);
             ilGen.Emit(OpCodes.Call, encodeString);
         }

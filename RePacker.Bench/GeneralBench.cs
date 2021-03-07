@@ -7,7 +7,7 @@ namespace RePacker.Benchmarks
     [MemoryDiagnoser]
     public class GeneralBenches
     {
-        Buffer buffer = new Buffer(1 << 16);
+        ReBuffer buffer = new ReBuffer(1 << 16);
 
         /* netcoreapp3.1
 |                       Method |         Mean |     Error |    StdDev |   Gen 0 | Gen 1 | Gen 2 | Allocated |

@@ -8,12 +8,12 @@ namespace RePacker.Benchmarks
     public class BufferBench
     {
         static byte[] backingBuffer;
-        static Buffer buffer;
+        static ReBuffer buffer;
 
         public BufferBench()
         {
             backingBuffer = new byte[1024];
-            buffer = new Buffer(backingBuffer, 0);
+            buffer = new ReBuffer(backingBuffer, 0);
         }
 
         [Benchmark]

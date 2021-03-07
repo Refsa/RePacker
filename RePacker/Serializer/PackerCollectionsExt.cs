@@ -10,7 +10,7 @@ namespace RePacker.Builder
     public static class PackerCollectionsExt
     {
         #region Array
-        public static void PackArray<T>(this Buffer buffer, T[] data)
+        public static void PackArray<T>(this ReBuffer buffer, T[] data)
         {
             if (data == null || data.Length == 0)
             {
@@ -35,7 +35,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackArray<T>(this Buffer buffer, out T[] data)
+        public static void UnpackArray<T>(this ReBuffer buffer, out T[] data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
@@ -53,7 +53,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackArray2D<T>(this Buffer buffer, ref T[,] data)
+        public static void PackArray2D<T>(this ReBuffer buffer, ref T[,] data)
         {
             if (data == null)
             {
@@ -83,7 +83,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackArray2D<T>(this Buffer buffer, out T[,] data)
+        public static void UnpackArray2D<T>(this ReBuffer buffer, out T[,] data)
         {
             buffer.Unpack<int>(out int width);
             buffer.Unpack<int>(out int height);
@@ -104,7 +104,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackArray3D<T>(this Buffer buffer, ref T[,,] data)
+        public static void PackArray3D<T>(this ReBuffer buffer, ref T[,,] data)
         {
             if (data == null)
             {
@@ -136,7 +136,7 @@ namespace RePacker.Builder
                     }
         }
 
-        public static void UnpackArray3D<T>(this Buffer buffer, out T[,,] data)
+        public static void UnpackArray3D<T>(this ReBuffer buffer, out T[,,] data)
         {
             buffer.Unpack<ulong>(out ulong width);
             buffer.Unpack<ulong>(out ulong height);
@@ -157,7 +157,7 @@ namespace RePacker.Builder
                     }
         }
 
-        public static void PackArray4D<T>(this Buffer buffer, ref T[,,,] data)
+        public static void PackArray4D<T>(this ReBuffer buffer, ref T[,,,] data)
         {
             if (data == null)
             {
@@ -193,7 +193,7 @@ namespace RePacker.Builder
                         }
         }
 
-        public static void UnpackArray4D<T>(this Buffer buffer, out T[,,,] data)
+        public static void UnpackArray4D<T>(this ReBuffer buffer, out T[,,,] data)
         {
             buffer.Unpack<ulong>(out ulong width);
             buffer.Unpack<ulong>(out ulong height);
@@ -218,7 +218,7 @@ namespace RePacker.Builder
         #endregion
 
         #region IList
-        public static void PackIList<T>(this Buffer buffer, IList<T> data)
+        public static void PackIList<T>(this ReBuffer buffer, IList<T> data)
         {
             if (data == null)
             {
@@ -244,7 +244,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackIList<T>(this Buffer buffer, out IList<T> data)
+        public static void UnpackIList<T>(this ReBuffer buffer, out IList<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
@@ -263,19 +263,19 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackIListBlittable<T>(this Buffer buffer, IList<T> data) where T : unmanaged
+        public static void PackIListBlittable<T>(this ReBuffer buffer, IList<T> data) where T : unmanaged
         {
             buffer.PackArray((T[])data);
         }
 
-        public static void UnpackIListBlittable<T>(this Buffer buffer, out IList<T> data) where T : unmanaged
+        public static void UnpackIListBlittable<T>(this ReBuffer buffer, out IList<T> data) where T : unmanaged
         {
             data = buffer.UnpackArray<T>();
         }
         #endregion
 
         #region IEnumerable
-        public static void PackIEnumerable<T>(this Buffer buffer, IEnumerable<T> data)
+        public static void PackIEnumerable<T>(this ReBuffer buffer, IEnumerable<T> data)
         {
             if (data == null || data.Count() == 0)
             {
@@ -301,7 +301,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackIEnumerable<T>(this Buffer buffer, out IEnumerable<T> data)
+        public static void UnpackIEnumerable<T>(this ReBuffer buffer, out IEnumerable<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
@@ -320,12 +320,12 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackIEnumerableBlittable<T>(this Buffer buffer, IEnumerable<T> data) where T : unmanaged
+        public static void PackIEnumerableBlittable<T>(this ReBuffer buffer, IEnumerable<T> data) where T : unmanaged
         {
             buffer.PackArray((T[])data);
         }
 
-        public static void UnpackIEnumerableBlittable<T>(this Buffer buffer, out IEnumerable<T> data) where T : unmanaged
+        public static void UnpackIEnumerableBlittable<T>(this ReBuffer buffer, out IEnumerable<T> data) where T : unmanaged
         {
             T[] temp = buffer.UnpackArray<T>();
             data = temp;
@@ -333,7 +333,7 @@ namespace RePacker.Builder
         #endregion
 
         #region ICollection
-        public static void PackICollection<T>(this Buffer buffer, ICollection<T> data)
+        public static void PackICollection<T>(this ReBuffer buffer, ICollection<T> data)
         {
             if (data == null)
             {
@@ -359,7 +359,7 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackICollection<T>(this Buffer buffer, out ICollection<T> data)
+        public static void UnpackICollection<T>(this ReBuffer buffer, out ICollection<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
@@ -378,12 +378,12 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackICollectionBlittable<T>(this Buffer buffer, ICollection<T> data) where T : unmanaged
+        public static void PackICollectionBlittable<T>(this ReBuffer buffer, ICollection<T> data) where T : unmanaged
         {
             buffer.PackArray((T[])data);
         }
 
-        public static void UnpackICollectionBlittable<T>(this Buffer buffer, out ICollection<T> data) where T : unmanaged
+        public static void UnpackICollectionBlittable<T>(this ReBuffer buffer, out ICollection<T> data) where T : unmanaged
         {
             data = buffer.UnpackArray<T>();
         }
@@ -399,12 +399,12 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackQueue<T>(this Buffer buffer, Queue<T> data)
+        public static void PackQueue<T>(this ReBuffer buffer, Queue<T> data)
         {
             PackIEnumerable<T>(buffer, data);
         }
 
-        public static void PackStack<T>(this Buffer buffer, Stack<T> data)
+        public static void PackStack<T>(this ReBuffer buffer, Stack<T> data)
         {
             if (data == null)
             {
@@ -430,12 +430,12 @@ namespace RePacker.Builder
             }
         }
 
-        public static void PackHashSet<T>(this Buffer buffer, HashSet<T> data)
+        public static void PackHashSet<T>(this ReBuffer buffer, HashSet<T> data)
         {
             PackIEnumerable<T>(buffer, data);
         }
 
-        static void UnpackCollectionInternal<T>(this Buffer buffer, System.Action<T> predicate)
+        static void UnpackCollectionInternal<T>(this ReBuffer buffer, System.Action<T> predicate)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
             {
@@ -453,19 +453,19 @@ namespace RePacker.Builder
             }
         }
 
-        public static void UnpackQueue<T>(this Buffer buffer, out Queue<T> data)
+        public static void UnpackQueue<T>(this ReBuffer buffer, out Queue<T> data)
         {
             data = new Queue<T>();
             UnpackCollectionInternal<T>(buffer, data.Enqueue);
         }
 
-        public static void UnpackStack<T>(this Buffer buffer, out Stack<T> data)
+        public static void UnpackStack<T>(this ReBuffer buffer, out Stack<T> data)
         {
             data = new Stack<T>();
             UnpackCollectionInternal<T>(buffer, data.Push);
         }
 
-        public static void UnpackHashSet<T>(this Buffer buffer, out HashSet<T> data)
+        public static void UnpackHashSet<T>(this ReBuffer buffer, out HashSet<T> data)
         {
             data = new HashSet<T>();
             UnpackCollectionInternal<T>(buffer, data.HashSetAdd);
@@ -476,7 +476,7 @@ namespace RePacker.Builder
             self.Add(item);
         }
 
-        public static int SizeOfColleciton<T>(this IEnumerator data)
+        public static int SizeOfCollection<T>(this IEnumerator data)
         {
             int size = sizeof(ulong);
             if (data == null) return size;

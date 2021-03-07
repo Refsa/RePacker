@@ -8,18 +8,18 @@ namespace RePacker.Buffers.Tests
 {
     public class BufferTests
     {
-        (byte[] buf, Buffer buffer) MakeBuffer(int size)
+        (byte[] buf, ReBuffer buffer) MakeBuffer(int size)
         {
             var buf = new byte[size];
 
-            return (buf, new Buffer(buf, 0));
+            return (buf, new ReBuffer(buf, 0));
         }
 
         [Fact]
         public void pop_wrong_type_too_large()
         {
             byte[] buf = new byte[sizeof(int)];
-            var buffer = new Buffer(buf, 0);
+            var buffer = new ReBuffer(buf, 0);
 
             int testVal = 100;
             buffer.Pack<int>(ref testVal);
@@ -30,13 +30,13 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void null_array_throws()
         {
-            Assert.Throws<System.ArgumentNullException>(() => new Buffer(null));
+            Assert.Throws<System.ArgumentNullException>(() => new ReBuffer(null));
         }
 
         [Fact]
         public void length_gives_active_elements_length()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(1024);
 
             int testVal = 10;
 
@@ -55,7 +55,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void count_gives_total_size_used()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(1024);
 
             int testVal = 10;
 
@@ -74,7 +74,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void cursor_gives_active_first_element_index()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(1024);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(1024);
 
             int testVal = 10;
 
@@ -93,7 +93,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void flush_zeroes_out_used_memory()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(80);
 
             int testVal = 10;
             for (int i = 0; i < 10; i++)
@@ -111,7 +111,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void flush_clears_cursor_and_offset()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(80);
 
             int testVal = 10;
             for (int i = 0; i < 10; i++)
@@ -131,7 +131,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void reset_clears_cursor_and_offset()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(80);
 
             int testVal = 10;
             for (int i = 0; i < 10; i++)
@@ -202,7 +202,7 @@ namespace RePacker.Buffers.Tests
         public void push_int_pop_int_1(int data)
         {
             byte[] buf = new byte[sizeof(int)];
-            var buffer = new Buffer(buf, 0);
+            var buffer = new ReBuffer(buf, 0);
 
             buffer.Pack<int>(ref data);
 
@@ -219,7 +219,7 @@ namespace RePacker.Buffers.Tests
         public void push_int_pop_int_100(int data)
         {
             byte[] buf = new byte[sizeof(int) * 100];
-            var buffer = new Buffer(buf, 0);
+            var buffer = new ReBuffer(buf, 0);
 
             for (int i = 0; i < 100; i++)
                 buffer.Pack<int>(ref data);
@@ -239,7 +239,7 @@ namespace RePacker.Buffers.Tests
         public void push_float_pop_float_1(float data)
         {
             byte[] buf = new byte[sizeof(float)];
-            var buffer = new Buffer(buf, 0);
+            var buffer = new ReBuffer(buf, 0);
 
             buffer.Pack<float>(ref data);
 
@@ -256,7 +256,7 @@ namespace RePacker.Buffers.Tests
         public void push_float_pop_float_100(float data)
         {
             byte[] buf = new byte[sizeof(float) * 100];
-            var buffer = new Buffer(buf, 0);
+            var buffer = new ReBuffer(buf, 0);
 
             for (float i = 0; i < 100; i++)
                 buffer.Pack<float>(ref data);
@@ -277,7 +277,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void push_and_pop_blittable_struct()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(80);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(80);
 
             var testStruct = new TestBlittableStruct { Float = 1.234f, Int = 1234 };
 
@@ -292,7 +292,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void push_and_pop_blittable_struct_100()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(800);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(800);
 
             var testStruct = new TestBlittableStruct { Float = 1.234f, Int = 1234 };
 
@@ -319,7 +319,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void struct_with_pack_1_has_no_padding()
         {
-            (byte[] buf, Buffer buffer) = MakeBuffer(800);
+            (byte[] buf, ReBuffer buffer) = MakeBuffer(800);
 
             var testStruct = new TestPaddingStruct { TwoBytes = 1234, OneByte = 128 };
 
@@ -332,7 +332,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_char()
         {
-            var buffer = new Buffer(new byte[2]);
+            var buffer = new ReBuffer(new byte[2]);
 
             char value = 'G';
 
@@ -344,7 +344,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_char_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[3]);
+            var buffer = new ReBuffer(new byte[3]);
 
             char value = 'G';
 
@@ -355,7 +355,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_chars()
         {
-            var buffer = new Buffer(new byte[2 * 256]);
+            var buffer = new ReBuffer(new byte[2 * 256]);
 
             for (int i = 0; i < 255; i++)
             {
@@ -373,7 +373,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_bool()
         {
-            var buffer = new Buffer(new byte[1]);
+            var buffer = new ReBuffer(new byte[1]);
 
             bool value = true;
 
@@ -385,7 +385,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_bool_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[2]);
+            var buffer = new ReBuffer(new byte[2]);
 
             bool value = true;
 
@@ -397,7 +397,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_short()
         {
-            var buffer = new Buffer(new byte[4]);
+            var buffer = new ReBuffer(new byte[4]);
 
             short positive = 23423;
             short negative = -5342;
@@ -416,7 +416,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_ushort()
         {
-            var buffer = new Buffer(new byte[4]);
+            var buffer = new ReBuffer(new byte[4]);
 
             ushort positive = 23423;
 
@@ -428,7 +428,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_ushort_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[3]);
+            var buffer = new ReBuffer(new byte[3]);
 
             ushort value = 'G';
 
@@ -439,7 +439,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_int()
         {
-            var buffer = new Buffer(new byte[4]);
+            var buffer = new ReBuffer(new byte[4]);
 
             int positive = 1234567890;
             int negative = -1234567890;
@@ -458,7 +458,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_ints()
         {
-            var buffer = new Buffer(new byte[1 << 16]);
+            var buffer = new ReBuffer(new byte[1 << 16]);
 
             for (int i = int.MinValue; i < int.MaxValue - 100_000_000; i += 100_000_000)
             {
@@ -475,7 +475,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_int_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[7]);
+            var buffer = new ReBuffer(new byte[7]);
 
             int value = 'G';
 
@@ -486,7 +486,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_uint()
         {
-            var buffer = new Buffer(new byte[1024]);
+            var buffer = new ReBuffer(new byte[1024]);
 
             uint positive = 1234567890;
             buffer.PackUInt(ref positive);
@@ -497,7 +497,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_uint_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[7]);
+            var buffer = new ReBuffer(new byte[7]);
 
             uint value = 'G';
 
@@ -508,7 +508,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_long()
         {
-            var buffer = new Buffer(new byte[1024]);
+            var buffer = new ReBuffer(new byte[1024]);
 
             long positive = 12345678901234123;
             long negative = -1234567890123435;
@@ -525,7 +525,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_long_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[15]);
+            var buffer = new ReBuffer(new byte[15]);
 
             long value = 'G';
 
@@ -536,7 +536,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_ulong()
         {
-            var buffer = new Buffer(new byte[1024]);
+            var buffer = new ReBuffer(new byte[1024]);
 
             ulong positive = 12345678902345243623;
 
@@ -548,7 +548,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_ulong_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[15]);
+            var buffer = new ReBuffer(new byte[15]);
 
             ulong value = 'G';
 
@@ -560,7 +560,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_float()
         {
-            var buffer = new Buffer(new byte[4]);
+            var buffer = new ReBuffer(new byte[4]);
 
             float positive = 3.141598f;
             float negative = -6.2826f;
@@ -579,7 +579,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_floats()
         {
-            var buffer = new Buffer(new byte[2048]);
+            var buffer = new ReBuffer(new byte[2048]);
 
             float val = 2_000_000_000f;
             float step = 2_000_000_000f / 128f;
@@ -600,7 +600,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_float_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[7]);
+            var buffer = new ReBuffer(new byte[7]);
 
             float value = 'G';
 
@@ -611,7 +611,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_double()
         {
-            var buffer = new Buffer(new byte[8]);
+            var buffer = new ReBuffer(new byte[8]);
 
             double positive = 3.1415989283475918234120012341276357816438762142736507821634783617856417856812736481723645781236481237657619871263497812635871236;
             double negative = -6.28269283475918234120012341276357816438762142736507821634783617856417856812736481723645781236481237657619871263497812635871236;
@@ -630,7 +630,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_doubles()
         {
-            var buffer = new Buffer(new byte[2048]);
+            var buffer = new ReBuffer(new byte[2048]);
 
             double val = 2_000_000_000.0;
             double step = 2_000_000_000.0 / 128.0;
@@ -651,7 +651,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_double_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[15]);
+            var buffer = new ReBuffer(new byte[15]);
 
             double value = 'G';
 
@@ -662,7 +662,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_decimal()
         {
-            var buffer = new Buffer(new byte[24]);
+            var buffer = new ReBuffer(new byte[24]);
 
             decimal positive = 3.141598234523423452345234623455423762345234565346234544236234554264235423526243523452562345234536234523462345243623452364564567456786784567845624356568234623455324521343432435234532234523452346354665344523542354326234576562345234541890123457812348913489071345789012347890123483458972345912357983477659127481275913480712893471298579485723894719823419234712973598234758932075981327948718943567239485128934579843769283745918798523798234596832495874390857190873401298567129034697123456134784239889123471289356102734982316523648712638571293845M;
             decimal negative = -6.28476345623423452345234623455423762345234565346234544236234554264235423526243523452562345234536234523462345243623452364564567456786784567845624356568234623455342525624523452345623234523452346354665344523542354326234545345236234521890123457812348913489071345789012347890123483458972345912357983477659127481275913480712893471298579485723894719823419234712973598234758932075981327948718943567239485128934579843769283745918798523798234596832495874390857190873401298567129034697123456134784239889123471289356102734982316523648712638571293846M;
@@ -681,7 +681,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_decimal_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[47]);
+            var buffer = new ReBuffer(new byte[47]);
 
             decimal value = 'G';
 
@@ -694,7 +694,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_int_array()
         {
-            var buffer = new Buffer(new byte[sizeof(int) * 101 + sizeof(ulong)]);
+            var buffer = new ReBuffer(new byte[sizeof(int) * 101 + sizeof(ulong)]);
             var data = Enumerable.Range(1, 100).ToArray();
 
             buffer.PackArray(data);
@@ -709,7 +709,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_packing_int_array_out_of_bounds()
         {
-            var buffer = new Buffer(new byte[sizeof(int) * 100 + sizeof(ulong)]);
+            var buffer = new ReBuffer(new byte[sizeof(int) * 100 + sizeof(ulong)]);
             var data = Enumerable.Range(1, 101).ToArray();
 
             Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackArray(data));
@@ -730,7 +730,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void direct_pack_array_multiple()
         {
-            var buffer = new Buffer(new byte[1 << 16]);
+            var buffer = new ReBuffer(new byte[1 << 16]);
 
             var bytes = GenerateArray<byte>(32, i => (byte)(i % 255));
             var shorts = GenerateArray<short>(32, i => (short)(i % 255));
@@ -770,7 +770,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void moving_write_cursor()
         {
-            var buffer = new Buffer(new byte[10]);
+            var buffer = new ReBuffer(new byte[10]);
 
             buffer.MoveWriteCursor(9);
 
@@ -780,7 +780,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void moving_write_cursor_throws()
         {
-            var buffer = new Buffer(new byte[10]);
+            var buffer = new ReBuffer(new byte[10]);
 
             Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MoveWriteCursor(11));
         }
@@ -788,7 +788,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void moving_read_cursor()
         {
-            var buffer = new Buffer(new byte[10]);
+            var buffer = new ReBuffer(new byte[10]);
 
             buffer.MoveReadCursor(9);
 
@@ -798,7 +798,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void moving_read_cursor_throws()
         {
-            var buffer = new Buffer(new byte[10]);
+            var buffer = new ReBuffer(new byte[10]);
 
             Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MoveReadCursor(11));
         }
@@ -806,7 +806,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void can_fit_types()
         {
-            var buffer = new Buffer(new byte[24]);
+            var buffer = new ReBuffer(new byte[24]);
 
             Assert.True(buffer.CanWrite<short>(12));
             Assert.True(buffer.CanWrite<int>(6));
@@ -822,7 +822,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void can_fit_bytes()
         {
-            var buffer = new Buffer(new byte[24]);
+            var buffer = new ReBuffer(new byte[24]);
 
             Assert.True(buffer.CanWriteBytes(24));
             Assert.False(buffer.CanWriteBytes(25));
@@ -831,8 +831,8 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void can_copy_buffer()
         {
-            var buffer1 = new Buffer(new byte[1024]);
-            var buffer2 = new Buffer(new byte[1024]);
+            var buffer1 = new ReBuffer(new byte[1024]);
+            var buffer2 = new ReBuffer(new byte[1024]);
 
             for (int i = 0; i < 10; i++)
             {
@@ -853,8 +853,8 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void copy_buffer_out_of_bounds()
         {
-            var buffer1 = new Buffer(new byte[1024]);
-            var buffer2 = new Buffer(new byte[8]);
+            var buffer1 = new ReBuffer(new byte[1024]);
+            var buffer2 = new ReBuffer(new byte[8]);
 
             for (int i = 0; i < 10; i++)
             {
@@ -867,7 +867,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void copy_buffer_into_new_buffer()
         {
-            var buffer = new Buffer(new byte[128]);
+            var buffer = new ReBuffer(new byte[128]);
             for (int i = 0; i < 10; i++)
             {
                 buffer.Pack(ref i);

@@ -16,7 +16,7 @@ namespace RePacker.Tests
         [Fact]
         public void can_pack_large_value_msg()
         {
-            var buffer = new Buffer(1 << 24);
+            var buffer = new ReBuffer(1 << 24);
 
             RePacking.Pack(buffer, ref _largeValueMsg);
             var fromBuf = RePacking.Unpack<LargeValueMsg>(buffer);

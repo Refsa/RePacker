@@ -27,6 +27,7 @@ namespace RePacker.Builder
                     {typeof(string), new StringGenerator()}
                 }},
                 {GeneratorType.Object, new Dictionary<Type, IGenerator>() {
+                    {typeof(Buffer), new BufferGenerator()},
                     {typeof(Array), new ArrayGenerator()},
                     {typeof(IList<>), new IListGenerator()},
                     {typeof(IEnumerable<>), new IEnumerableGenerator()},
@@ -41,6 +42,7 @@ namespace RePacker.Builder
                     {typeof(Nullable<>), new NullableGenerator()},
 
 #if NET461
+                    {typeof(ValueTuple<>), new ValueTupleGenerator()},
                     {typeof(ValueTuple<,>), new ValueTupleGenerator()},
                     {typeof(ValueTuple<,,>), new ValueTupleGenerator()},
                     {typeof(ValueTuple<,,,>), new ValueTupleGenerator()},

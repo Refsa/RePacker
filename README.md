@@ -36,7 +36,7 @@ You can find benchmarks under the [performance](#performance) section.
 ## Where
 Library is hosted on [nuget](https://www.nuget.org/packages/RePacker/).
 
-You can also find the Unsafe portion, with just the Buffer and utilities at [nuget](https://www.nuget.org/packages/RePacker.Unsafe/), but these are included in the main package.
+You can also find the Unsafe portion, with just the ReBuffer and utilities at [nuget](https://www.nuget.org/packages/RePacker.Unsafe/), but these are included in the main package.
 
 You can also directly build the project under "RePackage" with `dotnet build -c Release` or "RePackage.Unity" with `dotnet build -c Unity`.
 
@@ -44,8 +44,8 @@ You can also directly build the project under "RePackage" with `dotnet build -c 
 
 Currently both bootstrapping is enabled by default, but can be toggled with the NO_BOOTSTRAP compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
 
-### Buffer
-This library primarily works on the Buffer class that is a wrapper around a byte array with some additonal utility for reading/writing data. By default the buffer doesnt grow in size to accomodate data, but there is support for this as well. Internally no pooling is done so this is something that has to be handled externally for now.
+### ReBuffer
+This library primarily works on the ReBuffer class that is a wrapper around a byte array with some additonal utility for reading/writing data. By default the buffer doesnt grow in size to accomodate data, but there is support for this as well. Internally no pooling is done so this is something that has to be handled externally for now.
 
 ### Auto-Generate packer:
 
@@ -105,7 +105,7 @@ As long as the NO_BOOTSTRAP flag is set you need to initialize the library with 
 
 ```cs
 SupportMe packMe = new SupportMe{Float = 1.337f, Int = 1337};
-Buffer buffer = new Buffer(1024);
+ReBuffer buffer = new ReBuffer(1024);
 
 RePacking.Pack(buffer, ref packMe);
 SupportMe unpacked = RePacking.Unpack<SupportMe>(buffer);
@@ -133,7 +133,7 @@ public class IntoInstance
 }
 
 IntoInstance packMe = new IntoInstance{Float = 13.37f};
-Buffer buffer = new Buffer(1024);
+ReBuffer buffer = new ReBuffer(1024);
 
 RePacking.Pack(buffer, ref packMe);
 
@@ -143,7 +143,7 @@ RePacking.UnpackInto(buffer, ref unpackIntoMe);
 
 ### Wrap an existing type
 
-Any type outside of your control needs a custom wrapper defined to enable serialization. In this case you can make use of all the internally used packing/unpacking methods for Buffer and BoxedBuffer. An overview of the supported packing helpers can be found in the [Buffer Extensions](#buffer-extensions) section below.
+Any type outside of your control needs a custom wrapper defined to enable serialization. In this case you can make use of all the internally used packing/unpacking methods for ReBuffer. An overview of the supported packing helpers can be found in the [ReBuffer Extensions](#buffer-extensions) section below.
 
 When a type is wrapped this way you can continue to use `RePacking.Pack/RePacking.Unpack` as normal. Do note that you need to implement the `SizeOf` method in order to make use of `RePacking.SizeOf` on this object.
 
@@ -156,18 +156,18 @@ public class CantModifyMe
 [RePackerWrapper(typeof(CantModifyMe))]
 public class CantModifyMeWrapper : RePackerWrapper<CantModifyMe>
 {
-    public override void Pack(BoxedBuffer buffer, ref CantModifyMe value)
+    public override void Pack(ReBuffer buffer, ref CantModifyMe value)
     {
         buffer.Pack(ref value.Float);
     }
 
-    public override void Unpack(BoxedBuffer buffer, out CantModifyMe value)
+    public override void Unpack(ReBuffer buffer, out CantModifyMe value)
     {
         value = new CantModifyMe();
         buffer.Unpack(out value.Float);
     }
 
-    public override void UnpackInto(BoxedBuffer buffer, ref CantModifyMe value)
+    public override void UnpackInto(ReBuffer buffer, ref CantModifyMe value)
     {
         buffer.Pack(out value.Float);
     }
@@ -195,13 +195,13 @@ public struct MyGenericType<T1, T2> where T1 : unmanaged
 
 public class MyGenericTypePacker<T1, T2> : RePackerWrapper<MyGenericType<T1, T2>> where T1 : unmanaged
 {
-    public override void Pack(BoxedBuffer buffer, ref MyGenericType<T1, T2> value)
+    public override void Pack(ReBuffer buffer, ref MyGenericType<T1, T2> value)
     {
         buffer.Pack<T1>(ref value.Value1);
         RePacking.Pack(buffer, ref value.Value2);
     }
 
-    public override void Unpack(BoxedBuffer buffer, out MyGenericType<T1, T2> value)
+    public override void Unpack(ReBuffer buffer, out MyGenericType<T1, T2> value)
     {
         value = new MyGenericType<T1, T2>();
         buffer.Unpack<T1>(out value.Value1);
@@ -282,18 +282,18 @@ RePacker.Unity projects contains support needed for Unity types.
 Transform, Color, Color32, Vector2, Vector3, Vector4, Quaternion, Vector3Int, Vector2Int
 ```
 
-## Buffer
-This library uses a struct known as `Buffer` in order to to read and writes into a byte array. Main reason for this is to avoid having to handle pooling of the arrays internally and rather leave that to the end user.
+## ReBuffer
+This library uses a struct known as `ReBuffer` in order to to read and writes into a byte array. Main reason for this is to avoid having to handle pooling of the arrays internally and rather leave that to the end user.
 
-You can use the Buffer alone in order to do packing and unpacking without the rest of the framework. These are contained inside the RePacker.Unsafe project under the RePacker.Buffers namespace. This is also how you implement custom packers for types you might not have control over.
+You can use the ReBuffer alone in order to do packing and unpacking without the rest of the framework. These are contained inside the RePacker.Unsafe project under the RePacker.Buffers namespace. This is also how you implement custom packers for types you might not have control over.
 
-Two modes exists for the Buffer class, either static or dynamic. The default mode is static, which means that you need to ensure it has enough capacity to fit the object you want to pack. If you try to write an object that is too large it will throw an exception and unwind to the position before the object was pushed. Utilities exists to calculate the size of supported objects though, so you can strategize around this.
+Two modes exists for the ReBuffer class, either static or dynamic. The default mode is static, which means that you need to ensure it has enough capacity to fit the object you want to pack. If you try to write an object that is too large it will throw an exception and unwind to the position before the object was pushed. Utilities exists to calculate the size of supported objects though, so you can strategize around this.
 
 In dynamic mode it will first check the size of the object you push and then resize the internal byte array if it needs to. This might be the easier mode to make use of but there is currently no pooling done internally. This means that you might end up with a lot of GC pressure if you push a lot of smaller values over time. 
 
-### Buffer Extensions
+### ReBuffer Extensions
 
-Buffer itself has access to a bunch of utility methods to pack different types. All unmanaged types are directly supported, but any unmanaged types requires support through `RePacking.Pack/RePacking.Unpack`
+ReBuffer itself has access to a bunch of utility methods to pack different types. All unmanaged types are directly supported, but any unmanaged types requires support through `RePacking.Pack/RePacking.Unpack`
 
 ```
 Pack<T> where T : unmanaged

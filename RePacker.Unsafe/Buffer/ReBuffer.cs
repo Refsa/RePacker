@@ -6,7 +6,7 @@ using RePacker.Unsafe;
 
 namespace RePacker.Buffers
 {
-    public class Buffer
+    public class ReBuffer
     {
         byte[] array;
         public byte[] Array => array;
@@ -16,7 +16,7 @@ namespace RePacker.Buffers
 
         bool expand;
 
-        public Buffer(int size, bool expand = false)
+        public ReBuffer(int size, bool expand = false)
         {
             this.array = new byte[size];
             this.writeCursor = 0;
@@ -24,7 +24,7 @@ namespace RePacker.Buffers
             this.expand = expand;
         }
 
-        public Buffer(byte[] buffer, int offset = 0, bool expand = false)
+        public ReBuffer(byte[] buffer, int offset = 0, bool expand = false)
         {
             this.writeCursor = offset;
             this.readCursor = 0;
@@ -38,7 +38,7 @@ namespace RePacker.Buffers
             }
         }
 
-        public Buffer(Buffer buffer)
+        public ReBuffer(ReBuffer buffer)
         {
             if (buffer == null)
             {
@@ -56,7 +56,7 @@ namespace RePacker.Buffers
             }
         }
 
-        public unsafe void Copy(Buffer source)
+        public unsafe void Copy(ReBuffer source)
         {
             int length = source.writeCursor;
             if (!CanWriteBytes(length))
@@ -72,9 +72,9 @@ namespace RePacker.Buffers
             MoveWriteCursor(length);
         }
 
-        public unsafe Buffer Clone()
+        public unsafe ReBuffer Clone()
         {
-            var buffer = new Buffer(writeCursor);
+            var buffer = new ReBuffer(writeCursor);
 
             fixed (void* src = &array[readCursor], dest = buffer.array)
             {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RePacker.Buffers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -273,6 +274,42 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void get_size_buffer()
+        {
+            var testBuffer = new ReBuffer(1024);
+            for (int i = 0; i < 10; i++)
+            {
+                testBuffer.Pack(ref i);
+            }
+
+            Assert.Equal(8 + 8 + 4 * 10, RePacking.SizeOf(ref testBuffer));
+        }
+
+        [Fact]
+        public void get_size_struct_has_buffer()
+        {
+            var testBuffer = new StructHasBuffer { Buffer = new ReBuffer(1024) };
+            for (int i = 0; i < 10; i++)
+            {
+                testBuffer.Buffer.Pack(ref i);
+            }
+
+            Assert.Equal(8 + 8 + 4 * 10, RePacking.SizeOf(ref testBuffer));
+        }
+
+        [Fact]
+        public void get_size_class_has_buffer()
+        {
+            var testBuffer = new ClassHasBuffer { Buffer = new ReBuffer(1024) };
+            for (int i = 0; i < 10; i++)
+            {
+                testBuffer.Buffer.Pack(ref i);
+            }
+
+            Assert.Equal(8 + 8 + 4 * 10, RePacking.SizeOf(ref testBuffer));
+        }
+
+        [Fact]
         public void get_size_key_value_pair()
         {
             var data = new KeyValuePair<int, int>(10, 20);
@@ -323,6 +360,14 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void get_size_value_tuple_1()
+        {
+            var data = new System.ValueTuple<int>(10);
+
+            Assert.Equal(4, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
         public void get_size_value_tuple_2()
         {
             var data = (10, 10);
@@ -370,12 +415,76 @@ namespace RePacker.Tests
             Assert.Equal(28, RePacking.SizeOf(ref data));
         }
 
-        /* [Fact]
+        [Fact]
         public void get_size_value_tuple_8()
         {
             var data = (10, 10, 10, 10, 10, 10, 10, 10ul);
 
-            Assert.Equal(28 + 16, RePacking.SizeOf(ref data));
-        } */
+            Assert.Equal(28 + 8, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_1()
+        {
+            var data = new HasValueTuple1 { VT = new System.ValueTuple<int>(10) };
+
+            Assert.Equal(4, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_2()
+        {
+            var data = new HasValueTuple2 { VT = (10, 10) };
+
+            Assert.Equal(8, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_3()
+        {
+            var data = new HasValueTuple3 { VT = (10, 10, 10) };
+
+            Assert.Equal(12, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_4()
+        {
+            var data = new HasValueTuple4 { VT = (10, 10, 10, 10) };
+
+            Assert.Equal(16, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_5()
+        {
+            var data = new HasValueTuple5 { VT = (10, 10, 10, 10, 10) };
+
+            Assert.Equal(20, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_6()
+        {
+            var data = new HasValueTuple6 { VT = (10, 10, 10, 10, 10, 10) };
+
+            Assert.Equal(24, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_7()
+        {
+            var data = new HasValueTuple7 { VT = (10, 10, 10, 10, 10, 10, 10) };
+
+            Assert.Equal(28, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_value_tuple_8()
+        {
+            var data = new HasValueTuple8 { VT = (10, 10, 10, 10, 10, 10, 10, 10) };
+
+            Assert.Equal(28 + 4, RePacking.SizeOf(ref data));
+        }
     }
 }

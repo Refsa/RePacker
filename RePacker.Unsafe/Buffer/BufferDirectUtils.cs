@@ -8,14 +8,14 @@ namespace RePacker.Buffers.Extra
     {
         #region DirectPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackBool(this Buffer buffer, ref bool value)
+        public static unsafe void PackBool(this ReBuffer buffer, ref bool value)
         {
             buffer.Array[buffer.WriteCursor()] = value ? (byte)1 : (byte)0;
             buffer.MoveWriteCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void UnpackBool(this Buffer buffer, out bool value)
+        public static void UnpackBool(this ReBuffer buffer, out bool value)
         {
             byte val = buffer.Array[buffer.ReadCursor()];
             buffer.MoveReadCursor(1);
@@ -23,7 +23,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackShort(this Buffer buffer, ref short value)
+        public static unsafe void PackShort(this ReBuffer buffer, ref short value)
         {
             if (!buffer.CanWrite<short>())
             {
@@ -38,7 +38,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackShort(this Buffer buffer, out short value)
+        public static unsafe void UnpackShort(this ReBuffer buffer, out short value)
         {
             if (!buffer.CanRead<short>())
             {
@@ -53,7 +53,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackUShort(this Buffer buffer, ref ushort value)
+        public static unsafe void PackUShort(this ReBuffer buffer, ref ushort value)
         {
             if (!buffer.CanWrite<ushort>())
             {
@@ -68,7 +68,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackUShort(this Buffer buffer, out ushort value)
+        public static unsafe void UnpackUShort(this ReBuffer buffer, out ushort value)
         {
             if (!buffer.CanRead<ushort>())
             {
@@ -83,7 +83,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackInt(this Buffer buffer, ref int value)
+        public static unsafe void PackInt(this ReBuffer buffer, ref int value)
         {
             if (!buffer.CanWrite<int>())
             {
@@ -98,7 +98,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackInt(this Buffer buffer, out int value)
+        public static unsafe void UnpackInt(this ReBuffer buffer, out int value)
         {
             if (!buffer.CanRead<int>())
             {
@@ -113,7 +113,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackUInt(this Buffer buffer, ref uint value)
+        public static unsafe void PackUInt(this ReBuffer buffer, ref uint value)
         {
             if (!buffer.CanWrite<uint>())
             {
@@ -128,7 +128,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackUInt(this Buffer buffer, out uint value)
+        public static unsafe void UnpackUInt(this ReBuffer buffer, out uint value)
         {
             if (!buffer.CanRead<uint>())
             {
@@ -143,7 +143,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackLong(this Buffer buffer, ref long value)
+        public static unsafe void PackLong(this ReBuffer buffer, ref long value)
         {
             if (!buffer.CanWrite<long>())
             {
@@ -158,7 +158,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackLong(this Buffer buffer, out long value)
+        public static unsafe void UnpackLong(this ReBuffer buffer, out long value)
         {
             if (!buffer.CanRead<long>())
             {
@@ -173,7 +173,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackULong(this Buffer buffer, ref ulong value)
+        public static unsafe void PackULong(this ReBuffer buffer, ref ulong value)
         {
             if (!buffer.CanWrite<ulong>())
             {
@@ -188,7 +188,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackULong(this Buffer buffer, out ulong value)
+        public static unsafe void UnpackULong(this ReBuffer buffer, out ulong value)
         {
             if (!buffer.CanRead<ulong>())
             {
@@ -203,7 +203,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackChar(this Buffer buffer, ref char value)
+        public static unsafe void PackChar(this ReBuffer buffer, ref char value)
         {
             if (!buffer.CanWrite<char>())
             {
@@ -218,7 +218,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackChar(this Buffer buffer, out char value)
+        public static unsafe void UnpackChar(this ReBuffer buffer, out char value)
         {
             if (!buffer.CanRead<char>())
             {
@@ -233,28 +233,28 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PackByte(this Buffer buffer, ref byte value)
+        public static void PackByte(this ReBuffer buffer, ref byte value)
         {
             buffer.Array[buffer.WriteCursor()] = value;
             buffer.MoveWriteCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void UnpackByte(this Buffer buffer, out byte value)
+        public static void UnpackByte(this ReBuffer buffer, out byte value)
         {
             value = buffer.Array[buffer.ReadCursor()];
             buffer.MoveReadCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PackSByte(this Buffer buffer, ref sbyte value)
+        public static void PackSByte(this ReBuffer buffer, ref sbyte value)
         {
             buffer.Array[buffer.WriteCursor()] = (byte)value;
             buffer.MoveWriteCursor(1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void UnpackSByte(this Buffer buffer, out sbyte value)
+        public static void UnpackSByte(this ReBuffer buffer, out sbyte value)
         {
             value = (sbyte)buffer.Array[buffer.ReadCursor()];
             buffer.MoveReadCursor(1);
@@ -262,7 +262,7 @@ namespace RePacker.Buffers.Extra
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackFloat(this Buffer buffer, ref float value)
+        public static unsafe void PackFloat(this ReBuffer buffer, ref float value)
         {
             if (!buffer.CanWrite<float>())
             {
@@ -301,7 +301,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackFloat(this Buffer buffer, out float value)
+        public static unsafe void UnpackFloat(this ReBuffer buffer, out float value)
         {
             if (!buffer.CanRead<float>())
             {
@@ -319,7 +319,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackDouble(this Buffer buffer, ref double value)
+        public static unsafe void PackDouble(this ReBuffer buffer, ref double value)
         {
             if (!buffer.CanWrite<double>())
             {
@@ -334,7 +334,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackDouble(this Buffer buffer, out double value)
+        public static unsafe void UnpackDouble(this ReBuffer buffer, out double value)
         {
             if (!buffer.CanRead<double>())
             {
@@ -352,7 +352,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackDecimal(this Buffer buffer, ref decimal value)
+        public static unsafe void PackDecimal(this ReBuffer buffer, ref decimal value)
         {
             if (!buffer.CanWrite<decimal>())
             {
@@ -367,7 +367,7 @@ namespace RePacker.Buffers.Extra
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackDecimal(this Buffer buffer, out decimal value)
+        public static unsafe void UnpackDecimal(this ReBuffer buffer, out decimal value)
         {
             if (!buffer.CanRead<decimal>())
             {
