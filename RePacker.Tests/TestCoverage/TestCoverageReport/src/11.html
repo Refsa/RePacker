@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\RepackerAttributes.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+
+namespace RePacker
+{
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public sealed class RePackerAttribute : System.Attribute
+    {
+        public bool UseOnAllPublicFields;
+
+        public RePackerAttribute(bool useOnAllPublicFields = true)
+        {
+            this.UseOnAllPublicFields = useOnAllPublicFields;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    public sealed class RePackAttribute : System.Attribute
+    {
+        public int Order;
+
+        public RePackAttribute(int order = 0)
+        {
+            Order = order;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,67,1],[10,9,10,67,1],[10,9,10,67,1],[10,9,10,67,1],[10,9,10,67,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,62,1],[12,13,12,62,1],[12,13,12,62,1],[12,13,12,62,1],[12,13,12,62,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[21,9,21,46,1],[21,9,21,46,1],[21,9,21,46,1],[21,9,21,46,1],[21,9,21,46,1],[22,9,22,10,1],[22,9,22,10,1],[22,9,22,10,1],[22,9,22,10,1],[22,9,22,10,1],[23,13,23,27,1],[23,13,23,27,1],[23,13,23,27,1],[23,13,23,27,1],[23,13,23,27,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace RePacker.Tests
 {
@@ -152,6 +153,7 @@ namespace RePacker.Tests
         public double Double;
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct UnmanagedStruct
     {
         public int Int;
@@ -194,6 +196,14 @@ namespace RePacker.Tests
     {
         public long Long;
         public InArrayClass[] ArrayOfClass;
+        public byte Byte;
+    }
+
+    [RePacker]
+    public struct HasStructArray
+    {
+        public long Long;
+        public ChildStruct[] ArrayOfStruct;
         public byte Byte;
     }
 
@@ -348,6 +358,18 @@ namespace RePacker.Tests
     }
 
     [RePacker]
+    public struct HasTimespan : IEquatable<HasTimespan>
+    {
+        public float Float;
+        public TimeSpan TimeSpan;
+
+        public bool Equals(HasTimespan other)
+        {
+            return Float == other.Float && TimeSpan == other.TimeSpan;
+        }
+    }
+
+    [RePacker]
     public struct HasString
     {
         public float Float;
@@ -379,12 +401,50 @@ namespace RePacker.Tests
     [RePacker]
     public struct StructWithMarkedProperties
     {
-        [RePack]
-        public float Float { get; set; }
-        [RePack]
-        public int Int { get; set; }
+        [RePack] public float Float { get; set; }
+        [RePack] public int Int { get; set; }
 
         public float Long { get; set; }
+    }
+
+    [RePacker]
+    public struct StructWithMarkedPrivateField : IEquatable<StructWithMarkedPrivateField>
+    {
+        public float Float;
+        [RePack] int _int;
+        public long Long;
+
+        public StructWithMarkedPrivateField(float f, int i, long l)
+        {
+            Float = f;
+            _int = i;
+            Long = l;
+        }
+
+        public bool Equals(StructWithMarkedPrivateField other)
+        {
+            return Float == other.Float && _int == other._int && Long == other.Long;
+        }
+    }
+
+    [RePacker]
+    public struct StructWithPrivateField
+    {
+        public float Float;
+        int _int;
+        public long Long;
+
+        public StructWithPrivateField(float f, int i, long l)
+        {
+            Float = f;
+            _int = i;
+            Long = l;
+        }
+
+        public bool Equals(StructWithPrivateField other)
+        {
+            return Float == other.Float && _int == other._int && Long == other.Long;
+        }
     }
 
     internal class IHavePrivateType

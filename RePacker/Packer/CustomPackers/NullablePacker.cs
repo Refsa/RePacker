@@ -23,5 +23,19 @@ namespace RePacker.Builder
         {
             buffer.UnpackNullable<TValue>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.Nullable<TValue> value)
+        {
+            if (value.HasValue)
+            {
+                var refable = value.Value;
+                return sizeof(byte) + RePacking.SizeOf(ref refable);
+            }
+            else
+            {
+                return sizeof(byte);
+            }
+        }
     }
 }

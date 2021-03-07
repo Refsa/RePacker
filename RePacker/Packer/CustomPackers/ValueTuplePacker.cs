@@ -23,6 +23,15 @@ namespace RePacker.Builder
         {
             buffer.UnpackValueTuple<T1, T2>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2);
+        }
     }
 
     internal class ValueTuplePacker<T1, T2, T3> :
@@ -44,6 +53,16 @@ namespace RePacker.Builder
         public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3>(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2, T3> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+            var i3 = value.Item3;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2) + RePacking.SizeOf(ref i3);
         }
     }
 
@@ -67,6 +86,17 @@ namespace RePacker.Builder
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2, T3, T4> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+            var i3 = value.Item3;
+            var i4 = value.Item4;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2) + RePacking.SizeOf(ref i3) + RePacking.SizeOf(ref i4);
+        }
     }
 
     internal class ValueTuplePacker<T1, T2, T3, T4, T5> :
@@ -88,6 +118,19 @@ namespace RePacker.Builder
         public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5>(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2, T3, T4, T5> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+            var i3 = value.Item3;
+            var i4 = value.Item4;
+            var i5 = value.Item5;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2) + RePacking.SizeOf(ref i3) +
+                    RePacking.SizeOf(ref i4) + RePacking.SizeOf(ref i5);
         }
     }
 
@@ -111,6 +154,20 @@ namespace RePacker.Builder
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6>(out value);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+            var i3 = value.Item3;
+            var i4 = value.Item4;
+            var i5 = value.Item5;
+            var i6 = value.Item6;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2) + RePacking.SizeOf(ref i3) +
+                    RePacking.SizeOf(ref i4) + RePacking.SizeOf(ref i5) + RePacking.SizeOf(ref i6);
+        }
     }
 
     internal class ValueTuplePacker<T1, T2, T3, T4, T5, T6, T7> :
@@ -132,6 +189,22 @@ namespace RePacker.Builder
         public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7>(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+            var i3 = value.Item3;
+            var i4 = value.Item4;
+            var i5 = value.Item5;
+            var i6 = value.Item6;
+            var i7 = value.Item7;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2) + RePacking.SizeOf(ref i3) + 
+                    RePacking.SizeOf(ref i4) + RePacking.SizeOf(ref i5) + RePacking.SizeOf(ref i6) +
+                    RePacking.SizeOf(ref i7);
         }
     }
 
@@ -155,6 +228,23 @@ namespace RePacker.Builder
         public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
+        {
+            var i1 = value.Item1;
+            var i2 = value.Item2;
+            var i3 = value.Item3;
+            var i4 = value.Item4;
+            var i5 = value.Item5;
+            var i6 = value.Item6;
+            var i7 = value.Item7;
+            var rest = value.Rest;
+
+            return RePacking.SizeOf(ref i1) + RePacking.SizeOf(ref i2) + RePacking.SizeOf(ref i3) + 
+                    RePacking.SizeOf(ref i4) + RePacking.SizeOf(ref i5) + RePacking.SizeOf(ref i6) +
+                    RePacking.SizeOf(ref i7) + RePacking.SizeOf(ref rest);
         }
     }
 }

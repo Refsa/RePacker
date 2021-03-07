@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Builder\Lookup\TypeCache.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using RePacker.Buffers;
+using RePacker.Generator;
+using RePacker.Utils;
+
+using Buffer = RePacker.Buffers.Buffer;
+
+namespace RePacker.Builder
+{
+    internal static class TypeCache
+    {
+        internal struct Info
+        {
+            public Type Type;
+            public bool HasCustomSerializer;
+            public bool IsUnmanaged;
+            public bool IsDirectlyCopyable;
+            public FieldInfo[] SerializedFields;
+
+            public Info(Type type, bool isUnmanaged)
+            {
+                Type = type;
+                IsUnmanaged = isUnmanaged;
+
+                IsDirectlyCopyable = false;
+                HasCustomSerializer = false;
+                SerializedFields = new FieldInfo[0];
+            }
+        }
+
+        static IEnumerable&lt;Type&gt; allTypes;
+
+        static ConcurrentDictionary&lt;Type, Info&gt; typeCache;
+        static Dictionary&lt;Type, Type&gt; wrapperTypeLookup;
+
+        static ConcurrentDictionary&lt;Type, ITypePacker&gt; packerLookup;
+        static ConcurrentDictionary&lt;Type, GenericProducer&gt; runtimePackerProducers;
+
+        static bool isSetup = false;
+        public static bool IsSetup =&gt; isSetup;
+
+        internal static void Reload()
+        {
+            isSetup = false;
+            typeCache = null;
+            packerLookup = null;
+            runtimePackerProducers = null;
+            Setup();
+        }
+
+        internal static void Setup()
+        {
+            if (isSetup) return;
+
+            packerLookup = new ConcurrentDictionary&lt;Type, ITypePacker&gt;();
+            wrapperTypeLookup = new Dictionary&lt;Type, Type&gt;();
+            allTypes = ReflectionUtils.GetAllTypes();
+
+            BuildTypeCache();
+            BuildRuntimePackerProviders();
+
+            BuildWrapperPackers();
+            BuildPackers();
+
+            VerifyPackers();
+
+            BuildLookup();
+
+            isSetup = true;
+            // allTypes = null;
+        }
+
+        static void VerifyPackers()
+        {
+            List&lt;Type&gt; invalid = new List&lt;Type&gt;();
+
+            foreach (var kv in typeCache)
+            {
+                bool valid = packerLookup.TryGetValue(kv.Key, out var packer) &amp;&amp; packer != null;
+                if (!valid) invalid.Add(kv.Key);
+            }
+
+            foreach (Type type in invalid)
+            {
+                // RePacking.Logger.Warn($&quot;type of {type} does not have a valid packer&quot;);
+
+                typeCache.TryRemove(type, out var _);
+                packerLookup.TryRemove(type, out var _);
+            }
+        }
+
+        static void BuildLookup()
+        {
+            foreach (var handler in packerLookup)
+            {
+                SetupTypeResolver(handler.Key, handler.Value);
+            }
+        }
+
+        static void SetupTypeResolver(Type type, ITypePacker packer)
+        {
+            var packerType = typeof(IPacker&lt;&gt;).MakeGenericType(type);
+
+            var resolver = typeof(TypeResolver&lt;,&gt;)
+                .MakeGenericType(packerType, type);
+            var setter = resolver.GetProperty(&quot;Packer&quot;);
+
+            setter.SetMethod.Invoke(null, new object[] { packer });
+        }
+
+        static void BuildTypeCache()
+        {
+            typeCache = new ConcurrentDictionary&lt;Type, Info&gt;();
+
+            foreach (Type type in allTypes
+                .WithAttribute(typeof(RePackerAttribute)))
+            {
+                if (typeCache.ContainsKey(type))
+                {
+                    // RePacking.Settings.Log.Warn($&quot;Packer already exists for type {type}&quot;);
+                    continue;
+                }
+
+                var attr = type.GetCustomAttribute&lt;RePackerAttribute&gt;();
+
+                var tci = new Info
+                {
+                    Type = type,
+                    IsUnmanaged = type.IsUnmanaged(),
+                    HasCustomSerializer = false,
+                    IsDirectlyCopyable = false,
+                };
+
+                List&lt;FieldInfo&gt; serializedFields = new List&lt;FieldInfo&gt;();
+
+                // fields
+                {
+                    IEnumerable&lt;FieldInfo&gt; fields = type
+                        .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                        .Concat(
+                            type
+                                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                                .Where(fi =&gt; fi.GetCustomAttribute&lt;RePackAttribute&gt;() != null)
+                        );
+
+                    var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
+                    if (!rpattr.UseOnAllPublicFields)
+                    {
+                        fields = fields.Where(fi =&gt; fi.GetCustomAttribute&lt;RePackAttribute&gt;() != null);
+                    }
+
+                    serializedFields.AddRange(fields);
+                }
+
+                // Properties
+                {
+                    var props =
+                        type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(pi =&gt; pi.GetCustomAttribute&lt;RePackAttribute&gt;() != null)
+                        .Select(pi =&gt; ReflectionUtils.GetPropertyBackingFieldInfo(type, pi.Name))
+                        .Where(fi =&gt; fi != null);
+
+                    serializedFields.AddRange(props);
+                }
+
+                if (tci.IsUnmanaged || type.IsUnmanagedStruct())
+                {
+                    if (ReflectionUtils.GetAllFields(type).Count() == serializedFields.Count)
+                    {
+                        tci.IsDirectlyCopyable = true;
+                    }
+                }
+
+                tci.SerializedFields = serializedFields.ToArray();
+
+                typeCache.TryAdd(type, tci);
+            }
+
+            foreach (Type type in allTypes
+                .NotGeneric()
+                .WithGenericBaseType(typeof(RePackerWrapper&lt;&gt;)))
+            {
+                Type wrapperFor = type.BaseType.GetGenericArguments()[0];
+                if (typeCache.ContainsKey(wrapperFor))
+                {
+                    continue;
+                }
+
+                if (wrapperFor == null)
+                {
+                    // RePacking.Settings.Log.Warn($&quot;Could not get {type} from RePackerWrapper&lt;&gt;&quot;);
+                    continue;
+                }
+
+                if (typeCache.TryGetValue(type, out var _))
+                {
+                    // RePacking.Settings.Log.Warn($&quot;Packer already exists for type {wrapperFor}&quot;);
+                    continue;
+                }
+
+                var isCopyableField = type.GetField(&quot;IsCopyable&quot;, BindingFlags.Static | BindingFlags.Public);
+                bool isDirectlyCopyable = false;
+                if ((wrapperFor.IsUnmanaged() || wrapperFor.IsUnmanagedStruct()) &amp;&amp;
+                    isCopyableField is FieldInfo fieldInfo)
+                {
+                    isDirectlyCopyable = (bool)fieldInfo.GetValue(null);
+                }
+
+                var typeInfo = new Info
+                {
+                    Type = wrapperFor,
+                    HasCustomSerializer = true,
+                    IsDirectlyCopyable = isDirectlyCopyable,
+                    IsUnmanaged = wrapperFor.IsUnmanaged(),
+                    SerializedFields = null,
+                };
+
+                typeCache.TryAdd(wrapperFor, typeInfo);
+                wrapperTypeLookup.Add(wrapperFor, type);
+            }
+        }
+
+        static void BuildWrapperPackers()
+        {
+            foreach (var kv in typeCache)
+            {
+                if (!kv.Value.HasCustomSerializer) continue;
+
+                if (wrapperTypeLookup.TryGetValue(kv.Key, out Type wrapper))
+                {
+                    var serializer = Activator.CreateInstance(wrapper);
+                    packerLookup.TryAdd(kv.Value.Type, (ITypePacker)serializer);
+                }
+                else
+                {
+                    RePacking.Logger.Warn($&quot;Could not create wrapper for type {kv.Key}, Type instance was null&quot;);
+                }
+            }
+        }
+
+        static void BuildPackers()
+        {
+            if (!RePacking.Settings.GenerateIL)
+            {
+                RePacking.Settings.Log.Warn(&quot;IL Generation is turned off&quot;);
+                return;
+            }
+
+            Dictionary&lt;Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)&gt; packers =
+                new Dictionary&lt;Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)&gt;();
+
+            foreach (var kv in typeCache)
+            {
+                if (kv.Value.HasCustomSerializer) continue;
+
+                if (packerLookup.ContainsKey(kv.Key)) continue;
+                (Type type, Info info) = (kv.Key, kv.Value);
+
+                if (info.SerializedFields == null)
+                {
+                    // RePacking.Logger.Error($&quot;No serialized fields found on {type}&quot;);
+                    continue;
+                }
+
+                MethodInfo packer = null;
+                MethodInfo unpacker = null;
+                MethodInfo getSizer = null;
+
+                // Generate Packer Method
+                try
+                {
+                    packer = PackerBuilder.CreatePacker(info);
+                }
+                catch (Exception e)
+                {
+                    RePacking.Settings.Log.Error($&quot;Error when generating packer for {type}&quot;);
+                    RePacking.Settings.Log.Exception(e);
+                    continue;
+                }
+
+                // Generate Unpacker Method
+                try
+                {
+                    unpacker = PackerBuilder.CreateUnpacker(info);
+                }
+                catch (Exception e)
+                {
+                    RePacking.Settings.Log.Error($&quot;Error when generating unpacker for {type}&quot;);
+                    RePacking.Settings.Log.Exception(e);
+                    continue;
+                }
+
+                try
+                {
+                    getSizer = (MethodInfo)typeof(GetSizeGenerator&lt;&gt;)
+                        .MakeGenericType(info.Type)
+                        .GetMethod(&quot;Create&quot;)
+                        .Invoke(null, new object[] { info });
+                }
+                catch (Exception e)
+                {
+                    RePacking.Settings.Log.Error($&quot;Error when generating getSizer for {type}&quot;);
+                    RePacking.Settings.Log.Exception(e);
+                }
+
+                packers.Add(type, (packer, unpacker, getSizer));
+            }
+
+            foreach (var kv in packers)
+            {
+                if (packerLookup.ContainsKey(kv.Key)) continue;
+
+                try
+                {
+                    var typePacker = (ITypePacker)Activator
+                        .CreateInstance(
+                            typeof(TypePacker&lt;&gt;).MakeGenericType(kv.Key),
+                            kv.Value.packer, kv.Value.unpacker, kv.Value.getSizer);
+
+                    packerLookup.TryAdd(
+                        kv.Key,
+                        typePacker
+                    );
+                }
+                catch (Exception e)
+                {
+                    RePacking.Logger.Exception(e);
+                }
+            }
+        }
+
+        static void BuildRuntimePackerProviders()
+        {
+            runtimePackerProducers = new ConcurrentDictionary&lt;Type, GenericProducer&gt;();
+
+            foreach (Type type in allTypes
+                .Where(t =&gt; t.IsSubclassOf(typeof(GenericProducer))))
+            {
+                var producer = (GenericProducer)Activator.CreateInstance(type);
+
+                if (producer.ProducerForAll != null)
+                {
+                    foreach (var p in producer.ProducerForAll)
+                    {
+                        AddProducerFor(p, producer);
+                    }
+                }
+                else
+                {
+                    var forType = producer.ProducerFor;
+
+                    AddProducerFor(forType, producer);
+                }
+            }
+        }
+
+        static void AddProducerFor(Type type, GenericProducer producer)
+        {
+            var forType = type;
+            if (runtimePackerProducers.TryGetValue(forType, out var currProducer))
+            {
+                RePacking.Logger.Warn($&quot;Generic producer for {forType} already exists under {currProducer.GetType().Name}&quot;);
+                return;
+            }
+
+            runtimePackerProducers.TryAdd(
+                forType,
+                producer
+            );
+        }
+
+        #region Runtime
+        static void AddRuntimeTypeInfo(Type type)
+        {
+            var info = new Info
+            {
+                Type = type,
+            };
+            typeCache.TryAdd(type, info);
+        }
+
+        internal static bool AttemptToCreatePacker(Type type)
+        {
+            Type targetType = null;
+
+            foreach (var iface in type.GetInterfaces())
+            {
+                if (runtimePackerProducers.TryGetValue(iface, out var producer))
+                {
+                    var prod = producer.GetProducer(type);
+                    if (prod != null)
+                    {
+                        AddRuntimeTypeInfo(type);
+                        SetupTypeResolver(type, prod);
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+            if (type.IsArray)
+            {
+                targetType = typeof(Array);
+            }
+            else if (type.IsGenericType)
+            {
+                targetType = type.GetGenericTypeDefinition();
+            }
+
+            if (targetType != null)
+            {
+                if (runtimePackerProducers.TryGetValue(targetType, out var producer))
+                {
+                    var prod = producer.GetProducer(type);
+                    if (prod != null)
+                    {
+                        AddRuntimeTypeInfo(type);
+                        SetupTypeResolver(type, prod);
+                        return true;
+                    }
+                }
+            }
+            else if (type.IsUnmanaged() || type.IsUnmanagedStruct())
+            {
+                try
+                {
+                    var packer = (ITypePacker)Activator.CreateInstance(typeof(UnmanagedPacker&lt;&gt;).MakeGenericType(type));
+                    AddRuntimeTypeInfo(type);
+                    SetupTypeResolver(type, packer);
+                    return true;
+                }
+                catch { }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region API
+        internal static void AddTypePackerProvider(Type targetType, GenericProducer producer)
+        {
+            runtimePackerProducers.TryAdd(targetType, producer);
+        }
+
+        public static bool TryGetTypeInfo&lt;T&gt;(out Info typeCacheInfo)
+        {
+            return TryGetTypeInfo(typeof(T), out typeCacheInfo);
+        }
+
+        public static bool TryGetTypeInfo(Type type, out Info typeCacheInfo)
+        {
+            if (typeCache.TryGetValue(type, out typeCacheInfo))
+            {
+                return true;
+            }
+            else if (AttemptToCreatePacker(type))
+            {
+                return TryGetTypeInfo(type, out typeCacheInfo);
+            }
+            else
+            {
+                // RePacker.Settings.Log.Warn($&quot;TypeInfo for {type} not found: \n{System.Environment.StackTrace}&quot;);
+            }
+
+            return false;
+        }
+
+        public static bool TryGetTypePacker&lt;T&gt;(out IPacker&lt;T&gt; packer)
+        {
+            if (TypeResolver&lt;IPacker&lt;T&gt;, T&gt;.Packer is IPacker&lt;T&gt; p)
+            {
+                packer = p;
+                return true;
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                return TryGetTypePacker&lt;T&gt;(out packer);
+            }
+
+            packer = null;
+            return false;
+        }
+
+        public static void Pack&lt;T&gt;(Buffer buffer, ref T value)
+        {
+            if (TypeResolver&lt;IPacker&lt;T&gt;, T&gt;.Packer is IPacker&lt;T&gt; packer)
+            {
+                int writeCursor = buffer.WriteCursor();
+                try
+                {
+                    packer.Pack(buffer, ref value);
+                }
+                catch (Exception e)
+                {
+                    buffer.SetWriteCursor(writeCursor);
+                    throw e;
+                }
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                Pack&lt;T&gt;(buffer, ref value);
+            }
+            else
+            {
+                throw new NotSupportedException($&quot;Packer for {typeof(T)} not found&quot;);
+            }
+        }
+
+        static T UnpackInternal&lt;T&gt;(Buffer buffer)
+        {
+            if (TypeResolver&lt;IPacker&lt;T&gt;, T&gt;.Packer is IPacker&lt;T&gt; packer)
+            {
+                int readCursor = buffer.ReadCursor();
+                try
+                {
+                    packer.Unpack(buffer, out T value);
+                    return value;
+                }
+                catch (Exception e)
+                {
+                    buffer.SetReadCursor(readCursor);
+                    throw e;
+                }
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                return UnpackInternal&lt;T&gt;(buffer);
+            }
+            else
+            {
+                throw new NotSupportedException($&quot;Unpacker for {typeof(T)} not found&quot;);
+            }
+
+            return default(T);
+        }
+
+        public static T Unpack&lt;T&gt;(Buffer buffer)
+        {
+            return UnpackInternal&lt;T&gt;(buffer);
+        }
+
+        public static bool UnpackOut&lt;T&gt;(Buffer buffer, out T value)
+        {
+            value = UnpackInternal&lt;T&gt;(buffer);
+            return value != null;
+        }
+
+        public static void UnpackInto&lt;T&gt;(Buffer buffer, ref T target)
+        {
+            if (TypeResolver&lt;IPacker&lt;T&gt;, T&gt;.Packer is IPacker&lt;T&gt; packer)
+            {
+                int readCursor = buffer.ReadCursor();
+                try
+                {
+                    packer.UnpackInto(buffer, ref target);
+                }
+                catch (Exception e)
+                {
+                    buffer.SetReadCursor(readCursor);
+                    throw e;
+                }
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                UnpackInto&lt;T&gt;(buffer, ref target);
+            }
+            else
+            {
+                throw new NotSupportedException($&quot;Unpacker for {typeof(T)} not found&quot;);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetSize&lt;T&gt;(ref T value)
+        {
+            if (TypeResolver&lt;IPacker&lt;T&gt;, T&gt;.Packer is IPacker&lt;T&gt; packer)
+            {
+                return packer.SizeOf(ref value);
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                return GetSize(ref value);
+            }
+            else
+            {
+                throw new NotSupportedException($&quot;GetSizer for {typeof(T)} not found&quot;);
+            }
+        }
+        #endregion
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[28,13,28,14,0],[28,13,28,14,0],[28,13,28,14,0],[28,13,28,14,0],[28,13,28,14,0],[29,17,29,29,0],[29,17,29,29,0],[29,17,29,29,0],[29,17,29,29,0],[29,17,29,29,0],[30,17,30,43,0],[30,17,30,43,0],[30,17,30,43,0],[30,17,30,43,0],[30,17,30,43,0],[32,17,32,44,0],[32,17,32,44,0],[32,17,32,44,0],[32,17,32,44,0],[32,17,32,44,0],[33,17,33,45,0],[33,17,33,45,0],[33,17,33,45,0],[33,17,33,45,0],[33,17,33,45,0],[34,17,34,53,0],[34,17,34,53,0],[34,17,34,53,0],[34,17,34,53,0],[34,17,34,53,0],[35,13,35,14,0],[35,13,35,14,0],[35,13,35,14,0],[35,13,35,14,0],[35,13,35,14,0],[47,39,47,46,1],[47,39,47,46,1],[47,39,47,46,1],[47,39,47,46,1],[47,39,47,46,1],[50,9,50,10,0],[50,9,50,10,0],[50,9,50,10,0],[50,9,50,10,0],[50,9,50,10,0],[51,13,51,29,0],[51,13,51,29,0],[51,13,51,29,0],[51,13,51,29,0],[51,13,51,29,0],[52,13,52,30,0],[52,13,52,30,0],[52,13,52,30,0],[52,13,52,30,0],[52,13,52,30,0],[53,13,53,33,0],[53,13,53,33,0],[53,13,53,33,0],[53,13,53,33,0],[53,13,53,33,0],[54,13,54,43,0],[54,13,54,43,0],[54,13,54,43,0],[54,13,54,43,0],[54,13,54,43,0],[55,13,55,21,0],[55,13,55,21,0],[55,13,55,21,0],[55,13,55,21,0],[55,13,55,21,0],[56,9,56,10,0],[56,9,56,10,0],[56,9,56,10,0],[56,9,56,10,0],[56,9,56,10,0],[59,9,59,10,1],[59,9,59,10,1],[59,9,59,10,1],[59,9,59,10,1],[59,9,59,10,1],[60,13,60,25,1],[60,13,60,25,1],[60,13,60,25,1],[60,13,60,25,1],[60,13,60,25,1],[60,26,60,33,0],[60,26,60,33,0],[60,26,60,33,0],[60,26,60,33,0],[60,26,60,33,0],[62,13,62,74,1],[62,13,62,74,1],[62,13,62,74,1],[62,13,62,74,1],[62,13,62,74,1],[63,13,63,62,1],[63,13,63,62,1],[63,13,63,62,1],[63,13,63,62,1],[63,13,63,62,1],[64,13,64,54,1],[64,13,64,54,1],[64,13,64,54,1],[64,13,64,54,1],[64,13,64,54,1],[66,13,66,30,1],[66,13,66,30,1],[66,13,66,30,1],[66,13,66,30,1],[66,13,66,30,1],[67,13,67,43,1],[67,13,67,43,1],[67,13,67,43,1],[67,13,67,43,1],[67,13,67,43,1],[69,13,69,35,1],[69,13,69,35,1],[69,13,69,35,1],[69,13,69,35,1],[69,13,69,35,1],[70,13,70,28,1],[70,13,70,28,1],[70,13,70,28,1],[70,13,70,28,1],[70,13,70,28,1],[72,13,72,29,1],[72,13,72,29,1],[72,13,72,29,1],[72,13,72,29,1],[72,13,72,29,1],[74,13,74,27,1],[74,13,74,27,1],[74,13,74,27,1],[74,13,74,27,1],[74,13,74,27,1],[76,13,76,28,1],[76,13,76,28,1],[76,13,76,28,1],[76,13,76,28,1],[76,13,76,28,1],[78,9,78,10,1],[78,9,78,10,1],[78,9,78,10,1],[78,9,78,10,1],[78,9,78,10,1],[81,9,81,10,1],[81,9,81,10,1],[81,9,81,10,1],[81,9,81,10,1],[81,9,81,10,1],[82,13,82,51,1],[82,13,82,51,1],[82,13,82,51,1],[82,13,82,51,1],[82,13,82,51,1],[84,13,84,20,1],[84,13,84,20,1],[84,13,84,20,1],[84,13,84,20,1],[84,13,84,20,1],[84,22,84,28,1],[84,22,84,28,1],[84,22,84,28,1],[84,22,84,28,1],[84,22,84,28,1],[84,29,84,31,1],[84,29,84,31,1],[84,29,84,31,1],[84,29,84,31,1],[84,29,84,31,1],[84,32,84,41,1],[84,32,84,41,1],[84,32,84,41,1],[84,32,84,41,1],[84,32,84,41,1],[85,13,85,14,1],[85,13,85,14,1],[85,13,85,14,1],[85,13,85,14,1],[85,13,85,14,1],[86,17,86,97,1],[86,17,86,97,1],[86,17,86,97,1],[86,17,86,97,1],[86,17,86,97,1],[87,17,87,28,1],[87,17,87,28,1],[87,17,87,28,1],[87,17,87,28,1],[87,17,87,28,1],[87,29,87,49,1],[87,29,87,49,1],[87,29,87,49,1],[87,29,87,49,1],[87,29,87,49,1],[88,13,88,14,1],[88,13,88,14,1],[88,13,88,14,1],[88,13,88,14,1],[88,13,88,14,1],[90,13,90,20,1],[90,13,90,20,1],[90,13,90,20,1],[90,13,90,20,1],[90,13,90,20,1],[90,22,90,31,1],[90,22,90,31,1],[90,22,90,31,1],[90,22,90,31,1],[90,22,90,31,1],[90,32,90,34,1],[90,32,90,34,1],[90,32,90,34,1],[90,32,90,34,1],[90,32,90,34,1],[90,35,90,42,1],[90,35,90,42,1],[90,35,90,42,1],[90,35,90,42,1],[90,35,90,42,1],[91,13,91,14,1],[91,13,91,14,1],[91,13,91,14,1],[91,13,91,14,1],[91,13,91,14,1],[94,17,94,54,1],[94,17,94,54,1],[94,17,94,54,1],[94,17,94,54,1],[94,17,94,54,1],[95,17,95,57,1],[95,17,95,57,1],[95,17,95,57,1],[95,17,95,57,1],[95,17,95,57,1],[96,13,96,14,1],[96,13,96,14,1],[96,13,96,14,1],[96,13,96,14,1],[96,13,96,14,1],[97,9,97,10,1],[97,9,97,10,1],[97,9,97,10,1],[97,9,97,10,1],[97,9,97,10,1],[100,9,100,10,1],[100,9,100,10,1],[100,9,100,10,1],[100,9,100,10,1],[100,9,100,10,1],[101,13,101,20,1],[101,13,101,20,1],[101,13,101,20,1],[101,13,101,20,1],[101,13,101,20,1],[101,22,101,33,1],[101,22,101,33,1],[101,22,101,33,1],[101,22,101,33,1],[101,22,101,33,1],[101,34,101,36,1],[101,34,101,36,1],[101,34,101,36,1],[101,34,101,36,1],[101,34,101,36,1],[101,37,101,49,1],[101,37,101,49,1],[101,37,101,49,1],[101,37,101,49,1],[101,37,101,49,1],[102,13,102,14,1],[102,13,102,14,1],[102,13,102,14,1],[102,13,102,14,1],[102,13,102,14,1],[103,17,103,63,1],[103,17,103,63,1],[103,17,103,63,1],[103,17,103,63,1],[103,17,103,63,1],[104,13,104,14,1],[104,13,104,14,1],[104,13,104,14,1],[104,13,104,14,1],[104,13,104,14,1],[105,9,105,10,1],[105,9,105,10,1],[105,9,105,10,1],[105,9,105,10,1],[105,9,105,10,1],[108,9,108,10,1],[108,9,108,10,1],[108,9,108,10,1],[108,9,108,10,1],[108,9,108,10,1],[109,13,109,70,1],[109,13,109,70,1],[109,13,109,70,1],[109,13,109,70,1],[109,13,109,70,1],[111,13,112,52,1],[111,13,112,52,1],[111,13,112,52,1],[111,13,112,52,1],[111,13,112,52,1],[113,13,113,57,1],[113,13,113,57,1],[113,13,113,57,1],[113,13,113,57,1],[113,13,113,57,1],[115,13,115,68,1],[115,13,115,68,1],[115,13,115,68,1],[115,13,115,68,1],[115,13,115,68,1],[116,9,116,10,1],[116,9,116,10,1],[116,9,116,10,1],[116,9,116,10,1],[116,9,116,10,1],[119,9,119,10,1],[119,9,119,10,1],[119,9,119,10,1],[119,9,119,10,1],[119,9,119,10,1],[120,13,120,64,1],[120,13,120,64,1],[120,13,120,64,1],[120,13,120,64,1],[120,13,120,64,1],[122,13,122,20,1],[122,13,122,20,1],[122,13,122,20,1],[122,13,122,20,1],[122,13,122,20,1],[122,22,122,31,1],[122,22,122,31,1],[122,22,122,31,1],[122,22,122,31,1],[122,22,122,31,1],[122,32,122,34,1],[122,32,122,34,1],[122,32,122,34,1],[122,32,122,34,1],[122,32,122,34,1],[122,35,123,58,1],[122,35,123,58,1],[122,35,123,58,1],[122,35,123,58,1],[122,35,123,58,1],[124,13,124,14,1],[124,13,124,14,1],[124,13,124,14,1],[124,13,124,14,1],[124,13,124,14,1],[125,17,125,49,1],[125,17,125,49,1],[125,17,125,49,1],[125,17,125,49,1],[125,17,125,49,1],[126,17,126,18,0],[126,17,126,18,0],[126,17,126,18,0],[126,17,126,18,0],[126,17,126,18,0],[128,21,128,30,0],[128,21,128,30,0],[128,21,128,30,0],[128,21,128,30,0],[128,21,128,30,0],[131,17,131,73,1],[131,17,131,73,1],[131,17,131,73,1],[131,17,131,73,1],[131,17,131,73,1],[133,17,139,19,1],[133,17,139,19,1],[133,17,139,19,1],[133,17,139,19,1],[133,17,139,19,1],[141,17,141,74,1],[141,17,141,74,1],[141,17,141,74,1],[141,17,141,74,1],[141,17,141,74,1],[144,17,144,18,1],[144,17,144,18,1],[144,17,144,18,1],[144,17,144,18,1],[144,17,144,18,1],[145,21,150,46,1],[150,46,150,94,1],[150,94,151,27,1],[145,21,151,27,1],[145,21,150,46,1],[150,46,150,94,1],[150,94,151,27,1],[145,21,151,27,1],[145,21,150,46,1],[150,46,150,94,1],[150,94,151,27,1],[145,21,151,27,1],[145,21,150,46,1],[150,46,150,94,1],[150,94,151,27,1],[145,21,151,27,1],[145,21,150,46,1],[150,46,150,94,1],[150,94,151,27,1],[145,21,151,27,1],[153,21,153,115,1],[153,21,153,115,1],[153,21,153,115,1],[153,21,153,115,1],[153,21,153,115,1],[154,21,154,54,1],[154,21,154,54,1],[154,21,154,54,1],[154,21,154,54,1],[154,21,154,54,1],[155,21,155,22,1],[155,21,155,22,1],[155,21,155,22,1],[155,21,155,22,1],[155,21,155,22,1],[156,25,156,53,1],[156,53,156,101,1],[156,101,156,103,1],[156,25,156,103,1],[156,25,156,53,1],[156,53,156,101,1],[156,101,156,103,1],[156,25,156,103,1],[156,25,156,53,1],[156,53,156,101,1],[156,101,156,103,1],[156,25,156,103,1],[156,25,156,53,1],[156,53,156,101,1],[156,101,156,103,1],[156,25,156,103,1],[156,25,156,53,1],[156,53,156,101,1],[156,101,156,103,1],[156,25,156,103,1],[157,21,157,22,1],[157,21,157,22,1],[157,21,157,22,1],[157,21,157,22,1],[157,21,157,22,1],[159,21,159,55,1],[159,21,159,55,1],[159,21,159,55,1],[159,21,159,55,1],[159,21,159,55,1],[160,17,160,18,1],[160,17,160,18,1],[160,17,160,18,1],[160,17,160,18,1],[160,17,160,18,1],[163,17,163,18,1],[163,17,163,18,1],[163,17,163,18,1],[163,17,163,18,1],[163,17,163,18,1],[164,21,166,38,1],[166,38,166,86,1],[166,86,167,39,1],[167,39,167,97,1],[167,97,168,38,1],[168,38,168,48,1],[168,48,168,50,1],[164,21,168,50,1],[164,21,166,38,1],[166,38,166,86,1],[166,86,167,39,1],[167,39,167,97,1],[167,97,168,38,1],[168,38,168,48,1],[168,48,168,50,1],[164,21,168,50,1],[164,21,166,38,1],[166,38,166,86,1],[166,86,167,39,1],[167,39,167,97,1],[167,97,168,38,1],[168,38,168,48,1],[168,48,168,50,1],[164,21,168,50,1],[164,21,166,38,1],[166,38,166,86,1],[166,86,167,39,1],[167,39,167,97,1],[167,97,168,38,1],[168,38,168,48,1],[168,48,168,50,1],[164,21,168,50,1],[164,21,166,38,1],[166,38,166,86,1],[166,86,167,39,1],[167,39,167,97,1],[167,97,168,38,1],[168,38,168,48,1],[168,48,168,50,1],[164,21,168,50,1],[170,21,170,54,1],[170,21,170,54,1],[170,21,170,54,1],[170,21,170,54,1],[170,21,170,54,1],[171,17,171,18,1],[171,17,171,18,1],[171,17,171,18,1],[171,17,171,18,1],[171,17,171,18,1],[173,17,173,65,1],[173,17,173,65,1],[173,17,173,65,1],[173,17,173,65,1],[173,17,173,65,1],[174,17,174,18,1],[174,17,174,18,1],[174,17,174,18,1],[174,17,174,18,1],[174,17,174,18,1],[175,21,175,94,1],[175,21,175,94,1],[175,21,175,94,1],[175,21,175,94,1],[175,21,175,94,1],[176,21,176,22,1],[176,21,176,22,1],[176,21,176,22,1],[176,21,176,22,1],[176,21,176,22,1],[177,25,177,55,1],[177,25,177,55,1],[177,25,177,55,1],[177,25,177,55,1],[177,25,177,55,1],[178,21,178,22,1],[178,21,178,22,1],[178,21,178,22,1],[178,21,178,22,1],[178,21,178,22,1],[179,17,179,18,1],[179,17,179,18,1],[179,17,179,18,1],[179,17,179,18,1],[179,17,179,18,1],[181,17,181,67,1],[181,17,181,67,1],[181,17,181,67,1],[181,17,181,67,1],[181,17,181,67,1],[183,17,183,45,1],[183,17,183,45,1],[183,17,183,45,1],[183,17,183,45,1],[183,17,183,45,1],[184,13,184,14,1],[184,13,184,14,1],[184,13,184,14,1],[184,13,184,14,1],[184,13,184,14,1],[186,13,186,20,1],[186,13,186,20,1],[186,13,186,20,1],[186,13,186,20,1],[186,13,186,20,1],[186,22,186,31,1],[186,22,186,31,1],[186,22,186,31,1],[186,22,186,31,1],[186,22,186,31,1],[186,32,186,34,1],[186,32,186,34,1],[186,32,186,34,1],[186,32,186,34,1],[186,32,186,34,1],[186,35,188,64,1],[186,35,188,64,1],[186,35,188,64,1],[186,35,188,64,1],[186,35,188,64,1],[189,13,189,14,1],[189,13,189,14,1],[189,13,189,14,1],[189,13,189,14,1],[189,13,189,14,1],[190,17,190,74,1],[190,17,190,74,1],[190,17,190,74,1],[190,17,190,74,1],[190,17,190,74,1],[191,17,191,55,1],[191,17,191,55,1],[191,17,191,55,1],[191,17,191,55,1],[191,17,191,55,1],[192,17,192,18,0],[192,17,192,18,0],[192,17,192,18,0],[192,17,192,18,0],[192,17,192,18,0],[193,21,193,30,0],[193,21,193,30,0],[193,21,193,30,0],[193,21,193,30,0],[193,21,193,30,0],[196,17,196,40,1],[196,17,196,40,1],[196,17,196,40,1],[196,17,196,40,1],[196,17,196,40,1],[197,17,197,18,0],[197,17,197,18,0],[197,17,197,18,0],[197,17,197,18,0],[197,17,197,18,0],[199,21,199,30,0],[199,21,199,30,0],[199,21,199,30,0],[199,21,199,30,0],[199,21,199,30,0],[202,17,202,60,1],[202,17,202,60,1],[202,17,202,60,1],[202,17,202,60,1],[202,17,202,60,1],[203,17,203,18,0],[203,17,203,18,0],[203,17,203,18,0],[203,17,203,18,0],[203,17,203,18,0],[205,21,205,30,0],[205,21,205,30,0],[205,21,205,30,0],[205,21,205,30,0],[205,21,205,30,0],[208,17,208,110,1],[208,17,208,110,1],[208,17,208,110,1],[208,17,208,110,1],[208,17,208,110,1],[209,17,209,49,1],[209,17,209,49,1],[209,17,209,49,1],[209,17,209,49,1],[209,17,209,49,1],[210,17,211,60,1],[210,17,211,60,1],[210,17,211,60,1],[210,17,211,60,1],[210,17,211,60,1],[212,17,212,18,1],[212,17,212,18,1],[212,17,212,18,1],[212,17,212,18,1],[212,17,212,18,1],[213,21,213,73,1],[213,21,213,73,1],[213,21,213,73,1],[213,21,213,73,1],[213,21,213,73,1],[214,17,214,18,1],[214,17,214,18,1],[214,17,214,18,1],[214,17,214,18,1],[214,17,214,18,1],[216,17,223,19,1],[216,17,223,19,1],[216,17,223,19,1],[216,17,223,19,1],[216,17,223,19,1],[225,17,225,56,1],[225,17,225,56,1],[225,17,225,56,1],[225,17,225,56,1],[225,17,225,56,1],[226,17,226,57,1],[226,17,226,57,1],[226,17,226,57,1],[226,17,226,57,1],[226,17,226,57,1],[227,13,227,14,1],[227,13,227,14,1],[227,13,227,14,1],[227,13,227,14,1],[227,13,227,14,1],[228,9,228,10,1],[228,9,228,10,1],[228,9,228,10,1],[228,9,228,10,1],[228,9,228,10,1],[231,9,231,10,1],[231,9,231,10,1],[231,9,231,10,1],[231,9,231,10,1],[231,9,231,10,1],[232,13,232,20,1],[232,13,232,20,1],[232,13,232,20,1],[232,13,232,20,1],[232,13,232,20,1],[232,22,232,28,1],[232,22,232,28,1],[232,22,232,28,1],[232,22,232,28,1],[232,22,232,28,1],[232,29,232,31,1],[232,29,232,31,1],[232,29,232,31,1],[232,29,232,31,1],[232,29,232,31,1],[232,32,232,41,1],[232,32,232,41,1],[232,32,232,41,1],[232,32,232,41,1],[232,32,232,41,1],[233,13,233,14,1],[233,13,233,14,1],[233,13,233,14,1],[233,13,233,14,1],[233,13,233,14,1],[234,17,234,51,1],[234,17,234,51,1],[234,17,234,51,1],[234,17,234,51,1],[234,17,234,51,1],[234,52,234,61,1],[234,52,234,61,1],[234,52,234,61,1],[234,52,234,61,1],[234,52,234,61,1],[236,17,236,77,1],[236,17,236,77,1],[236,17,236,77,1],[236,17,236,77,1],[236,17,236,77,1],[237,17,237,18,1],[237,17,237,18,1],[237,17,237,18,1],[237,17,237,18,1],[237,17,237,18,1],[238,21,238,72,1],[238,21,238,72,1],[238,21,238,72,1],[238,21,238,72,1],[238,21,238,72,1],[239,21,239,81,1],[239,21,239,81,1],[239,21,239,81,1],[239,21,239,81,1],[239,21,239,81,1],[240,17,240,18,1],[240,17,240,18,1],[240,17,240,18,1],[240,17,240,18,1],[240,17,240,18,1],[242,17,242,18,0],[242,17,242,18,0],[242,17,242,18,0],[242,17,242,18,0],[242,17,242,18,0],[243,21,243,114,0],[243,21,243,114,0],[243,21,243,114,0],[243,21,243,114,0],[243,21,243,114,0],[244,17,244,18,0],[244,17,244,18,0],[244,17,244,18,0],[244,17,244,18,0],[244,17,244,18,0],[245,13,245,14,1],[245,13,245,14,1],[245,13,245,14,1],[245,13,245,14,1],[245,13,245,14,1],[246,9,246,10,1],[246,9,246,10,1],[246,9,246,10,1],[246,9,246,10,1],[246,9,246,10,1],[249,9,249,10,1],[249,9,249,10,1],[249,9,249,10,1],[249,9,249,10,1],[249,9,249,10,1],[250,13,250,48,1],[250,13,250,48,1],[250,13,250,48,1],[250,13,250,48,1],[250,13,250,48,1],[251,13,251,14,0],[251,13,251,14,0],[251,13,251,14,0],[251,13,251,14,0],[251,13,251,14,0],[252,17,252,76,0],[252,17,252,76,0],[252,17,252,76,0],[252,17,252,76,0],[252,17,252,76,0],[253,17,253,24,0],[253,17,253,24,0],[253,17,253,24,0],[253,17,253,24,0],[253,17,253,24,0],[256,13,257,103,1],[256,13,257,103,1],[256,13,257,103,1],[256,13,257,103,1],[256,13,257,103,1],[259,13,259,20,1],[259,13,259,20,1],[259,13,259,20,1],[259,13,259,20,1],[259,13,259,20,1],[259,22,259,28,1],[259,22,259,28,1],[259,22,259,28,1],[259,22,259,28,1],[259,22,259,28,1],[259,29,259,31,1],[259,29,259,31,1],[259,29,259,31,1],[259,29,259,31,1],[259,29,259,31,1],[259,32,259,41,1],[259,32,259,41,1],[259,32,259,41,1],[259,32,259,41,1],[259,32,259,41,1],[260,13,260,14,1],[260,13,260,14,1],[260,13,260,14,1],[260,13,260,14,1],[260,13,260,14,1],[261,17,261,50,1],[261,17,261,50,1],[261,17,261,50,1],[261,17,261,50,1],[261,17,261,50,1],[261,51,261,60,1],[261,51,261,60,1],[261,51,261,60,1],[261,51,261,60,1],[261,51,261,60,1],[263,17,263,54,1],[263,17,263,54,1],[263,17,263,54,1],[263,17,263,54,1],[263,17,263,54,1],[263,55,263,64,0],[263,55,263,64,0],[263,55,263,64,0],[263,55,263,64,0],[263,55,263,64,0],[264,17,264,61,1],[264,17,264,61,1],[264,17,264,61,1],[264,17,264,61,1],[264,17,264,61,1],[266,17,266,51,1],[266,17,266,51,1],[266,17,266,51,1],[266,17,266,51,1],[266,17,266,51,1],[267,17,267,18,1],[267,17,267,18,1],[267,17,267,18,1],[267,17,267,18,1],[267,17,267,18,1],[269,21,269,30,1],[269,21,269,30,1],[269,21,269,30,1],[269,21,269,30,1],[269,21,269,30,1],[272,17,272,42,1],[272,17,272,42,1],[272,17,272,42,1],[272,17,272,42,1],[272,17,272,42,1],[273,17,273,44,1],[273,17,273,44,1],[273,17,273,44,1],[273,17,273,44,1],[273,17,273,44,1],[274,17,274,44,1],[274,17,274,44,1],[274,17,274,44,1],[274,17,274,44,1],[274,17,274,44,1],[278,17,278,18,1],[278,17,278,18,1],[278,17,278,18,1],[278,17,278,18,1],[278,17,278,18,1],[279,21,279,63,1],[279,21,279,63,1],[279,21,279,63,1],[279,21,279,63,1],[279,21,279,63,1],[280,17,280,18,1],[280,17,280,18,1],[280,17,280,18,1],[280,17,280,18,1],[280,17,280,18,1],[281,17,281,36,0],[281,17,281,36,0],[281,17,281,36,0],[281,17,281,36,0],[281,17,281,36,0],[282,17,282,18,0],[282,17,282,18,0],[282,17,282,18,0],[282,17,282,18,0],[282,17,282,18,0],[283,21,283,94,0],[283,21,283,94,0],[283,21,283,94,0],[283,21,283,94,0],[283,21,283,94,0],[284,21,284,57,0],[284,21,284,57,0],[284,21,284,57,0],[284,21,284,57,0],[284,21,284,57,0],[285,21,285,30,0],[285,21,285,30,0],[285,21,285,30,0],[285,21,285,30,0],[285,21,285,30,0],[290,17,290,18,1],[290,17,290,18,1],[290,17,290,18,1],[290,17,290,18,1],[290,17,290,18,1],[291,21,291,67,1],[291,21,291,67,1],[291,21,291,67,1],[291,21,291,67,1],[291,21,291,67,1],[292,17,292,18,1],[292,17,292,18,1],[292,17,292,18,1],[292,17,292,18,1],[292,17,292,18,1],[293,17,293,36,0],[293,17,293,36,0],[293,17,293,36,0],[293,17,293,36,0],[293,17,293,36,0],[294,17,294,18,0],[294,17,294,18,0],[294,17,294,18,0],[294,17,294,18,0],[294,17,294,18,0],[295,21,295,96,0],[295,21,295,96,0],[295,21,295,96,0],[295,21,295,96,0],[295,21,295,96,0],[296,21,296,57,0],[296,21,296,57,0],[296,21,296,57,0],[296,21,296,57,0],[296,21,296,57,0],[297,21,297,30,0],[297,21,297,30,0],[297,21,297,30,0],[297,21,297,30,0],[297,21,297,30,0],[301,17,301,18,1],[301,17,301,18,1],[301,17,301,18,1],[301,17,301,18,1],[301,17,301,18,1],[302,21,305,62,1],[302,21,305,62,1],[302,21,305,62,1],[302,21,305,62,1],[302,21,305,62,1],[306,17,306,18,1],[306,17,306,18,1],[306,17,306,18,1],[306,17,306,18,1],[306,17,306,18,1],[307,17,307,36,0],[307,17,307,36,0],[307,17,307,36,0],[307,17,307,36,0],[307,17,307,36,0],[308,17,308,18,0],[308,17,308,18,0],[308,17,308,18,0],[308,17,308,18,0],[308,17,308,18,0],[309,21,309,96,0],[309,21,309,96,0],[309,21,309,96,0],[309,21,309,96,0],[309,21,309,96,0],[310,21,310,57,0],[310,21,310,57,0],[310,21,310,57,0],[310,21,310,57,0],[310,21,310,57,0],[311,17,311,18,0],[311,17,311,18,0],[311,17,311,18,0],[311,17,311,18,0],[311,17,311,18,0],[313,17,313,65,1],[313,17,313,65,1],[313,17,313,65,1],[313,17,313,65,1],[313,17,313,65,1],[314,13,314,14,1],[314,13,314,14,1],[314,13,314,14,1],[314,13,314,14,1],[314,13,314,14,1],[316,13,316,20,1],[316,13,316,20,1],[316,13,316,20,1],[316,13,316,20,1],[316,13,316,20,1],[316,22,316,28,1],[316,22,316,28,1],[316,22,316,28,1],[316,22,316,28,1],[316,22,316,28,1],[316,29,316,31,1],[316,29,316,31,1],[316,29,316,31,1],[316,29,316,31,1],[316,29,316,31,1],[316,32,316,39,1],[316,32,316,39,1],[316,32,316,39,1],[316,32,316,39,1],[316,32,316,39,1],[317,13,317,14,1],[317,13,317,14,1],[317,13,317,14,1],[317,13,317,14,1],[317,13,317,14,1],[318,17,318,54,1],[318,17,318,54,1],[318,17,318,54,1],[318,17,318,54,1],[318,17,318,54,1],[318,55,318,64,0],[318,55,318,64,0],[318,55,318,64,0],[318,55,318,64,0],[318,55,318,64,0],[321,17,321,18,1],[321,17,321,18,1],[321,17,321,18,1],[321,17,321,18,1],[321,17,321,18,1],[322,21,325,84,1],[322,21,325,84,1],[322,21,325,84,1],[322,21,325,84,1],[322,21,325,84,1],[327,21,330,23,1],[327,21,330,23,1],[327,21,330,23,1],[327,21,330,23,1],[327,21,330,23,1],[331,17,331,18,1],[331,17,331,18,1],[331,17,331,18,1],[331,17,331,18,1],[331,17,331,18,1],[332,17,332,36,0],[332,17,332,36,0],[332,17,332,36,0],[332,17,332,36,0],[332,17,332,36,0],[333,17,333,18,0],[333,17,333,18,0],[333,17,333,18,0],[333,17,333,18,0],[333,17,333,18,0],[334,21,334,51,0],[334,21,334,51,0],[334,21,334,51,0],[334,21,334,51,0],[334,21,334,51,0],[335,17,335,18,0],[335,17,335,18,0],[335,17,335,18,0],[335,17,335,18,0],[335,17,335,18,0],[336,13,336,14,1],[336,13,336,14,1],[336,13,336,14,1],[336,13,336,14,1],[336,13,336,14,1],[337,9,337,10,1],[337,9,337,10,1],[337,9,337,10,1],[337,9,337,10,1],[337,9,337,10,1],[340,9,340,10,1],[340,9,340,10,1],[340,9,340,10,1],[340,9,340,10,1],[340,9,340,10,1],[341,13,341,88,1],[341,13,341,88,1],[341,13,341,88,1],[341,13,341,88,1],[341,13,341,88,1],[343,13,343,20,1],[343,13,343,20,1],[343,13,343,20,1],[343,13,343,20,1],[343,13,343,20,1],[343,22,343,31,1],[343,22,343,31,1],[343,22,343,31,1],[343,22,343,31,1],[343,22,343,31,1],[343,32,343,34,1],[343,32,343,34,1],[343,32,343,34,1],[343,32,343,34,1],[343,32,343,34,1],[343,35,344,29,1],[344,29,344,68,1],[344,68,344,69,1],[343,35,344,69,1],[343,35,344,29,1],[344,29,344,68,1],[344,68,344,69,1],[343,35,344,69,1],[343,35,344,29,1],[344,29,344,68,1],[344,68,344,69,1],[343,35,344,69,1],[343,35,344,29,1],[344,29,344,68,1],[344,68,344,69,1],[343,35,344,69,1],[343,35,344,29,1],[344,29,344,68,1],[344,68,344,69,1],[343,35,344,69,1],[345,13,345,14,1],[345,13,345,14,1],[345,13,345,14,1],[345,13,345,14,1],[345,13,345,14,1],[346,17,346,80,1],[346,17,346,80,1],[346,17,346,80,1],[346,17,346,80,1],[346,17,346,80,1],[348,17,348,53,1],[348,17,348,53,1],[348,17,348,53,1],[348,17,348,53,1],[348,17,348,53,1],[349,17,349,18,0],[349,17,349,18,0],[349,17,349,18,1],[349,17,349,18,0],[349,17,349,18,0],[350,21,350,28,0],[350,21,350,28,1],[350,21,350,28,0],[350,21,350,28,0],[350,21,350,28,0],[350,30,350,35,0],[350,30,350,35,0],[350,30,350,35,0],[350,30,350,35,0],[350,30,350,35,1],[350,36,350,38,0],[350,36,350,38,0],[350,36,350,38,1],[350,36,350,38,0],[350,36,350,38,0],[350,39,350,62,0],[350,39,350,62,0],[350,39,350,62,0],[350,39,350,62,1],[350,39,350,62,0],[351,21,351,22,0],[351,21,351,22,0],[351,21,351,22,1],[351,21,351,22,0],[351,21,351,22,0],[352,25,352,53,1],[352,25,352,53,0],[352,25,352,53,0],[352,25,352,53,0],[352,25,352,53,0],[353,21,353,22,1],[353,21,353,22,0],[353,21,353,22,0],[353,21,353,22,0],[353,21,353,22,0],[354,17,354,18,1],[354,17,354,18,0],[354,17,354,18,0],[354,17,354,18,0],[354,17,354,18,0],[356,17,356,18,1],[356,17,356,18,1],[356,17,356,18,1],[356,17,356,18,1],[356,17,356,18,1],[357,21,357,56,1],[357,21,357,56,1],[357,21,357,56,1],[357,21,357,56,1],[357,21,357,56,1],[359,21,359,55,1],[359,21,359,55,1],[359,21,359,55,1],[359,21,359,55,1],[359,21,359,55,1],[360,17,360,18,1],[360,17,360,18,1],[360,17,360,18,1],[360,17,360,18,1],[360,17,360,18,1],[361,13,361,14,1],[361,13,361,14,1],[361,13,361,14,1],[361,13,361,14,1],[361,13,361,14,1],[362,9,362,10,1],[362,9,362,10,1],[362,9,362,10,1],[362,9,362,10,1],[362,9,362,10,1],[365,9,365,10,1],[365,9,365,10,1],[365,9,365,10,1],[365,9,365,10,1],[365,9,365,10,1],[366,13,366,32,1],[366,13,366,32,1],[366,13,366,32,1],[366,13,366,32,1],[366,13,366,32,1],[367,13,367,83,1],[367,13,367,83,1],[367,13,367,83,1],[367,13,367,83,1],[367,13,367,83,1],[368,13,368,14,0],[368,13,368,14,0],[368,13,368,14,0],[368,13,368,14,0],[368,13,368,14,0],[369,17,369,125,0],[369,17,369,125,0],[369,17,369,125,0],[369,17,369,125,0],[369,17,369,125,0],[370,17,370,24,0],[370,17,370,24,0],[370,17,370,24,0],[370,17,370,24,0],[370,17,370,24,0],[373,13,376,15,1],[373,13,376,15,1],[373,13,376,15,1],[373,13,376,15,1],[373,13,376,15,1],[377,9,377,10,1],[377,9,377,10,1],[377,9,377,10,1],[377,9,377,10,1],[377,9,377,10,1],[381,9,381,10,1],[381,9,381,10,1],[381,9,381,10,1],[381,9,381,10,1],[381,9,381,10,1],[382,13,385,15,1],[382,13,385,15,1],[382,13,385,15,1],[382,13,385,15,1],[382,13,385,15,1],[386,13,386,42,1],[386,13,386,42,1],[386,13,386,42,1],[386,13,386,42,1],[386,13,386,42,1],[387,9,387,10,1],[387,9,387,10,1],[387,9,387,10,1],[387,9,387,10,1],[387,9,387,10,1],[390,9,390,10,1],[390,9,390,10,1],[390,9,390,10,1],[390,9,390,10,1],[390,9,390,10,1],[391,13,391,36,1],[391,13,391,36,1],[391,13,391,36,1],[391,13,391,36,1],[391,13,391,36,1],[393,13,393,20,1],[393,13,393,20,1],[393,13,393,20,1],[393,13,393,20,1],[393,13,393,20,1],[393,22,393,31,1],[393,22,393,31,1],[393,22,393,31,1],[393,22,393,31,1],[393,22,393,31,1],[393,32,393,34,1],[393,32,393,34,1],[393,32,393,34,1],[393,32,393,34,1],[393,32,393,34,1],[393,35,393,55,1],[393,35,393,55,1],[393,35,393,55,1],[393,35,393,55,1],[393,35,393,55,1],[394,13,394,14,1],[394,13,394,14,1],[394,13,394,14,1],[394,13,394,14,1],[394,13,394,14,1],[395,17,395,81,1],[395,17,395,81,1],[395,17,395,81,1],[395,17,395,81,1],[395,17,395,81,1],[396,17,396,18,1],[396,17,396,18,1],[396,17,396,18,1],[396,17,396,18,1],[396,17,396,18,0],[397,21,397,59,1],[397,21,397,59,0],[397,21,397,59,1],[397,21,397,59,1],[397,21,397,59,1],[398,21,398,38,1],[398,21,398,38,0],[398,21,398,38,1],[398,21,398,38,1],[398,21,398,38,1],[399,21,399,22,1],[399,21,399,22,0],[399,21,399,22,1],[399,21,399,22,1],[399,21,399,22,1],[400,25,400,50,1],[400,25,400,50,1],[400,25,400,50,0],[400,25,400,50,1],[400,25,400,50,1],[401,25,401,55,1],[401,25,401,55,1],[401,25,401,55,0],[401,25,401,55,1],[401,25,401,55,1],[402,25,402,37,0],[402,25,402,37,1],[402,25,402,37,1],[402,25,402,37,1],[402,25,402,37,1],[404,21,404,34,0],[404,21,404,34,0],[404,21,404,34,0],[404,21,404,34,0],[404,21,404,34,0],[406,13,406,14,1],[406,13,406,14,1],[406,13,406,14,1],[406,13,406,14,1],[406,13,406,14,1],[408,13,408,30,1],[408,13,408,30,1],[408,13,408,30,1],[408,13,408,30,1],[408,13,408,30,1],[409,13,409,14,1],[409,13,409,14,1],[409,13,409,14,1],[409,13,409,14,1],[409,13,409,14,1],[410,17,410,44,1],[410,17,410,44,1],[410,17,410,44,1],[410,17,410,44,1],[410,17,410,44,1],[411,13,411,14,1],[411,13,411,14,1],[411,13,411,14,1],[411,13,411,14,1],[411,13,411,14,1],[412,18,412,41,1],[412,18,412,41,1],[412,18,412,41,1],[412,18,412,41,1],[412,18,412,41,1],[413,13,413,14,1],[413,13,413,14,1],[413,13,413,14,1],[413,13,413,14,1],[413,13,413,14,1],[414,17,414,62,1],[414,17,414,62,1],[414,17,414,62,1],[414,17,414,62,1],[414,17,414,62,1],[415,13,415,14,1],[415,13,415,14,1],[415,13,415,14,1],[415,13,415,14,1],[415,13,415,14,1],[417,13,417,36,1],[417,13,417,36,1],[417,13,417,36,1],[417,13,417,36,1],[417,13,417,36,1],[418,13,418,14,1],[418,13,418,14,1],[418,13,418,14,1],[418,13,418,14,1],[418,13,418,14,1],[419,17,419,86,1],[419,17,419,86,1],[419,17,419,86,1],[419,17,419,86,1],[419,17,419,86,1],[420,17,420,18,1],[420,17,420,18,1],[420,17,420,18,1],[420,17,420,18,1],[420,17,420,18,1],[421,21,421,59,1],[421,21,421,59,1],[421,21,421,59,1],[421,21,421,59,1],[421,21,421,59,1],[422,21,422,38,1],[422,21,422,38,1],[422,21,422,38,1],[422,21,422,38,1],[422,21,422,38,1],[423,21,423,22,1],[423,21,423,22,1],[423,21,423,22,1],[423,21,423,22,1],[423,21,423,22,1],[424,25,424,50,1],[424,25,424,50,1],[424,25,424,50,1],[424,25,424,50,1],[424,25,424,50,1],[425,25,425,55,1],[425,25,425,55,1],[425,25,425,55,1],[425,25,425,55,1],[425,25,425,55,1],[426,25,426,37,1],[426,25,426,37,1],[426,25,426,37,1],[426,25,426,37,1],[426,25,426,37,1],[428,17,428,18,0],[428,17,428,18,0],[428,17,428,18,0],[428,17,428,18,0],[428,17,428,18,0],[429,13,429,14,0],[429,13,429,14,0],[429,13,429,14,0],[429,13,429,14,0],[429,13,429,14,0],[430,18,430,69,1],[430,18,430,69,1],[430,18,430,69,1],[430,18,430,69,1],[430,18,430,69,1],[431,13,431,14,1],[431,13,431,14,1],[431,13,431,14,1],[431,13,431,14,1],[431,13,431,14,1],[433,17,433,18,1],[433,17,433,18,1],[433,17,433,18,1],[433,17,433,18,1],[433,17,433,18,1],[434,21,434,121,1],[434,21,434,121,1],[434,21,434,121,1],[434,21,434,121,1],[434,21,434,121,1],[435,21,435,46,1],[435,21,435,46,1],[435,21,435,46,1],[435,21,435,46,1],[435,21,435,46,1],[436,21,436,53,1],[436,21,436,53,1],[436,21,436,53,1],[436,21,436,53,1],[436,21,436,53,1],[437,21,437,33,1],[437,21,437,33,1],[437,21,437,33,1],[437,21,437,33,1],[437,21,437,33,1],[439,17,439,22,0],[439,17,439,22,0],[439,17,439,22,0],[439,17,439,22,0],[439,17,439,22,0],[439,23,439,24,0],[439,23,439,24,0],[439,23,439,24,0],[439,23,439,24,0],[439,23,439,24,0],[439,25,439,26,0],[439,25,439,26,0],[439,25,439,26,0],[439,25,439,26,0],[439,25,439,26,0],[440,13,440,14,0],[440,13,440,14,0],[440,13,440,14,0],[440,13,440,14,0],[440,13,440,14,0],[442,13,442,26,1],[442,13,442,26,1],[442,13,442,26,1],[442,13,442,26,1],[442,13,442,26,1],[443,9,443,10,1],[443,9,443,10,1],[443,9,443,10,1],[443,9,443,10,1],[443,9,443,10,1],[448,9,448,10,0],[448,9,448,10,0],[448,9,448,10,0],[448,9,448,10,0],[448,9,448,10,0],[449,13,449,65,0],[449,13,449,65,0],[449,13,449,65,0],[449,13,449,65,0],[449,13,449,65,0],[450,9,450,10,0],[450,9,450,10,0],[450,9,450,10,0],[450,9,450,10,0],[450,9,450,10,0],[453,9,453,10,0],[453,9,453,10,0],[453,9,453,10,0],[453,9,453,10,0],[453,9,453,10,0],[454,13,454,65,0],[454,13,454,65,0],[454,13,454,65,0],[454,13,454,65,0],[454,13,454,65,0],[455,9,455,10,0],[455,9,455,10,0],[455,9,455,10,0],[455,9,455,10,0],[455,9,455,10,0],[458,9,458,10,1],[458,9,458,10,1],[458,9,458,10,1],[458,9,458,10,1],[458,9,458,10,1],[459,13,459,64,1],[459,13,459,64,1],[459,13,459,64,1],[459,13,459,64,1],[459,13,459,64,1],[460,13,460,14,1],[460,13,460,14,1],[460,13,460,14,1],[460,13,460,14,1],[460,13,460,14,1],[461,17,461,29,1],[461,17,461,29,1],[461,17,461,29,1],[461,17,461,29,1],[461,17,461,29,1],[463,18,463,50,1],[463,18,463,50,1],[463,18,463,50,1],[463,18,463,50,1],[463,18,463,50,1],[464,13,464,14,1],[464,13,464,14,1],[464,13,464,14,1],[464,13,464,14,1],[464,13,464,14,1],[465,17,465,64,1],[465,17,465,64,1],[465,17,465,64,1],[465,17,465,64,1],[465,17,465,64,1],[468,13,468,14,1],[468,13,468,14,1],[468,13,468,14,1],[468,13,468,14,1],[468,13,468,14,1],[470,13,470,14,1],[470,13,470,14,1],[470,13,470,14,1],[470,13,470,14,1],[470,13,470,14,1],[472,13,472,26,1],[472,13,472,26,1],[472,13,472,26,1],[472,13,472,26,1],[472,13,472,26,1],[473,9,473,10,1],[473,9,473,10,1],[473,9,473,10,1],[473,9,473,10,1],[473,9,473,10,1],[476,9,476,10,1],[476,9,476,10,1],[476,9,476,10,1],[476,9,476,10,1],[476,9,476,10,1],[477,13,477,68,1],[477,13,477,68,1],[477,13,477,68,1],[477,13,477,68,1],[477,13,477,68,1],[478,13,478,14,1],[478,13,478,14,1],[478,13,478,14,1],[478,13,478,14,1],[478,13,478,14,1],[479,17,479,28,1],[479,17,479,28,1],[479,17,479,28,1],[479,17,479,28,1],[479,17,479,28,1],[480,17,480,29,1],[480,17,480,29,1],[480,17,480,29,1],[480,17,480,29,1],[480,17,480,29,1],[482,18,482,55,1],[482,18,482,55,1],[482,18,482,55,1],[482,18,482,55,1],[482,18,482,55,1],[483,13,483,14,1],[483,13,483,14,1],[483,13,483,14,1],[483,13,483,14,1],[483,13,483,14,1],[484,17,484,56,1],[484,17,484,56,1],[484,17,484,56,1],[484,17,484,56,1],[484,17,484,56,1],[487,13,487,27,0],[487,13,487,27,0],[487,13,487,27,0],[487,13,487,27,0],[487,13,487,27,0],[488,13,488,26,0],[488,13,488,26,0],[488,13,488,26,0],[488,13,488,26,0],[488,13,488,26,0],[489,9,489,10,1],[489,9,489,10,1],[489,9,489,10,1],[489,9,489,10,1],[489,9,489,10,1],[492,9,492,10,1],[492,9,492,10,1],[492,9,492,10,1],[492,9,492,10,1],[492,9,492,10,1],[493,13,493,73,1],[493,13,493,73,1],[493,13,493,73,1],[493,13,493,73,1],[493,13,493,73,1],[494,13,494,14,1],[494,13,494,14,1],[494,13,494,14,1],[494,13,494,14,1],[494,13,494,14,1],[495,17,495,56,1],[495,17,495,56,1],[495,17,495,56,1],[495,17,495,56,1],[495,17,495,56,1],[497,17,497,18,1],[497,17,497,18,1],[497,17,497,18,1],[497,17,497,18,1],[497,17,497,18,1],[498,21,498,52,1],[498,21,498,52,1],[498,21,498,52,1],[498,21,498,52,1],[498,21,498,52,1],[499,17,499,18,1],[499,17,499,18,1],[499,17,499,18,1],[499,17,499,18,1],[499,17,499,18,1],[500,17,500,36,1],[500,17,500,36,1],[500,17,500,36,1],[500,17,500,36,1],[500,17,500,36,1],[501,17,501,18,1],[501,17,501,18,1],[501,17,501,18,1],[501,17,501,18,1],[501,17,501,18,1],[502,21,502,56,1],[502,21,502,56,1],[502,21,502,56,1],[502,21,502,56,1],[502,21,502,56,1],[503,21,503,29,1],[503,21,503,29,1],[503,21,503,29,1],[503,21,503,29,1],[503,21,503,29,1],[505,13,505,14,1],[505,13,505,14,1],[505,13,505,14,1],[505,13,505,14,1],[505,13,505,14,1],[506,18,506,55,1],[506,18,506,55,1],[506,18,506,55,1],[506,18,506,55,1],[506,18,506,55,1],[507,13,507,14,1],[507,13,507,14,1],[507,13,507,14,1],[507,13,507,14,1],[507,13,507,14,1],[508,17,508,44,1],[508,17,508,44,1],[508,17,508,44,1],[508,17,508,44,1],[508,17,508,44,1],[509,13,509,14,1],[509,13,509,14,1],[509,13,509,14,1],[509,13,509,14,1],[509,13,509,14,1],[511,13,511,14,0],[511,13,511,14,0],[511,13,511,14,0],[511,13,511,14,0],[511,13,511,14,0],[512,17,512,86,0],[512,17,512,86,0],[512,17,512,86,0],[512,17,512,86,0],[512,17,512,86,0],[514,9,514,10,1],[514,9,514,10,1],[514,9,514,10,1],[514,9,514,10,1],[514,9,514,10,1],[517,9,517,10,1],[517,9,517,10,1],[517,9,517,10,1],[517,9,517,10,1],[517,9,517,10,1],[518,13,518,73,1],[518,13,518,73,1],[518,13,518,73,1],[518,13,518,73,1],[518,13,518,73,1],[519,13,519,14,1],[519,13,519,14,1],[519,13,519,14,1],[519,13,519,14,1],[519,13,519,14,1],[520,17,520,54,1],[520,17,520,54,1],[520,17,520,54,1],[520,17,520,54,1],[520,17,520,54,1],[522,17,522,18,1],[522,17,522,18,1],[522,17,522,18,1],[522,17,522,18,1],[522,17,522,18,1],[523,21,523,56,1],[523,21,523,56,1],[523,21,523,56,1],[523,21,523,56,1],[523,21,523,56,1],[524,21,524,34,1],[524,21,524,34,1],[524,21,524,34,1],[524,21,524,34,1],[524,21,524,34,1],[526,17,526,36,0],[526,17,526,36,0],[526,17,526,36,0],[526,17,526,36,0],[526,17,526,36,0],[527,17,527,18,0],[527,17,527,18,0],[527,17,527,18,0],[527,17,527,18,0],[527,17,527,18,0],[528,21,528,54,0],[528,21,528,54,0],[528,21,528,54,0],[528,21,528,54,0],[528,21,528,54,0],[529,21,529,29,0],[529,21,529,29,0],[529,21,529,29,0],[529,21,529,29,0],[529,21,529,29,0],[532,18,532,55,0],[532,18,532,55,0],[532,18,532,55,0],[532,18,532,55,0],[532,18,532,55,0],[533,13,533,14,0],[533,13,533,14,0],[533,13,533,14,0],[533,13,533,14,0],[533,13,533,14,0],[534,17,534,50,0],[534,17,534,50,0],[534,17,534,50,0],[534,17,534,50,0],[534,17,534,50,0],[537,13,537,14,0],[537,13,537,14,0],[537,13,537,14,0],[537,13,537,14,0],[537,13,537,14,0],[538,17,538,88,0],[538,17,538,88,0],[538,17,538,88,0],[538,17,538,88,0],[538,17,538,88,0],[542,9,542,10,1],[542,9,542,10,1],[542,9,542,10,1],[542,9,542,10,1],[542,9,542,10,1],[545,9,545,10,1],[545,9,545,10,1],[545,9,545,10,1],[545,9,545,10,1],[545,9,545,10,1],[546,13,546,46,1],[546,13,546,46,1],[546,13,546,46,1],[546,13,546,46,1],[546,13,546,46,1],[547,9,547,10,1],[547,9,547,10,1],[547,9,547,10,1],[547,9,547,10,1],[547,9,547,10,1],[550,9,550,10,1],[550,9,550,10,1],[550,9,550,10,1],[550,9,550,10,1],[550,9,550,10,1],[551,13,551,47,1],[551,13,551,47,1],[551,13,551,47,1],[551,13,551,47,1],[551,13,551,47,1],[552,13,552,34,1],[552,13,552,34,1],[552,13,552,34,1],[552,13,552,34,1],[552,13,552,34,1],[553,9,553,10,1],[553,9,553,10,1],[553,9,553,10,1],[553,9,553,10,1],[553,9,553,10,1],[556,9,556,10,1],[556,9,556,10,1],[556,9,556,10,1],[556,9,556,10,1],[556,9,556,10,1],[557,13,557,73,1],[557,13,557,73,1],[557,13,557,73,1],[557,13,557,73,1],[557,13,557,73,1],[558,13,558,14,1],[558,13,558,14,1],[558,13,558,14,1],[558,13,558,14,1],[558,13,558,14,1],[559,17,559,54,1],[559,17,559,54,1],[559,17,559,54,1],[559,17,559,54,1],[559,17,559,54,1],[561,17,561,18,1],[561,17,561,18,1],[561,17,561,18,1],[561,17,561,18,1],[561,17,561,18,1],[562,21,562,59,1],[562,21,562,59,1],[562,21,562,59,1],[562,21,562,59,1],[562,21,562,59,1],[563,17,563,18,1],[563,17,563,18,1],[563,17,563,18,1],[563,17,563,18,1],[563,17,563,18,1],[564,17,564,36,0],[564,17,564,36,0],[564,17,564,36,0],[564,17,564,36,0],[564,17,564,36,0],[565,17,565,18,0],[565,17,565,18,0],[565,17,565,18,0],[565,17,565,18,0],[565,17,565,18,0],[566,21,566,54,0],[566,21,566,54,0],[566,21,566,54,0],[566,21,566,54,0],[566,21,566,54,0],[567,21,567,29,0],[567,21,567,29,0],[567,21,567,29,0],[567,21,567,29,0],[567,21,567,29,0],[569,13,569,14,1],[569,13,569,14,1],[569,13,569,14,1],[569,13,569,14,1],[569,13,569,14,1],[570,18,570,55,0],[570,18,570,55,0],[570,18,570,55,0],[570,18,570,55,0],[570,18,570,55,0],[571,13,571,14,0],[571,13,571,14,0],[571,13,571,14,0],[571,13,571,14,0],[571,13,571,14,0],[572,17,572,51,0],[572,17,572,51,0],[572,17,572,51,0],[572,17,572,51,0],[572,17,572,51,0],[573,13,573,14,0],[573,13,573,14,0],[573,13,573,14,0],[573,13,573,14,0],[573,13,573,14,0],[575,13,575,14,0],[575,13,575,14,0],[575,13,575,14,0],[575,13,575,14,0],[575,13,575,14,0],[576,17,576,88,0],[576,17,576,88,0],[576,17,576,88,0],[576,17,576,88,0],[576,17,576,88,0],[578,9,578,10,1],[578,9,578,10,1],[578,9,578,10,1],[578,9,578,10,1],[578,9,578,10,1],[582,9,582,10,1],[582,9,582,10,1],[582,9,582,10,1],[582,9,582,10,1],[582,9,582,10,1],[583,13,583,73,1],[583,13,583,73,1],[583,13,583,73,1],[583,13,583,73,1],[583,13,583,73,1],[584,13,584,14,1],[584,13,584,14,1],[584,13,584,14,1],[584,13,584,14,1],[584,13,584,14,1],[585,17,585,49,1],[585,17,585,49,1],[585,17,585,49,1],[585,17,585,49,1],[585,17,585,49,1],[587,18,587,55,1],[587,18,587,55,1],[587,18,587,55,1],[587,18,587,55,1],[587,18,587,55,1],[588,13,588,14,1],[588,13,588,14,1],[588,13,588,14,1],[588,13,588,14,1],[588,13,588,14,1],[589,17,589,43,1],[589,17,589,43,1],[589,17,589,43,1],[589,17,589,43,1],[589,17,589,43,1],[592,13,592,14,0],[592,13,592,14,0],[592,13,592,14,0],[592,13,592,14,0],[592,13,592,14,0],[593,17,593,88,0],[593,17,593,88,0],[593,17,593,88,0],[593,17,593,88,0],[593,17,593,88,0],[595,9,595,10,1],[595,9,595,10,1],[595,9,595,10,1],[595,9,595,10,1],[595,9,595,10,1]]);
+    </script>
+  </body>
+</html>

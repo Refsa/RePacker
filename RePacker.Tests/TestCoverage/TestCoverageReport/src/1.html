@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker.Tests\CollectionsTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Xunit;
+using System.Collections.Generic;
+using System.Linq;
+using RePacker.Buffers;
+using RePacker.Builder;
+using Xunit.Abstractions;
+
+namespace RePacker.Tests
+{
+    public class CollectionsTests
+    {
+        Buffer buffer = new Buffer(1 &lt;&lt; 24);
+
+        public CollectionsTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
+        #region Array
+        [Fact]
+        public void unmanaged_null_array()
+        {
+            int[] array = null;
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref array);
+
+            var fromBuf = RePacking.Unpack&lt;int[]&gt;(buffer);
+
+            Assert.NotNull(fromBuf);
+            Assert.Equal(0, fromBuf.Length);
+        }
+
+        [Fact]
+        public void managed_null_array()
+        {
+            SomeManagedObject[] array = null;
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref array);
+
+            var fromBuf = RePacking.Unpack&lt;SomeManagedObject[]&gt;(buffer);
+
+            Assert.NotNull(fromBuf);
+            Assert.Equal(0, fromBuf.Length);
+        }
+
+        [Fact]
+        public void unmanaged_with_unmanaged_array()
+        {
+            StructWithUnmanagedArray data = new StructWithUnmanagedArray
+            {
+                Int = 1234,
+                Floats = null,
+                Long = 1234567890
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref data);
+
+            var fromBuf = RePacking.Unpack&lt;StructWithUnmanagedArray&gt;(buffer);
+
+            Assert.Equal(data.Int, fromBuf.Int);
+            Assert.Equal(data.Long, fromBuf.Long);
+
+            Assert.NotNull(fromBuf.Floats);
+            Assert.Equal(0, fromBuf.Floats.Length);
+        }
+
+        [Fact]
+        public void unmanaged_with_managed_array()
+        {
+            HasClassArray data = new HasClassArray
+            {
+                Byte = 123,
+                ArrayOfClass = null,
+                Long = 1234567890
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref data);
+
+            var fromBuf = RePacking.Unpack&lt;HasClassArray&gt;(buffer);
+
+            Assert.Equal(data.Byte, fromBuf.Byte);
+            Assert.Equal(data.Long, fromBuf.Long);
+
+            Assert.NotNull(fromBuf.ArrayOfClass);
+            Assert.Equal(0, fromBuf.ArrayOfClass.Length);
+        }
+
+        [Fact]
+        public void struct_with_array_of_unmanaged_types()
+        {
+            var swa = new StructWithUnmanagedArray
+            {
+                Int = 1337,
+                Long = -123456789,
+                Floats = new float[] {
+                    0f, 1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f, 9f, 10f
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack&lt;StructWithUnmanagedArray&gt;(buffer, ref swa);
+            var fromBuf = RePacking.Unpack&lt;StructWithUnmanagedArray&gt;(buffer);
+
+            Assert.Equal(swa.Int, fromBuf.Int);
+            Assert.Equal(swa.Long, fromBuf.Long);
+
+            for (int i = 0; i &lt; swa.Floats.Length; i++)
+            {
+                Assert.Equal(swa.Floats[i], fromBuf.Floats[i]);
+            }
+        }
+
+        [Fact]
+        public void struct_with_array_of_blittable_types()
+        {
+            var swa = new StructWithBlittableArray
+            {
+                Int = 1337,
+                Long = -123456789,
+                Blittable = new ChildStruct[] {
+                    new ChildStruct
+                    {
+                        Float = 123f,
+                        Byte = 120,
+                    },
+                    new ChildStruct
+                    {
+                        Float = 63456f,
+                        Byte = 14,
+                    }
+                    ,
+                    new ChildStruct
+                    {
+                        Float = 465f,
+                        Byte = 2,
+                    },
+                    new ChildStruct
+                    {
+                        Float = 6345f,
+                        Byte = 239,
+                    }
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack&lt;StructWithBlittableArray&gt;(buffer, ref swa);
+            var fromBuf = RePacking.Unpack&lt;StructWithBlittableArray&gt;(buffer);
+
+            Assert.Equal(swa.Int, fromBuf.Int);
+            Assert.Equal(swa.Long, fromBuf.Long);
+
+            for (int i = 0; i &lt; swa.Blittable.Length; i++)
+            {
+                Assert.Equal(swa.Blittable[i].Float, fromBuf.Blittable[i].Float);
+                Assert.Equal(swa.Blittable[i].Byte, fromBuf.Blittable[i].Byte);
+            }
+        }
+
+        [Fact]
+        public void type_with_array_of_supported_class()
+        {
+            var iac = new HasClassArray
+            {
+                Long = 123412341234,
+                Byte = 23,
+                ArrayOfClass = new InArrayClass[]
+                {
+                    new InArrayClass{
+                        Float = 1234f,
+                        Int = 82345,
+                    },
+                    new InArrayClass{
+                        Float = 7645f,
+                        Int = 1234356,
+                    },
+                    new InArrayClass{
+                        Float = 74f,
+                        Int = 43,
+                    },
+                    new InArrayClass{
+                        Float = 4567f,
+                        Int = 46723,
+                    }
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack&lt;HasClassArray&gt;(buffer, ref iac);
+            var fromBuf = RePacking.Unpack&lt;HasClassArray&gt;(buffer);
+
+            Assert.Equal(iac.Byte, fromBuf.Byte);
+            Assert.Equal(iac.Long, fromBuf.Long);
+
+            Assert.Equal(iac.ArrayOfClass.Length, fromBuf.ArrayOfClass.Length);
+
+            for (int i = 0; i &lt; iac.ArrayOfClass.Length; i++)
+            {
+                Assert.Equal(iac.ArrayOfClass[i].Float, fromBuf.ArrayOfClass[i].Float);
+                Assert.Equal(iac.ArrayOfClass[i].Int, fromBuf.ArrayOfClass[i].Int);
+            }
+        }
+
+        [Fact]
+        public void direct_two_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,] data = new int[5, 15];
+            for (int x = 0; x &lt; 5; x++)
+                for (int y = 0; y &lt; 15; y++)
+                {
+                    data[x, y] = x * y;
+                }
+
+            RePacking.Pack(buffer, ref data);
+
+            int[,] fromBuf = RePacking.Unpack&lt;int[,]&gt;(buffer);
+
+            for (int x = 0; x &lt; 5; x++)
+                for (int y = 0; y &lt; 15; y++)
+                {
+                    Assert.Equal(data[x, y], fromBuf[x, y]);
+                }
+        }
+
+        [Fact]
+        public void has_two_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,] array = new int[2, 4];
+            for (int x = 0; x &lt; 2; x++)
+                for (int y = 0; y &lt; 4; y++)
+                {
+                    array[x, y] = x * y;
+                }
+
+            var data = new Has2DArray
+            {
+                Long = 1234567,
+                Int = 12345,
+                TwoDimArray = array
+            };
+
+            RePacking.Pack(buffer, ref data);
+
+            Has2DArray fromBuf = RePacking.Unpack&lt;Has2DArray&gt;(buffer);
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Int, fromBuf.Int);
+
+            for (int x = 0; x &lt; 2; x++)
+                for (int y = 0; y &lt; 4; y++)
+                {
+                    Assert.Equal(data.TwoDimArray[x, y], fromBuf.TwoDimArray[x, y]);
+                }
+        }
+
+        [Fact]
+        public void direct_three_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,,] data = new int[4, 6, 8];
+            for (int x = 0; x &lt; 4; x++)
+                for (int y = 0; y &lt; 6; y++)
+                    for (int z = 0; z &lt; 8; z++)
+                    {
+                        data[x, y, z] = x * y * z;
+                    }
+
+            RePacking.Pack(buffer, ref data);
+
+            int[,,] fromBuf = RePacking.Unpack&lt;int[,,]&gt;(buffer);
+
+            for (int x = 0; x &lt; 4; x++)
+                for (int y = 0; y &lt; 6; y++)
+                    for (int z = 0; z &lt; 8; z++)
+                    {
+                        Assert.Equal(data[x, y, z], fromBuf[x, y, z]);
+                    }
+        }
+
+        [Fact]
+        public void has_three_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,,] array = new int[4, 6, 8];
+            for (int x = 0; x &lt; 4; x++)
+                for (int y = 0; y &lt; 6; y++)
+                    for (int z = 0; z &lt; 8; z++)
+                    {
+                        array[x, y, z] = x * y * z;
+                    }
+
+            var data = new Has3DArray
+            {
+                Long = 1234567,
+                Int = 12345,
+                ThreeDimArray = array
+            };
+
+            RePacking.Pack(buffer, ref data);
+
+            Has3DArray fromBuf = RePacking.Unpack&lt;Has3DArray&gt;(buffer);
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Int, fromBuf.Int);
+
+            for (int x = 0; x &lt; 4; x++)
+                for (int y = 0; y &lt; 6; y++)
+                    for (int z = 0; z &lt; 8; z++)
+                    {
+                        Assert.Equal(data.ThreeDimArray[x, y, z], fromBuf.ThreeDimArray[x, y, z]);
+                    }
+        }
+
+        [Fact]
+        public void direct_four_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,,,] data = new int[2, 4, 6, 8];
+            for (int x = 0; x &lt; 2; x++)
+                for (int y = 0; y &lt; 4; y++)
+                    for (int z = 0; z &lt; 6; z++)
+                        for (int w = 0; w &lt; 8; w++)
+                        {
+                            data[x, y, z, w] = x * y * z * w;
+                        }
+
+            RePacking.Pack(buffer, ref data);
+
+            int[,,,] fromBuf = RePacking.Unpack&lt;int[,,,]&gt;(buffer);
+
+            for (int x = 0; x &lt; 2; x++)
+                for (int y = 0; y &lt; 4; y++)
+                    for (int z = 0; z &lt; 6; z++)
+                        for (int w = 0; w &lt; 8; w++)
+                        {
+                            Assert.Equal(data[x, y, z, w], fromBuf[x, y, z, w]);
+                        }
+        }
+
+        [Fact]
+        public void has_four_dim_unmanaged_array()
+        {
+            buffer.Reset();
+
+            int[,,,] array = new int[2, 4, 6, 8];
+            for (int x = 0; x &lt; 2; x++)
+                for (int y = 0; y &lt; 4; y++)
+                    for (int z = 0; z &lt; 6; z++)
+                        for (int w = 0; w &lt; 8; w++)
+                        {
+                            array[x, y, z, w] = x * y * z * w;
+                        }
+
+            var data = new Has4DArray
+            {
+                Long = 1234567,
+                Int = 12345,
+                FourDimArray = array
+            };
+
+            RePacking.Pack(buffer, ref data);
+
+            Has4DArray fromBuf = RePacking.Unpack&lt;Has4DArray&gt;(buffer);
+
+            Assert.Equal(data.Long, fromBuf.Long);
+            Assert.Equal(data.Int, fromBuf.Int);
+
+            for (int x = 0; x &lt; 2; x++)
+                for (int y = 0; y &lt; 4; y++)
+                    for (int z = 0; z &lt; 6; z++)
+                        for (int w = 0; w &lt; 8; w++)
+                        {
+                            Assert.Equal(data.FourDimArray[x, y, z, w], fromBuf.FourDimArray[x, y, z, w]);
+                        }
+        }
+        #endregion
+
+        [Fact]
+        public void ilist_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedIList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List&lt;int&gt; { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedIList&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i], fromBuf.Ints[i]);
+            }
+        }
+
+        [Fact]
+        public void ilist_with_unmanaged_type_direct()
+        {
+            IList&lt;int&gt; hml = new List&lt;int&gt; { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;IList&lt;int&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml[i], fromBuf[i]);
+            }
+        }
+
+        [Fact]
+        public void list_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List&lt;int&gt; { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 },
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedList&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i], fromBuf.Ints[i]);
+            }
+        }
+
+        [Fact]
+        public void list_with_unmanaged_type_direct()
+        {
+            var hml = new List&lt;int&gt; { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;List&lt;int&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml[i], fromBuf[i]);
+            }
+        }
+
+        [Fact]
+        public void queue_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedQueue
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Queue&lt;int&gt;(System.Linq.Enumerable.Range(1, 10)),
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedQueue&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints.Dequeue(), fromBuf.Ints.Dequeue());
+            }
+        }
+
+        [Fact]
+        public void queue_with_unmanaged_type_direct()
+        {
+            var hml = new Queue&lt;int&gt;(System.Linq.Enumerable.Range(1, 10));
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;Queue&lt;int&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml.Dequeue(), fromBuf.Dequeue());
+            }
+        }
+
+        [Fact]
+        public void stack_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedStack
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Stack&lt;int&gt;(System.Linq.Enumerable.Range(1, 10)),
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedStack&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints.Pop(), fromBuf.Ints.Pop());
+            }
+        }
+
+        [Fact]
+        public void stack_with_unmanaged_type_direct()
+        {
+            var hml = new Stack&lt;int&gt;(System.Linq.Enumerable.Range(1, 10));
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;Stack&lt;int&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml.Pop(), fromBuf.Pop());
+            }
+        }
+
+        [Fact]
+        public void hashset_with_unmanaged_type()
+        {
+            var hml = new HasUnmanagedHashSet
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new HashSet&lt;int&gt;(System.Linq.Enumerable.Range(1, 10)),
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedHashSet&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints.ElementAt(i), fromBuf.Ints.ElementAt(i));
+            }
+        }
+
+        [Fact]
+        public void hashset_with_unmanaged_type_direct()
+        {
+            var hml = new HashSet&lt;int&gt;(System.Linq.Enumerable.Range(1, 10));
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HashSet&lt;int&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml.ElementAt(i), fromBuf.ElementAt(i));
+            }
+        }
+
+        [Fact]
+        public void ilist_with_managed_type()
+        {
+            var hml = new HasManagedIList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List&lt;SomeManagedObject&gt; {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                },
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasManagedIList&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i].Int, fromBuf.Ints[i].Int);
+                Assert.Equal(hml.Ints[i].Float, fromBuf.Ints[i].Float);
+            }
+        }
+
+        [Fact]
+        public void ilist_with_managed_type_direct()
+        {
+            var hml = new List&lt;SomeManagedObject&gt; {
+                new SomeManagedObject{Float = 12.34f, Int = 901234},
+                new SomeManagedObject{Float = 567.25f, Int = 4562},
+                new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                new SomeManagedObject{Float = 56.2435f, Int = 56724},
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;IList&lt;SomeManagedObject&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml[i].Int, fromBuf[i].Int);
+                Assert.Equal(hml[i].Float, fromBuf[i].Float);
+            }
+        }
+
+        [Fact]
+        public void list_with_managed_type()
+        {
+            var hml = new HasManagedList
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new List&lt;SomeManagedObject&gt; {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                },
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasManagedList&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                Assert.Equal(hml.Ints[i].Int, fromBuf.Ints[i].Int);
+                Assert.Equal(hml.Ints[i].Float, fromBuf.Ints[i].Float);
+            }
+        }
+
+        [Fact]
+        public void list_with_managed_type_direct()
+        {
+            var hml = new List&lt;SomeManagedObject&gt; {
+                new SomeManagedObject{Float = 12.34f, Int = 901234},
+                new SomeManagedObject{Float = 567.25f, Int = 4562},
+                new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                new SomeManagedObject{Float = 56.2435f, Int = 56724},
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;List&lt;SomeManagedObject&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                Assert.Equal(hml[i].Int, fromBuf[i].Int);
+                Assert.Equal(hml[i].Float, fromBuf[i].Float);
+            }
+        }
+
+        [Fact]
+        public void queue_with_managed_type()
+        {
+            var hml = new HasManagedQueue
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Queue&lt;SomeManagedObject&gt;(
+                    new List&lt;SomeManagedObject&gt;() {
+                        new SomeManagedObject{Float = 12.34f, Int = 901234},
+                        new SomeManagedObject{Float = 567.25f, Int = 4562},
+                        new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                        new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                    }
+                ),
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasManagedQueue&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                var elementA = hml.Ints.Dequeue();
+                var elementB = fromBuf.Ints.Dequeue();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void queue_with_managed_type_direct()
+        {
+            var hml = new Queue&lt;SomeManagedObject&gt;(
+                new List&lt;SomeManagedObject&gt;() {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                }
+            );
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;Queue&lt;SomeManagedObject&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                var elementA = hml.Dequeue();
+                var elementB = fromBuf.Dequeue();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void stack_with_managed_type()
+        {
+            var hml = new HasManagedStack
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new Stack&lt;SomeManagedObject&gt;(
+                    new List&lt;SomeManagedObject&gt;() {
+                        new SomeManagedObject{Float = 12.34f, Int = 901234},
+                        new SomeManagedObject{Float = 567.25f, Int = 4562},
+                        new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                        new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                    }
+                ),
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasManagedStack&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                var elementA = hml.Ints.Pop();
+                var elementB = fromBuf.Ints.Pop();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void stack_with_managed_type_direct()
+        {
+            var hml = new Stack&lt;SomeManagedObject&gt;(
+                new List&lt;SomeManagedObject&gt;() {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                }
+            );
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;Stack&lt;SomeManagedObject&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                var elementA = hml.Pop();
+                var elementB = fromBuf.Pop();
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void hashset_with_managed_type()
+        {
+            var hml = new HasManagedHashSet
+            {
+                Float = 141243f,
+                Double = 2345613491441234,
+                Ints = new HashSet&lt;SomeManagedObject&gt;(
+                    new List&lt;SomeManagedObject&gt;() {
+                        new SomeManagedObject{Float = 12.34f, Int = 901234},
+                        new SomeManagedObject{Float = 567.25f, Int = 4562},
+                        new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                        new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                    }
+                ),
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HasManagedHashSet&gt;(buffer);
+
+            Assert.Equal(hml.Float, fromBuf.Float);
+            Assert.Equal(hml.Double, fromBuf.Double);
+
+            Assert.False(fromBuf.Ints == null);
+
+            for (int i = 0; i &lt; hml.Ints.Count; i++)
+            {
+                var elementA = hml.Ints.ElementAt(i);
+                var elementB = fromBuf.Ints.ElementAt(i);
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void hashset_with_managed_type_direct()
+        {
+            var hml = new HashSet&lt;SomeManagedObject&gt;(
+                new List&lt;SomeManagedObject&gt;() {
+                    new SomeManagedObject{Float = 12.34f, Int = 901234},
+                    new SomeManagedObject{Float = 567.25f, Int = 4562},
+                    new SomeManagedObject{Float = 1.3245f, Int = 24535},
+                    new SomeManagedObject{Float = 56.2435f, Int = 56724},
+                }
+            );
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hml);
+
+            var fromBuf = RePacking.Unpack&lt;HashSet&lt;SomeManagedObject&gt;&gt;(buffer);
+
+            Assert.False(fromBuf == null);
+
+            for (int i = 0; i &lt; hml.Count; i++)
+            {
+                var elementA = hml.ElementAt(i);
+                var elementB = fromBuf.ElementAt(i);
+                Assert.Equal(elementA.Int, elementB.Int);
+                Assert.Equal(elementA.Float, elementB.Float);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_value()
+        {
+            var dictCont = new HasUnmanagedDictionary
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary&lt;int, float&gt; {
+                    {123, 12.5f},
+                    {4567456, 125.2345f},
+                    {23454, 3456.235f},
+                    {345643, 3456234.1341f},
+                    {89678, 1234.3523f},
+                    {452, .654567f},
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedDictionary&gt;(buffer);
+
+            foreach (var key in dictCont.Dict.Keys)
+            {
+                var wantedValue = dictCont.Dict[key];
+
+                Assert.True(fromBuf.Dict.TryGetValue(key, out float value));
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_value_direct()
+        {
+            var dictCont = new Dictionary&lt;int, float&gt; {
+                {123, 12.5f},
+                {4567456, 125.2345f},
+                {23454, 3456.235f},
+                {345643, 3456234.1341f},
+                {89678, 1234.3523f},
+                {452, .654567f},
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;Dictionary&lt;int, float&gt;&gt;(buffer);
+
+            foreach (var key in dictCont.Keys)
+            {
+                var wantedValue = dictCont[key];
+
+                Assert.True(fromBuf.TryGetValue(key, out float value));
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_managed_key_and_unmanaged_value()
+        {
+            var dictCont = new HasManagedKeyUnmanagedValueDict
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary&lt;SomeManagedObject, float&gt; {
+                    {new SomeManagedObject{Float = 12.34f, Int = 901234}, 12.5f},
+                    {new SomeManagedObject{Float = 567.25f, Int = 4562}, 125.2345f},
+                    {new SomeManagedObject{Float = 1.3245f, Int = 24535}, 3456.235f},
+                    {new SomeManagedObject{Float = 56.2435f, Int = 56724}, 3456234.1341f},
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;HasManagedKeyUnmanagedValueDict&gt;(buffer);
+
+            Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
+
+            for (int i = 0; i &lt; dictCont.Dict.Count; i++)
+            {
+                var wantedKey = dictCont.Dict.Keys.ElementAt(i);
+                var key = fromBuf.Dict.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey.Float, key.Float);
+                Assert.Equal(wantedKey.Int, key.Int);
+
+                var wantedValue = dictCont.Dict.Values.ElementAt(i);
+                var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_managed_key_and_unmanaged_value_direct()
+        {
+            var dictCont = new Dictionary&lt;SomeManagedObject, float&gt; {
+                {new SomeManagedObject{Float = 12.34f, Int = 901234}, 12.5f},
+                {new SomeManagedObject{Float = 567.25f, Int = 4562}, 125.2345f},
+                {new SomeManagedObject{Float = 1.3245f, Int = 24535}, 3456.235f},
+                {new SomeManagedObject{Float = 56.2435f, Int = 56724}, 3456234.1341f},
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;Dictionary&lt;SomeManagedObject, float&gt;&gt;(buffer);
+
+            for (int i = 0; i &lt; dictCont.Count; i++)
+            {
+                var wantedKey = dictCont.Keys.ElementAt(i);
+                var key = fromBuf.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey.Float, key.Float);
+                Assert.Equal(wantedKey.Int, key.Int);
+
+                var wantedValue = dictCont.Values.ElementAt(i);
+                var value = fromBuf.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue, value);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_managed_value()
+        {
+            var dictCont = new HasUnmanagedKeyManagedValueDict
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary&lt;int, SomeManagedObject&gt; {
+                    {1, new SomeManagedObject{Float = 12.34f, Int = 901234}},
+                    {10, new SomeManagedObject{Float = 567.25f, Int = 4562}},
+                    {100, new SomeManagedObject{Float = 1.3245f, Int = 24535}},
+                    {1000, new SomeManagedObject{Float = 56.2435f, Int = 56724}},
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;HasUnmanagedKeyManagedValueDict&gt;(buffer);
+
+            Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
+
+            for (int i = 0; i &lt; dictCont.Dict.Count; i++)
+            {
+                var wantedKey = dictCont.Dict.Keys.ElementAt(i);
+                var key = fromBuf.Dict.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey, key);
+
+                var wantedValue = dictCont.Dict.Values.ElementAt(i);
+                var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue.Float, value.Float);
+                Assert.Equal(wantedValue.Int, value.Int);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_unmanaged_key_and_managed_value_direct()
+        {
+            var dictCont = new Dictionary&lt;int, SomeManagedObject&gt; {
+                {1, new SomeManagedObject{Float = 12.34f, Int = 901234}},
+                {10, new SomeManagedObject{Float = 567.25f, Int = 4562}},
+                {100, new SomeManagedObject{Float = 1.3245f, Int = 24535}},
+                {1000, new SomeManagedObject{Float = 56.2435f, Int = 56724}}
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;Dictionary&lt;int, SomeManagedObject&gt;&gt;(buffer);
+
+            for (int i = 0; i &lt; dictCont.Count; i++)
+            {
+                var wantedKey = dictCont.Keys.ElementAt(i);
+                var key = fromBuf.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey, key);
+
+                var wantedValue = dictCont.Values.ElementAt(i);
+                var value = fromBuf.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue.Float, value.Float);
+                Assert.Equal(wantedValue.Int, value.Int);
+            }
+        }
+
+        [Fact]
+        public void dictionary_with_managed_key_and_managed_value()
+        {
+            var dictCont = new HasManagedKeyManagedValueDict
+            {
+                Float = 1234.4562345f,
+                Long = 23568913457,
+                Dict = new Dictionary&lt;SomeManagedObject, SomeManagedObject&gt; {
+                    {new SomeManagedObject{Float = 12.34f, Int = 901234}, new SomeManagedObject{Float = 12.34f, Int = 901234}},
+                    {new SomeManagedObject{Float = 567.25f, Int = 4562}, new SomeManagedObject{Float = 567.25f, Int = 4562}},
+                    {new SomeManagedObject{Float = 1.3245f, Int = 24535}, new SomeManagedObject{Float = 1.3245f, Int = 24535}},
+                    {new SomeManagedObject{Float = 56.2435f, Int = 56724}, new SomeManagedObject{Float = 56.2435f, Int = 56724}},
+                }
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref dictCont);
+            var fromBuf = RePacking.Unpack&lt;HasManagedKeyManagedValueDict&gt;(buffer);
+
+            Assert.Equal(dictCont.Dict.Count, fromBuf.Dict.Count);
+
+            for (int i = 0; i &lt; dictCont.Dict.Count; i++)
+            {
+                var wantedKey = dictCont.Dict.Keys.ElementAt(i);
+                var key = fromBuf.Dict.Keys.ElementAt(i);
+
+                Assert.Equal(wantedKey.Float, key.Float);
+                Assert.Equal(wantedKey.Int, key.Int);
+
+                var wantedValue = dictCont.Dict.Values.ElementAt(i);
+                var value = fromBuf.Dict.Values.ElementAt(i);
+
+                Assert.Equal(wantedValue.Float, value.Float);
+                Assert.Equal(wantedValue.Int, value.Int);
+            }
+        }
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1
+        [Fact]
+        public void struct_with_nullable_list_with_value()
+        {
+            var hasNullableList = new HasNullableList
+            {
+                Float = 1.23456f,
+                Floats = Enumerable.Range(0, 100).Select(e =&gt; (float)e).ToList()
+            };
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref hasNullableList);
+            var fromBuf = RePacking.Unpack&lt;HasNullableList&gt;(buffer);
+
+            Assert.Equal(hasNullableList.Float, fromBuf.Float);
+
+            for (int i = 0; i &lt; hasNullableList.Floats.Count; i++)
+            {
+                Assert.Equal(
+                    hasNullableList.Floats[i],
+                    fromBuf.Floats[i]
+                );
+            }
+        }
+        
+        [Fact]
+        public void nullable_list_direct()
+        {
+            buffer.Reset();
+
+            List&lt;int&gt;? test = Enumerable.Range(0, 1000).ToList();
+
+            RePacking.Pack(buffer, ref test);
+            List&lt;int&gt;? fromBuf = RePacking.Unpack&lt;List&lt;int&gt;&gt;(buffer);
+
+            for (int i = 0; i &lt; test.Count; i++)
+            {
+                Assert.Equal(test[i], fromBuf[i]);
+            }
+        }
+#endif
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[12,9,12,45,1],[12,9,12,45,1],[12,9,12,45,1],[12,9,12,45,1],[12,9,12,45,1],[14,9,14,58,1],[14,9,14,58,1],[14,9,14,58,1],[14,9,14,58,1],[14,9,14,58,1],[15,9,15,10,1],[15,9,15,10,1],[15,9,15,10,1],[15,9,15,10,1],[15,9,15,10,1],[16,13,16,41,1],[16,13,16,41,1],[16,13,16,41,1],[16,13,16,41,1],[16,13,16,41,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[22,9,22,10,1],[22,9,22,10,1],[22,9,22,10,1],[22,9,22,10,1],[22,9,22,10,1],[23,13,23,32,1],[23,13,23,32,1],[23,13,23,32,1],[23,13,23,32,1],[23,13,23,32,1],[25,13,25,28,1],[25,13,25,28,1],[25,13,25,28,1],[25,13,25,28,1],[25,13,25,28,1],[27,13,27,47,1],[27,13,27,47,1],[27,13,27,47,1],[27,13,27,47,1],[27,13,27,47,1],[29,13,29,59,1],[29,13,29,59,1],[29,13,29,59,1],[29,13,29,59,1],[29,13,29,59,1],[31,13,31,37,1],[31,13,31,37,1],[31,13,31,37,1],[31,13,31,37,1],[31,13,31,37,1],[32,13,32,45,1],[32,13,32,45,1],[32,13,32,45,1],[32,13,32,45,1],[32,13,32,45,1],[33,9,33,10,1],[33,9,33,10,1],[33,9,33,10,1],[33,9,33,10,1],[33,9,33,10,1],[37,9,37,10,1],[37,9,37,10,1],[37,9,37,10,1],[37,9,37,10,1],[37,9,37,10,1],[38,13,38,46,1],[38,13,38,46,1],[38,13,38,46,1],[38,13,38,46,1],[38,13,38,46,1],[40,13,40,28,1],[40,13,40,28,1],[40,13,40,28,1],[40,13,40,28,1],[40,13,40,28,1],[42,13,42,47,1],[42,13,42,47,1],[42,13,42,47,1],[42,13,42,47,1],[42,13,42,47,1],[44,13,44,73,1],[44,13,44,73,1],[44,13,44,73,1],[44,13,44,73,1],[44,13,44,73,1],[46,13,46,37,1],[46,13,46,37,1],[46,13,46,37,1],[46,13,46,37,1],[46,13,46,37,1],[47,13,47,45,1],[47,13,47,45,1],[47,13,47,45,1],[47,13,47,45,1],[47,13,47,45,1],[48,9,48,10,1],[48,9,48,10,1],[48,9,48,10,1],[48,9,48,10,1],[48,9,48,10,1],[52,9,52,10,1],[52,9,52,10,1],[52,9,52,10,1],[52,9,52,10,1],[52,9,52,10,1],[53,13,58,15,1],[53,13,58,15,1],[53,13,58,15,1],[53,13,58,15,1],[53,13,58,15,1],[60,13,60,28,1],[60,13,60,28,1],[60,13,60,28,1],[60,13,60,28,1],[60,13,60,28,1],[62,13,62,46,1],[62,13,62,46,1],[62,13,62,46,1],[62,13,62,46,1],[62,13,62,46,1],[64,13,64,78,1],[64,13,64,78,1],[64,13,64,78,1],[64,13,64,78,1],[64,13,64,78,1],[66,13,66,49,1],[66,13,66,49,1],[66,13,66,49,1],[66,13,66,49,1],[66,13,66,49,1],[67,13,67,51,1],[67,13,67,51,1],[67,13,67,51,1],[67,13,67,51,1],[67,13,67,51,1],[69,13,69,44,1],[69,13,69,44,1],[69,13,69,44,1],[69,13,69,44,1],[69,13,69,44,1],[70,13,70,52,1],[70,13,70,52,1],[70,13,70,52,1],[70,13,70,52,1],[70,13,70,52,1],[71,9,71,10,1],[71,9,71,10,1],[71,9,71,10,1],[71,9,71,10,1],[71,9,71,10,1],[75,9,75,10,1],[75,9,75,10,1],[75,9,75,10,1],[75,9,75,10,1],[75,9,75,10,1],[76,13,81,15,1],[76,13,81,15,1],[76,13,81,15,1],[76,13,81,15,1],[76,13,81,15,1],[83,13,83,28,1],[83,13,83,28,1],[83,13,83,28,1],[83,13,83,28,1],[83,13,83,28,1],[85,13,85,46,1],[85,13,85,46,1],[85,13,85,46,1],[85,13,85,46,1],[85,13,85,46,1],[87,13,87,67,1],[87,13,87,67,1],[87,13,87,67,1],[87,13,87,67,1],[87,13,87,67,1],[89,13,89,51,1],[89,13,89,51,1],[89,13,89,51,1],[89,13,89,51,1],[89,13,89,51,1],[90,13,90,51,1],[90,13,90,51,1],[90,13,90,51,1],[90,13,90,51,1],[90,13,90,51,1],[92,13,92,50,1],[92,13,92,50,1],[92,13,92,50,1],[92,13,92,50,1],[92,13,92,50,1],[93,13,93,58,1],[93,13,93,58,1],[93,13,93,58,1],[93,13,93,58,1],[93,13,93,58,1],[94,9,94,10,1],[94,9,94,10,1],[94,9,94,10,1],[94,9,94,10,1],[94,9,94,10,1],[98,9,98,10,1],[98,9,98,10,1],[98,9,98,10,1],[98,9,98,10,1],[98,9,98,10,1],[99,13,106,15,1],[99,13,106,15,1],[99,13,106,15,1],[99,13,106,15,1],[99,13,106,15,1],[108,13,108,28,1],[108,13,108,28,1],[108,13,108,28,1],[108,13,108,28,1],[108,13,108,28,1],[110,13,110,71,1],[110,13,110,71,1],[110,13,110,71,1],[110,13,110,71,1],[110,13,110,71,1],[111,13,111,78,1],[111,13,111,78,1],[111,13,111,78,1],[111,13,111,78,1],[111,13,111,78,1],[113,13,113,48,1],[113,13,113,48,1],[113,13,113,48,1],[113,13,113,48,1],[113,13,113,48,1],[114,13,114,50,1],[114,13,114,50,1],[114,13,114,50,1],[114,13,114,50,1],[114,13,114,50,1],[116,18,116,27,1],[116,18,116,27,1],[116,18,116,27,1],[116,18,116,27,1],[116,18,116,27,1],[116,29,116,50,1],[116,29,116,50,1],[116,29,116,50,1],[116,29,116,50,1],[116,29,116,50,1],[116,52,116,55,1],[116,52,116,55,1],[116,52,116,55,1],[116,52,116,55,1],[116,52,116,55,1],[117,13,117,14,1],[117,13,117,14,1],[117,13,117,14,1],[117,13,117,14,1],[117,13,117,14,1],[118,17,118,64,1],[118,17,118,64,1],[118,17,118,64,1],[118,17,118,64,1],[118,17,118,64,1],[119,13,119,14,1],[119,13,119,14,1],[119,13,119,14,1],[119,13,119,14,1],[119,13,119,14,1],[120,9,120,10,1],[120,9,120,10,1],[120,9,120,10,1],[120,9,120,10,1],[120,9,120,10,1],[124,9,124,10,1],[124,9,124,10,1],[124,9,124,10,1],[124,9,124,10,1],[124,9,124,10,1],[125,13,152,15,1],[125,13,152,15,1],[125,13,152,15,1],[125,13,152,15,1],[125,13,152,15,1],[154,13,154,28,1],[154,13,154,28,1],[154,13,154,28,1],[154,13,154,28,1],[154,13,154,28,1],[156,13,156,71,1],[156,13,156,71,1],[156,13,156,71,1],[156,13,156,71,1],[156,13,156,71,1],[157,13,157,78,1],[157,13,157,78,1],[157,13,157,78,1],[157,13,157,78,1],[157,13,157,78,1],[159,13,159,48,1],[159,13,159,48,1],[159,13,159,48,1],[159,13,159,48,1],[159,13,159,48,1],[160,13,160,50,1],[160,13,160,50,1],[160,13,160,50,1],[160,13,160,50,1],[160,13,160,50,1],[162,18,162,27,1],[162,18,162,27,1],[162,18,162,27,1],[162,18,162,27,1],[162,18,162,27,1],[162,29,162,53,1],[162,29,162,53,1],[162,29,162,53,1],[162,29,162,53,1],[162,29,162,53,1],[162,55,162,58,1],[162,55,162,58,1],[162,55,162,58,1],[162,55,162,58,1],[162,55,162,58,1],[163,13,163,14,1],[163,13,163,14,1],[163,13,163,14,1],[163,13,163,14,1],[163,13,163,14,1],[164,17,164,82,1],[164,17,164,82,1],[164,17,164,82,1],[164,17,164,82,1],[164,17,164,82,1],[165,17,165,80,1],[165,17,165,80,1],[165,17,165,80,1],[165,17,165,80,1],[165,17,165,80,1],[166,13,166,14,1],[166,13,166,14,1],[166,13,166,14,1],[166,13,166,14,1],[166,13,166,14,1],[167,9,167,10,1],[167,9,167,10,1],[167,9,167,10,1],[167,9,167,10,1],[167,9,167,10,1],[171,9,171,10,1],[171,9,171,10,1],[171,9,171,10,1],[171,9,171,10,1],[171,9,171,10,1],[172,13,195,15,1],[172,13,195,15,1],[172,13,195,15,1],[172,13,195,15,1],[172,13,195,15,1],[197,13,197,28,1],[197,13,197,28,1],[197,13,197,28,1],[197,13,197,28,1],[197,13,197,28,1],[199,13,199,60,1],[199,13,199,60,1],[199,13,199,60,1],[199,13,199,60,1],[199,13,199,60,1],[200,13,200,67,1],[200,13,200,67,1],[200,13,200,67,1],[200,13,200,67,1],[200,13,200,67,1],[202,13,202,50,1],[202,13,202,50,1],[202,13,202,50,1],[202,13,202,50,1],[202,13,202,50,1],[203,13,203,50,1],[203,13,203,50,1],[203,13,203,50,1],[203,13,203,50,1],[203,13,203,50,1],[205,13,205,80,1],[205,13,205,80,1],[205,13,205,80,1],[205,13,205,80,1],[205,13,205,80,1],[207,18,207,27,1],[207,18,207,27,1],[207,18,207,27,1],[207,18,207,27,1],[207,18,207,27,1],[207,29,207,56,1],[207,29,207,56,1],[207,29,207,56,1],[207,29,207,56,1],[207,29,207,56,1],[207,58,207,61,1],[207,58,207,61,1],[207,58,207,61,1],[207,58,207,61,1],[207,58,207,61,1],[208,13,208,14,1],[208,13,208,14,1],[208,13,208,14,1],[208,13,208,14,1],[208,13,208,14,1],[209,17,209,88,1],[209,17,209,88,1],[209,17,209,88,1],[209,17,209,88,1],[209,17,209,88,1],[210,17,210,84,1],[210,17,210,84,1],[210,17,210,84,1],[210,17,210,84,1],[210,17,210,84,1],[211,13,211,14,1],[211,13,211,14,1],[211,13,211,14,1],[211,13,211,14,1],[211,13,211,14,1],[212,9,212,10,1],[212,9,212,10,1],[212,9,212,10,1],[212,9,212,10,1],[212,9,212,10,1],[216,9,216,10,1],[216,9,216,10,1],[216,9,216,10,1],[216,9,216,10,1],[216,9,216,10,1],[217,13,217,28,1],[217,13,217,28,1],[217,13,217,28,1],[217,13,217,28,1],[217,13,217,28,1],[219,13,219,42,1],[219,13,219,42,1],[219,13,219,42,1],[219,13,219,42,1],[219,13,219,42,1],[220,18,220,27,1],[220,18,220,27,1],[220,18,220,27,1],[220,18,220,27,1],[220,18,220,27,1],[220,29,220,34,1],[220,29,220,34,1],[220,29,220,34,1],[220,29,220,34,1],[220,29,220,34,1],[220,36,220,39,1],[220,36,220,39,1],[220,36,220,39,1],[220,36,220,39,1],[220,36,220,39,1],[221,22,221,31,1],[221,22,221,31,1],[221,22,221,31,1],[221,22,221,31,1],[221,22,221,31,1],[221,33,221,39,1],[221,33,221,39,1],[221,33,221,39,1],[221,33,221,39,1],[221,33,221,39,1],[221,41,221,44,1],[221,41,221,44,1],[221,41,221,44,1],[221,41,221,44,1],[221,41,221,44,1],[222,17,222,18,1],[222,17,222,18,1],[222,17,222,18,1],[222,17,222,18,1],[222,17,222,18,1],[223,21,223,40,1],[223,21,223,40,1],[223,21,223,40,1],[223,21,223,40,1],[223,21,223,40,1],[224,17,224,18,1],[224,17,224,18,1],[224,17,224,18,1],[224,17,224,18,1],[224,17,224,18,1],[226,13,226,46,1],[226,13,226,46,1],[226,13,226,46,1],[226,13,226,46,1],[226,13,226,46,1],[228,13,228,63,1],[228,13,228,63,1],[228,13,228,63,1],[228,13,228,63,1],[228,13,228,63,1],[230,18,230,27,1],[230,18,230,27,1],[230,18,230,27,1],[230,18,230,27,1],[230,18,230,27,1],[230,29,230,34,1],[230,29,230,34,1],[230,29,230,34,1],[230,29,230,34,1],[230,29,230,34,1],[230,36,230,39,1],[230,36,230,39,1],[230,36,230,39,1],[230,36,230,39,1],[230,36,230,39,1],[231,22,231,31,1],[231,22,231,31,1],[231,22,231,31,1],[231,22,231,31,1],[231,22,231,31,1],[231,33,231,39,1],[231,33,231,39,1],[231,33,231,39,1],[231,33,231,39,1],[231,33,231,39,1],[231,41,231,44,1],[231,41,231,44,1],[231,41,231,44,1],[231,41,231,44,1],[231,41,231,44,1],[232,17,232,18,1],[232,17,232,18,1],[232,17,232,18,1],[232,17,232,18,1],[232,17,232,18,1],[233,21,233,61,1],[233,21,233,61,1],[233,21,233,61,1],[233,21,233,61,1],[233,21,233,61,1],[234,17,234,18,1],[234,17,234,18,1],[234,17,234,18,1],[234,17,234,18,1],[234,17,234,18,1],[235,9,235,10,1],[235,9,235,10,1],[235,9,235,10,1],[235,9,235,10,1],[235,9,235,10,1],[239,9,239,10,1],[239,9,239,10,1],[239,9,239,10,1],[239,9,239,10,1],[239,9,239,10,1],[240,13,240,28,1],[240,13,240,28,1],[240,13,240,28,1],[240,13,240,28,1],[240,13,240,28,1],[242,13,242,42,1],[242,13,242,42,1],[242,13,242,42,1],[242,13,242,42,1],[242,13,242,42,1],[243,18,243,27,1],[243,18,243,27,1],[243,18,243,27,1],[243,18,243,27,1],[243,18,243,27,1],[243,29,243,34,1],[243,29,243,34,1],[243,29,243,34,1],[243,29,243,34,1],[243,29,243,34,1],[243,36,243,39,1],[243,36,243,39,1],[243,36,243,39,1],[243,36,243,39,1],[243,36,243,39,1],[244,22,244,31,1],[244,22,244,31,1],[244,22,244,31,1],[244,22,244,31,1],[244,22,244,31,1],[244,33,244,38,1],[244,33,244,38,1],[244,33,244,38,1],[244,33,244,38,1],[244,33,244,38,1],[244,40,244,43,1],[244,40,244,43,1],[244,40,244,43,1],[244,40,244,43,1],[244,40,244,43,1],[245,17,245,18,1],[245,17,245,18,1],[245,17,245,18,1],[245,17,245,18,1],[245,17,245,18,1],[246,21,246,41,1],[246,21,246,41,1],[246,21,246,41,1],[246,21,246,41,1],[246,21,246,41,1],[247,17,247,18,1],[247,17,247,18,1],[247,17,247,18,1],[247,17,247,18,1],[247,17,247,18,1],[249,13,254,15,1],[249,13,254,15,1],[249,13,254,15,1],[249,13,254,15,1],[249,13,254,15,1],[256,13,256,46,1],[256,13,256,46,1],[256,13,256,46,1],[256,13,256,46,1],[256,13,256,46,1],[258,13,258,71,1],[258,13,258,71,1],[258,13,258,71,1],[258,13,258,71,1],[258,13,258,71,1],[260,13,260,51,1],[260,13,260,51,1],[260,13,260,51,1],[260,13,260,51,1],[260,13,260,51,1],[261,13,261,49,1],[261,13,261,49,1],[261,13,261,49,1],[261,13,261,49,1],[261,13,261,49,1],[263,18,263,27,1],[263,18,263,27,1],[263,18,263,27,1],[263,18,263,27,1],[263,18,263,27,1],[263,29,263,34,1],[263,29,263,34,1],[263,29,263,34,1],[263,29,263,34,1],[263,29,263,34,1],[263,36,263,39,1],[263,36,263,39,1],[263,36,263,39,1],[263,36,263,39,1],[263,36,263,39,1],[264,22,264,31,1],[264,22,264,31,1],[264,22,264,31,1],[264,22,264,31,1],[264,22,264,31,1],[264,33,264,38,1],[264,33,264,38,1],[264,33,264,38,1],[264,33,264,38,1],[264,33,264,38,1],[264,40,264,43,1],[264,40,264,43,1],[264,40,264,43,1],[264,40,264,43,1],[264,40,264,43,1],[265,17,265,18,1],[265,17,265,18,1],[265,17,265,18,1],[265,17,265,18,1],[265,17,265,18,1],[266,21,266,85,1],[266,21,266,85,1],[266,21,266,85,1],[266,21,266,85,1],[266,21,266,85,1],[267,17,267,18,1],[267,17,267,18,1],[267,17,267,18,1],[267,17,267,18,1],[267,17,267,18,1],[268,9,268,10,1],[268,9,268,10,1],[268,9,268,10,1],[268,9,268,10,1],[268,9,268,10,1],[272,9,272,10,1],[272,9,272,10,1],[272,9,272,10,1],[272,9,272,10,1],[272,9,272,10,1],[273,13,273,28,1],[273,13,273,28,1],[273,13,273,28,1],[273,13,273,28,1],[273,13,273,28,1],[275,13,275,45,1],[275,13,275,45,1],[275,13,275,45,1],[275,13,275,45,1],[275,13,275,45,1],[276,18,276,27,1],[276,18,276,27,1],[276,18,276,27,1],[276,18,276,27,1],[276,18,276,27,1],[276,29,276,34,1],[276,29,276,34,1],[276,29,276,34,1],[276,29,276,34,1],[276,29,276,34,1],[276,36,276,39,1],[276,36,276,39,1],[276,36,276,39,1],[276,36,276,39,1],[276,36,276,39,1],[277,22,277,31,1],[277,22,277,31,1],[277,22,277,31,1],[277,22,277,31,1],[277,22,277,31,1],[277,33,277,38,1],[277,33,277,38,1],[277,33,277,38,1],[277,33,277,38,1],[277,33,277,38,1],[277,40,277,43,1],[277,40,277,43,1],[277,40,277,43,1],[277,40,277,43,1],[277,40,277,43,1],[278,26,278,35,1],[278,26,278,35,1],[278,26,278,35,1],[278,26,278,35,1],[278,26,278,35,1],[278,37,278,42,1],[278,37,278,42,1],[278,37,278,42,1],[278,37,278,42,1],[278,37,278,42,1],[278,44,278,47,1],[278,44,278,47,1],[278,44,278,47,1],[278,44,278,47,1],[278,44,278,47,1],[279,21,279,22,1],[279,21,279,22,1],[279,21,279,22,1],[279,21,279,22,1],[279,21,279,22,1],[280,25,280,51,1],[280,25,280,51,1],[280,25,280,51,1],[280,25,280,51,1],[280,25,280,51,1],[281,21,281,22,1],[281,21,281,22,1],[281,21,281,22,1],[281,21,281,22,1],[281,21,281,22,1],[283,13,283,46,1],[283,13,283,46,1],[283,13,283,46,1],[283,13,283,46,1],[283,13,283,46,1],[285,13,285,65,1],[285,13,285,65,1],[285,13,285,65,1],[285,13,285,65,1],[285,13,285,65,1],[287,18,287,27,1],[287,18,287,27,1],[287,18,287,27,1],[287,18,287,27,1],[287,18,287,27,1],[287,29,287,34,1],[287,29,287,34,1],[287,29,287,34,1],[287,29,287,34,1],[287,29,287,34,1],[287,36,287,39,1],[287,36,287,39,1],[287,36,287,39,1],[287,36,287,39,1],[287,36,287,39,1],[288,22,288,31,1],[288,22,288,31,1],[288,22,288,31,1],[288,22,288,31,1],[288,22,288,31,1],[288,33,288,38,1],[288,33,288,38,1],[288,33,288,38,1],[288,33,288,38,1],[288,33,288,38,1],[288,40,288,43,1],[288,40,288,43,1],[288,40,288,43,1],[288,40,288,43,1],[288,40,288,43,1],[289,26,289,35,1],[289,26,289,35,1],[289,26,289,35,1],[289,26,289,35,1],[289,26,289,35,1],[289,37,289,42,1],[289,37,289,42,1],[289,37,289,42,1],[289,37,289,42,1],[289,37,289,42,1],[289,44,289,47,1],[289,44,289,47,1],[289,44,289,47,1],[289,44,289,47,1],[289,44,289,47,1],[290,21,290,22,1],[290,21,290,22,1],[290,21,290,22,1],[290,21,290,22,1],[290,21,290,22,1],[291,25,291,71,1],[291,25,291,71,1],[291,25,291,71,1],[291,25,291,71,1],[291,25,291,71,1],[292,21,292,22,1],[292,21,292,22,1],[292,21,292,22,1],[292,21,292,22,1],[292,21,292,22,1],[293,9,293,10,1],[293,9,293,10,1],[293,9,293,10,1],[293,9,293,10,1],[293,9,293,10,1],[297,9,297,10,1],[297,9,297,10,1],[297,9,297,10,1],[297,9,297,10,1],[297,9,297,10,1],[298,13,298,28,1],[298,13,298,28,1],[298,13,298,28,1],[298,13,298,28,1],[298,13,298,28,1],[300,13,300,46,1],[300,13,300,46,1],[300,13,300,46,1],[300,13,300,46,1],[300,13,300,46,1],[301,18,301,27,1],[301,18,301,27,1],[301,18,301,27,1],[301,18,301,27,1],[301,18,301,27,1],[301,29,301,34,1],[301,29,301,34,1],[301,29,301,34,1],[301,29,301,34,1],[301,29,301,34,1],[301,36,301,39,1],[301,36,301,39,1],[301,36,301,39,1],[301,36,301,39,1],[301,36,301,39,1],[302,22,302,31,1],[302,22,302,31,1],[302,22,302,31,1],[302,22,302,31,1],[302,22,302,31,1],[302,33,302,38,1],[302,33,302,38,1],[302,33,302,38,1],[302,33,302,38,1],[302,33,302,38,1],[302,40,302,43,1],[302,40,302,43,1],[302,40,302,43,1],[302,40,302,43,1],[302,40,302,43,1],[303,26,303,35,1],[303,26,303,35,1],[303,26,303,35,1],[303,26,303,35,1],[303,26,303,35,1],[303,37,303,42,1],[303,37,303,42,1],[303,37,303,42,1],[303,37,303,42,1],[303,37,303,42,1],[303,44,303,47,1],[303,44,303,47,1],[303,44,303,47,1],[303,44,303,47,1],[303,44,303,47,1],[304,21,304,22,1],[304,21,304,22,1],[304,21,304,22,1],[304,21,304,22,1],[304,21,304,22,1],[305,25,305,52,1],[305,25,305,52,1],[305,25,305,52,1],[305,25,305,52,1],[305,25,305,52,1],[306,21,306,22,1],[306,21,306,22,1],[306,21,306,22,1],[306,21,306,22,1],[306,21,306,22,1],[308,13,313,15,1],[308,13,313,15,1],[308,13,313,15,1],[308,13,313,15,1],[308,13,313,15,1],[315,13,315,46,1],[315,13,315,46,1],[315,13,315,46,1],[315,13,315,46,1],[315,13,315,46,1],[317,13,317,71,1],[317,13,317,71,1],[317,13,317,71,1],[317,13,317,71,1],[317,13,317,71,1],[319,13,319,51,1],[319,13,319,51,1],[319,13,319,51,1],[319,13,319,51,1],[319,13,319,51,1],[320,13,320,49,1],[320,13,320,49,1],[320,13,320,49,1],[320,13,320,49,1],[320,13,320,49,1],[322,18,322,27,1],[322,18,322,27,1],[322,18,322,27,1],[322,18,322,27,1],[322,18,322,27,1],[322,29,322,34,1],[322,29,322,34,1],[322,29,322,34,1],[322,29,322,34,1],[322,29,322,34,1],[322,36,322,39,1],[322,36,322,39,1],[322,36,322,39,1],[322,36,322,39,1],[322,36,322,39,1],[323,22,323,31,1],[323,22,323,31,1],[323,22,323,31,1],[323,22,323,31,1],[323,22,323,31,1],[323,33,323,38,1],[323,33,323,38,1],[323,33,323,38,1],[323,33,323,38,1],[323,33,323,38,1],[323,40,323,43,1],[323,40,323,43,1],[323,40,323,43,1],[323,40,323,43,1],[323,40,323,43,1],[324,26,324,35,1],[324,26,324,35,1],[324,26,324,35,1],[324,26,324,35,1],[324,26,324,35,1],[324,37,324,42,1],[324,37,324,42,1],[324,37,324,42,1],[324,37,324,42,1],[324,37,324,42,1],[324,44,324,47,1],[324,44,324,47,1],[324,44,324,47,1],[324,44,324,47,1],[324,44,324,47,1],[325,21,325,22,1],[325,21,325,22,1],[325,21,325,22,1],[325,21,325,22,1],[325,21,325,22,1],[326,25,326,99,1],[326,25,326,99,1],[326,25,326,99,1],[326,25,326,99,1],[326,25,326,99,1],[327,21,327,22,1],[327,21,327,22,1],[327,21,327,22,1],[327,21,327,22,1],[327,21,327,22,1],[328,9,328,10,1],[328,9,328,10,1],[328,9,328,10,1],[328,9,328,10,1],[328,9,328,10,1],[332,9,332,10,1],[332,9,332,10,1],[332,9,332,10,1],[332,9,332,10,1],[332,9,332,10,1],[333,13,333,28,1],[333,13,333,28,1],[333,13,333,28,1],[333,13,333,28,1],[333,13,333,28,1],[335,13,335,49,1],[335,13,335,49,1],[335,13,335,49,1],[335,13,335,49,1],[335,13,335,49,1],[336,18,336,27,1],[336,18,336,27,1],[336,18,336,27,1],[336,18,336,27,1],[336,18,336,27,1],[336,29,336,34,1],[336,29,336,34,1],[336,29,336,34,1],[336,29,336,34,1],[336,29,336,34,1],[336,36,336,39,1],[336,36,336,39,1],[336,36,336,39,1],[336,36,336,39,1],[336,36,336,39,1],[337,22,337,31,1],[337,22,337,31,1],[337,22,337,31,1],[337,22,337,31,1],[337,22,337,31,1],[337,33,337,38,1],[337,33,337,38,1],[337,33,337,38,1],[337,33,337,38,1],[337,33,337,38,1],[337,40,337,43,1],[337,40,337,43,1],[337,40,337,43,1],[337,40,337,43,1],[337,40,337,43,1],[338,26,338,35,1],[338,26,338,35,1],[338,26,338,35,1],[338,26,338,35,1],[338,26,338,35,1],[338,37,338,42,1],[338,37,338,42,1],[338,37,338,42,1],[338,37,338,42,1],[338,37,338,42,1],[338,44,338,47,1],[338,44,338,47,1],[338,44,338,47,1],[338,44,338,47,1],[338,44,338,47,1],[339,30,339,39,1],[339,30,339,39,1],[339,30,339,39,1],[339,30,339,39,1],[339,30,339,39,1],[339,41,339,46,1],[339,41,339,46,1],[339,41,339,46,1],[339,41,339,46,1],[339,41,339,46,1],[339,48,339,51,1],[339,48,339,51,1],[339,48,339,51,1],[339,48,339,51,1],[339,48,339,51,1],[340,25,340,26,1],[340,25,340,26,1],[340,25,340,26,1],[340,25,340,26,1],[340,25,340,26,1],[341,29,341,62,1],[341,29,341,62,1],[341,29,341,62,1],[341,29,341,62,1],[341,29,341,62,1],[342,25,342,26,1],[342,25,342,26,1],[342,25,342,26,1],[342,25,342,26,1],[342,25,342,26,1],[344,13,344,46,1],[344,13,344,46,1],[344,13,344,46,1],[344,13,344,46,1],[344,13,344,46,1],[346,13,346,67,1],[346,13,346,67,1],[346,13,346,67,1],[346,13,346,67,1],[346,13,346,67,1],[348,18,348,27,1],[348,18,348,27,1],[348,18,348,27,1],[348,18,348,27,1],[348,18,348,27,1],[348,29,348,34,1],[348,29,348,34,1],[348,29,348,34,1],[348,29,348,34,1],[348,29,348,34,1],[348,36,348,39,1],[348,36,348,39,1],[348,36,348,39,1],[348,36,348,39,1],[348,36,348,39,1],[349,22,349,31,1],[349,22,349,31,1],[349,22,349,31,1],[349,22,349,31,1],[349,22,349,31,1],[349,33,349,38,1],[349,33,349,38,1],[349,33,349,38,1],[349,33,349,38,1],[349,33,349,38,1],[349,40,349,43,1],[349,40,349,43,1],[349,40,349,43,1],[349,40,349,43,1],[349,40,349,43,1],[350,26,350,35,1],[350,26,350,35,1],[350,26,350,35,1],[350,26,350,35,1],[350,26,350,35,1],[350,37,350,42,1],[350,37,350,42,1],[350,37,350,42,1],[350,37,350,42,1],[350,37,350,42,1],[350,44,350,47,1],[350,44,350,47,1],[350,44,350,47,1],[350,44,350,47,1],[350,44,350,47,1],[351,30,351,39,1],[351,30,351,39,1],[351,30,351,39,1],[351,30,351,39,1],[351,30,351,39,1],[351,41,351,46,1],[351,41,351,46,1],[351,41,351,46,1],[351,41,351,46,1],[351,41,351,46,1],[351,48,351,51,1],[351,48,351,51,1],[351,48,351,51,1],[351,48,351,51,1],[351,48,351,51,1],[352,25,352,26,1],[352,25,352,26,1],[352,25,352,26,1],[352,25,352,26,1],[352,25,352,26,1],[353,29,353,81,1],[353,29,353,81,1],[353,29,353,81,1],[353,29,353,81,1],[353,29,353,81,1],[354,25,354,26,1],[354,25,354,26,1],[354,25,354,26,1],[354,25,354,26,1],[354,25,354,26,1],[355,9,355,10,1],[355,9,355,10,1],[355,9,355,10,1],[355,9,355,10,1],[355,9,355,10,1],[359,9,359,10,1],[359,9,359,10,1],[359,9,359,10,1],[359,9,359,10,1],[359,9,359,10,1],[360,13,360,28,1],[360,13,360,28,1],[360,13,360,28,1],[360,13,360,28,1],[360,13,360,28,1],[362,13,362,50,1],[362,13,362,50,1],[362,13,362,50,1],[362,13,362,50,1],[362,13,362,50,1],[363,18,363,27,1],[363,18,363,27,1],[363,18,363,27,1],[363,18,363,27,1],[363,18,363,27,1],[363,29,363,34,1],[363,29,363,34,1],[363,29,363,34,1],[363,29,363,34,1],[363,29,363,34,1],[363,36,363,39,1],[363,36,363,39,1],[363,36,363,39,1],[363,36,363,39,1],[363,36,363,39,1],[364,22,364,31,1],[364,22,364,31,1],[364,22,364,31,1],[364,22,364,31,1],[364,22,364,31,1],[364,33,364,38,1],[364,33,364,38,1],[364,33,364,38,1],[364,33,364,38,1],[364,33,364,38,1],[364,40,364,43,1],[364,40,364,43,1],[364,40,364,43,1],[364,40,364,43,1],[364,40,364,43,1],[365,26,365,35,1],[365,26,365,35,1],[365,26,365,35,1],[365,26,365,35,1],[365,26,365,35,1],[365,37,365,42,1],[365,37,365,42,1],[365,37,365,42,1],[365,37,365,42,1],[365,37,365,42,1],[365,44,365,47,1],[365,44,365,47,1],[365,44,365,47,1],[365,44,365,47,1],[365,44,365,47,1],[366,30,366,39,1],[366,30,366,39,1],[366,30,366,39,1],[366,30,366,39,1],[366,30,366,39,1],[366,41,366,46,1],[366,41,366,46,1],[366,41,366,46,1],[366,41,366,46,1],[366,41,366,46,1],[366,48,366,51,1],[366,48,366,51,1],[366,48,366,51,1],[366,48,366,51,1],[366,48,366,51,1],[367,25,367,26,1],[367,25,367,26,1],[367,25,367,26,1],[367,25,367,26,1],[367,25,367,26,1],[368,29,368,63,1],[368,29,368,63,1],[368,29,368,63,1],[368,29,368,63,1],[368,29,368,63,1],[369,25,369,26,1],[369,25,369,26,1],[369,25,369,26,1],[369,25,369,26,1],[369,25,369,26,1],[371,13,376,15,1],[371,13,376,15,1],[371,13,376,15,1],[371,13,376,15,1],[371,13,376,15,1],[378,13,378,46,1],[378,13,378,46,1],[378,13,378,46,1],[378,13,378,46,1],[378,13,378,46,1],[380,13,380,71,1],[380,13,380,71,1],[380,13,380,71,1],[380,13,380,71,1],[380,13,380,71,1],[382,13,382,51,1],[382,13,382,51,1],[382,13,382,51,1],[382,13,382,51,1],[382,13,382,51,1],[383,13,383,49,1],[383,13,383,49,1],[383,13,383,49,1],[383,13,383,49,1],[383,13,383,49,1],[385,18,385,27,1],[385,18,385,27,1],[385,18,385,27,1],[385,18,385,27,1],[385,18,385,27,1],[385,29,385,34,1],[385,29,385,34,1],[385,29,385,34,1],[385,29,385,34,1],[385,29,385,34,1],[385,36,385,39,1],[385,36,385,39,1],[385,36,385,39,1],[385,36,385,39,1],[385,36,385,39,1],[386,22,386,31,1],[386,22,386,31,1],[386,22,386,31,1],[386,22,386,31,1],[386,22,386,31,1],[386,33,386,38,1],[386,33,386,38,1],[386,33,386,38,1],[386,33,386,38,1],[386,33,386,38,1],[386,40,386,43,1],[386,40,386,43,1],[386,40,386,43,1],[386,40,386,43,1],[386,40,386,43,1],[387,26,387,35,1],[387,26,387,35,1],[387,26,387,35,1],[387,26,387,35,1],[387,26,387,35,1],[387,37,387,42,1],[387,37,387,42,1],[387,37,387,42,1],[387,37,387,42,1],[387,37,387,42,1],[387,44,387,47,1],[387,44,387,47,1],[387,44,387,47,1],[387,44,387,47,1],[387,44,387,47,1],[388,30,388,39,1],[388,30,388,39,1],[388,30,388,39,1],[388,30,388,39,1],[388,30,388,39,1],[388,41,388,46,1],[388,41,388,46,1],[388,41,388,46,1],[388,41,388,46,1],[388,41,388,46,1],[388,48,388,51,1],[388,48,388,51,1],[388,48,388,51,1],[388,48,388,51,1],[388,48,388,51,1],[389,25,389,26,1],[389,25,389,26,1],[389,25,389,26,1],[389,25,389,26,1],[389,25,389,26,1],[390,29,390,107,1],[390,29,390,107,1],[390,29,390,107,1],[390,29,390,107,1],[390,29,390,107,1],[391,25,391,26,1],[391,25,391,26,1],[391,25,391,26,1],[391,25,391,26,1],[391,25,391,26,1],[392,9,392,10,1],[392,9,392,10,1],[392,9,392,10,1],[392,9,392,10,1],[392,9,392,10,1],[397,9,397,10,1],[397,9,397,10,1],[397,9,397,10,1],[397,9,397,10,1],[397,9,397,10,1],[398,13,403,15,1],[398,13,403,15,1],[398,13,403,15,1],[398,13,403,15,1],[398,13,403,15,1],[405,13,405,28,1],[405,13,405,28,1],[405,13,405,28,1],[405,13,405,28,1],[405,13,405,28,1],[407,13,407,45,1],[407,13,407,45,1],[407,13,407,45,1],[407,13,407,45,1],[407,13,407,45,1],[409,13,409,71,1],[409,13,409,71,1],[409,13,409,71,1],[409,13,409,71,1],[409,13,409,71,1],[411,13,411,52,1],[411,13,411,52,1],[411,13,411,52,1],[411,13,411,52,1],[411,13,411,52,1],[412,13,412,54,1],[412,13,412,54,1],[412,13,412,54,1],[412,13,412,54,1],[412,13,412,54,1],[414,13,414,48,1],[414,13,414,48,1],[414,13,414,48,1],[414,13,414,48,1],[414,13,414,48,1],[416,18,416,27,1],[416,18,416,27,1],[416,18,416,27,1],[416,18,416,27,1],[416,18,416,27,1],[416,29,416,47,1],[416,29,416,47,1],[416,29,416,47,1],[416,29,416,47,1],[416,29,416,47,1],[416,49,416,52,1],[416,49,416,52,1],[416,49,416,52,1],[416,49,416,52,1],[416,49,416,52,1],[417,13,417,14,1],[417,13,417,14,1],[417,13,417,14,1],[417,13,417,14,1],[417,13,417,14,1],[418,17,418,60,1],[418,17,418,60,1],[418,17,418,60,1],[418,17,418,60,1],[418,17,418,60,1],[419,13,419,14,1],[419,13,419,14,1],[419,13,419,14,1],[419,13,419,14,1],[419,13,419,14,1],[420,9,420,10,1],[420,9,420,10,1],[420,9,420,10,1],[420,9,420,10,1],[420,9,420,10,1],[424,9,424,10,1],[424,9,424,10,1],[424,9,424,10,1],[424,9,424,10,1],[424,9,424,10,1],[425,13,425,77,1],[425,13,425,77,1],[425,13,425,77,1],[425,13,425,77,1],[425,13,425,77,1],[427,13,427,28,1],[427,13,427,28,1],[427,13,427,28,1],[427,13,427,28,1],[427,13,427,28,1],[429,13,429,45,1],[429,13,429,45,1],[429,13,429,45,1],[429,13,429,45,1],[429,13,429,45,1],[431,13,431,64,1],[431,13,431,64,1],[431,13,431,64,1],[431,13,431,64,1],[431,13,431,64,1],[433,13,433,43,1],[433,13,433,43,1],[433,13,433,43,1],[433,13,433,43,1],[433,13,433,43,1],[435,18,435,27,1],[435,18,435,27,1],[435,18,435,27,1],[435,18,435,27,1],[435,18,435,27,1],[435,29,435,42,1],[435,29,435,42,1],[435,29,435,42,1],[435,29,435,42,1],[435,29,435,42,1],[435,44,435,47,1],[435,44,435,47,1],[435,44,435,47,1],[435,44,435,47,1],[435,44,435,47,1],[436,13,436,14,1],[436,13,436,14,1],[436,13,436,14,1],[436,13,436,14,1],[436,13,436,14,1],[437,17,437,50,1],[437,17,437,50,1],[437,17,437,50,1],[437,17,437,50,1],[437,17,437,50,1],[438,13,438,14,1],[438,13,438,14,1],[438,13,438,14,1],[438,13,438,14,1],[438,13,438,14,1],[439,9,439,10,1],[439,9,439,10,1],[439,9,439,10,1],[439,9,439,10,1],[439,9,439,10,1],[443,9,443,10,1],[443,9,443,10,1],[443,9,443,10,1],[443,9,443,10,1],[443,9,443,10,1],[444,13,449,15,1],[444,13,449,15,1],[444,13,449,15,1],[444,13,449,15,1],[444,13,449,15,1],[451,13,451,28,1],[451,13,451,28,1],[451,13,451,28,1],[451,13,451,28,1],[451,13,451,28,1],[453,13,453,45,1],[453,13,453,45,1],[453,13,453,45,1],[453,13,453,45,1],[453,13,453,45,1],[455,13,455,70,1],[455,13,455,70,1],[455,13,455,70,1],[455,13,455,70,1],[455,13,455,70,1],[457,13,457,52,1],[457,13,457,52,1],[457,13,457,52,1],[457,13,457,52,1],[457,13,457,52,1],[458,13,458,54,1],[458,13,458,54,1],[458,13,458,54,1],[458,13,458,54,1],[458,13,458,54,1],[460,13,460,48,1],[460,13,460,48,1],[460,13,460,48,1],[460,13,460,48,1],[460,13,460,48,1],[462,18,462,27,1],[462,18,462,27,1],[462,18,462,27,1],[462,18,462,27,1],[462,18,462,27,1],[462,29,462,47,1],[462,29,462,47,1],[462,29,462,47,1],[462,29,462,47,1],[462,29,462,47,1],[462,49,462,52,1],[462,49,462,52,1],[462,49,462,52,1],[462,49,462,52,1],[462,49,462,52,1],[463,13,463,14,1],[463,13,463,14,1],[463,13,463,14,1],[463,13,463,14,1],[463,13,463,14,1],[464,17,464,60,1],[464,17,464,60,1],[464,17,464,60,1],[464,17,464,60,1],[464,17,464,60,1],[465,13,465,14,1],[465,13,465,14,1],[465,13,465,14,1],[465,13,465,14,1],[465,13,465,14,1],[466,9,466,10,1],[466,9,466,10,1],[466,9,466,10,1],[466,9,466,10,1],[466,9,466,10,1],[470,9,470,10,1],[470,9,470,10,1],[470,9,470,10,1],[470,9,470,10,1],[470,9,470,10,1],[471,13,471,70,1],[471,13,471,70,1],[471,13,471,70,1],[471,13,471,70,1],[471,13,471,70,1],[473,13,473,28,1],[473,13,473,28,1],[473,13,473,28,1],[473,13,473,28,1],[473,13,473,28,1],[475,13,475,45,1],[475,13,475,45,1],[475,13,475,45,1],[475,13,475,45,1],[475,13,475,45,1],[477,13,477,63,1],[477,13,477,63,1],[477,13,477,63,1],[477,13,477,63,1],[477,13,477,63,1],[479,13,479,43,1],[479,13,479,43,1],[479,13,479,43,1],[479,13,479,43,1],[479,13,479,43,1],[481,18,481,27,1],[481,18,481,27,1],[481,18,481,27,1],[481,18,481,27,1],[481,18,481,27,1],[481,29,481,42,1],[481,29,481,42,1],[481,29,481,42,1],[481,29,481,42,1],[481,29,481,42,1],[481,44,481,47,1],[481,44,481,47,1],[481,44,481,47,1],[481,44,481,47,1],[481,44,481,47,1],[482,13,482,14,1],[482,13,482,14,1],[482,13,482,14,1],[482,13,482,14,1],[482,13,482,14,1],[483,17,483,50,1],[483,17,483,50,1],[483,17,483,50,1],[483,17,483,50,1],[483,17,483,50,1],[484,13,484,14,1],[484,13,484,14,1],[484,13,484,14,1],[484,13,484,14,1],[484,13,484,14,1],[485,9,485,10,1],[485,9,485,10,1],[485,9,485,10,1],[485,9,485,10,1],[485,9,485,10,1],[489,9,489,10,1],[489,9,489,10,1],[489,9,489,10,1],[489,9,489,10,1],[489,9,489,10,1],[490,13,495,15,1],[490,13,495,15,1],[490,13,495,15,1],[490,13,495,15,1],[490,13,495,15,1],[497,13,497,28,1],[497,13,497,28,1],[497,13,497,28,1],[497,13,497,28,1],[497,13,497,28,1],[499,13,499,45,1],[499,13,499,45,1],[499,13,499,45,1],[499,13,499,45,1],[499,13,499,45,1],[501,13,501,71,1],[501,13,501,71,1],[501,13,501,71,1],[501,13,501,71,1],[501,13,501,71,1],[503,13,503,52,1],[503,13,503,52,1],[503,13,503,52,1],[503,13,503,52,1],[503,13,503,52,1],[504,13,504,54,1],[504,13,504,54,1],[504,13,504,54,1],[504,13,504,54,1],[504,13,504,54,1],[506,13,506,48,1],[506,13,506,48,1],[506,13,506,48,1],[506,13,506,48,1],[506,13,506,48,1],[508,18,508,27,1],[508,18,508,27,1],[508,18,508,27,1],[508,18,508,27,1],[508,18,508,27,1],[508,29,508,47,1],[508,29,508,47,1],[508,29,508,47,1],[508,29,508,47,1],[508,29,508,47,1],[508,49,508,52,1],[508,49,508,52,1],[508,49,508,52,1],[508,49,508,52,1],[508,49,508,52,1],[509,13,509,14,1],[509,13,509,14,1],[509,13,509,14,1],[509,13,509,14,1],[509,13,509,14,1],[510,17,510,74,1],[510,17,510,74,1],[510,17,510,74,1],[510,17,510,74,1],[510,17,510,74,1],[511,13,511,14,1],[511,13,511,14,1],[511,13,511,14,1],[511,13,511,14,1],[511,13,511,14,1],[512,9,512,10,1],[512,9,512,10,1],[512,9,512,10,1],[512,9,512,10,1],[512,9,512,10,1],[516,9,516,10,1],[516,9,516,10,1],[516,9,516,10,1],[516,9,516,10,1],[516,9,516,10,1],[517,13,517,75,1],[517,13,517,75,1],[517,13,517,75,1],[517,13,517,75,1],[517,13,517,75,1],[519,13,519,28,1],[519,13,519,28,1],[519,13,519,28,1],[519,13,519,28,1],[519,13,519,28,1],[521,13,521,45,1],[521,13,521,45,1],[521,13,521,45,1],[521,13,521,45,1],[521,13,521,45,1],[523,13,523,64,1],[523,13,523,64,1],[523,13,523,64,1],[523,13,523,64,1],[523,13,523,64,1],[525,13,525,43,1],[525,13,525,43,1],[525,13,525,43,1],[525,13,525,43,1],[525,13,525,43,1],[527,18,527,27,1],[527,18,527,27,1],[527,18,527,27,1],[527,18,527,27,1],[527,18,527,27,1],[527,29,527,42,1],[527,29,527,42,1],[527,29,527,42,1],[527,29,527,42,1],[527,29,527,42,1],[527,44,527,47,1],[527,44,527,47,1],[527,44,527,47,1],[527,44,527,47,1],[527,44,527,47,1],[528,13,528,14,1],[528,13,528,14,1],[528,13,528,14,1],[528,13,528,14,1],[528,13,528,14,1],[529,17,529,64,1],[529,17,529,64,1],[529,17,529,64,1],[529,17,529,64,1],[529,17,529,64,1],[530,13,530,14,1],[530,13,530,14,1],[530,13,530,14,1],[530,13,530,14,1],[530,13,530,14,1],[531,9,531,10,1],[531,9,531,10,1],[531,9,531,10,1],[531,9,531,10,1],[531,9,531,10,1],[535,9,535,10,1],[535,9,535,10,1],[535,9,535,10,1],[535,9,535,10,1],[535,9,535,10,1],[536,13,541,15,1],[536,13,541,15,1],[536,13,541,15,1],[536,13,541,15,1],[536,13,541,15,1],[543,13,543,28,1],[543,13,543,28,1],[543,13,543,28,1],[543,13,543,28,1],[543,13,543,28,1],[545,13,545,45,1],[545,13,545,45,1],[545,13,545,45,1],[545,13,545,45,1],[545,13,545,45,1],[547,13,547,71,1],[547,13,547,71,1],[547,13,547,71,1],[547,13,547,71,1],[547,13,547,71,1],[549,13,549,52,1],[549,13,549,52,1],[549,13,549,52,1],[549,13,549,52,1],[549,13,549,52,1],[550,13,550,54,1],[550,13,550,54,1],[550,13,550,54,1],[550,13,550,54,1],[550,13,550,54,1],[552,13,552,48,1],[552,13,552,48,1],[552,13,552,48,1],[552,13,552,48,1],[552,13,552,48,1],[554,18,554,27,1],[554,18,554,27,1],[554,18,554,27,1],[554,18,554,27,1],[554,18,554,27,1],[554,29,554,47,1],[554,29,554,47,1],[554,29,554,47,1],[554,29,554,47,1],[554,29,554,47,1],[554,49,554,52,1],[554,49,554,52,1],[554,49,554,52,1],[554,49,554,52,1],[554,49,554,52,1],[555,13,555,14,1],[555,13,555,14,1],[555,13,555,14,1],[555,13,555,14,1],[555,13,555,14,1],[556,17,556,66,1],[556,17,556,66,1],[556,17,556,66,1],[556,17,556,66,1],[556,17,556,66,1],[557,13,557,14,1],[557,13,557,14,1],[557,13,557,14,1],[557,13,557,14,1],[557,13,557,14,1],[558,9,558,10,1],[558,9,558,10,1],[558,9,558,10,1],[558,9,558,10,1],[558,9,558,10,1],[562,9,562,10,1],[562,9,562,10,1],[562,9,562,10,1],[562,9,562,10,1],[562,9,562,10,1],[563,13,563,75,1],[563,13,563,75,1],[563,13,563,75,1],[563,13,563,75,1],[563,13,563,75,1],[565,13,565,28,1],[565,13,565,28,1],[565,13,565,28,1],[565,13,565,28,1],[565,13,565,28,1],[567,13,567,45,1],[567,13,567,45,1],[567,13,567,45,1],[567,13,567,45,1],[567,13,567,45,1],[569,13,569,64,1],[569,13,569,64,1],[569,13,569,64,1],[569,13,569,64,1],[569,13,569,64,1],[571,13,571,43,1],[571,13,571,43,1],[571,13,571,43,1],[571,13,571,43,1],[571,13,571,43,1],[573,18,573,27,1],[573,18,573,27,1],[573,18,573,27,1],[573,18,573,27,1],[573,18,573,27,1],[573,29,573,42,1],[573,29,573,42,1],[573,29,573,42,1],[573,29,573,42,1],[573,29,573,42,1],[573,44,573,47,1],[573,44,573,47,1],[573,44,573,47,1],[573,44,573,47,1],[573,44,573,47,1],[574,13,574,14,1],[574,13,574,14,1],[574,13,574,14,1],[574,13,574,14,1],[574,13,574,14,1],[575,17,575,56,1],[575,17,575,56,1],[575,17,575,56,1],[575,17,575,56,1],[575,17,575,56,1],[576,13,576,14,1],[576,13,576,14,1],[576,13,576,14,1],[576,13,576,14,1],[576,13,576,14,1],[577,9,577,10,1],[577,9,577,10,1],[577,9,577,10,1],[577,9,577,10,1],[577,9,577,10,1],[581,9,581,10,1],[581,9,581,10,1],[581,9,581,10,1],[581,9,581,10,1],[581,9,581,10,1],[582,13,587,15,1],[582,13,587,15,1],[582,13,587,15,1],[582,13,587,15,1],[582,13,587,15,1],[589,13,589,28,1],[589,13,589,28,1],[589,13,589,28,1],[589,13,589,28,1],[589,13,589,28,1],[591,13,591,45,1],[591,13,591,45,1],[591,13,591,45,1],[591,13,591,45,1],[591,13,591,45,1],[593,13,593,73,1],[593,13,593,73,1],[593,13,593,73,1],[593,13,593,73,1],[593,13,593,73,1],[595,13,595,52,1],[595,13,595,52,1],[595,13,595,52,1],[595,13,595,52,1],[595,13,595,52,1],[596,13,596,54,1],[596,13,596,54,1],[596,13,596,54,1],[596,13,596,54,1],[596,13,596,54,1],[598,13,598,48,1],[598,13,598,48,1],[598,13,598,48,1],[598,13,598,48,1],[598,13,598,48,1],[600,18,600,27,1],[600,18,600,27,1],[600,18,600,27,1],[600,18,600,27,1],[600,18,600,27,1],[600,29,600,47,1],[600,29,600,47,1],[600,29,600,47,1],[600,29,600,47,1],[600,29,600,47,1],[600,49,600,52,1],[600,49,600,52,1],[600,49,600,52,1],[600,49,600,52,1],[600,49,600,52,1],[601,13,601,14,1],[601,13,601,14,1],[601,13,601,14,1],[601,13,601,14,1],[601,13,601,14,1],[602,17,602,80,1],[602,17,602,80,1],[602,17,602,80,1],[602,17,602,80,1],[602,17,602,80,1],[603,13,603,14,1],[603,13,603,14,1],[603,13,603,14,1],[603,13,603,14,1],[603,13,603,14,1],[604,9,604,10,1],[604,9,604,10,1],[604,9,604,10,1],[604,9,604,10,1],[604,9,604,10,1],[608,9,608,10,1],[608,9,608,10,1],[608,9,608,10,1],[608,9,608,10,1],[608,9,608,10,1],[609,13,609,77,1],[609,13,609,77,1],[609,13,609,77,1],[609,13,609,77,1],[609,13,609,77,1],[611,13,611,28,1],[611,13,611,28,1],[611,13,611,28,1],[611,13,611,28,1],[611,13,611,28,1],[613,13,613,45,1],[613,13,613,45,1],[613,13,613,45,1],[613,13,613,45,1],[613,13,613,45,1],[615,13,615,66,1],[615,13,615,66,1],[615,13,615,66,1],[615,13,615,66,1],[615,13,615,66,1],[617,13,617,43,1],[617,13,617,43,1],[617,13,617,43,1],[617,13,617,43,1],[617,13,617,43,1],[619,18,619,27,1],[619,18,619,27,1],[619,18,619,27,1],[619,18,619,27,1],[619,18,619,27,1],[619,29,619,42,1],[619,29,619,42,1],[619,29,619,42,1],[619,29,619,42,1],[619,29,619,42,1],[619,44,619,47,1],[619,44,619,47,1],[619,44,619,47,1],[619,44,619,47,1],[619,44,619,47,1],[620,13,620,14,1],[620,13,620,14,1],[620,13,620,14,1],[620,13,620,14,1],[620,13,620,14,1],[621,17,621,70,1],[621,17,621,70,1],[621,17,621,70,1],[621,17,621,70,1],[621,17,621,70,1],[622,13,622,14,1],[622,13,622,14,1],[622,13,622,14,1],[622,13,622,14,1],[622,13,622,14,1],[623,9,623,10,1],[623,9,623,10,1],[623,9,623,10,1],[623,9,623,10,1],[623,9,623,10,1],[627,9,627,10,1],[627,9,627,10,1],[627,9,627,10,1],[627,9,627,10,1],[627,9,627,10,1],[628,13,638,15,1],[628,13,638,15,1],[628,13,638,15,1],[628,13,638,15,1],[628,13,638,15,1],[640,13,640,28,1],[640,13,640,28,1],[640,13,640,28,1],[640,13,640,28,1],[640,13,640,28,1],[642,13,642,45,1],[642,13,642,45,1],[642,13,642,45,1],[642,13,642,45,1],[642,13,642,45,1],[644,13,644,69,1],[644,13,644,69,1],[644,13,644,69,1],[644,13,644,69,1],[644,13,644,69,1],[646,13,646,52,1],[646,13,646,52,1],[646,13,646,52,1],[646,13,646,52,1],[646,13,646,52,1],[647,13,647,54,1],[647,13,647,54,1],[647,13,647,54,1],[647,13,647,54,1],[647,13,647,54,1],[649,13,649,48,1],[649,13,649,48,1],[649,13,649,48,1],[649,13,649,48,1],[649,13,649,48,1],[651,18,651,27,1],[651,18,651,27,1],[651,18,651,27,1],[651,18,651,27,1],[651,18,651,27,1],[651,29,651,47,1],[651,29,651,47,1],[651,29,651,47,1],[651,29,651,47,1],[651,29,651,47,1],[651,49,651,52,1],[651,49,651,52,1],[651,49,651,52,1],[651,49,651,52,1],[651,49,651,52,1],[652,13,652,14,1],[652,13,652,14,1],[652,13,652,14,1],[652,13,652,14,1],[652,13,652,14,1],[653,17,653,68,1],[653,17,653,68,1],[653,17,653,68,1],[653,17,653,68,1],[653,17,653,68,1],[654,17,654,72,1],[654,17,654,72,1],[654,17,654,72,1],[654,17,654,72,1],[654,17,654,72,1],[655,13,655,14,1],[655,13,655,14,1],[655,13,655,14,1],[655,13,655,14,1],[655,13,655,14,1],[656,9,656,10,1],[656,9,656,10,1],[656,9,656,10,1],[656,9,656,10,1],[656,9,656,10,1],[660,9,660,10,1],[660,9,660,10,1],[660,9,660,10,1],[660,9,660,10,1],[660,9,660,10,1],[661,13,666,15,1],[661,13,666,15,1],[661,13,666,15,1],[661,13,666,15,1],[661,13,666,15,1],[668,13,668,28,1],[668,13,668,28,1],[668,13,668,28,1],[668,13,668,28,1],[668,13,668,28,1],[670,13,670,45,1],[670,13,670,45,1],[670,13,670,45,1],[670,13,670,45,1],[670,13,670,45,1],[672,13,672,78,1],[672,13,672,78,1],[672,13,672,78,1],[672,13,672,78,1],[672,13,672,78,1],[674,13,674,43,1],[674,13,674,43,1],[674,13,674,43,1],[674,13,674,43,1],[674,13,674,43,1],[676,18,676,27,1],[676,18,676,27,1],[676,18,676,27,1],[676,18,676,27,1],[676,18,676,27,1],[676,29,676,42,1],[676,29,676,42,1],[676,29,676,42,1],[676,29,676,42,1],[676,29,676,42,1],[676,44,676,47,1],[676,44,676,47,1],[676,44,676,47,1],[676,44,676,47,1],[676,44,676,47,1],[677,13,677,14,1],[677,13,677,14,1],[677,13,677,14,1],[677,13,677,14,1],[677,13,677,14,1],[678,17,678,58,1],[678,17,678,58,1],[678,17,678,58,1],[678,17,678,58,1],[678,17,678,58,1],[679,17,679,62,1],[679,17,679,62,1],[679,17,679,62,1],[679,17,679,62,1],[679,17,679,62,1],[680,13,680,14,1],[680,13,680,14,1],[680,13,680,14,1],[680,13,680,14,1],[680,13,680,14,1],[681,9,681,10,1],[681,9,681,10,1],[681,9,681,10,1],[681,9,681,10,1],[681,9,681,10,1],[685,9,685,10,1],[685,9,685,10,1],[685,9,685,10,1],[685,9,685,10,1],[685,9,685,10,1],[686,13,696,15,1],[686,13,696,15,1],[686,13,696,15,1],[686,13,696,15,1],[686,13,696,15,1],[698,13,698,28,1],[698,13,698,28,1],[698,13,698,28,1],[698,13,698,28,1],[698,13,698,28,1],[700,13,700,45,1],[700,13,700,45,1],[700,13,700,45,1],[700,13,700,45,1],[700,13,700,45,1],[702,13,702,68,1],[702,13,702,68,1],[702,13,702,68,1],[702,13,702,68,1],[702,13,702,68,1],[704,13,704,52,1],[704,13,704,52,1],[704,13,704,52,1],[704,13,704,52,1],[704,13,704,52,1],[705,13,705,54,1],[705,13,705,54,1],[705,13,705,54,1],[705,13,705,54,1],[705,13,705,54,1],[707,13,707,48,1],[707,13,707,48,1],[707,13,707,48,1],[707,13,707,48,1],[707,13,707,48,1],[709,18,709,27,1],[709,18,709,27,1],[709,18,709,27,1],[709,18,709,27,1],[709,18,709,27,1],[709,29,709,47,1],[709,29,709,47,1],[709,29,709,47,1],[709,29,709,47,1],[709,29,709,47,1],[709,49,709,52,1],[709,49,709,52,1],[709,49,709,52,1],[709,49,709,52,1],[709,49,709,52,1],[710,13,710,14,1],[710,13,710,14,1],[710,13,710,14,1],[710,13,710,14,1],[710,13,710,14,1],[711,17,711,68,1],[711,17,711,68,1],[711,17,711,68,1],[711,17,711,68,1],[711,17,711,68,1],[712,17,712,72,1],[712,17,712,72,1],[712,17,712,72,1],[712,17,712,72,1],[712,17,712,72,1],[713,13,713,14,1],[713,13,713,14,1],[713,13,713,14,1],[713,13,713,14,1],[713,13,713,14,1],[714,9,714,10,1],[714,9,714,10,1],[714,9,714,10,1],[714,9,714,10,1],[714,9,714,10,1],[718,9,718,10,1],[718,9,718,10,1],[718,9,718,10,1],[718,9,718,10,1],[718,9,718,10,1],[719,13,724,15,1],[719,13,724,15,1],[719,13,724,15,1],[719,13,724,15,1],[719,13,724,15,1],[726,13,726,28,1],[726,13,726,28,1],[726,13,726,28,1],[726,13,726,28,1],[726,13,726,28,1],[728,13,728,45,1],[728,13,728,45,1],[728,13,728,45,1],[728,13,728,45,1],[728,13,728,45,1],[730,13,730,77,1],[730,13,730,77,1],[730,13,730,77,1],[730,13,730,77,1],[730,13,730,77,1],[732,13,732,43,1],[732,13,732,43,1],[732,13,732,43,1],[732,13,732,43,1],[732,13,732,43,1],[734,18,734,27,1],[734,18,734,27,1],[734,18,734,27,1],[734,18,734,27,1],[734,18,734,27,1],[734,29,734,42,1],[734,29,734,42,1],[734,29,734,42,1],[734,29,734,42,1],[734,29,734,42,1],[734,44,734,47,1],[734,44,734,47,1],[734,44,734,47,1],[734,44,734,47,1],[734,44,734,47,1],[735,13,735,14,1],[735,13,735,14,1],[735,13,735,14,1],[735,13,735,14,1],[735,13,735,14,1],[736,17,736,58,1],[736,17,736,58,1],[736,17,736,58,1],[736,17,736,58,1],[736,17,736,58,1],[737,17,737,62,1],[737,17,737,62,1],[737,17,737,62,1],[737,17,737,62,1],[737,17,737,62,1],[738,13,738,14,1],[738,13,738,14,1],[738,13,738,14,1],[738,13,738,14,1],[738,13,738,14,1],[739,9,739,10,1],[739,9,739,10,1],[739,9,739,10,1],[739,9,739,10,1],[739,9,739,10,1],[743,9,743,10,1],[743,9,743,10,1],[743,9,743,10,1],[743,9,743,10,1],[743,9,743,10,1],[744,13,756,15,1],[744,13,756,15,1],[744,13,756,15,1],[744,13,756,15,1],[744,13,756,15,1],[758,13,758,28,1],[758,13,758,28,1],[758,13,758,28,1],[758,13,758,28,1],[758,13,758,28,1],[760,13,760,45,1],[760,13,760,45,1],[760,13,760,45,1],[760,13,760,45,1],[760,13,760,45,1],[762,13,762,69,1],[762,13,762,69,1],[762,13,762,69,1],[762,13,762,69,1],[762,13,762,69,1],[764,13,764,52,1],[764,13,764,52,1],[764,13,764,52,1],[764,13,764,52,1],[764,13,764,52,1],[765,13,765,54,1],[765,13,765,54,1],[765,13,765,54,1],[765,13,765,54,1],[765,13,765,54,1],[767,13,767,48,1],[767,13,767,48,1],[767,13,767,48,1],[767,13,767,48,1],[767,13,767,48,1],[769,18,769,27,1],[769,18,769,27,1],[769,18,769,27,1],[769,18,769,27,1],[769,18,769,27,1],[769,29,769,47,1],[769,29,769,47,1],[769,29,769,47,1],[769,29,769,47,1],[769,29,769,47,1],[769,49,769,52,1],[769,49,769,52,1],[769,49,769,52,1],[769,49,769,52,1],[769,49,769,52,1],[770,13,770,14,1],[770,13,770,14,1],[770,13,770,14,1],[770,13,770,14,1],[770,13,770,14,1],[771,17,771,51,1],[771,17,771,51,1],[771,17,771,51,1],[771,17,771,51,1],[771,17,771,51,1],[772,17,772,55,1],[772,17,772,55,1],[772,17,772,55,1],[772,17,772,55,1],[772,17,772,55,1],[773,17,773,58,1],[773,17,773,58,1],[773,17,773,58,1],[773,17,773,58,1],[773,17,773,58,1],[774,17,774,62,1],[774,17,774,62,1],[774,17,774,62,1],[774,17,774,62,1],[774,17,774,62,1],[775,13,775,14,1],[775,13,775,14,1],[775,13,775,14,1],[775,13,775,14,1],[775,13,775,14,1],[776,9,776,10,1],[776,9,776,10,1],[776,9,776,10,1],[776,9,776,10,1],[776,9,776,10,1],[780,9,780,10,1],[780,9,780,10,1],[780,9,780,10,1],[780,9,780,10,1],[780,9,780,10,1],[781,13,788,15,1],[781,13,788,15,1],[781,13,788,15,1],[781,13,788,15,1],[781,13,788,15,1],[790,13,790,28,1],[790,13,790,28,1],[790,13,790,28,1],[790,13,790,28,1],[790,13,790,28,1],[792,13,792,45,1],[792,13,792,45,1],[792,13,792,45,1],[792,13,792,45,1],[792,13,792,45,1],[794,13,794,78,1],[794,13,794,78,1],[794,13,794,78,1],[794,13,794,78,1],[794,13,794,78,1],[796,13,796,43,1],[796,13,796,43,1],[796,13,796,43,1],[796,13,796,43,1],[796,13,796,43,1],[798,18,798,27,1],[798,18,798,27,1],[798,18,798,27,1],[798,18,798,27,1],[798,18,798,27,1],[798,29,798,42,1],[798,29,798,42,1],[798,29,798,42,1],[798,29,798,42,1],[798,29,798,42,1],[798,44,798,47,1],[798,44,798,47,1],[798,44,798,47,1],[798,44,798,47,1],[798,44,798,47,1],[799,13,799,14,1],[799,13,799,14,1],[799,13,799,14,1],[799,13,799,14,1],[799,13,799,14,1],[800,17,800,46,1],[800,17,800,46,1],[800,17,800,46,1],[800,17,800,46,1],[800,17,800,46,1],[801,17,801,50,1],[801,17,801,50,1],[801,17,801,50,1],[801,17,801,50,1],[801,17,801,50,1],[802,17,802,58,1],[802,17,802,58,1],[802,17,802,58,1],[802,17,802,58,1],[802,17,802,58,1],[803,17,803,62,1],[803,17,803,62,1],[803,17,803,62,1],[803,17,803,62,1],[803,17,803,62,1],[804,13,804,14,1],[804,13,804,14,1],[804,13,804,14,1],[804,13,804,14,1],[804,13,804,14,1],[805,9,805,10,1],[805,9,805,10,1],[805,9,805,10,1],[805,9,805,10,1],[805,9,805,10,1],[809,9,809,10,1],[809,9,809,10,1],[809,9,809,10,1],[809,9,809,10,1],[809,9,809,10,1],[810,13,822,15,1],[810,13,822,15,1],[810,13,822,15,1],[810,13,822,15,1],[810,13,822,15,1],[824,13,824,28,1],[824,13,824,28,1],[824,13,824,28,1],[824,13,824,28,1],[824,13,824,28,1],[826,13,826,45,1],[826,13,826,45,1],[826,13,826,45,1],[826,13,826,45,1],[826,13,826,45,1],[828,13,828,69,1],[828,13,828,69,1],[828,13,828,69,1],[828,13,828,69,1],[828,13,828,69,1],[830,13,830,52,1],[830,13,830,52,1],[830,13,830,52,1],[830,13,830,52,1],[830,13,830,52,1],[831,13,831,54,1],[831,13,831,54,1],[831,13,831,54,1],[831,13,831,54,1],[831,13,831,54,1],[833,13,833,48,1],[833,13,833,48,1],[833,13,833,48,1],[833,13,833,48,1],[833,13,833,48,1],[835,18,835,27,1],[835,18,835,27,1],[835,18,835,27,1],[835,18,835,27,1],[835,18,835,27,1],[835,29,835,47,1],[835,29,835,47,1],[835,29,835,47,1],[835,29,835,47,1],[835,29,835,47,1],[835,49,835,52,1],[835,49,835,52,1],[835,49,835,52,1],[835,49,835,52,1],[835,49,835,52,1],[836,13,836,14,1],[836,13,836,14,1],[836,13,836,14,1],[836,13,836,14,1],[836,13,836,14,1],[837,17,837,47,1],[837,17,837,47,1],[837,17,837,47,1],[837,17,837,47,1],[837,17,837,47,1],[838,17,838,51,1],[838,17,838,51,1],[838,17,838,51,1],[838,17,838,51,1],[838,17,838,51,1],[839,17,839,58,1],[839,17,839,58,1],[839,17,839,58,1],[839,17,839,58,1],[839,17,839,58,1],[840,17,840,62,1],[840,17,840,62,1],[840,17,840,62,1],[840,17,840,62,1],[840,17,840,62,1],[841,13,841,14,1],[841,13,841,14,1],[841,13,841,14,1],[841,13,841,14,1],[841,13,841,14,1],[842,9,842,10,1],[842,9,842,10,1],[842,9,842,10,1],[842,9,842,10,1],[842,9,842,10,1],[846,9,846,10,1],[846,9,846,10,1],[846,9,846,10,1],[846,9,846,10,1],[846,9,846,10,1],[847,13,854,15,1],[847,13,854,15,1],[847,13,854,15,1],[847,13,854,15,1],[847,13,854,15,1],[856,13,856,28,1],[856,13,856,28,1],[856,13,856,28,1],[856,13,856,28,1],[856,13,856,28,1],[858,13,858,45,1],[858,13,858,45,1],[858,13,858,45,1],[858,13,858,45,1],[858,13,858,45,1],[860,13,860,78,1],[860,13,860,78,1],[860,13,860,78,1],[860,13,860,78,1],[860,13,860,78,1],[862,13,862,43,1],[862,13,862,43,1],[862,13,862,43,1],[862,13,862,43,1],[862,13,862,43,1],[864,18,864,27,1],[864,18,864,27,1],[864,18,864,27,1],[864,18,864,27,1],[864,18,864,27,1],[864,29,864,42,1],[864,29,864,42,1],[864,29,864,42,1],[864,29,864,42,1],[864,29,864,42,1],[864,44,864,47,1],[864,44,864,47,1],[864,44,864,47,1],[864,44,864,47,1],[864,44,864,47,1],[865,13,865,14,1],[865,13,865,14,1],[865,13,865,14,1],[865,13,865,14,1],[865,13,865,14,1],[866,17,866,42,1],[866,17,866,42,1],[866,17,866,42,1],[866,17,866,42,1],[866,17,866,42,1],[867,17,867,46,1],[867,17,867,46,1],[867,17,867,46,1],[867,17,867,46,1],[867,17,867,46,1],[868,17,868,58,1],[868,17,868,58,1],[868,17,868,58,1],[868,17,868,58,1],[868,17,868,58,1],[869,17,869,62,1],[869,17,869,62,1],[869,17,869,62,1],[869,17,869,62,1],[869,17,869,62,1],[870,13,870,14,1],[870,13,870,14,1],[870,13,870,14,1],[870,13,870,14,1],[870,13,870,14,1],[871,9,871,10,1],[871,9,871,10,1],[871,9,871,10,1],[871,9,871,10,1],[871,9,871,10,1],[875,9,875,10,1],[875,9,875,10,1],[875,9,875,10,1],[875,9,875,10,1],[875,9,875,10,1],[876,13,888,15,1],[876,13,888,15,1],[876,13,888,15,1],[876,13,888,15,1],[876,13,888,15,1],[890,13,890,28,1],[890,13,890,28,1],[890,13,890,28,1],[890,13,890,28,1],[890,13,890,28,1],[892,13,892,45,1],[892,13,892,45,1],[892,13,892,45,1],[892,13,892,45,1],[892,13,892,45,1],[894,13,894,71,1],[894,13,894,71,1],[894,13,894,71,1],[894,13,894,71,1],[894,13,894,71,1],[896,13,896,52,1],[896,13,896,52,1],[896,13,896,52,1],[896,13,896,52,1],[896,13,896,52,1],[897,13,897,54,1],[897,13,897,54,1],[897,13,897,54,1],[897,13,897,54,1],[897,13,897,54,1],[899,13,899,48,1],[899,13,899,48,1],[899,13,899,48,1],[899,13,899,48,1],[899,13,899,48,1],[901,18,901,27,1],[901,18,901,27,1],[901,18,901,27,1],[901,18,901,27,1],[901,18,901,27,1],[901,29,901,47,1],[901,29,901,47,1],[901,29,901,47,1],[901,29,901,47,1],[901,29,901,47,1],[901,49,901,52,1],[901,49,901,52,1],[901,49,901,52,1],[901,49,901,52,1],[901,49,901,52,1],[902,13,902,14,1],[902,13,902,14,1],[902,13,902,14,1],[902,13,902,14,1],[902,13,902,14,1],[903,17,903,54,1],[903,17,903,54,1],[903,17,903,54,1],[903,17,903,54,1],[903,17,903,54,1],[904,17,904,58,1],[904,17,904,58,1],[904,17,904,58,1],[904,17,904,58,1],[904,17,904,58,1],[905,17,905,58,1],[905,17,905,58,1],[905,17,905,58,1],[905,17,905,58,1],[905,17,905,58,1],[906,17,906,62,1],[906,17,906,62,1],[906,17,906,62,1],[906,17,906,62,1],[906,17,906,62,1],[907,13,907,14,1],[907,13,907,14,1],[907,13,907,14,1],[907,13,907,14,1],[907,13,907,14,1],[908,9,908,10,1],[908,9,908,10,1],[908,9,908,10,1],[908,9,908,10,1],[908,9,908,10,1],[912,9,912,10,1],[912,9,912,10,1],[912,9,912,10,1],[912,9,912,10,1],[912,9,912,10,1],[913,13,920,15,1],[913,13,920,15,1],[913,13,920,15,1],[913,13,920,15,1],[913,13,920,15,1],[922,13,922,28,1],[922,13,922,28,1],[922,13,922,28,1],[922,13,922,28,1],[922,13,922,28,1],[924,13,924,45,1],[924,13,924,45,1],[924,13,924,45,1],[924,13,924,45,1],[924,13,924,45,1],[926,13,926,80,1],[926,13,926,80,1],[926,13,926,80,1],[926,13,926,80,1],[926,13,926,80,1],[928,13,928,43,1],[928,13,928,43,1],[928,13,928,43,1],[928,13,928,43,1],[928,13,928,43,1],[930,18,930,27,1],[930,18,930,27,1],[930,18,930,27,1],[930,18,930,27,1],[930,18,930,27,1],[930,29,930,42,1],[930,29,930,42,1],[930,29,930,42,1],[930,29,930,42,1],[930,29,930,42,1],[930,44,930,47,1],[930,44,930,47,1],[930,44,930,47,1],[930,44,930,47,1],[930,44,930,47,1],[931,13,931,14,1],[931,13,931,14,1],[931,13,931,14,1],[931,13,931,14,1],[931,13,931,14,1],[932,17,932,49,1],[932,17,932,49,1],[932,17,932,49,1],[932,17,932,49,1],[932,17,932,49,1],[933,17,933,53,1],[933,17,933,53,1],[933,17,933,53,1],[933,17,933,53,1],[933,17,933,53,1],[934,17,934,58,1],[934,17,934,58,1],[934,17,934,58,1],[934,17,934,58,1],[934,17,934,58,1],[935,17,935,62,1],[935,17,935,62,1],[935,17,935,62,1],[935,17,935,62,1],[935,17,935,62,1],[936,13,936,14,1],[936,13,936,14,1],[936,13,936,14,1],[936,13,936,14,1],[936,13,936,14,1],[937,9,937,10,1],[937,9,937,10,1],[937,9,937,10,1],[937,9,937,10,1],[937,9,937,10,1],[941,9,941,10,1],[941,9,941,10,1],[941,9,941,10,1],[941,9,941,10,1],[941,9,941,10,1],[942,13,954,15,1],[942,13,954,15,1],[942,13,954,15,1],[942,13,954,15,1],[942,13,954,15,1],[956,13,956,28,1],[956,13,956,28,1],[956,13,956,28,1],[956,13,956,28,1],[956,13,956,28,1],[958,13,958,50,1],[958,13,958,50,1],[958,13,958,50,1],[958,13,958,50,1],[958,13,958,50,1],[959,13,959,76,1],[959,13,959,76,1],[959,13,959,76,1],[959,13,959,76,1],[959,13,959,76,1],[961,13,961,20,1],[961,13,961,20,1],[961,13,961,20,1],[961,13,961,20,1],[961,13,961,20,1],[961,22,961,29,1],[961,22,961,29,1],[961,22,961,29,1],[961,22,961,29,1],[961,22,961,29,1],[961,30,961,32,1],[961,30,961,32,1],[961,30,961,32,1],[961,30,961,32,1],[961,30,961,32,1],[961,33,961,51,1],[961,33,961,51,1],[961,33,961,51,1],[961,33,961,51,1],[961,33,961,51,1],[962,13,962,14,1],[962,13,962,14,1],[962,13,962,14,1],[962,13,962,14,1],[962,13,962,14,1],[963,17,963,54,1],[963,17,963,54,1],[963,17,963,54,1],[963,17,963,54,1],[963,17,963,54,1],[965,17,965,77,1],[965,17,965,77,1],[965,17,965,77,1],[965,17,965,77,1],[965,17,965,77,1],[966,17,966,50,1],[966,17,966,50,1],[966,17,966,50,1],[966,17,966,50,1],[966,17,966,50,1],[967,13,967,14,1],[967,13,967,14,1],[967,13,967,14,1],[967,13,967,14,1],[967,13,967,14,1],[968,9,968,10,1],[968,9,968,10,1],[968,9,968,10,1],[968,9,968,10,1],[968,9,968,10,1],[972,9,972,10,1],[972,9,972,10,1],[972,9,972,10,1],[972,9,972,10,1],[972,9,972,10,1],[973,13,980,15,1],[973,13,980,15,1],[973,13,980,15,1],[973,13,980,15,1],[973,13,980,15,1],[982,13,982,28,1],[982,13,982,28,1],[982,13,982,28,1],[982,13,982,28,1],[982,13,982,28,1],[984,13,984,50,1],[984,13,984,50,1],[984,13,984,50,1],[984,13,984,50,1],[984,13,984,50,1],[985,13,985,76,1],[985,13,985,76,1],[985,13,985,76,1],[985,13,985,76,1],[985,13,985,76,1],[987,13,987,20,1],[987,13,987,20,1],[987,13,987,20,1],[987,13,987,20,1],[987,13,987,20,1],[987,22,987,29,1],[987,22,987,29,1],[987,22,987,29,1],[987,22,987,29,1],[987,22,987,29,1],[987,30,987,32,1],[987,30,987,32,1],[987,30,987,32,1],[987,30,987,32,1],[987,30,987,32,1],[987,33,987,46,1],[987,33,987,46,1],[987,33,987,46,1],[987,33,987,46,1],[987,33,987,46,1],[988,13,988,14,1],[988,13,988,14,1],[988,13,988,14,1],[988,13,988,14,1],[988,13,988,14,1],[989,17,989,49,1],[989,17,989,49,1],[989,17,989,49,1],[989,17,989,49,1],[989,17,989,49,1],[991,17,991,72,1],[991,17,991,72,1],[991,17,991,72,1],[991,17,991,72,1],[991,17,991,72,1],[992,17,992,50,1],[992,17,992,50,1],[992,17,992,50,1],[992,17,992,50,1],[992,17,992,50,1],[993,13,993,14,1],[993,13,993,14,1],[993,13,993,14,1],[993,13,993,14,1],[993,13,993,14,1],[994,9,994,10,1],[994,9,994,10,1],[994,9,994,10,1],[994,9,994,10,1],[994,9,994,10,1],[998,9,998,10,1],[998,9,998,10,1],[998,9,998,10,1],[998,9,998,10,1],[998,9,998,10,1],[999,13,1009,15,1],[999,13,1009,15,1],[999,13,1009,15,1],[999,13,1009,15,1],[999,13,1009,15,1],[1011,13,1011,28,1],[1011,13,1011,28,1],[1011,13,1011,28,1],[1011,13,1011,28,1],[1011,13,1011,28,1],[1013,13,1013,50,1],[1013,13,1013,50,1],[1013,13,1013,50,1],[1013,13,1013,50,1],[1013,13,1013,50,1],[1014,13,1014,85,1],[1014,13,1014,85,1],[1014,13,1014,85,1],[1014,13,1014,85,1],[1014,13,1014,85,1],[1016,13,1016,67,1],[1016,13,1016,67,1],[1016,13,1016,67,1],[1016,13,1016,67,1],[1016,13,1016,67,1],[1018,18,1018,27,1],[1018,18,1018,27,1],[1018,18,1018,27,1],[1018,18,1018,27,1],[1018,18,1018,27,1],[1018,29,1018,52,1],[1018,29,1018,52,1],[1018,29,1018,52,1],[1018,29,1018,52,1],[1018,29,1018,52,1],[1018,54,1018,57,1],[1018,54,1018,57,1],[1018,54,1018,57,1],[1018,54,1018,57,1],[1018,54,1018,57,1],[1019,13,1019,14,1],[1019,13,1019,14,1],[1019,13,1019,14,1],[1019,13,1019,14,1],[1019,13,1019,14,1],[1020,17,1020,65,1],[1020,17,1020,65,1],[1020,17,1020,65,1],[1020,17,1020,65,1],[1020,17,1020,65,1],[1021,17,1021,58,1],[1021,17,1021,58,1],[1021,17,1021,58,1],[1021,17,1021,58,1],[1021,17,1021,58,1],[1023,17,1023,58,1],[1023,17,1023,58,1],[1023,17,1023,58,1],[1023,17,1023,58,1],[1023,17,1023,58,1],[1024,17,1024,54,1],[1024,17,1024,54,1],[1024,17,1024,54,1],[1024,17,1024,54,1],[1024,17,1024,54,1],[1026,17,1026,69,1],[1026,17,1026,69,1],[1026,17,1026,69,1],[1026,17,1026,69,1],[1026,17,1026,69,1],[1027,17,1027,62,1],[1027,17,1027,62,1],[1027,17,1027,62,1],[1027,17,1027,62,1],[1027,17,1027,62,1],[1029,17,1029,50,1],[1029,17,1029,50,1],[1029,17,1029,50,1],[1029,17,1029,50,1],[1029,17,1029,50,1],[1030,13,1030,14,1],[1030,13,1030,14,1],[1030,13,1030,14,1],[1030,13,1030,14,1],[1030,13,1030,14,1],[1031,9,1031,10,1],[1031,9,1031,10,1],[1031,9,1031,10,1],[1031,9,1031,10,1],[1031,9,1031,10,1],[1035,9,1035,10,1],[1035,9,1035,10,1],[1035,9,1035,10,1],[1035,9,1035,10,1],[1035,9,1035,10,1],[1036,13,1041,15,1],[1036,13,1041,15,1],[1036,13,1041,15,1],[1036,13,1041,15,1],[1036,13,1041,15,1],[1043,13,1043,28,1],[1043,13,1043,28,1],[1043,13,1043,28,1],[1043,13,1043,28,1],[1043,13,1043,28,1],[1045,13,1045,50,1],[1045,13,1045,50,1],[1045,13,1045,50,1],[1045,13,1045,50,1],[1045,13,1045,50,1],[1046,13,1046,90,1],[1046,13,1046,90,1],[1046,13,1046,90,1],[1046,13,1046,90,1],[1046,13,1046,90,1],[1048,18,1048,27,1],[1048,18,1048,27,1],[1048,18,1048,27,1],[1048,18,1048,27,1],[1048,18,1048,27,1],[1048,29,1048,47,1],[1048,29,1048,47,1],[1048,29,1048,47,1],[1048,29,1048,47,1],[1048,29,1048,47,1],[1048,49,1048,52,1],[1048,49,1048,52,1],[1048,49,1048,52,1],[1048,49,1048,52,1],[1048,49,1048,52,1],[1049,13,1049,14,1],[1049,13,1049,14,1],[1049,13,1049,14,1],[1049,13,1049,14,1],[1049,13,1049,14,1],[1050,17,1050,60,1],[1050,17,1050,60,1],[1050,17,1050,60,1],[1050,17,1050,60,1],[1050,17,1050,60,1],[1051,17,1051,53,1],[1051,17,1051,53,1],[1051,17,1051,53,1],[1051,17,1051,53,1],[1051,17,1051,53,1],[1053,17,1053,58,1],[1053,17,1053,58,1],[1053,17,1053,58,1],[1053,17,1053,58,1],[1053,17,1053,58,1],[1054,17,1054,54,1],[1054,17,1054,54,1],[1054,17,1054,54,1],[1054,17,1054,54,1],[1054,17,1054,54,1],[1056,17,1056,64,1],[1056,17,1056,64,1],[1056,17,1056,64,1],[1056,17,1056,64,1],[1056,17,1056,64,1],[1057,17,1057,57,1],[1057,17,1057,57,1],[1057,17,1057,57,1],[1057,17,1057,57,1],[1057,17,1057,57,1],[1059,17,1059,50,1],[1059,17,1059,50,1],[1059,17,1059,50,1],[1059,17,1059,50,1],[1059,17,1059,50,1],[1060,13,1060,14,1],[1060,13,1060,14,1],[1060,13,1060,14,1],[1060,13,1060,14,1],[1060,13,1060,14,1],[1061,9,1061,10,1],[1061,9,1061,10,1],[1061,9,1061,10,1],[1061,9,1061,10,1],[1061,9,1061,10,1],[1065,9,1065,10,1],[1065,9,1065,10,1],[1065,9,1065,10,1],[1065,9,1065,10,1],[1065,9,1065,10,1],[1066,13,1076,15,1],[1066,13,1076,15,1],[1066,13,1076,15,1],[1066,13,1076,15,1],[1066,13,1076,15,1],[1078,13,1078,28,1],[1078,13,1078,28,1],[1078,13,1078,28,1],[1078,13,1078,28,1],[1078,13,1078,28,1],[1080,13,1080,50,1],[1080,13,1080,50,1],[1080,13,1080,50,1],[1080,13,1080,50,1],[1080,13,1080,50,1],[1081,13,1081,85,1],[1081,13,1081,85,1],[1081,13,1081,85,1],[1081,13,1081,85,1],[1081,13,1081,85,1],[1083,13,1083,67,1],[1083,13,1083,67,1],[1083,13,1083,67,1],[1083,13,1083,67,1],[1083,13,1083,67,1],[1085,18,1085,27,1],[1085,18,1085,27,1],[1085,18,1085,27,1],[1085,18,1085,27,1],[1085,18,1085,27,1],[1085,29,1085,52,1],[1085,29,1085,52,1],[1085,29,1085,52,1],[1085,29,1085,52,1],[1085,29,1085,52,1],[1085,54,1085,57,1],[1085,54,1085,57,1],[1085,54,1085,57,1],[1085,54,1085,57,1],[1085,54,1085,57,1],[1086,13,1086,14,1],[1086,13,1086,14,1],[1086,13,1086,14,1],[1086,13,1086,14,1],[1086,13,1086,14,1],[1087,17,1087,65,1],[1087,17,1087,65,1],[1087,17,1087,65,1],[1087,17,1087,65,1],[1087,17,1087,65,1],[1088,17,1088,58,1],[1088,17,1088,58,1],[1088,17,1088,58,1],[1088,17,1088,58,1],[1088,17,1088,58,1],[1090,17,1090,46,1],[1090,17,1090,46,1],[1090,17,1090,46,1],[1090,17,1090,46,1],[1090,17,1090,46,1],[1092,17,1092,69,1],[1092,17,1092,69,1],[1092,17,1092,69,1],[1092,17,1092,69,1],[1092,17,1092,69,1],[1093,17,1093,62,1],[1093,17,1093,62,1],[1093,17,1093,62,1],[1093,17,1093,62,1],[1093,17,1093,62,1],[1095,17,1095,62,1],[1095,17,1095,62,1],[1095,17,1095,62,1],[1095,17,1095,62,1],[1095,17,1095,62,1],[1096,17,1096,58,1],[1096,17,1096,58,1],[1096,17,1096,58,1],[1096,17,1096,58,1],[1096,17,1096,58,1],[1097,13,1097,14,1],[1097,13,1097,14,1],[1097,13,1097,14,1],[1097,13,1097,14,1],[1097,13,1097,14,1],[1098,9,1098,10,1],[1098,9,1098,10,1],[1098,9,1098,10,1],[1098,9,1098,10,1],[1098,9,1098,10,1],[1102,9,1102,10,1],[1102,9,1102,10,1],[1102,9,1102,10,1],[1102,9,1102,10,1],[1102,9,1102,10,1],[1103,13,1108,15,1],[1103,13,1108,15,1],[1103,13,1108,15,1],[1103,13,1108,15,1],[1103,13,1108,15,1],[1110,13,1110,28,1],[1110,13,1110,28,1],[1110,13,1110,28,1],[1110,13,1110,28,1],[1110,13,1110,28,1],[1112,13,1112,50,1],[1112,13,1112,50,1],[1112,13,1112,50,1],[1112,13,1112,50,1],[1112,13,1112,50,1],[1113,13,1113,88,1],[1113,13,1113,88,1],[1113,13,1113,88,1],[1113,13,1113,88,1],[1113,13,1113,88,1],[1115,18,1115,27,1],[1115,18,1115,27,1],[1115,18,1115,27,1],[1115,18,1115,27,1],[1115,18,1115,27,1],[1115,29,1115,47,1],[1115,29,1115,47,1],[1115,29,1115,47,1],[1115,29,1115,47,1],[1115,29,1115,47,1],[1115,49,1115,52,1],[1115,49,1115,52,1],[1115,49,1115,52,1],[1115,49,1115,52,1],[1115,49,1115,52,1],[1116,13,1116,14,1],[1116,13,1116,14,1],[1116,13,1116,14,1],[1116,13,1116,14,1],[1116,13,1116,14,1],[1117,17,1117,60,1],[1117,17,1117,60,1],[1117,17,1117,60,1],[1117,17,1117,60,1],[1117,17,1117,60,1],[1118,17,1118,53,1],[1118,17,1118,53,1],[1118,17,1118,53,1],[1118,17,1118,53,1],[1118,17,1118,53,1],[1120,17,1120,46,1],[1120,17,1120,46,1],[1120,17,1120,46,1],[1120,17,1120,46,1],[1120,17,1120,46,1],[1122,17,1122,64,1],[1122,17,1122,64,1],[1122,17,1122,64,1],[1122,17,1122,64,1],[1122,17,1122,64,1],[1123,17,1123,57,1],[1123,17,1123,57,1],[1123,17,1123,57,1],[1123,17,1123,57,1],[1123,17,1123,57,1],[1125,17,1125,62,1],[1125,17,1125,62,1],[1125,17,1125,62,1],[1125,17,1125,62,1],[1125,17,1125,62,1],[1126,17,1126,58,1],[1126,17,1126,58,1],[1126,17,1126,58,1],[1126,17,1126,58,1],[1126,17,1126,58,1],[1127,13,1127,14,1],[1127,13,1127,14,1],[1127,13,1127,14,1],[1127,13,1127,14,1],[1127,13,1127,14,1],[1128,9,1128,10,1],[1128,9,1128,10,1],[1128,9,1128,10,1],[1128,9,1128,10,1],[1128,9,1128,10,1],[1132,9,1132,10,1],[1132,9,1132,10,1],[1132,9,1132,10,1],[1132,9,1132,10,1],[1132,9,1132,10,1],[1133,13,1143,15,1],[1133,13,1143,15,1],[1133,13,1143,15,1],[1133,13,1143,15,1],[1133,13,1143,15,1],[1145,13,1145,28,1],[1145,13,1145,28,1],[1145,13,1145,28,1],[1145,13,1145,28,1],[1145,13,1145,28,1],[1147,13,1147,50,1],[1147,13,1147,50,1],[1147,13,1147,50,1],[1147,13,1147,50,1],[1147,13,1147,50,1],[1148,13,1148,83,1],[1148,13,1148,83,1],[1148,13,1148,83,1],[1148,13,1148,83,1],[1148,13,1148,83,1],[1150,13,1150,67,1],[1150,13,1150,67,1],[1150,13,1150,67,1],[1150,13,1150,67,1],[1150,13,1150,67,1],[1152,18,1152,27,1],[1152,18,1152,27,1],[1152,18,1152,27,1],[1152,18,1152,27,1],[1152,18,1152,27,1],[1152,29,1152,52,1],[1152,29,1152,52,1],[1152,29,1152,52,1],[1152,29,1152,52,1],[1152,29,1152,52,1],[1152,54,1152,57,1],[1152,54,1152,57,1],[1152,54,1152,57,1],[1152,54,1152,57,1],[1152,54,1152,57,1],[1153,13,1153,14,1],[1153,13,1153,14,1],[1153,13,1153,14,1],[1153,13,1153,14,1],[1153,13,1153,14,1],[1154,17,1154,65,1],[1154,17,1154,65,1],[1154,17,1154,65,1],[1154,17,1154,65,1],[1154,17,1154,65,1],[1155,17,1155,58,1],[1155,17,1155,58,1],[1155,17,1155,58,1],[1155,17,1155,58,1],[1155,17,1155,58,1],[1157,17,1157,58,1],[1157,17,1157,58,1],[1157,17,1157,58,1],[1157,17,1157,58,1],[1157,17,1157,58,1],[1158,17,1158,54,1],[1158,17,1158,54,1],[1158,17,1158,54,1],[1158,17,1158,54,1],[1158,17,1158,54,1],[1160,17,1160,69,1],[1160,17,1160,69,1],[1160,17,1160,69,1],[1160,17,1160,69,1],[1160,17,1160,69,1],[1161,17,1161,62,1],[1161,17,1161,62,1],[1161,17,1161,62,1],[1161,17,1161,62,1],[1161,17,1161,62,1],[1163,17,1163,62,1],[1163,17,1163,62,1],[1163,17,1163,62,1],[1163,17,1163,62,1],[1163,17,1163,62,1],[1164,17,1164,58,1],[1164,17,1164,58,1],[1164,17,1164,58,1],[1164,17,1164,58,1],[1164,17,1164,58,1],[1165,13,1165,14,1],[1165,13,1165,14,1],[1165,13,1165,14,1],[1165,13,1165,14,1],[1165,13,1165,14,1],[1166,9,1166,10,1],[1166,9,1166,10,1],[1166,9,1166,10,1],[1166,9,1166,10,1],[1166,9,1166,10,1],[1171,9,1171,10,1],[1171,9,1171,10,1],[1172,13,1175,63,1],[1175,63,1175,71,1],[1175,71,1176,15,1],[1172,13,1176,15,1],[1172,13,1175,63,1],[1175,63,1175,71,1],[1175,71,1176,15,1],[1172,13,1176,15,1],[1178,13,1178,28,1],[1178,13,1178,28,1],[1180,13,1180,57,1],[1180,13,1180,57,1],[1181,13,1181,69,1],[1181,13,1181,69,1],[1183,13,1183,64,1],[1183,13,1183,64,1],[1185,18,1185,27,1],[1185,18,1185,27,1],[1185,29,1185,61,1],[1185,29,1185,61,1],[1185,63,1185,66,1],[1185,63,1185,66,1],[1186,13,1186,14,1],[1186,13,1186,14,1],[1187,17,1190,19,1],[1187,17,1190,19,1],[1191,13,1191,14,1],[1191,13,1191,14,1],[1192,9,1192,10,1],[1192,9,1192,10,1],[1196,9,1196,10,1],[1196,9,1196,10,1],[1197,13,1197,28,1],[1197,13,1197,28,1],[1199,13,1199,66,1],[1199,13,1199,66,1],[1201,13,1201,46,1],[1201,13,1201,46,1],[1202,13,1202,70,1],[1202,13,1202,70,1],[1204,18,1204,27,1],[1204,18,1204,27,1],[1204,29,1204,43,1],[1204,29,1204,43,1],[1204,45,1204,48,1],[1204,45,1204,48,1],[1205,13,1205,14,1],[1205,13,1205,14,1],[1206,17,1206,51,1],[1206,17,1206,51,1],[1207,13,1207,14,1],[1207,13,1207,14,1],[1208,9,1208,10,1],[1208,9,1208,10,1]]);
+    </script>
+  </body>
+</html>

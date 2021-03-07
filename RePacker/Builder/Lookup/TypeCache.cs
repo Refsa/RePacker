@@ -5,7 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using RePacker.Buffers;
+using RePacker.Generator;
 using RePacker.Utils;
 
 using Buffer = RePacker.Buffers.Buffer;
@@ -62,11 +64,10 @@ namespace RePacker.Builder
             allTypes = ReflectionUtils.GetAllTypes();
 
             BuildTypeCache();
+            BuildRuntimePackerProviders();
 
             BuildWrapperPackers();
             BuildPackers();
-
-            BuildRuntimePackerProviders();
 
             VerifyPackers();
 
@@ -88,7 +89,7 @@ namespace RePacker.Builder
 
             foreach (Type type in invalid)
             {
-                RePacking.Logger.Warn($"type of {type} does not have a valid packer");
+                // RePacking.Logger.Warn($"type of {type} does not have a valid packer");
 
                 typeCache.TryRemove(type, out var _);
                 packerLookup.TryRemove(type, out var _);
@@ -123,7 +124,7 @@ namespace RePacker.Builder
             {
                 if (typeCache.ContainsKey(type))
                 {
-                    RePacking.Settings.Log.Warn($"Packer already exists for type {type}");
+                    // RePacking.Settings.Log.Warn($"Packer already exists for type {type}");
                     continue;
                 }
 
@@ -141,7 +142,13 @@ namespace RePacker.Builder
 
                 // fields
                 {
-                    IEnumerable<FieldInfo> fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+                    IEnumerable<FieldInfo> fields = type
+                        .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                        .Concat(
+                            type
+                                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                                .Where(fi => fi.GetCustomAttribute<RePackAttribute>() != null)
+                        );
 
                     var rpattr = (RePackerAttribute)Attribute.GetCustomAttribute(type, typeof(RePackerAttribute));
                     if (!rpattr.UseOnAllPublicFields)
@@ -188,13 +195,13 @@ namespace RePacker.Builder
 
                 if (wrapperFor == null)
                 {
-                    RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
+                    // RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
                     continue;
                 }
 
                 if (typeCache.TryGetValue(type, out var _))
                 {
-                    RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
+                    // RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
                     continue;
                 }
 
@@ -246,7 +253,8 @@ namespace RePacker.Builder
                 return;
             }
 
-            Dictionary<Type, (MethodInfo packer, MethodInfo unpacker)> packers = new Dictionary<Type, (MethodInfo packer, MethodInfo unpacker)>();
+            Dictionary<Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)> packers =
+                new Dictionary<Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)>();
 
             foreach (var kv in typeCache)
             {
@@ -257,12 +265,13 @@ namespace RePacker.Builder
 
                 if (info.SerializedFields == null)
                 {
-                    RePacking.Logger.Error($"No serialized fields found on {type}");
+                    // RePacking.Logger.Error($"No serialized fields found on {type}");
                     continue;
                 }
 
                 MethodInfo packer = null;
                 MethodInfo unpacker = null;
+                MethodInfo getSizer = null;
 
                 // Generate Packer Method
                 try
@@ -288,7 +297,20 @@ namespace RePacker.Builder
                     continue;
                 }
 
-                packers.Add(type, (packer, unpacker));
+                try
+                {
+                    getSizer = (MethodInfo)typeof(GetSizeGenerator<>)
+                        .MakeGenericType(info.Type)
+                        .GetMethod("Create")
+                        .Invoke(null, new object[] { info });
+                }
+                catch (Exception e)
+                {
+                    RePacking.Settings.Log.Error($"Error when generating getSizer for {type}");
+                    RePacking.Settings.Log.Exception(e);
+                }
+
+                packers.Add(type, (packer, unpacker, getSizer));
             }
 
             foreach (var kv in packers)
@@ -300,7 +322,7 @@ namespace RePacker.Builder
                     var typePacker = (ITypePacker)Activator
                         .CreateInstance(
                             typeof(TypePacker<>).MakeGenericType(kv.Key),
-                            kv.Value.packer, kv.Value.unpacker);
+                            kv.Value.packer, kv.Value.unpacker, kv.Value.getSizer);
 
                     packerLookup.TryAdd(
                         kv.Key,
@@ -438,6 +460,10 @@ namespace RePacker.Builder
             {
                 return true;
             }
+            else if (AttemptToCreatePacker(type))
+            {
+                return TryGetTypeInfo(type, out typeCacheInfo);
+            }
             else
             {
                 // RePacker.Settings.Log.Warn($"TypeInfo for {type} not found: \n{System.Environment.StackTrace}");
@@ -448,7 +474,6 @@ namespace RePacker.Builder
 
         public static bool TryGetTypePacker<T>(out IPacker<T> packer)
         {
-            // return TryGetTypePacker(typeof(T), out packer);
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> p)
             {
                 packer = p;
@@ -549,6 +574,23 @@ namespace RePacker.Builder
             else
             {
                 throw new NotSupportedException($"Unpacker for {typeof(T)} not found");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetSize<T>(ref T value)
+        {
+            if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
+            {
+                return packer.SizeOf(ref value);
+            }
+            else if (AttemptToCreatePacker(typeof(T)))
+            {
+                return GetSize(ref value);
+            }
+            else
+            {
+                throw new NotSupportedException($"GetSizer for {typeof(T)} not found");
             }
         }
         #endregion

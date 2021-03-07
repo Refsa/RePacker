@@ -21,6 +21,11 @@ namespace RePacker.Builder
         {
             throw new System.NotImplementedException();
         }
+
+        public virtual int SizeOf(ref T value)
+        {
+            return 0;
+        }
     }
 
     [System.AttributeUsage(System.AttributeTargets.Class)]

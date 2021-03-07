@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker.Tests\GlobalData.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using Xunit;
+using Xunit.Abstractions;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
+
+namespace RePacker.Tests
+{
+
+    public class GlobalData : IDisposable
+    {
+        public TestLogger Logger;
+
+        public GlobalData() { }
+
+        public void Setup(ITestOutputHelper output)
+        {
+            Logger = new TestLogger(output);
+            var settings = new RePackerSettings(Logger);
+            if (!RePacking.IsSetup)
+            {
+                RePacking.Init(settings);
+            }
+            else
+            {
+                RePacking.SetSettings(settings);
+            }
+        }
+
+        public void Dispose()
+        {
+
+        }
+    }
+
+    public static class TestBootstrap
+    {
+        public static GlobalData GlobalData;
+
+        public static void Setup(ITestOutputHelper output)
+        {
+            GlobalData = new GlobalData();
+            GlobalData.Setup(output);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[14,9,14,28,1],[14,9,14,28,1],[14,9,14,28,1],[14,9,14,28,1],[14,9,14,28,1],[14,29,14,30,1],[14,29,14,30,1],[14,29,14,30,1],[14,29,14,30,1],[14,29,14,30,1],[14,31,14,32,1],[14,31,14,32,1],[14,31,14,32,1],[14,31,14,32,1],[14,31,14,32,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[18,13,18,45,1],[18,13,18,45,1],[18,13,18,45,1],[18,13,18,45,1],[18,13,18,45,1],[19,13,19,57,1],[19,13,19,57,1],[19,13,19,57,1],[19,13,19,57,1],[19,13,19,57,1],[20,13,20,36,1],[20,13,20,36,1],[20,13,20,36,1],[20,13,20,36,1],[20,13,20,36,1],[21,13,21,14,0],[21,13,21,14,0],[21,13,21,14,0],[21,13,21,14,0],[21,13,21,14,0],[22,17,22,42,0],[22,17,22,42,0],[22,17,22,42,0],[22,17,22,42,0],[22,17,22,42,0],[23,13,23,14,0],[23,13,23,14,0],[23,13,23,14,0],[23,13,23,14,0],[23,13,23,14,0],[25,13,25,14,1],[25,13,25,14,1],[25,13,25,14,1],[25,13,25,14,1],[25,13,25,14,1],[26,17,26,49,1],[26,17,26,49,1],[26,17,26,49,1],[26,17,26,49,1],[26,17,26,49,1],[27,13,27,14,1],[27,13,27,14,1],[27,13,27,14,1],[27,13,27,14,1],[27,13,27,14,1],[28,9,28,10,1],[28,9,28,10,1],[28,9,28,10,1],[28,9,28,10,1],[28,9,28,10,1],[31,9,31,10,0],[31,9,31,10,0],[31,9,31,10,0],[31,9,31,10,0],[31,9,31,10,0],[33,9,33,10,0],[33,9,33,10,0],[33,9,33,10,0],[33,9,33,10,0],[33,9,33,10,0],[41,9,41,10,1],[41,9,41,10,1],[41,9,41,10,1],[41,9,41,10,1],[41,9,41,10,1],[42,13,42,43,1],[42,13,42,43,1],[42,13,42,43,1],[42,13,42,43,1],[42,13,42,43,1],[43,13,43,38,1],[43,13,43,38,1],[43,13,43,38,1],[43,13,43,38,1],[43,13,43,38,1],[44,9,44,10,1],[44,9,44,10,1],[44,9,44,10,1],[44,9,44,10,1],[44,9,44,10,1]]);
+    </script>
+  </body>
+</html>

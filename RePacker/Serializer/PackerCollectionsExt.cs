@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RePacker.Utils;
 using System.Reflection;
+using System.Collections;
 
 namespace RePacker.Builder
 {
@@ -473,6 +474,19 @@ namespace RePacker.Builder
         static void HashSetAdd<T>(this HashSet<T> self, T item)
         {
             self.Add(item);
+        }
+
+        public static int SizeOfColleciton<T>(this IEnumerator data)
+        {
+            int size = sizeof(ulong);
+            if (data == null) return size;
+
+            while (data.MoveNext())
+            {
+                var refable = (T)data.Current;
+                size += RePacking.SizeOf(ref refable);
+            }
+            return size;
         }
     }
 }

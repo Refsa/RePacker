@@ -41,15 +41,15 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe T Peek<T>(this Buffer buffer)
+        public static unsafe T Peek<T>(this Buffer buffer, int offset = 0)
             where T : unmanaged
         {
-            if (!buffer.CanRead<T>())
+            if (buffer.ReadCursor() + offset + sizeof(T) > buffer.Array.Length)
             {
                 throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
             }
 
-            fixed (byte* data = &buffer.Array[buffer.ReadCursor()])
+            fixed (byte* data = &buffer.Array[buffer.ReadCursor() + offset])
             {
                 return *(T*)data;
             }

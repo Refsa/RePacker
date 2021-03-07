@@ -145,6 +145,13 @@ namespace RePacker.Benchmarks
     }
 
     [RePacker]
+    public struct UnmanagedStruct2
+    {
+        public int Int;
+        public ulong ULong;
+    }
+
+    [RePacker]
     public struct StructWithArray
     {
         public int Int;

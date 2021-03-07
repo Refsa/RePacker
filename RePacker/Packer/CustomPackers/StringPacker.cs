@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using RePacker.Buffers;
+using RePacker.Unsafe;
 
 namespace RePacker.Builder
 {
@@ -21,6 +22,12 @@ namespace RePacker.Builder
         public override void UnpackInto(Buffer buffer, ref string value)
         {
             buffer.UnpackString(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref string value)
+        {
+            return StringHelper.SizeOf(value) + sizeof(ulong);
         }
     }
 }

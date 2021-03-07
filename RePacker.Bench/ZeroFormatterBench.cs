@@ -11,49 +11,59 @@ namespace RePacker.Benchmarks
     public class ZeroFormatterBench
     {
         /* netcoreapp3.1
-                                      Method |            Mean
-        ------------------------------------ |----------------
-               ILGen_SmallObjectSerialize10K |       465.48 us
-             ILGen_SmallObjectDeserialize10K |       845.22 us
-                    ILGen_VectorSerialize10K |       131.45 us
-                  ILGen_VectorDeserialize10K |       152.72 us
-                       ILGen_IntSerialize10K |        63.37 us
-                     ILGen_IntDeserialize10K |        63.35 us
-                             IntSerialize10K |        28.93 us
-                           IntDeserialize10K |        28.27 us
-                         PackIntSerialize10K |        73.24 us
-                       PackIntDeserialize10K |        30.68 us
-          ILGen_SmallObjectArraySerialize10K |   418,014.42 us
-        ILGen_SmallObjectArrayDeserialize10K |   807,005.58 us
-               ILGen_VectorArraySerialize10K |       902.92 us
-             ILGen_VectorArrayDeserialize10K |     1,129.75 us
-                  ILGen_IntArraySerialize10K |       946.20 us
-                ILGen_IntArrayDeserialize10K |       658.83 us
-                  ILGen_LargeStringSerialize |   342,157.91 us
-                ILGen_LargeStringDeserialize | 2,350,264.08 us
+                                         Method |            Mean
+        --------------------------------------- |----------------
+                  ILGen_SmallObjectSerialize10K |       469.52 us
+                ILGen_SmallObjectDeserialize10K |       894.33 us
+             ILGen_Auto_SmallObjectSerialize10K |     1,059.54 us
+                       ILGen_VectorSerialize10K |       145.73 us
+                     ILGen_VectorDeserialize10K |       189.76 us
+                  ILGen_Auto_VectorSerialize10K |       349.87 us
+                          ILGen_IntSerialize10K |        68.20 us
+                        ILGen_IntDeserialize10K |        60.84 us
+                     ILGen_Auto_IntSerialize10K |       182.11 us
+                            PackIntSerialize10K |        37.97 us
+                          PackIntDeserialize10K |        30.38 us
+             ILGen_SmallObjectArraySerialize10K |   427,456.17 us
+           ILGen_SmallObjectArrayDeserialize10K |   877,289.80 us
+        ILGen_Auto_SmallObjectArraySerialize10K |   974,992.79 us
+                  ILGen_VectorArraySerialize10K |       417.39 us
+                ILGen_VectorArrayDeserialize10K |       966.85 us
+             ILGen_Auto_VectorArraySerialize10K |     1,123.19 us
+                     ILGen_IntArraySerialize10K |       833.65 us
+                   ILGen_IntArrayDeserialize10K |       433.98 us
+                ILGen_Auto_IntArraySerialize10K |     2,874.74 us
+                     ILGen_LargeStringSerialize |   344,236.84 us
+                   ILGen_LargeStringDeserialize | 2,351,884.98 us
+                ILGen_Auto_LargeStringSerialize | 1,673,592.76 us
         */
 
         /* net4.6.1
-                                      Method |            Mean
-        ------------------------------------ |----------------
-               ILGen_SmallObjectSerialize10K |       598.30 us
-             ILGen_SmallObjectDeserialize10K |       982.32 us
-                    ILGen_VectorSerialize10K |       130.79 us
-                  ILGen_VectorDeserialize10K |       163.00 us
-                       ILGen_IntSerialize10K |        57.25 us
-                     ILGen_IntDeserialize10K |        57.94 us
-                             IntSerialize10K |        29.93 us
-                           IntDeserialize10K |        27.93 us
-                         PackIntSerialize10K |        32.16 us
-                       PackIntDeserialize10K |        30.28 us
-          ILGen_SmallObjectArraySerialize10K |   544,878.23 us
-        ILGen_SmallObjectArrayDeserialize10K |   953,607.92 us
-               ILGen_VectorArraySerialize10K |       376.84 us
-             ILGen_VectorArrayDeserialize10K |       989.84 us
-                  ILGen_IntArraySerialize10K |       727.75 us
-                ILGen_IntArrayDeserialize10K |       480.17 us
-                  ILGen_LargeStringSerialize | 1,512,579.28 us
-                ILGen_LargeStringDeserialize | 3,442,712.21 us
+                                         Method |            Mean
+        --------------------------------------- |----------------
+                  ILGen_SmallObjectSerialize10K |       610.88 us
+                ILGen_SmallObjectDeserialize10K |     1,043.60 us
+             ILGen_Auto_SmallObjectSerialize10K |     1,411.37 us
+                       ILGen_VectorSerialize10K |       145.52 us
+                     ILGen_VectorDeserialize10K |       159.96 us
+                  ILGen_Auto_VectorSerialize10K |       276.04 us
+                          ILGen_IntSerialize10K |        62.07 us
+                        ILGen_IntDeserialize10K |        56.58 us
+                     ILGen_Auto_IntSerialize10K |       165.58 us
+                            PackIntSerialize10K |        34.85 us
+                          PackIntDeserialize10K |        30.32 us
+             ILGen_SmallObjectArraySerialize10K |   547,066.33 us
+           ILGen_SmallObjectArrayDeserialize10K |   948,959.85 us
+        ILGen_Auto_SmallObjectArraySerialize10K | 1,385,727.33 us
+                  ILGen_VectorArraySerialize10K |       375.05 us
+                ILGen_VectorArrayDeserialize10K |       987.88 us
+             ILGen_Auto_VectorArraySerialize10K |     1,214.24 us
+                     ILGen_IntArraySerialize10K |       717.80 us
+                   ILGen_IntArrayDeserialize10K |       482.71 us
+                ILGen_Auto_IntArraySerialize10K |     2,929.60 us
+                     ILGen_LargeStringSerialize | 1,518,598.64 us
+                   ILGen_LargeStringDeserialize | 3,454,324.89 us
+                ILGen_Auto_LargeStringSerialize | 3,887,686.05 us
         */
 
         static Buffer buffer;
@@ -150,6 +160,15 @@ namespace RePacker.Benchmarks
         }
 
         [Benchmark]
+        public void ILGen_Auto_SmallObjectSerialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacking.Pack<Person>(ref p);
+            }
+        }
+
+        [Benchmark]
         public void ILGen_VectorSerialize10K()
         {
             for (int i = 0; i < 10_000; i++)
@@ -166,6 +185,15 @@ namespace RePacker.Benchmarks
             {
                 var _ = RePacking.Unpack<Vector>(vectorBuffer);
                 vectorBuffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_Auto_VectorSerialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacking.Pack<Vector>(ref vector);
             }
         }
 
@@ -255,6 +283,15 @@ namespace RePacker.Benchmarks
         }
 
         [Benchmark]
+        public void ILGen_Auto_SmallObjectArraySerialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacking.Pack(ref personArray);
+            }
+        }
+
+        [Benchmark]
         public void ILGen_VectorArraySerialize10K()
         {
             buffer.Reset();
@@ -272,6 +309,15 @@ namespace RePacker.Benchmarks
             {
                 var p = RePacking.Unpack<Vector[]>(vectorArrayBuffer);
                 vectorArrayBuffer.Reset();
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_Auto_VectorArraySerialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacking.Pack(ref vectorArray);
             }
         }
 
@@ -297,6 +343,15 @@ namespace RePacker.Benchmarks
         }
 
         [Benchmark]
+        public void ILGen_Auto_IntArraySerialize10K()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacking.Pack(ref intArray);
+            }
+        }
+
+        [Benchmark]
         public void ILGen_LargeStringSerialize()
         {
             for (int i = 0; i < 10_000; i++)
@@ -313,6 +368,15 @@ namespace RePacker.Benchmarks
             {
                 largeStringBuffer.Reset();
                 var _ = RePacking.Unpack<string>(largeStringBuffer);
+            }
+        }
+
+        [Benchmark]
+        public void ILGen_Auto_LargeStringSerialize()
+        {
+            for (int i = 0; i < 10_000; i++)
+            {
+                RePacking.Pack(ref largeString);
             }
         }
 

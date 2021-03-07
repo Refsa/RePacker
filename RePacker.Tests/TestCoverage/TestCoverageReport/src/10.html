@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker.Tests\ValueTupleTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Xunit;
+using RePacker.Buffers;
+using RePacker;
+using System.Runtime.InteropServices;
+using System;
+using Buffer = RePacker.Buffers.Buffer;
+using System.Collections.Generic;
+using System.Linq;
+using Xunit.Abstractions;
+using System.Reflection;
+
+namespace RePacker.Tests
+{
+
+    public class ValueTupleTests
+    {
+        public ValueTupleTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
+        [Fact]
+        public void ValueTuple_2_unmanaged()
+        {
+            var vt2 = new ValueTuple&lt;int, int&gt;(10, 100);
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;int, int&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1, fromBuf.Item1);
+            Assert.Equal(vt2.Item2, fromBuf.Item2);
+        }
+
+        [Fact]
+        public void ValueTuple_3_unmanaged()
+        {
+            var vt2 = new ValueTuple&lt;int, int, int&gt;(10, 100, 1000);
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;int, int, int&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1, fromBuf.Item1);
+            Assert.Equal(vt2.Item2, fromBuf.Item2);
+            Assert.Equal(vt2.Item3, fromBuf.Item3);
+        }
+
+        [Fact]
+        public void ValueTuple_4_unmanaged()
+        {
+            var vt2 = new ValueTuple&lt;int, int, int, int&gt;(10, 100, 1000, 10000);
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;int, int, int, int&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1, fromBuf.Item1);
+            Assert.Equal(vt2.Item2, fromBuf.Item2);
+            Assert.Equal(vt2.Item3, fromBuf.Item3);
+            Assert.Equal(vt2.Item4, fromBuf.Item4);
+        }
+
+        [Fact]
+        public void ValueTuple_5_unmanaged()
+        {
+            var vt2 = new ValueTuple&lt;int, int, int, int, int&gt;(10, 100, 1000, 10000, 100000);
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;int, int, int, int, int&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1, fromBuf.Item1);
+            Assert.Equal(vt2.Item2, fromBuf.Item2);
+            Assert.Equal(vt2.Item3, fromBuf.Item3);
+            Assert.Equal(vt2.Item4, fromBuf.Item4);
+            Assert.Equal(vt2.Item5, fromBuf.Item5);
+        }
+
+        [Fact]
+        public void ValueTuple_6_unmanaged()
+        {
+            var vt2 = new ValueTuple&lt;int, int, int, int, int, int&gt;(10, 100, 1000, 10000, 100000, 1000000);
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;int, int, int, int, int, int&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1, fromBuf.Item1);
+            Assert.Equal(vt2.Item2, fromBuf.Item2);
+            Assert.Equal(vt2.Item3, fromBuf.Item3);
+            Assert.Equal(vt2.Item4, fromBuf.Item4);
+            Assert.Equal(vt2.Item5, fromBuf.Item5);
+            Assert.Equal(vt2.Item6, fromBuf.Item6);
+        }
+
+        [Fact]
+        public void ValueTuple_2_managed()
+        {
+            var vt2 = new ValueTuple&lt;SimpleClass, SimpleClass&gt;(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;SimpleClass, SimpleClass&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+        }
+
+        [Fact]
+        public void ValueTuple_3_managed()
+        {
+            var vt2 = new ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass&gt;(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+            Assert.Equal(vt2.Item3.Float, fromBuf.Item3.Float);
+        }
+
+        [Fact]
+        public void ValueTuple_4_managed()
+        {
+            var vt2 = new ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass, SimpleClass&gt;(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass, SimpleClass&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+            Assert.Equal(vt2.Item3.Float, fromBuf.Item3.Float);
+            Assert.Equal(vt2.Item4.Float, fromBuf.Item4.Float);
+        }
+
+        [Fact]
+        public void ValueTuple_5_managed()
+        {
+            var vt2 = new ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass&gt;(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+            Assert.Equal(vt2.Item3.Float, fromBuf.Item3.Float);
+            Assert.Equal(vt2.Item4.Float, fromBuf.Item4.Float);
+            Assert.Equal(vt2.Item5.Float, fromBuf.Item5.Float);
+        }
+
+        [Fact]
+        public void ValueTuple_6_managed()
+        {
+            var vt2 = new ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass&gt;(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref vt2);
+            var fromBuf = RePacking.Unpack&lt;ValueTuple&lt;SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass&gt;&gt;(buffer);
+
+            Assert.Equal(vt2.Item1.Float, fromBuf.Item1.Float);
+            Assert.Equal(vt2.Item2.Float, fromBuf.Item2.Float);
+            Assert.Equal(vt2.Item3.Float, fromBuf.Item3.Float);
+            Assert.Equal(vt2.Item4.Float, fromBuf.Item4.Float);
+            Assert.Equal(vt2.Item5.Float, fromBuf.Item5.Float);
+            Assert.Equal(vt2.Item6.Float, fromBuf.Item6.Float);
+        }
+
+        [RePacker]
+        public struct StructWithValueTuple
+        {
+            public ValueTuple&lt;int, int&gt; VT2;
+            public ValueTuple&lt;int, int, int&gt; VT3;
+            public ValueTuple&lt;int, int, int, int&gt; VT4;
+            public ValueTuple&lt;int, int, int, int, int&gt; VT5;
+            public ValueTuple&lt;int, int, int, int, int, int&gt; VT6;
+        }
+
+        [Fact]
+        public void struct_with_value_tuples()
+        {
+            var valuetuples = new StructWithValueTuple
+            {
+                VT2 = (10, 100),
+                VT3 = (10, 100, 1000),
+                VT4 = (10, 100, 1000, 10000),
+                VT5 = (10, 100, 1000, 10000, 100000),
+                VT6 = (10, 100, 1000, 10000, 100000, 1000000),
+            };
+
+            var buffer = new Buffer(1024);
+            RePacking.Pack(buffer, ref valuetuples);
+
+            var frombuf = RePacking.Unpack&lt;StructWithValueTuple&gt;(buffer);
+
+            Assert.Equal(valuetuples.VT2.Item1, frombuf.VT2.Item1);
+            Assert.Equal(valuetuples.VT2.Item2, frombuf.VT2.Item2);
+
+            Assert.Equal(valuetuples.VT3.Item1, frombuf.VT3.Item1);
+            Assert.Equal(valuetuples.VT3.Item2, frombuf.VT3.Item2);
+            Assert.Equal(valuetuples.VT3.Item3, frombuf.VT3.Item3);
+
+            Assert.Equal(valuetuples.VT4.Item1, frombuf.VT4.Item1);
+            Assert.Equal(valuetuples.VT4.Item2, frombuf.VT4.Item2);
+            Assert.Equal(valuetuples.VT4.Item3, frombuf.VT4.Item3);
+            Assert.Equal(valuetuples.VT4.Item4, frombuf.VT4.Item4);
+
+            Assert.Equal(valuetuples.VT5.Item1, frombuf.VT5.Item1);
+            Assert.Equal(valuetuples.VT5.Item2, frombuf.VT5.Item2);
+            Assert.Equal(valuetuples.VT5.Item3, frombuf.VT5.Item3);
+            Assert.Equal(valuetuples.VT5.Item4, frombuf.VT5.Item4);
+            Assert.Equal(valuetuples.VT5.Item5, frombuf.VT5.Item5);
+
+            Assert.Equal(valuetuples.VT6.Item1, frombuf.VT6.Item1);
+            Assert.Equal(valuetuples.VT6.Item2, frombuf.VT6.Item2);
+            Assert.Equal(valuetuples.VT6.Item3, frombuf.VT6.Item3);
+            Assert.Equal(valuetuples.VT6.Item4, frombuf.VT6.Item4);
+            Assert.Equal(valuetuples.VT6.Item5, frombuf.VT6.Item5);
+            Assert.Equal(valuetuples.VT6.Item6, frombuf.VT6.Item6);
+        }
+
+        [RePacker]
+        public struct StructWithManagedValueTuple
+        {
+            public ValueTuple&lt;SimpleClass, SimpleClass&gt; VT2;
+        }
+
+        [Fact]
+        public void struct_with_managed_value_tuple()
+        {
+            var wanted = new StructWithManagedValueTuple
+            {
+                VT2 = (new SimpleClass { Float = 1.2345f }, new SimpleClass { Float = 1.2345f })
+            };
+
+            var buffer = new Buffer(1024);
+
+            RePacking.Pack(buffer, ref wanted);
+
+            var fromBuf = RePacking.Unpack&lt;StructWithManagedValueTuple&gt;(buffer);
+
+            Assert.Equal(wanted.VT2.Item1.Float, fromBuf.VT2.Item1.Float);
+            Assert.Equal(wanted.VT2.Item2.Float, fromBuf.VT2.Item2.Float);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[17,9,17,57,1],[17,9,17,57,1],[17,9,17,57,1],[17,9,17,57,1],[17,9,17,57,1],[18,9,18,10,1],[18,9,18,10,1],[18,9,18,10,1],[18,9,18,10,1],[18,9,18,10,1],[19,13,19,41,1],[19,13,19,41,1],[19,13,19,41,1],[19,13,19,41,1],[19,13,19,41,1],[20,9,20,10,1],[20,9,20,10,1],[20,9,20,10,1],[20,9,20,10,1],[20,9,20,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[25,13,25,57,1],[25,13,25,57,1],[25,13,25,57,1],[25,13,25,57,1],[25,13,25,57,1],[27,13,27,43,1],[27,13,27,43,1],[27,13,27,43,1],[27,13,27,43,1],[27,13,27,43,1],[29,13,29,45,1],[29,13,29,45,1],[29,13,29,45,1],[29,13,29,45,1],[29,13,29,45,1],[30,13,30,74,1],[30,13,30,74,1],[30,13,30,74,1],[30,13,30,74,1],[30,13,30,74,1],[32,13,32,52,1],[32,13,32,52,1],[32,13,32,52,1],[32,13,32,52,1],[32,13,32,52,1],[33,13,33,52,1],[33,13,33,52,1],[33,13,33,52,1],[33,13,33,52,1],[33,13,33,52,1],[34,9,34,10,1],[34,9,34,10,1],[34,9,34,10,1],[34,9,34,10,1],[34,9,34,10,1],[38,9,38,10,1],[38,9,38,10,1],[38,9,38,10,1],[38,9,38,10,1],[38,9,38,10,1],[39,13,39,68,1],[39,13,39,68,1],[39,13,39,68,1],[39,13,39,68,1],[39,13,39,68,1],[41,13,41,43,1],[41,13,41,43,1],[41,13,41,43,1],[41,13,41,43,1],[41,13,41,43,1],[43,13,43,45,1],[43,13,43,45,1],[43,13,43,45,1],[43,13,43,45,1],[43,13,43,45,1],[44,13,44,79,1],[44,13,44,79,1],[44,13,44,79,1],[44,13,44,79,1],[44,13,44,79,1],[46,13,46,52,1],[46,13,46,52,1],[46,13,46,52,1],[46,13,46,52,1],[46,13,46,52,1],[47,13,47,52,1],[47,13,47,52,1],[47,13,47,52,1],[47,13,47,52,1],[47,13,47,52,1],[48,13,48,52,1],[48,13,48,52,1],[48,13,48,52,1],[48,13,48,52,1],[48,13,48,52,1],[49,9,49,10,1],[49,9,49,10,1],[49,9,49,10,1],[49,9,49,10,1],[49,9,49,10,1],[53,9,53,10,1],[53,9,53,10,1],[53,9,53,10,1],[53,9,53,10,1],[53,9,53,10,1],[54,13,54,80,1],[54,13,54,80,1],[54,13,54,80,1],[54,13,54,80,1],[54,13,54,80,1],[56,13,56,43,1],[56,13,56,43,1],[56,13,56,43,1],[56,13,56,43,1],[56,13,56,43,1],[58,13,58,45,1],[58,13,58,45,1],[58,13,58,45,1],[58,13,58,45,1],[58,13,58,45,1],[59,13,59,84,1],[59,13,59,84,1],[59,13,59,84,1],[59,13,59,84,1],[59,13,59,84,1],[61,13,61,52,1],[61,13,61,52,1],[61,13,61,52,1],[61,13,61,52,1],[61,13,61,52,1],[62,13,62,52,1],[62,13,62,52,1],[62,13,62,52,1],[62,13,62,52,1],[62,13,62,52,1],[63,13,63,52,1],[63,13,63,52,1],[63,13,63,52,1],[63,13,63,52,1],[63,13,63,52,1],[64,13,64,52,1],[64,13,64,52,1],[64,13,64,52,1],[64,13,64,52,1],[64,13,64,52,1],[65,9,65,10,1],[65,9,65,10,1],[65,9,65,10,1],[65,9,65,10,1],[65,9,65,10,1],[69,9,69,10,1],[69,9,69,10,1],[69,9,69,10,1],[69,9,69,10,1],[69,9,69,10,1],[70,13,70,93,1],[70,13,70,93,1],[70,13,70,93,1],[70,13,70,93,1],[70,13,70,93,1],[72,13,72,43,1],[72,13,72,43,1],[72,13,72,43,1],[72,13,72,43,1],[72,13,72,43,1],[74,13,74,45,1],[74,13,74,45,1],[74,13,74,45,1],[74,13,74,45,1],[74,13,74,45,1],[75,13,75,89,1],[75,13,75,89,1],[75,13,75,89,1],[75,13,75,89,1],[75,13,75,89,1],[77,13,77,52,1],[77,13,77,52,1],[77,13,77,52,1],[77,13,77,52,1],[77,13,77,52,1],[78,13,78,52,1],[78,13,78,52,1],[78,13,78,52,1],[78,13,78,52,1],[78,13,78,52,1],[79,13,79,52,1],[79,13,79,52,1],[79,13,79,52,1],[79,13,79,52,1],[79,13,79,52,1],[80,13,80,52,1],[80,13,80,52,1],[80,13,80,52,1],[80,13,80,52,1],[80,13,80,52,1],[81,13,81,52,1],[81,13,81,52,1],[81,13,81,52,1],[81,13,81,52,1],[81,13,81,52,1],[82,9,82,10,1],[82,9,82,10,1],[82,9,82,10,1],[82,9,82,10,1],[82,9,82,10,1],[86,9,86,10,1],[86,9,86,10,1],[86,9,86,10,1],[86,9,86,10,1],[86,9,86,10,1],[87,13,87,107,1],[87,13,87,107,1],[87,13,87,107,1],[87,13,87,107,1],[87,13,87,107,1],[89,13,89,43,1],[89,13,89,43,1],[89,13,89,43,1],[89,13,89,43,1],[89,13,89,43,1],[91,13,91,45,1],[91,13,91,45,1],[91,13,91,45,1],[91,13,91,45,1],[91,13,91,45,1],[92,13,92,94,1],[92,13,92,94,1],[92,13,92,94,1],[92,13,92,94,1],[92,13,92,94,1],[94,13,94,52,1],[94,13,94,52,1],[94,13,94,52,1],[94,13,94,52,1],[94,13,94,52,1],[95,13,95,52,1],[95,13,95,52,1],[95,13,95,52,1],[95,13,95,52,1],[95,13,95,52,1],[96,13,96,52,1],[96,13,96,52,1],[96,13,96,52,1],[96,13,96,52,1],[96,13,96,52,1],[97,13,97,52,1],[97,13,97,52,1],[97,13,97,52,1],[97,13,97,52,1],[97,13,97,52,1],[98,13,98,52,1],[98,13,98,52,1],[98,13,98,52,1],[98,13,98,52,1],[98,13,98,52,1],[99,13,99,52,1],[99,13,99,52,1],[99,13,99,52,1],[99,13,99,52,1],[99,13,99,52,1],[100,9,100,10,1],[100,9,100,10,1],[100,9,100,10,1],[100,9,100,10,1],[100,9,100,10,1],[104,9,104,10,1],[104,9,104,10,1],[104,9,104,10,1],[104,9,104,10,1],[104,9,104,10,1],[105,13,105,136,1],[105,13,105,136,1],[105,13,105,136,1],[105,13,105,136,1],[105,13,105,136,1],[107,13,107,43,1],[107,13,107,43,1],[107,13,107,43,1],[107,13,107,43,1],[107,13,107,43,1],[109,13,109,45,1],[109,13,109,45,1],[109,13,109,45,1],[109,13,109,45,1],[109,13,109,45,1],[110,13,110,90,1],[110,13,110,90,1],[110,13,110,90,1],[110,13,110,90,1],[110,13,110,90,1],[112,13,112,64,1],[112,13,112,64,1],[112,13,112,64,1],[112,13,112,64,1],[112,13,112,64,1],[113,13,113,64,1],[113,13,113,64,1],[113,13,113,64,1],[113,13,113,64,1],[113,13,113,64,1],[114,9,114,10,1],[114,9,114,10,1],[114,9,114,10,1],[114,9,114,10,1],[114,9,114,10,1],[118,9,118,10,1],[118,9,118,10,1],[118,9,118,10,1],[118,9,118,10,1],[118,9,118,10,1],[119,13,119,185,1],[119,13,119,185,1],[119,13,119,185,1],[119,13,119,185,1],[119,13,119,185,1],[121,13,121,43,1],[121,13,121,43,1],[121,13,121,43,1],[121,13,121,43,1],[121,13,121,43,1],[123,13,123,45,1],[123,13,123,45,1],[123,13,123,45,1],[123,13,123,45,1],[123,13,123,45,1],[124,13,124,103,1],[124,13,124,103,1],[124,13,124,103,1],[124,13,124,103,1],[124,13,124,103,1],[126,13,126,64,1],[126,13,126,64,1],[126,13,126,64,1],[126,13,126,64,1],[126,13,126,64,1],[127,13,127,64,1],[127,13,127,64,1],[127,13,127,64,1],[127,13,127,64,1],[127,13,127,64,1],[128,13,128,64,1],[128,13,128,64,1],[128,13,128,64,1],[128,13,128,64,1],[128,13,128,64,1],[129,9,129,10,1],[129,9,129,10,1],[129,9,129,10,1],[129,9,129,10,1],[129,9,129,10,1],[133,9,133,10,1],[133,9,133,10,1],[133,9,133,10,1],[133,9,133,10,1],[133,9,133,10,1],[134,13,134,234,1],[134,13,134,234,1],[134,13,134,234,1],[134,13,134,234,1],[134,13,134,234,1],[136,13,136,43,1],[136,13,136,43,1],[136,13,136,43,1],[136,13,136,43,1],[136,13,136,43,1],[138,13,138,45,1],[138,13,138,45,1],[138,13,138,45,1],[138,13,138,45,1],[138,13,138,45,1],[139,13,139,116,1],[139,13,139,116,1],[139,13,139,116,1],[139,13,139,116,1],[139,13,139,116,1],[141,13,141,64,1],[141,13,141,64,1],[141,13,141,64,1],[141,13,141,64,1],[141,13,141,64,1],[142,13,142,64,1],[142,13,142,64,1],[142,13,142,64,1],[142,13,142,64,1],[142,13,142,64,1],[143,13,143,64,1],[143,13,143,64,1],[143,13,143,64,1],[143,13,143,64,1],[143,13,143,64,1],[144,13,144,64,1],[144,13,144,64,1],[144,13,144,64,1],[144,13,144,64,1],[144,13,144,64,1],[145,9,145,10,1],[145,9,145,10,1],[145,9,145,10,1],[145,9,145,10,1],[145,9,145,10,1],[149,9,149,10,1],[149,9,149,10,1],[149,9,149,10,1],[149,9,149,10,1],[149,9,149,10,1],[150,13,150,283,1],[150,13,150,283,1],[150,13,150,283,1],[150,13,150,283,1],[150,13,150,283,1],[152,13,152,43,1],[152,13,152,43,1],[152,13,152,43,1],[152,13,152,43,1],[152,13,152,43,1],[154,13,154,45,1],[154,13,154,45,1],[154,13,154,45,1],[154,13,154,45,1],[154,13,154,45,1],[155,13,155,129,1],[155,13,155,129,1],[155,13,155,129,1],[155,13,155,129,1],[155,13,155,129,1],[157,13,157,64,1],[157,13,157,64,1],[157,13,157,64,1],[157,13,157,64,1],[157,13,157,64,1],[158,13,158,64,1],[158,13,158,64,1],[158,13,158,64,1],[158,13,158,64,1],[158,13,158,64,1],[159,13,159,64,1],[159,13,159,64,1],[159,13,159,64,1],[159,13,159,64,1],[159,13,159,64,1],[160,13,160,64,1],[160,13,160,64,1],[160,13,160,64,1],[160,13,160,64,1],[160,13,160,64,1],[161,13,161,64,1],[161,13,161,64,1],[161,13,161,64,1],[161,13,161,64,1],[161,13,161,64,1],[162,9,162,10,1],[162,9,162,10,1],[162,9,162,10,1],[162,9,162,10,1],[162,9,162,10,1],[166,9,166,10,1],[166,9,166,10,1],[166,9,166,10,1],[166,9,166,10,1],[166,9,166,10,1],[167,13,167,332,1],[167,13,167,332,1],[167,13,167,332,1],[167,13,167,332,1],[167,13,167,332,1],[169,13,169,43,1],[169,13,169,43,1],[169,13,169,43,1],[169,13,169,43,1],[169,13,169,43,1],[171,13,171,45,1],[171,13,171,45,1],[171,13,171,45,1],[171,13,171,45,1],[171,13,171,45,1],[172,13,172,142,1],[172,13,172,142,1],[172,13,172,142,1],[172,13,172,142,1],[172,13,172,142,1],[174,13,174,64,1],[174,13,174,64,1],[174,13,174,64,1],[174,13,174,64,1],[174,13,174,64,1],[175,13,175,64,1],[175,13,175,64,1],[175,13,175,64,1],[175,13,175,64,1],[175,13,175,64,1],[176,13,176,64,1],[176,13,176,64,1],[176,13,176,64,1],[176,13,176,64,1],[176,13,176,64,1],[177,13,177,64,1],[177,13,177,64,1],[177,13,177,64,1],[177,13,177,64,1],[177,13,177,64,1],[178,13,178,64,1],[178,13,178,64,1],[178,13,178,64,1],[178,13,178,64,1],[178,13,178,64,1],[179,13,179,64,1],[179,13,179,64,1],[179,13,179,64,1],[179,13,179,64,1],[179,13,179,64,1],[180,9,180,10,1],[180,9,180,10,1],[180,9,180,10,1],[180,9,180,10,1],[180,9,180,10,1],[194,9,194,10,1],[194,9,194,10,1],[194,9,194,10,1],[194,9,194,10,1],[194,9,194,10,1],[195,13,202,15,1],[195,13,202,15,1],[195,13,202,15,1],[195,13,202,15,1],[195,13,202,15,1],[204,13,204,43,1],[204,13,204,43,1],[204,13,204,43,1],[204,13,204,43,1],[204,13,204,43,1],[205,13,205,53,1],[205,13,205,53,1],[205,13,205,53,1],[205,13,205,53,1],[205,13,205,53,1],[207,13,207,74,1],[207,13,207,74,1],[207,13,207,74,1],[207,13,207,74,1],[207,13,207,74,1],[209,13,209,68,1],[209,13,209,68,1],[209,13,209,68,1],[209,13,209,68,1],[209,13,209,68,1],[210,13,210,68,1],[210,13,210,68,1],[210,13,210,68,1],[210,13,210,68,1],[210,13,210,68,1],[212,13,212,68,1],[212,13,212,68,1],[212,13,212,68,1],[212,13,212,68,1],[212,13,212,68,1],[213,13,213,68,1],[213,13,213,68,1],[213,13,213,68,1],[213,13,213,68,1],[213,13,213,68,1],[214,13,214,68,1],[214,13,214,68,1],[214,13,214,68,1],[214,13,214,68,1],[214,13,214,68,1],[216,13,216,68,1],[216,13,216,68,1],[216,13,216,68,1],[216,13,216,68,1],[216,13,216,68,1],[217,13,217,68,1],[217,13,217,68,1],[217,13,217,68,1],[217,13,217,68,1],[217,13,217,68,1],[218,13,218,68,1],[218,13,218,68,1],[218,13,218,68,1],[218,13,218,68,1],[218,13,218,68,1],[219,13,219,68,1],[219,13,219,68,1],[219,13,219,68,1],[219,13,219,68,1],[219,13,219,68,1],[221,13,221,68,1],[221,13,221,68,1],[221,13,221,68,1],[221,13,221,68,1],[221,13,221,68,1],[222,13,222,68,1],[222,13,222,68,1],[222,13,222,68,1],[222,13,222,68,1],[222,13,222,68,1],[223,13,223,68,1],[223,13,223,68,1],[223,13,223,68,1],[223,13,223,68,1],[223,13,223,68,1],[224,13,224,68,1],[224,13,224,68,1],[224,13,224,68,1],[224,13,224,68,1],[224,13,224,68,1],[225,13,225,68,1],[225,13,225,68,1],[225,13,225,68,1],[225,13,225,68,1],[225,13,225,68,1],[227,13,227,68,1],[227,13,227,68,1],[227,13,227,68,1],[227,13,227,68,1],[227,13,227,68,1],[228,13,228,68,1],[228,13,228,68,1],[228,13,228,68,1],[228,13,228,68,1],[228,13,228,68,1],[229,13,229,68,1],[229,13,229,68,1],[229,13,229,68,1],[229,13,229,68,1],[229,13,229,68,1],[230,13,230,68,1],[230,13,230,68,1],[230,13,230,68,1],[230,13,230,68,1],[230,13,230,68,1],[231,13,231,68,1],[231,13,231,68,1],[231,13,231,68,1],[231,13,231,68,1],[231,13,231,68,1],[232,13,232,68,1],[232,13,232,68,1],[232,13,232,68,1],[232,13,232,68,1],[232,13,232,68,1],[233,9,233,10,1],[233,9,233,10,1],[233,9,233,10,1],[233,9,233,10,1],[233,9,233,10,1],[243,9,243,10,1],[243,9,243,10,1],[243,9,243,10,1],[243,9,243,10,1],[243,9,243,10,1],[244,13,247,15,1],[244,13,247,15,1],[244,13,247,15,1],[244,13,247,15,1],[244,13,247,15,1],[249,13,249,43,1],[249,13,249,43,1],[249,13,249,43,1],[249,13,249,43,1],[249,13,249,43,1],[251,13,251,48,1],[251,13,251,48,1],[251,13,251,48,1],[251,13,251,48,1],[251,13,251,48,1],[253,13,253,81,1],[253,13,253,81,1],[253,13,253,81,1],[253,13,253,81,1],[253,13,253,81,1],[255,13,255,75,1],[255,13,255,75,1],[255,13,255,75,1],[255,13,255,75,1],[255,13,255,75,1],[256,13,256,75,1],[256,13,256,75,1],[256,13,256,75,1],[256,13,256,75,1],[256,13,256,75,1],[257,9,257,10,1],[257,9,257,10,1],[257,9,257,10,1],[257,9,257,10,1],[257,9,257,10,1]]);
+    </script>
+  </body>
+</html>

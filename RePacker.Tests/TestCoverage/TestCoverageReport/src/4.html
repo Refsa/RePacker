@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker.Tests\RePackerWrapperTests.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using Xunit;
+using RePacker.Buffers;
+using RePacker.Builder;
+using Xunit.Abstractions;
+
+namespace RePacker.Tests
+{
+    public class RePackerWrapperTests
+    {
+        public RePackerWrapperTests(ITestOutputHelper output)
+        {
+            TestBootstrap.Setup(output);
+        }
+
+        public struct Vector3
+        {
+            public float X;
+            public float Y;
+            public float Z;
+        }
+
+        public class Transform
+        {
+            Vector3 position;
+            Vector3 rotation;
+            Vector3 scale;
+
+            public Vector3 Position { get =&gt; position; set =&gt; position = value; }
+            public Vector3 Rotation { get =&gt; rotation; set =&gt; rotation = value; }
+            public Vector3 Scale { get =&gt; scale; set =&gt; scale = value; }
+        }
+
+        [RePackerWrapper(typeof(Vector3))]
+        public class Vector3Packer : RePackerWrapper&lt;Vector3&gt;
+        {
+            public override void Pack(Buffer buffer, ref Vector3 value)
+            {
+                buffer.Pack(ref value.X);
+                buffer.Pack(ref value.Y);
+                buffer.Pack(ref value.Z);
+            }
+
+            public override void Unpack(Buffer buffer, out Vector3 value)
+            {
+                buffer.Unpack(out value.X);
+                buffer.Unpack(out value.Y);
+                buffer.Unpack(out value.Z);
+            }
+        }
+
+        [RePackerWrapper(typeof(Transform))]
+        public class TransformPacker : RePackerWrapper&lt;Transform&gt;
+        {
+            public override void Pack(Buffer buffer, ref Transform value)
+            {
+                Vector3 pos = value.Position;
+                RePacking.Pack&lt;Vector3&gt;(buffer, ref pos);
+
+                Vector3 rot = value.Rotation;
+                RePacking.Pack&lt;Vector3&gt;(buffer, ref rot);
+
+                Vector3 scale = value.Scale;
+                RePacking.Pack&lt;Vector3&gt;(buffer, ref scale);
+            }
+
+            public override void UnpackInto(Buffer buffer, ref Transform value)
+            {
+                value.Position = RePacking.Unpack&lt;Vector3&gt;(buffer);
+                value.Rotation = RePacking.Unpack&lt;Vector3&gt;(buffer);
+                value.Scale = RePacking.Unpack&lt;Vector3&gt;(buffer);
+            }
+        }
+
+        [Fact]
+        public void simple_custom_wrapped_type()
+        {
+            Vector3 testVec3 = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f };
+            var buffer = new Buffer(1024);
+            RePacking.Pack&lt;Vector3&gt;(buffer, ref testVec3);
+            var fromBuf = RePacking.Unpack&lt;Vector3&gt;(buffer);
+
+            Assert.Equal(testVec3.X, fromBuf.X);
+            Assert.Equal(testVec3.Y, fromBuf.Y);
+            Assert.Equal(testVec3.Z, fromBuf.Z);
+        }
+
+        [Fact]
+        public void nested_custom_wrapped_type()
+        {
+            var testTransform = new Transform
+            {
+                Position = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
+                Rotation = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
+                Scale = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
+            };
+
+            var buffer = new Buffer(1024);
+            RePacking.Pack&lt;Transform&gt;(buffer, ref testTransform);
+
+            var fromBuf = new Transform();
+            RePacking.UnpackInto&lt;Transform&gt;(buffer, ref fromBuf);
+
+            Assert.Equal(testTransform.Position.X, fromBuf.Position.X);
+            Assert.Equal(testTransform.Position.Y, fromBuf.Position.Y);
+            Assert.Equal(testTransform.Position.Z, fromBuf.Position.Z);
+
+            Assert.Equal(testTransform.Rotation.X, fromBuf.Rotation.X);
+            Assert.Equal(testTransform.Rotation.Y, fromBuf.Rotation.Y);
+            Assert.Equal(testTransform.Rotation.Z, fromBuf.Rotation.Z);
+
+            Assert.Equal(testTransform.Scale.X, fromBuf.Scale.X);
+            Assert.Equal(testTransform.Scale.Y, fromBuf.Scale.Y);
+            Assert.Equal(testTransform.Scale.Z, fromBuf.Scale.Z);
+        }
+
+        [Fact]
+        public void unpack_into_existing_object()
+        {
+            var testTransform = new Transform
+            {
+                Position = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
+                Rotation = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
+                Scale = new Vector3 { X = 1.234f, Y = 4532.24f, Z = 943.342f },
+            };
+
+            var buffer = new Buffer(1024);
+            RePacking.Pack&lt;Transform&gt;(buffer, ref testTransform);
+
+            var targetTransform = new Transform();
+            RePacking.UnpackInto&lt;Transform&gt;(buffer, ref targetTransform);
+
+            Assert.Equal(testTransform.Position.X, targetTransform.Position.X);
+            Assert.Equal(testTransform.Position.Y, targetTransform.Position.Y);
+            Assert.Equal(testTransform.Position.Z, targetTransform.Position.Z);
+
+            Assert.Equal(testTransform.Rotation.X, targetTransform.Rotation.X);
+            Assert.Equal(testTransform.Rotation.Y, targetTransform.Rotation.Y);
+            Assert.Equal(testTransform.Rotation.Z, targetTransform.Rotation.Z);
+
+            Assert.Equal(testTransform.Scale.X, targetTransform.Scale.X);
+            Assert.Equal(testTransform.Scale.Y, targetTransform.Scale.Y);
+            Assert.Equal(testTransform.Scale.Z, targetTransform.Scale.Z);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,9,10,62,1],[10,9,10,62,1],[10,9,10,62,1],[10,9,10,62,1],[10,9,10,62,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,41,1],[12,13,12,41,1],[12,13,12,41,1],[12,13,12,41,1],[12,13,12,41,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[28,46,28,54,1],[28,46,28,54,1],[28,46,28,54,1],[28,46,28,54,1],[28,46,28,54,1],[28,63,28,79,1],[28,63,28,79,1],[28,63,28,79,1],[28,63,28,79,1],[28,63,28,79,1],[29,46,29,54,1],[29,46,29,54,1],[29,46,29,54,1],[29,46,29,54,1],[29,46,29,54,1],[29,63,29,79,1],[29,63,29,79,1],[29,63,29,79,1],[29,63,29,79,1],[29,63,29,79,1],[30,43,30,48,1],[30,43,30,48,1],[30,43,30,48,1],[30,43,30,48,1],[30,43,30,48,1],[30,57,30,70,1],[30,57,30,70,1],[30,57,30,70,1],[30,57,30,70,1],[30,57,30,70,1],[37,13,37,14,1],[37,13,37,14,1],[37,13,37,14,1],[37,13,37,14,1],[37,13,37,14,1],[38,17,38,42,1],[38,17,38,42,1],[38,17,38,42,1],[38,17,38,42,1],[38,17,38,42,1],[39,17,39,42,1],[39,17,39,42,1],[39,17,39,42,1],[39,17,39,42,1],[39,17,39,42,1],[40,17,40,42,1],[40,17,40,42,1],[40,17,40,42,1],[40,17,40,42,1],[40,17,40,42,1],[41,13,41,14,1],[41,13,41,14,1],[41,13,41,14,1],[41,13,41,14,1],[41,13,41,14,1],[44,13,44,14,1],[44,13,44,14,1],[44,13,44,14,1],[44,13,44,14,1],[44,13,44,14,1],[45,17,45,44,1],[45,17,45,44,1],[45,17,45,44,1],[45,17,45,44,1],[45,17,45,44,1],[46,17,46,44,1],[46,17,46,44,1],[46,17,46,44,1],[46,17,46,44,1],[46,17,46,44,1],[47,17,47,44,1],[47,17,47,44,1],[47,17,47,44,1],[47,17,47,44,1],[47,17,47,44,1],[48,13,48,14,1],[48,13,48,14,1],[48,13,48,14,1],[48,13,48,14,1],[48,13,48,14,1],[55,13,55,14,1],[55,13,55,14,1],[55,13,55,14,1],[55,13,55,14,1],[55,13,55,14,1],[56,17,56,46,1],[56,17,56,46,1],[56,17,56,46,1],[56,17,56,46,1],[56,17,56,46,1],[57,17,57,58,1],[57,17,57,58,1],[57,17,57,58,1],[57,17,57,58,1],[57,17,57,58,1],[59,17,59,46,1],[59,17,59,46,1],[59,17,59,46,1],[59,17,59,46,1],[59,17,59,46,1],[60,17,60,58,1],[60,17,60,58,1],[60,17,60,58,1],[60,17,60,58,1],[60,17,60,58,1],[62,17,62,45,1],[62,17,62,45,1],[62,17,62,45,1],[62,17,62,45,1],[62,17,62,45,1],[63,17,63,60,1],[63,17,63,60,1],[63,17,63,60,1],[63,17,63,60,1],[63,17,63,60,1],[64,13,64,14,1],[64,13,64,14,1],[64,13,64,14,1],[64,13,64,14,1],[64,13,64,14,1],[67,13,67,14,1],[67,13,67,14,1],[67,13,67,14,1],[67,13,67,14,1],[67,13,67,14,1],[68,17,68,68,1],[68,17,68,68,1],[68,17,68,68,1],[68,17,68,68,1],[68,17,68,68,1],[69,17,69,68,1],[69,17,69,68,1],[69,17,69,68,1],[69,17,69,68,1],[69,17,69,68,1],[70,17,70,65,1],[70,17,70,65,1],[70,17,70,65,1],[70,17,70,65,1],[70,17,70,65,1],[71,13,71,14,1],[71,13,71,14,1],[71,13,71,14,1],[71,13,71,14,1],[71,13,71,14,1],[76,9,76,10,1],[76,9,76,10,1],[76,9,76,10,1],[76,9,76,10,1],[76,9,76,10,1],[77,13,77,87,1],[77,13,77,87,1],[77,13,77,87,1],[77,13,77,87,1],[77,13,77,87,1],[78,13,78,43,1],[78,13,78,43,1],[78,13,78,43,1],[78,13,78,43,1],[78,13,78,43,1],[79,13,79,59,1],[79,13,79,59,1],[79,13,79,59,1],[79,13,79,59,1],[79,13,79,59,1],[80,13,80,61,1],[80,13,80,61,1],[80,13,80,61,1],[80,13,80,61,1],[80,13,80,61,1],[82,13,82,49,1],[82,13,82,49,1],[82,13,82,49,1],[82,13,82,49,1],[82,13,82,49,1],[83,13,83,49,1],[83,13,83,49,1],[83,13,83,49,1],[83,13,83,49,1],[83,13,83,49,1],[84,13,84,49,1],[84,13,84,49,1],[84,13,84,49,1],[84,13,84,49,1],[84,13,84,49,1],[85,9,85,10,1],[85,9,85,10,1],[85,9,85,10,1],[85,9,85,10,1],[85,9,85,10,1],[89,9,89,10,1],[89,9,89,10,1],[89,9,89,10,1],[89,9,89,10,1],[89,9,89,10,1],[90,13,95,15,1],[90,13,95,15,1],[90,13,95,15,1],[90,13,95,15,1],[90,13,95,15,1],[97,13,97,43,1],[97,13,97,43,1],[97,13,97,43,1],[97,13,97,43,1],[97,13,97,43,1],[98,13,98,66,1],[98,13,98,66,1],[98,13,98,66,1],[98,13,98,66,1],[98,13,98,66,1],[100,13,100,43,1],[100,13,100,43,1],[100,13,100,43,1],[100,13,100,43,1],[100,13,100,43,1],[101,13,101,66,1],[101,13,101,66,1],[101,13,101,66,1],[101,13,101,66,1],[101,13,101,66,1],[103,13,103,72,1],[103,13,103,72,1],[103,13,103,72,1],[103,13,103,72,1],[103,13,103,72,1],[104,13,104,72,1],[104,13,104,72,1],[104,13,104,72,1],[104,13,104,72,1],[104,13,104,72,1],[105,13,105,72,1],[105,13,105,72,1],[105,13,105,72,1],[105,13,105,72,1],[105,13,105,72,1],[107,13,107,72,1],[107,13,107,72,1],[107,13,107,72,1],[107,13,107,72,1],[107,13,107,72,1],[108,13,108,72,1],[108,13,108,72,1],[108,13,108,72,1],[108,13,108,72,1],[108,13,108,72,1],[109,13,109,72,1],[109,13,109,72,1],[109,13,109,72,1],[109,13,109,72,1],[109,13,109,72,1],[111,13,111,66,1],[111,13,111,66,1],[111,13,111,66,1],[111,13,111,66,1],[111,13,111,66,1],[112,13,112,66,1],[112,13,112,66,1],[112,13,112,66,1],[112,13,112,66,1],[112,13,112,66,1],[113,13,113,66,1],[113,13,113,66,1],[113,13,113,66,1],[113,13,113,66,1],[113,13,113,66,1],[114,9,114,10,1],[114,9,114,10,1],[114,9,114,10,1],[114,9,114,10,1],[114,9,114,10,1],[118,9,118,10,1],[118,9,118,10,1],[118,9,118,10,1],[118,9,118,10,1],[118,9,118,10,1],[119,13,124,15,1],[119,13,124,15,1],[119,13,124,15,1],[119,13,124,15,1],[119,13,124,15,1],[126,13,126,43,1],[126,13,126,43,1],[126,13,126,43,1],[126,13,126,43,1],[126,13,126,43,1],[127,13,127,66,1],[127,13,127,66,1],[127,13,127,66,1],[127,13,127,66,1],[127,13,127,66,1],[129,13,129,51,1],[129,13,129,51,1],[129,13,129,51,1],[129,13,129,51,1],[129,13,129,51,1],[130,13,130,74,1],[130,13,130,74,1],[130,13,130,74,1],[130,13,130,74,1],[130,13,130,74,1],[132,13,132,80,1],[132,13,132,80,1],[132,13,132,80,1],[132,13,132,80,1],[132,13,132,80,1],[133,13,133,80,1],[133,13,133,80,1],[133,13,133,80,1],[133,13,133,80,1],[133,13,133,80,1],[134,13,134,80,1],[134,13,134,80,1],[134,13,134,80,1],[134,13,134,80,1],[134,13,134,80,1],[136,13,136,80,1],[136,13,136,80,1],[136,13,136,80,1],[136,13,136,80,1],[136,13,136,80,1],[137,13,137,80,1],[137,13,137,80,1],[137,13,137,80,1],[137,13,137,80,1],[137,13,137,80,1],[138,13,138,80,1],[138,13,138,80,1],[138,13,138,80,1],[138,13,138,80,1],[138,13,138,80,1],[140,13,140,74,1],[140,13,140,74,1],[140,13,140,74,1],[140,13,140,74,1],[140,13,140,74,1],[141,13,141,74,1],[141,13,141,74,1],[141,13,141,74,1],[141,13,141,74,1],[141,13,141,74,1],[142,13,142,74,1],[142,13,142,74,1],[142,13,142,74,1],[142,13,142,74,1],[142,13,142,74,1],[143,9,143,10,1],[143,9,143,10,1],[143,9,143,10,1],[143,9,143,10,1],[143,9,143,10,1]]);
+    </script>
+  </body>
+</html>

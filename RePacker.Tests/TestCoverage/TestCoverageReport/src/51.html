@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\CustomPackers\NullablePacker.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using RePacker.Buffers;
+
+namespace RePacker.Builder
+{
+    internal class NullablePacker&lt;TValue&gt; : RePackerWrapper&lt;System.Nullable&lt;TValue&gt;&gt; where TValue : unmanaged
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Pack(Buffer buffer, ref System.Nullable&lt;TValue&gt; value)
+        {
+            buffer.PackNullable(ref value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Unpack(Buffer buffer, out System.Nullable&lt;TValue&gt; value)
+        {
+            buffer.UnpackNullable&lt;TValue&gt;(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void UnpackInto(Buffer buffer, ref System.Nullable&lt;TValue&gt; value)
+        {
+            buffer.UnpackNullable&lt;TValue&gt;(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.Nullable&lt;TValue&gt; value)
+        {
+            if (value.HasValue)
+            {
+                var refable = value.Value;
+                return sizeof(byte) + RePacking.SizeOf(ref refable);
+            }
+            else
+            {
+                return sizeof(byte);
+            }
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,44,1],[12,13,12,44,1],[12,13,12,44,1],[12,13,12,44,1],[12,13,12,44,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[18,13,18,54,1],[18,13,18,54,1],[18,13,18,54,1],[18,13,18,54,1],[18,13,18,54,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[24,13,24,54,0],[24,13,24,54,0],[24,13,24,54,0],[24,13,24,54,0],[24,13,24,54,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[30,13,30,32,1],[30,13,30,32,1],[30,13,30,32,1],[30,13,30,32,1],[30,13,30,32,1],[31,13,31,14,1],[31,13,31,14,1],[31,13,31,14,1],[31,13,31,14,1],[31,13,31,14,1],[32,17,32,43,1],[32,17,32,43,1],[32,17,32,43,1],[32,17,32,43,1],[32,17,32,43,1],[33,17,33,69,1],[33,17,33,69,1],[33,17,33,69,1],[33,17,33,69,1],[33,17,33,69,1],[36,13,36,14,1],[36,13,36,14,1],[36,13,36,14,1],[36,13,36,14,1],[36,13,36,14,1],[37,17,37,37,1],[37,17,37,37,1],[37,17,37,37,1],[37,17,37,37,1],[37,17,37,37,1],[39,9,39,10,1],[39,9,39,10,1],[39,9,39,10,1],[39,9,39,10,1],[39,9,39,10,1]]);
+    </script>
+  </body>
+</html>

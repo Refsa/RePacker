@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Generator\Generators\RePackerGenerator.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+using RePacker.Utils;
+
+namespace RePacker.Builder
+{
+    internal class RePackerGenerator : IGenerator
+    {
+        public GeneratorType GeneratorType =&gt; GeneratorType.RePacker;
+        public Type ForType =&gt; null;
+
+        static readonly MethodInfo deserializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.UnpackOut));
+        static readonly MethodInfo serializeTypeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.Pack));
+        static readonly MethodInfo getSizeMethod = typeof(TypeCache).GetMethod(nameof(TypeCache.GetSize));
+
+        public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.LoadArgsUnpack(fieldInfo);
+
+            var genericSerializer = deserializeTypeMethod.MakeGenericMethod(fieldInfo.FieldType);
+            ilGen.Emit(OpCodes.Call, genericSerializer);
+            ilGen.Emit(OpCodes.Pop);
+        }
+
+        public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.LoadArgsPack(fieldInfo);
+
+            var genericSerializer = serializeTypeMethod.MakeGenericMethod(fieldInfo.FieldType);
+            ilGen.Emit(OpCodes.Call, genericSerializer);
+        }
+
+        public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            var resolver = typeof(TypeResolver&lt;,&gt;).MakeGenericType(typeof(IPacker&lt;&gt;).MakeGenericType(fieldInfo.FieldType), fieldInfo.FieldType);
+            var resolverGetPacker = resolver.GetProperty(&quot;Packer&quot;).GetMethod;
+            var sizeOfMethod = typeof(IPacker&lt;&gt;).MakeGenericType(fieldInfo.FieldType).GetMethod(&quot;SizeOf&quot;);
+
+            ilGen.Emit(OpCodes.Call, resolverGetPacker);
+
+            if (fieldInfo.DeclaringType.IsValueType)
+            {
+                ilGen.Emit(OpCodes.Ldarga_S, 0);
+            }
+            else
+            {
+                ilGen.Emit(OpCodes.Ldarg_S, 0);
+            }
+            ilGen.Emit(OpCodes.Ldflda, fieldInfo);
+
+            ilGen.Emit(OpCodes.Callvirt, sizeOfMethod);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[10,47,10,69,0],[10,47,10,69,0],[10,47,10,69,0],[10,47,10,69,0],[10,47,10,69,0],[11,32,11,36,0],[11,32,11,36,0],[11,32,11,36,0],[11,32,11,36,0],[11,32,11,36,0],[13,9,13,117,1],[13,9,13,117,1],[13,9,13,117,1],[13,9,13,117,1],[13,9,13,117,1],[14,9,14,110,1],[14,9,14,110,1],[14,9,14,110,1],[14,9,14,110,1],[14,9,14,110,1],[15,9,15,107,1],[15,9,15,107,1],[15,9,15,107,1],[15,9,15,107,1],[15,9,15,107,1],[18,9,18,10,1],[18,9,18,10,1],[18,9,18,10,1],[18,9,18,10,1],[18,9,18,10,1],[19,13,19,45,1],[19,13,19,45,1],[19,13,19,45,1],[19,13,19,45,1],[19,13,19,45,1],[21,13,21,98,1],[21,13,21,98,1],[21,13,21,98,1],[21,13,21,98,1],[21,13,21,98,1],[22,13,22,57,1],[22,13,22,57,1],[22,13,22,57,1],[22,13,22,57,1],[22,13,22,57,1],[23,13,23,37,1],[23,13,23,37,1],[23,13,23,37,1],[23,13,23,37,1],[23,13,23,37,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[27,9,27,10,1],[27,9,27,10,1],[27,9,27,10,1],[27,9,27,10,1],[27,9,27,10,1],[28,13,28,43,1],[28,13,28,43,1],[28,13,28,43,1],[28,13,28,43,1],[28,13,28,43,1],[30,13,30,96,1],[30,13,30,96,1],[30,13,30,96,1],[30,13,30,96,1],[30,13,30,96,1],[31,13,31,57,1],[31,13,31,57,1],[31,13,31,57,1],[31,13,31,57,1],[31,13,31,57,1],[32,9,32,10,1],[32,9,32,10,1],[32,9,32,10,1],[32,9,32,10,1],[32,9,32,10,1],[35,9,35,10,1],[35,9,35,10,1],[35,9,35,10,1],[35,9,35,10,1],[35,9,35,10,1],[36,13,36,145,1],[36,13,36,145,1],[36,13,36,145,1],[36,13,36,145,1],[36,13,36,145,1],[37,13,37,78,1],[37,13,37,78,1],[37,13,37,78,1],[37,13,37,78,1],[37,13,37,78,1],[38,13,38,107,1],[38,13,38,107,1],[38,13,38,107,1],[38,13,38,107,1],[38,13,38,107,1],[40,13,40,57,1],[40,13,40,57,1],[40,13,40,57,1],[40,13,40,57,1],[40,13,40,57,1],[42,13,42,53,1],[42,13,42,53,1],[42,13,42,53,1],[42,13,42,53,1],[42,13,42,53,1],[43,13,43,14,1],[43,13,43,14,1],[43,13,43,14,1],[43,13,43,14,1],[43,13,43,14,1],[44,17,44,49,1],[44,17,44,49,1],[44,17,44,49,1],[44,17,44,49,1],[44,17,44,49,1],[45,13,45,14,1],[45,13,45,14,1],[45,13,45,14,1],[45,13,45,14,1],[45,13,45,14,1],[47,13,47,14,1],[47,13,47,14,1],[47,13,47,14,1],[47,13,47,14,1],[47,13,47,14,1],[48,17,48,48,1],[48,17,48,48,1],[48,17,48,48,1],[48,17,48,48,1],[48,17,48,48,1],[49,13,49,14,1],[49,13,49,14,1],[49,13,49,14,1],[49,13,49,14,1],[49,13,49,14,1],[50,13,50,51,1],[50,13,50,51,1],[50,13,50,51,1],[50,13,50,51,1],[50,13,50,51,1],[52,13,52,56,1],[52,13,52,56,1],[52,13,52,56,1],[52,13,52,56,1],[52,13,52,56,1],[53,9,53,10,1],[53,9,53,10,1],[53,9,53,10,1],[53,9,53,10,1],[53,9,53,10,1]]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Generator\Generators\UnmanagedGenerator.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using RePacker.Buffers;
+using RePacker.Utils;
+using Buffer = RePacker.Buffers.Buffer;
+
+namespace RePacker.Builder
+{
+    internal class UnmanagedGenerator : IGenerator
+    {
+        public GeneratorType GeneratorType =&gt; GeneratorType.Unmanaged;
+        public Type ForType =&gt; null;
+
+        MethodInfo bufferPushGeneric = null;
+        MethodInfo bufferPopGeneric = null;
+
+        MethodInfo bufferPack = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Pack));
+        MethodInfo bufferUnpack = typeof(BufferUtils).GetMethod(nameof(BufferUtils.Unpack));
+
+        public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.LoadArgsUnpack(fieldInfo);
+
+            bufferPopGeneric = bufferUnpack.MakeGenericMethod(fieldInfo.FieldType);
+            ilGen.Emit(OpCodes.Call, bufferPopGeneric);
+        }
+
+        public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.LoadArgsPack(fieldInfo);
+
+            bufferPushGeneric = bufferPack.MakeGenericMethod(fieldInfo.FieldType);
+            ilGen.Emit(OpCodes.Call, bufferPushGeneric);
+        }
+
+        public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
+        {
+            ilGen.Emit(OpCodes.Sizeof, fieldInfo.FieldType);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[13,47,13,70,0],[13,47,13,70,0],[13,47,13,70,0],[13,47,13,70,0],[13,47,13,70,0],[14,32,14,36,0],[14,32,14,36,0],[14,32,14,36,0],[14,32,14,36,0],[14,32,14,36,0],[16,9,16,45,1],[16,9,16,45,1],[16,9,16,45,1],[16,9,16,45,1],[16,9,16,45,1],[17,9,17,44,1],[17,9,17,44,1],[17,9,17,44,1],[17,9,17,44,1],[17,9,17,44,1],[19,9,19,89,1],[19,9,19,89,1],[19,9,19,89,1],[19,9,19,89,1],[19,9,19,89,1],[20,9,20,93,1],[20,9,20,93,1],[20,9,20,93,1],[20,9,20,93,1],[20,9,20,93,1],[23,9,23,10,1],[23,9,23,10,1],[23,9,23,10,1],[23,9,23,10,1],[23,9,23,10,1],[24,13,24,45,1],[24,13,24,45,1],[24,13,24,45,1],[24,13,24,45,1],[24,13,24,45,1],[26,13,26,84,1],[26,13,26,84,1],[26,13,26,84,1],[26,13,26,84,1],[26,13,26,84,1],[27,13,27,56,1],[27,13,27,56,1],[27,13,27,56,1],[27,13,27,56,1],[27,13,27,56,1],[28,9,28,10,1],[28,9,28,10,1],[28,9,28,10,1],[28,9,28,10,1],[28,9,28,10,1],[31,9,31,10,1],[31,9,31,10,1],[31,9,31,10,1],[31,9,31,10,1],[31,9,31,10,1],[32,13,32,43,1],[32,13,32,43,1],[32,13,32,43,1],[32,13,32,43,1],[32,13,32,43,1],[34,13,34,83,1],[34,13,34,83,1],[34,13,34,83,1],[34,13,34,83,1],[34,13,34,83,1],[35,13,35,57,1],[35,13,35,57,1],[35,13,35,57,1],[35,13,35,57,1],[35,13,35,57,1],[36,9,36,10,1],[36,9,36,10,1],[36,9,36,10,1],[36,9,36,10,1],[36,9,36,10,1],[39,9,39,10,1],[39,9,39,10,1],[39,9,39,10,1],[39,9,39,10,1],[39,9,39,10,1],[40,13,40,61,1],[40,13,40,61,1],[40,13,40,61,1],[40,13,40,61,1],[40,13,40,61,1],[41,9,41,10,1],[41,9,41,10,1],[41,9,41,10,1],[41,9,41,10,1],[41,9,41,10,1]]);
+    </script>
+  </body>
+</html>

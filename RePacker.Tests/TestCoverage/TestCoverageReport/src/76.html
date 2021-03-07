@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\RePackerWrapper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Runtime.CompilerServices;
+using RePacker.Buffers;
+
+namespace RePacker.Builder
+{
+    public abstract class RePackerWrapper&lt;T&gt; : IPacker&lt;T&gt;
+    {
+        public static bool IsCopyable = false;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract void Pack(Buffer buffer, ref T value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void Unpack(Buffer buffer, out T value)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public virtual void UnpackInto(Buffer buffer, ref T value)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public virtual int SizeOf(ref T value)
+        {
+            return 0;
+        }
+    }
+
+    [System.AttributeUsage(System.AttributeTargets.Class)]
+    public sealed class RePackerWrapperAttribute : System.Attribute
+    {
+        public System.Type WrapperFor;
+
+        public RePackerWrapperAttribute(System.Type wrapperFor)
+        {
+            WrapperFor = wrapperFor;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[15,9,15,10,0],[15,9,15,10,0],[15,9,15,10,0],[15,9,15,10,0],[15,9,15,10,0],[16,13,16,56,0],[16,13,16,56,0],[16,13,16,56,0],[16,13,16,56,0],[16,13,16,56,0],[21,9,21,10,0],[21,9,21,10,0],[21,9,21,10,0],[21,9,21,10,0],[21,9,21,10,0],[22,13,22,56,0],[22,13,22,56,0],[22,13,22,56,0],[22,13,22,56,0],[22,13,22,56,0],[26,9,26,10,0],[26,9,26,10,0],[26,9,26,10,0],[26,9,26,10,0],[26,9,26,10,0],[27,13,27,22,0],[27,13,27,22,0],[27,13,27,22,0],[27,13,27,22,0],[27,13,27,22,0],[28,9,28,10,0],[28,9,28,10,0],[28,9,28,10,0],[28,9,28,10,0],[28,9,28,10,0],[36,9,36,64,0],[36,9,36,64,0],[36,9,36,64,0],[36,9,36,64,0],[36,9,36,64,0],[37,9,37,10,0],[37,9,37,10,0],[37,9,37,10,0],[37,9,37,10,0],[37,9,37,10,0],[38,13,38,37,0],[38,13,38,37,0],[38,13,38,37,0],[38,13,38,37,0],[38,13,38,37,0],[39,9,39,10,0],[39,9,39,10,0],[39,9,39,10,0],[39,9,39,10,0],[39,9,39,10,0]]);
+    </script>
+  </body>
+</html>

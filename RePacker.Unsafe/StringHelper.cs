@@ -1,8 +1,7 @@
-using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Numerics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RePacker.Unsafe
 {
@@ -19,41 +18,27 @@ namespace RePacker.Unsafe
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe string GetString(byte[] data, int offset, int length)
         {
-            // char* target = stackalloc char[charCount];
-            // fixed (byte* src = &data[offset])
-            // {
-            //     stringEncoder.GetChars(src, length, target, charCount);
-            // }
-
-            // fixed (byte* src = &data[offset])
-            // {
-            //     sbyte* ssrc = (sbyte*)src;
-            //     return new string(ssrc, 0, length);
-            // }
-
             fixed (byte* src = &data[offset])
             {
                 return stringEncoder.GetString(src, length);
             }
-
-            // return stringEncoder.GetString(data, offset, length);
-
-            /* int charCount = stringEncoder.GetCharCount(data, offset, length);
-
-            char* dest = stackalloc char[charCount];
-
-            fixed (byte* src = &data[offset])
-            {
-                widen_bytes_simd(dest, src, length);
-            }
-
-            return new string(dest); */
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int CopyString(string value, byte[] data, int offset)
         {
             return stringEncoder.GetBytes(value, 0, value.Length, data, offset);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int SizeOf(string value)
+        {
+            if (value == null) return 0;
+
+            fixed (char* asC = value)
+            {
+                return stringEncoder.GetByteCount(asC, value.Length);
+            }
         }
     }
 }

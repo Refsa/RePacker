@@ -25,5 +25,11 @@ namespace RePacker.Builder
             buffer.Unpack(out long ticks);
             value = new System.TimeSpan(ticks);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref System.TimeSpan value)
+        {
+            return sizeof(long);
+        }
     }
 }
