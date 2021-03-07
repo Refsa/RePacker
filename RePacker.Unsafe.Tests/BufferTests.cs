@@ -395,6 +395,35 @@ namespace RePacker.Buffers.Tests
         }
 
         [Fact]
+        public void direct_packing_byte()
+        {
+            var buffer = new ReBuffer(4);
+            byte value = 128;
+
+            buffer.PackByte(ref value);
+            buffer.UnpackByte(out byte fromBuf);
+
+            Assert.Equal(value, fromBuf);
+        }
+
+        [Fact]
+        public void direct_packing_sbyte()
+        {
+            var buffer = new ReBuffer(4);
+            sbyte pos = 127;
+            sbyte neg = -127;
+
+            buffer.PackSByte(ref pos);
+            buffer.PackSByte(ref neg);
+
+            buffer.UnpackSByte(out sbyte fromBuf);
+            Assert.Equal(pos, fromBuf);
+
+            buffer.UnpackSByte(out fromBuf);
+            Assert.Equal(neg, fromBuf);
+        }
+
+        [Fact]
         public void direct_packing_short()
         {
             var buffer = new ReBuffer(new byte[4]);
@@ -884,6 +913,355 @@ namespace RePacker.Buffers.Tests
                 copy.Unpack<int>(out int c);
                 Assert.Equal(b, c);
             }
+        }
+
+        struct Ints
+        {
+            public int Int1;
+            public float Int2;
+            public byte Int3;
+            public short Int4;
+        }
+
+        [Fact]
+        public void array_memory_copy_int_single()
+        {
+            var buffer = new ReBuffer(2048);
+
+            int[] array = Enumerable.Range(0, 256).ToArray();
+
+            buffer.PackArray(array);
+            int[] fromBuf = buffer.UnpackArray<int>();
+
+            for (int i = 0; i < 256; i++)
+            {
+                Assert.Equal(array[i], fromBuf[i]);
+            }
+        }
+
+        [Fact]
+        public void array_memory_copy_int_multiple()
+        {
+            var buffer = new ReBuffer(2048);
+
+            int[] array = Enumerable.Range(0, 64).ToArray();
+
+            for (int i = 0; i < 4; i++)
+            {
+                buffer.PackArray(array);
+            }
+
+            Assert.Equal(sizeof(int) * 64 * 4 + sizeof(ulong) * 4, buffer.Length());
+
+            for (int i = 1; i < 5; i++)
+            {
+                int[] fromBuf = buffer.UnpackArray<int>();
+                for (int j = 0; j < 64; j++)
+                {
+                    Assert.Equal(array[j], fromBuf[j]);
+                }
+
+                Assert.Equal(sizeof(int) * 64 * i + sizeof(ulong) * i, buffer.ReadCursor());
+            }
+        }
+
+        [Fact]
+        public void array_memory_copy_struct_single()
+        {
+            var buffer = new ReBuffer(2048);
+
+            Ints[] array = Enumerable.Range(0, 64)
+                .Select(e => new Ints
+                {
+                    Int1 = e,
+                    Int2 = e * 3.14159f,
+                    Int3 = (byte)(e * 3),
+                    Int4 = (short)(e * 4),
+                })
+                .ToArray();
+
+            buffer.PackArray(array);
+
+            Ints[] fromBuf = buffer.UnpackArray<Ints>();
+
+            for (int i = 0; i < 64; i++)
+            {
+                Assert.Equal(array[i].Int1, fromBuf[i].Int1);
+                Assert.Equal(array[i].Int2, fromBuf[i].Int2);
+                Assert.Equal(array[i].Int3, fromBuf[i].Int3);
+                Assert.Equal(array[i].Int4, fromBuf[i].Int4);
+            }
+        }
+
+        [Fact]
+        public void array_memory_copy_struct_multiple()
+        {
+            var buffer = new ReBuffer(2048 * 4);
+
+            Ints[] array = Enumerable.Range(0, 64)
+                .Select(e => new Ints
+                {
+                    Int1 = e,
+                    Int2 = e * 3.14159f,
+                    Int3 = (byte)(e * 3),
+                    Int4 = (short)(e * 4),
+                })
+                .ToArray();
+
+            for (int i = 0; i < 4; i++)
+            {
+                buffer.PackArray(array);
+            }
+
+            Assert.Equal(Marshal.SizeOf<Ints>() * 64 * 4 + sizeof(ulong) * 4, buffer.Length());
+
+            for (int i = 1; i < 5; i++)
+            {
+                Ints[] fromBuf = buffer.UnpackArray<Ints>();
+                for (int j = 0; j < 64; j++)
+                {
+                    Assert.Equal(array[j].Int1, fromBuf[j].Int1);
+                    Assert.Equal(array[j].Int2, fromBuf[j].Int2);
+                    Assert.Equal(array[j].Int3, fromBuf[j].Int3);
+                    Assert.Equal(array[j].Int4, fromBuf[j].Int4);
+                }
+
+                Assert.Equal(Marshal.SizeOf<Ints>() * 64 * i + sizeof(ulong) * i, buffer.ReadCursor());
+            }
+        }
+
+        [Fact]
+        public void packing_null_array_inserts_zero_ulong()
+        {
+            var buffer = new ReBuffer(128);
+            int[] data = null;
+
+            buffer.PackArray(data);
+            Assert.Equal(buffer.Length(), 8);
+        }
+
+        [Fact]
+        public void packing_too_large_array_throws()
+        {
+            var buffer = new ReBuffer(16);
+            int[] data = new int[8];
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.PackArray(data));
+        }
+
+        [Fact]
+        public void unpacking_too_large_array_returns_empty_array()
+        {
+            var buffer = new ReBuffer(16);
+            ulong size = 8;
+            buffer.Pack(ref size);
+
+            Assert.Equal(0, buffer.UnpackArray<int>().Length);
+        }
+
+        [Fact]
+        public void free_space_gives_remaining_space()
+        {
+            var buffer = new ReBuffer(128);
+            for (int i = 0; i < 16; i++) buffer.Pack(ref i);
+
+            Assert.Equal(64, buffer.FreeSpace());
+        }
+
+        [Fact]
+        public void setting_read_cursor_out_of_bounds_throws()
+        {
+            var buffer = new ReBuffer(8);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.SetReadCursor(9));
+            Assert.Equal(0, buffer.ReadCursor());
+        }
+
+        [Fact]
+        public void setting_read_cursor_moves_it()
+        {
+            var buffer = new ReBuffer(8);
+
+            buffer.SetReadCursor(4);
+            Assert.Equal(4, buffer.ReadCursor());
+        }
+
+        [Fact]
+        public void setting_write_cursor_out_of_bounds_throws()
+        {
+            var buffer = new ReBuffer(8);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.SetWriteCursor(9));
+            Assert.Equal(0, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void setting_write_cursor_moves_it()
+        {
+            var buffer = new ReBuffer(8);
+
+            buffer.SetWriteCursor(4);
+            Assert.Equal(4, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void can_read_bytes()
+        {
+            var buffer = new ReBuffer(4);
+
+            Assert.True(buffer.CanReadBytes(4));
+            Assert.False(buffer.CanReadBytes(5));
+        }
+
+        [Fact]
+        public void can_write_bytes()
+        {
+            var buffer = new ReBuffer(4);
+
+            Assert.True(buffer.CanWriteBytes(4));
+            Assert.False(buffer.CanWriteBytes(5));
+        }
+
+        [Fact]
+        public void can_write_bytes_expands_auto_buffer()
+        {
+            var buffer = new ReBuffer(4, true);
+
+            Assert.True(buffer.CanWriteBytes(8));
+            Assert.Equal(8, buffer.Array.Length);
+        }
+
+        [Fact]
+        public void flush_clears_cursor_and_array()
+        {
+            var buffer = new ReBuffer(64);
+            for (int i = 0; i < 16; i++) buffer.Pack(ref i);
+
+            buffer.Flush();
+            Assert.Equal(0, buffer.ReadCursor());
+            Assert.Equal(0, buffer.WriteCursor());
+            Assert.Equal(0, buffer.Array.Sum(e => e));
+        }
+
+        [Fact]
+        public void clone_makes_copy_of_buffer()
+        {
+            var buffer = new ReBuffer(64);
+            for (int i = 0; i < 16; i++) buffer.Pack(ref i);
+
+            var cloned = buffer.Clone();
+
+            for (int i = 0; i < 64; i++)
+            {
+                Assert.Equal(buffer.Array[i], cloned.Array[i]);
+            }
+        }
+
+        [Fact]
+        public void buffer_constructor_makes_shallow_copy()
+        {
+            var buffer = new ReBuffer(64);
+            for (int i = 0; i < 16; i++) buffer.Pack(ref i);
+
+            var copied = new ReBuffer(buffer);
+
+            Assert.Equal(buffer.WriteCursor(), copied.WriteCursor());
+            Assert.Equal(buffer.ReadCursor(), copied.ReadCursor());
+            Assert.Equal(buffer.Array, copied.Array);
+        }
+
+        [Fact]
+        public void expand_increases_size_and_clones_values()
+        {
+            var buffer = new ReBuffer(32, true);
+            for (int i = 0; i < 16; i++) buffer.Pack(ref i);
+
+            Assert.Equal(64, buffer.Array.Length);
+
+            for (int i = 0; i < 16; i++)
+            {
+                buffer.Unpack<int>(out int fromBuf);
+                Assert.Equal(i, fromBuf);
+            }
+        }
+
+        [Fact]
+        public void can_write_expands_auto_buffer()
+        {
+            var buffer = new ReBuffer(4, true);
+
+            Assert.True(buffer.CanWrite<long>());
+            Assert.Equal(8, buffer.Array.Length);
+        }
+
+        [Fact]
+        public void move_read_cursor_out_of_bounds_throws()
+        {
+            var buffer = new ReBuffer(8);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MoveReadCursor(9));
+            Assert.Equal(0, buffer.ReadCursor());
+        }
+
+        [Fact]
+        public void move_write_cursor_out_of_bounds_throws()
+        {
+            var buffer = new ReBuffer(8);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.MoveWriteCursor(9));
+            Assert.Equal(0, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void peek_gives_value_without_changing_buffer()
+        {
+            var buffer = new ReBuffer(8);
+            int val = 12345;
+            int val2 = 99999;
+            buffer.Pack(ref val);
+            buffer.Pack(ref val2);
+
+            Assert.Equal(val, buffer.Peek<int>());
+            Assert.Equal(val2, buffer.Peek<int>(4));
+        }
+
+        [Fact]
+        public void peek_out_of_bounds_throws()
+        {
+            var buffer = new ReBuffer(4);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.Peek<ulong>());
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.Peek<short>(3));
+        }
+
+        [Fact]
+        public void pack_buffer_only_copies_used_memory()
+        {
+            var internalBuffer = new ReBuffer(64);
+            for (int i = 0; i < 8; i++) internalBuffer.Pack(ref i);
+
+            var buffer = new ReBuffer(64);
+            buffer.PackBuffer(internalBuffer);
+
+            Assert.Equal(32 + 16, buffer.Length());
+            Assert.Equal(internalBuffer.ReadCursor(), buffer.ReadCursor());
+            Assert.Equal(internalBuffer.WriteCursor() + 16, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void unpack_buffer()
+        {
+            var internalBuffer = new ReBuffer(64);
+            for (int i = 0; i < 8; i++) internalBuffer.Pack(ref i);
+
+            var buffer = new ReBuffer(64);
+            buffer.PackBuffer(internalBuffer);
+
+            var fromBuf = buffer.UnpackBuffer();
+
+            Assert.Equal(32, fromBuf.Array.Length);
+            Assert.Equal(internalBuffer.ReadCursor(), fromBuf.ReadCursor());
+            Assert.Equal(internalBuffer.WriteCursor(), fromBuf.WriteCursor());
         }
     }
 }

@@ -8,6 +8,8 @@ Version 2.0.0:
 - prepend/append to allow for circular buffer functionality
 - fix some of the exception stuff that is handled internally, mostly related to library development pains
 
+- setting/moving write cursor before read cursor should move the read cursor
+
 - implement more tests according to results from dotCover report
 
 - make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
