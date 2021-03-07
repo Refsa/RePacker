@@ -493,13 +493,13 @@ namespace RePacker.Tests
     [RePacker]
     public struct StructHasBuffer
     {
-        public RePacker.Buffers.Buffer Buffer;
+        public RePacker.Buffers.ReBuffer Buffer;
     }
 
     [RePacker]
     public class ClassHasBuffer
     {
-        public RePacker.Buffers.Buffer Buffer;
+        public RePacker.Buffers.ReBuffer Buffer;
     }
 
 #if NETCOREAPP3_0 || NETCOREAPP3_1

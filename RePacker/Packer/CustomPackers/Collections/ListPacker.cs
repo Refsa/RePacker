@@ -7,13 +7,13 @@ namespace RePacker.Builder
     internal class ListPacker<TElement> : RePackerWrapper<List<TElement>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref List<TElement> value)
+        public override void Pack(ReBuffer buffer, ref List<TElement> value)
         {
             buffer.PackIList(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out List<TElement> value)
+        public override void Unpack(ReBuffer buffer, out List<TElement> value)
         {
             buffer.UnpackIList<TElement>(out var ilist);
             value = (List<TElement>)ilist;

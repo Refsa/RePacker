@@ -9,7 +9,7 @@ namespace RePacker.Tests
 {
     public class SerializerBuilderTests
     {
-        Buffer buffer = new Buffer(1 << 24);
+        ReBuffer buffer = new ReBuffer(1 << 24);
 
         public SerializerBuilderTests(ITestOutputHelper output)
         {
@@ -771,7 +771,7 @@ namespace RePacker.Tests
         {
             var obj = new SomeManagedObject();
 
-            var buffer = new Buffer(4);
+            var buffer = new ReBuffer(4);
 
             Assert.Throws<System.IndexOutOfRangeException>(() => RePacking.Pack(buffer, ref obj));
 
@@ -784,7 +784,7 @@ namespace RePacker.Tests
             var obj = new ParentWithNestedClass();
             obj.Child = new ChildClass();
 
-            var buffer = new Buffer(8);
+            var buffer = new ReBuffer(8);
 
             Assert.Throws<System.IndexOutOfRangeException>(() => RePacking.Pack(buffer, ref obj));
 
@@ -796,7 +796,7 @@ namespace RePacker.Tests
         {
             var obj = new SomeManagedObject();
 
-            var buffer = new Buffer(20);
+            var buffer = new ReBuffer(20);
 
             RePacking.Pack(buffer, ref obj);
             RePacking.Pack(buffer, ref obj);
@@ -811,7 +811,7 @@ namespace RePacker.Tests
             var obj = new ParentWithNestedClass();
             obj.Child = new ChildClass();
 
-            var buffer = new Buffer(38);
+            var buffer = new ReBuffer(38);
 
             RePacking.Pack(buffer, ref obj);
             RePacking.Pack(buffer, ref obj);

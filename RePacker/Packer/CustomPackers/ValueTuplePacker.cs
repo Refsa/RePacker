@@ -7,19 +7,19 @@ namespace RePacker.Builder
         RePackerWrapper<System.ValueTuple<T1, T2>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2> value)
         {
             buffer.UnpackValueTuple<T1, T2>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2> value)
         {
             buffer.UnpackValueTuple<T1, T2>(out value);
         }
@@ -38,19 +38,19 @@ namespace RePacker.Builder
         RePackerWrapper<System.ValueTuple<T1, T2, T3>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2, T3> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2, T3> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2, T3> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3>(out value);
         }
@@ -70,19 +70,19 @@ namespace RePacker.Builder
         RePackerWrapper<System.ValueTuple<T1, T2, T3, T4>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2, T3, T4> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2, T3, T4> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4>(out value);
         }
@@ -103,19 +103,19 @@ namespace RePacker.Builder
         RePackerWrapper<System.ValueTuple<T1, T2, T3, T4, T5>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5>(out value);
         }
@@ -138,19 +138,19 @@ namespace RePacker.Builder
         RePackerWrapper<System.ValueTuple<T1, T2, T3, T4, T5, T6>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6>(out value);
         }
@@ -174,19 +174,19 @@ namespace RePacker.Builder
         RePackerWrapper<System.ValueTuple<T1, T2, T3, T4, T5, T6, T7>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7>(out value);
         }
@@ -213,19 +213,19 @@ namespace RePacker.Builder
         where TRest : struct
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
+        public override void Pack(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
         {
             buffer.PackValueTuple(ref value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
+        public override void Unpack(ReBuffer buffer, out System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
+        public override void UnpackInto(ReBuffer buffer, ref System.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value)
         {
             buffer.UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(out value);
         }

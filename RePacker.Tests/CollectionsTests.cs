@@ -9,7 +9,7 @@ namespace RePacker.Tests
 {
     public class CollectionsTests
     {
-        Buffer buffer = new Buffer(1 << 24);
+        ReBuffer buffer = new ReBuffer(1 << 24);
 
         public CollectionsTests(ITestOutputHelper output)
         {
@@ -1170,11 +1170,11 @@ namespace RePacker.Tests
         {
             buffer.Reset();
 
-            var innerBuffer = new Buffer(1024);
+            var innerBuffer = new ReBuffer(1024);
             for (int i = 0; i < 10; i++) innerBuffer.Pack(ref i);
 
             RePacking.Pack(buffer, ref innerBuffer);
-            var fromBuf = RePacking.Unpack<Buffer>(buffer);
+            var fromBuf = RePacking.Unpack<ReBuffer>(buffer);
 
             Assert.Equal(innerBuffer.Length(), fromBuf.Length());
             Assert.Equal(innerBuffer.WriteCursor(), fromBuf.WriteCursor());
@@ -1186,7 +1186,7 @@ namespace RePacker.Tests
         {
             buffer.Reset();
 
-            var obj = new StructHasBuffer { Buffer = new Buffer(1024) };
+            var obj = new StructHasBuffer { Buffer = new ReBuffer(1024) };
             for (int i = 0; i < 10; i++) obj.Buffer.Pack(ref i);
 
             RePacking.Pack(buffer, ref obj);
@@ -1202,7 +1202,7 @@ namespace RePacker.Tests
         {
             buffer.Reset();
 
-            var obj = new ClassHasBuffer { Buffer = new Buffer(1024) };
+            var obj = new ClassHasBuffer { Buffer = new ReBuffer(1024) };
             for (int i = 0; i < 10; i++) obj.Buffer.Pack(ref i);
 
             RePacking.Pack(buffer, ref obj);

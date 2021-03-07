@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Utils;
 using RePacker.Buffers;
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Builder
 {
@@ -16,7 +16,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsUnpack(fieldInfo);
             
-            var dateTimeDecParams = new Type[] { typeof(Buffer), typeof(DateTime).MakeByRefType() };
+            var dateTimeDecParams = new Type[] { typeof(ReBuffer), typeof(DateTime).MakeByRefType() };
             var decodeDateTime = typeof(BufferExt).GetMethod(nameof(BufferExt.UnpackDateTime), dateTimeDecParams);
             ilGen.Emit(OpCodes.Call, decodeDateTime);
         }
@@ -25,7 +25,7 @@ namespace RePacker.Builder
         {
             ilGen.LoadArgsPack(fieldInfo);
 
-            var dateTimeDecParams = new Type[] { typeof(Buffer), typeof(DateTime).MakeByRefType() };
+            var dateTimeDecParams = new Type[] { typeof(ReBuffer), typeof(DateTime).MakeByRefType() };
             var encodeDateTime = typeof(BufferExt).GetMethod(nameof(BufferExt.PackDateTime), dateTimeDecParams);
             ilGen.Emit(OpCodes.Call, encodeDateTime);
             // ilGen.Emit(OpCodes.Pop);

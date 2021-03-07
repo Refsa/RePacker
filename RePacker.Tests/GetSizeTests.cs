@@ -276,7 +276,7 @@ namespace RePacker.Tests
         [Fact]
         public void get_size_buffer()
         {
-            var testBuffer = new Buffer(1024);
+            var testBuffer = new ReBuffer(1024);
             for (int i = 0; i < 10; i++)
             {
                 testBuffer.Pack(ref i);
@@ -288,7 +288,7 @@ namespace RePacker.Tests
         [Fact]
         public void get_size_struct_has_buffer()
         {
-            var testBuffer = new StructHasBuffer { Buffer = new Buffer(1024) };
+            var testBuffer = new StructHasBuffer { Buffer = new ReBuffer(1024) };
             for (int i = 0; i < 10; i++)
             {
                 testBuffer.Buffer.Pack(ref i);
@@ -300,7 +300,7 @@ namespace RePacker.Tests
         [Fact]
         public void get_size_class_has_buffer()
         {
-            var testBuffer = new ClassHasBuffer { Buffer = new Buffer(1024) };
+            var testBuffer = new ClassHasBuffer { Buffer = new ReBuffer(1024) };
             for (int i = 0; i < 10; i++)
             {
                 testBuffer.Buffer.Pack(ref i);

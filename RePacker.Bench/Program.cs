@@ -7,7 +7,7 @@ using BenchmarkDotNet.Order;
 using RePacker;
 using RePacker.Buffers;
 using RePacker.Unsafe;
-using Buffer = RePacker.Buffers.Buffer;
+using Buffer = RePacker.Buffers.ReBuffer;
 using System.Linq;
 using System.Collections.Generic;
 using RePacker.Builder;

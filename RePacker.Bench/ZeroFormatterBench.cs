@@ -66,20 +66,20 @@ namespace RePacker.Benchmarks
                 ILGen_Auto_LargeStringSerialize | 3,887,686.05 us
         */
 
-        static Buffer buffer;
+        static ReBuffer buffer;
 
         Person[] personArray;
-        Buffer personBuffer;
-        Buffer personArrayBuffer;
+        ReBuffer personBuffer;
+        ReBuffer personArrayBuffer;
 
         Vector[] vectorArray;
-        Buffer vectorArrayBuffer;
+        ReBuffer vectorArrayBuffer;
 
         int[] intArray;
-        Buffer intArrayBuffer;
+        ReBuffer intArrayBuffer;
 
         string largeString;
-        Buffer largeStringBuffer;
+        ReBuffer largeStringBuffer;
 
         Person p = new Person
         {
@@ -90,50 +90,50 @@ namespace RePacker.Benchmarks
         };
 
         Vector vector = new Vector { X = 1.234f, Y = 2.345f, Z = 3.456f };
-        Buffer vectorBuffer;
+        ReBuffer vectorBuffer;
 
-        Buffer intBuffer;
+        ReBuffer intBuffer;
 
         public ZeroFormatterBench()
         {
-            buffer = new Buffer(1 << 24);
+            buffer = new ReBuffer(1 << 24);
 
             {
                 largeString = System.IO.File.ReadAllText("CSharpHtml.txt");
-                largeStringBuffer = new Buffer(1 << 24);
+                largeStringBuffer = new ReBuffer(1 << 24);
                 RePacking.Pack(largeStringBuffer, ref largeString);
             }
 
             {
                 personArray = Enumerable.Range(1000, 1000).Select(e => new Person { Age = e, FirstName = "Windows", LastName = "Server", Sex = Sex.Female }).ToArray();
 
-                personBuffer = new Buffer(1024);
+                personBuffer = new ReBuffer(1024);
                 RePacking.Pack<Person>(personBuffer, ref p);
 
-                personArrayBuffer = new Buffer(1 << 24);
+                personArrayBuffer = new ReBuffer(1 << 24);
                 RePacking.Pack(personArrayBuffer, ref personArray);
             }
 
             {
-                vectorBuffer = new Buffer(1024);
+                vectorBuffer = new ReBuffer(1024);
                 RePacking.Pack<Vector>(vectorBuffer, ref vector);
             }
 
             {
                 vectorArray = Enumerable.Range(1, 100).Select(_ => new Vector { X = 12345.12345f, Y = 3994.35226f, Z = 325125.52426f }).ToArray();
-                vectorArrayBuffer = new Buffer(1 << 24);
+                vectorArrayBuffer = new ReBuffer(1 << 24);
                 RePacking.Pack(vectorArrayBuffer, ref vectorArray);
             }
 
             {
                 int val = 123456789;
-                intBuffer = new Buffer(1024);
+                intBuffer = new ReBuffer(1024);
                 RePacking.Pack<int>(intBuffer, ref val);
             }
 
             {
                 intArray = Enumerable.Range(0, 1000).ToArray();
-                intArrayBuffer = new Buffer(sizeof(int) * 1100);
+                intArrayBuffer = new ReBuffer(sizeof(int) * 1100);
                 RePacking.Pack(intArrayBuffer, ref intArray);
             }
         }

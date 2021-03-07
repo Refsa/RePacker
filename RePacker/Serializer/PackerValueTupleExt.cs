@@ -1,20 +1,20 @@
 using System;
 using RePacker.Buffers;
 
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Builder
 {
     public static class PackerValueTupleExt
     {
-        public static void PackValueTuple<T1, T2>(this Buffer buffer, ref ValueTuple<T1, T2> value)
+        public static void PackValueTuple<T1, T2>(this ReBuffer buffer, ref ValueTuple<T1, T2> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
             RePacking.Pack<T2>(buffer, ref value.Item2);
         }
 
         public static void PackValueTuple<T1, T2, T3>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             ref ValueTuple<T1, T2, T3> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -23,7 +23,7 @@ namespace RePacker.Builder
         }
 
         public static void PackValueTuple<T1, T2, T3, T4>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             ref ValueTuple<T1, T2, T3, T4> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -33,7 +33,7 @@ namespace RePacker.Builder
         }
 
         public static void PackValueTuple<T1, T2, T3, T4, T5>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             ref ValueTuple<T1, T2, T3, T4, T5> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -44,7 +44,7 @@ namespace RePacker.Builder
         }
 
         public static void PackValueTuple<T1, T2, T3, T4, T5, T6>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             ref ValueTuple<T1, T2, T3, T4, T5, T6> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -56,7 +56,7 @@ namespace RePacker.Builder
         }
 
         public static void PackValueTuple<T1, T2, T3, T4, T5, T6, T7>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             ref ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -69,7 +69,7 @@ namespace RePacker.Builder
         }
 
         public static void PackValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             ref ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value) where TRest : struct
         {
             RePacking.Pack<T1>(buffer, ref value.Item1);
@@ -82,13 +82,13 @@ namespace RePacker.Builder
             RePacking.Pack<TRest>(buffer, ref value.Rest);
         }
 
-        public static void UnpackValueTuple<T1, T2>(this Buffer buffer, out ValueTuple<T1, T2> value)
+        public static void UnpackValueTuple<T1, T2>(this ReBuffer buffer, out ValueTuple<T1, T2> value)
         {
             value = new ValueTuple<T1, T2>(RePacking.Unpack<T1>(buffer), RePacking.Unpack<T2>(buffer));
         }
 
         public static void UnpackValueTuple<T1, T2, T3>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             out ValueTuple<T1, T2, T3> value)
         {
             value = new ValueTuple<T1, T2, T3>(
@@ -96,7 +96,7 @@ namespace RePacker.Builder
         }
 
         public static void UnpackValueTuple<T1, T2, T3, T4>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             out ValueTuple<T1, T2, T3, T4> value)
         {
             value = new ValueTuple<T1, T2, T3, T4>(
@@ -105,7 +105,7 @@ namespace RePacker.Builder
         }
 
         public static void UnpackValueTuple<T1, T2, T3, T4, T5>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             out ValueTuple<T1, T2, T3, T4, T5> value)
         {
             value = new ValueTuple<T1, T2, T3, T4, T5>(
@@ -114,7 +114,7 @@ namespace RePacker.Builder
         }
 
         public static void UnpackValueTuple<T1, T2, T3, T4, T5, T6>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             out ValueTuple<T1, T2, T3, T4, T5, T6> value)
         {
             value = new ValueTuple<T1, T2, T3, T4, T5, T6>(
@@ -123,7 +123,7 @@ namespace RePacker.Builder
         }
 
         public static void UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             out ValueTuple<T1, T2, T3, T4, T5, T6, T7> value)
         {
             value = new ValueTuple<T1, T2, T3, T4, T5, T6, T7>(
@@ -133,7 +133,7 @@ namespace RePacker.Builder
         }
 
         public static void UnpackValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(
-            this Buffer buffer,
+            this ReBuffer buffer,
             out ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest> value) where TRest : struct
         {
             value = new ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>(

@@ -7,7 +7,7 @@ namespace RePacker.Buffers
     public static class BufferUtils
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Pack<T>(this Buffer buffer, ref T value)
+        public static unsafe void Pack<T>(this ReBuffer buffer, ref T value)
             where T : unmanaged
         {
             if (!buffer.CanWrite<T>())
@@ -24,7 +24,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void Unpack<T>(this Buffer buffer, out T value)
+        public static unsafe void Unpack<T>(this ReBuffer buffer, out T value)
             where T : unmanaged
         {
             if (!buffer.CanRead<T>())
@@ -41,7 +41,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe T Peek<T>(this Buffer buffer, int offset = 0)
+        public static unsafe T Peek<T>(this ReBuffer buffer, int offset = 0)
             where T : unmanaged
         {
             if (buffer.ReadCursor() + offset + sizeof(T) > buffer.Array.Length)
@@ -55,7 +55,7 @@ namespace RePacker.Buffers
             }
         }
 
-        public static unsafe void PackArray<T>(this Buffer buffer, T[] array, int offset = 0, int length = 0)
+        public static unsafe void PackArray<T>(this ReBuffer buffer, T[] array, int offset = 0, int length = 0)
             where T : unmanaged
         {
             if (array == null || (length == 0 && array.Length == 0))
@@ -85,7 +85,7 @@ namespace RePacker.Buffers
             buffer.MoveWriteCursor(length * size);
         }
 
-        public static unsafe T[] UnpackArray<T>(this Buffer buffer)
+        public static unsafe T[] UnpackArray<T>(this ReBuffer buffer)
             where T : unmanaged
         {
             buffer.Unpack(out ulong len);
@@ -110,7 +110,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void PackBuffer(this Buffer buffer, Buffer other)
+        public static void PackBuffer(this ReBuffer buffer, ReBuffer other)
         {
             int readCursor = other.ReadCursor();
             int writeCursor = other.WriteCursor();
@@ -120,12 +120,12 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Buffer UnpackBuffer(Buffer buffer)
+        public static ReBuffer UnpackBuffer(ReBuffer buffer)
         {
             buffer.Unpack(out int readCursor);
             buffer.Unpack(out int writeCursor);
 
-            var value = new Buffer(buffer.UnpackArray<byte>());
+            var value = new ReBuffer(buffer.UnpackArray<byte>());
             value.SetReadCursor(readCursor);
             value.SetWriteCursor(writeCursor);
 

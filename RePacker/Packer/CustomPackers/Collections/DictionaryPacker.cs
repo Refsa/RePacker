@@ -9,7 +9,7 @@ namespace RePacker.Builder
     internal class DictionaryPacker<TKey, TValue> : RePackerWrapper<Dictionary<TKey, TValue>>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref Dictionary<TKey, TValue> value)
+        public override void Pack(ReBuffer buffer, ref Dictionary<TKey, TValue> value)
         {
             // buffer.PackIEnumerable(value.Keys);
             // buffer.PackIEnumerable(value.Values);
@@ -19,7 +19,7 @@ namespace RePacker.Builder
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out Dictionary<TKey, TValue> value)
+        public override void Unpack(ReBuffer buffer, out Dictionary<TKey, TValue> value)
         {
             // buffer.UnpackIEnumerable<TKey>(out var keys);
             // buffer.UnpackIEnumerable<TValue>(out var values);

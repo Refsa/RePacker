@@ -5,14 +5,14 @@ using System.Reflection.Emit;
 using RePacker.Buffers;
 using RePacker.Utils;
 
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Builder
 {
     internal class BufferGenerator : IGenerator
     {
         public GeneratorType GeneratorType => GeneratorType.Object;
-        public Type ForType => typeof(Buffer);
+        public Type ForType => typeof(ReBuffer);
 
         static readonly MethodInfo packBufferMethod = typeof(BufferUtils).GetMethod(nameof(BufferUtils.PackBuffer));
         static readonly MethodInfo unpackBufferMethod = typeof(BufferUtils).GetMethod(nameof(BufferUtils.UnpackBuffer));
@@ -33,7 +33,7 @@ namespace RePacker.Builder
 
         public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
-            var lengthMethod = typeof(Buffer).GetMethod(nameof(Buffer.Length));
+            var lengthMethod = typeof(ReBuffer).GetMethod(nameof(ReBuffer.Length));
 
             if (fieldInfo.FieldType.IsValueType)
             {

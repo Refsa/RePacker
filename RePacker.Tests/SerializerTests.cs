@@ -2,15 +2,15 @@ using Xunit;
 using RePacker.Buffers;
 using System.Runtime.InteropServices;
 using System;
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Tests
 {
     public class SerializerTests
     {
-        Buffer CreateBuffer(int size = 1024)
+        ReBuffer CreateBuffer(int size = 1024)
         {
-            return new Buffer(new byte[size], 0);
+            return new ReBuffer(new byte[size], 0);
         }
 
         [Fact]

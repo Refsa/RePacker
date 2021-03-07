@@ -3,7 +3,7 @@ using RePacker.Buffers;
 using RePacker;
 using System.Runtime.InteropServices;
 using System;
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -24,7 +24,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int>(10, 100);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int>>(buffer);
@@ -38,7 +38,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int>(10, 100, 1000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int>>(buffer);
@@ -53,7 +53,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int, int>(10, 100, 1000, 10000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int, int>>(buffer);
@@ -69,7 +69,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int, int, int>(10, 100, 1000, 10000, 100000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int, int, int>>(buffer);
@@ -86,7 +86,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<int, int, int, int, int, int>(10, 100, 1000, 10000, 100000, 1000000);
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<int, int, int, int, int, int>>(buffer);
@@ -104,7 +104,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass>>(buffer);
@@ -118,7 +118,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -133,7 +133,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -149,7 +149,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -166,7 +166,7 @@ namespace RePacker.Tests
         {
             var vt2 = new ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>(new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f }, new SimpleClass { Float = 12.34f });
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref vt2);
             var fromBuf = RePacking.Unpack<ValueTuple<SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass, SimpleClass>>(buffer);
@@ -201,7 +201,7 @@ namespace RePacker.Tests
                 VT6 = (10, 100, 1000, 10000, 100000, 1000000),
             };
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
             RePacking.Pack(buffer, ref valuetuples);
 
             var frombuf = RePacking.Unpack<StructWithValueTuple>(buffer);
@@ -246,7 +246,7 @@ namespace RePacker.Tests
                 VT2 = (new SimpleClass { Float = 1.2345f }, new SimpleClass { Float = 1.2345f })
             };
 
-            var buffer = new Buffer(1024);
+            var buffer = new ReBuffer(1024);
 
             RePacking.Pack(buffer, ref wanted);
 

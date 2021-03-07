@@ -18,7 +18,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_int_single()
         {
-            var buffer = new Buffer(2048);
+            var buffer = new ReBuffer(2048);
 
             int[] array = Enumerable.Range(0, 256).ToArray();
 
@@ -34,7 +34,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_int_multiple()
         {
-            var buffer = new Buffer(2048);
+            var buffer = new ReBuffer(2048);
 
             int[] array = Enumerable.Range(0, 64).ToArray();
 
@@ -60,7 +60,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_struct_single()
         {
-            var buffer = new Buffer(2048);
+            var buffer = new ReBuffer(2048);
 
             Ints[] array = Enumerable.Range(0, 64)
                 .Select(e => new Ints
@@ -88,7 +88,7 @@ namespace RePacker.Buffers.Tests
         [Fact]
         public void array_memory_copy_struct_multiple()
         {
-            var buffer = new Buffer(2048 * 4);
+            var buffer = new ReBuffer(2048 * 4);
 
             Ints[] array = Enumerable.Range(0, 64)
                 .Select(e => new Ints

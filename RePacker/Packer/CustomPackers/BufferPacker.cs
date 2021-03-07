@@ -3,10 +3,10 @@ using RePacker.Buffers;
 
 namespace RePacker.Builder
 {
-    internal class BufferPacker : RePackerWrapper<Buffer>
+    internal class BufferPacker : RePackerWrapper<ReBuffer>
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Pack(Buffer buffer, ref Buffer value)
+        public override void Pack(ReBuffer buffer, ref ReBuffer value)
         {
             int readCursor = value.ReadCursor();
             int writeCursor = value.WriteCursor();
@@ -16,26 +16,26 @@ namespace RePacker.Builder
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void Unpack(Buffer buffer, out Buffer value)
+        public override void Unpack(ReBuffer buffer, out ReBuffer value)
         {
             buffer.Unpack(out int readCursor);
             buffer.Unpack(out int writeCursor);
 
             buffer.UnpackArray<byte>(out var data);
 
-            value = new Buffer(data);
+            value = new ReBuffer(data);
             value.SetReadCursor(readCursor);
             value.SetWriteCursor(writeCursor);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override void UnpackInto(Buffer buffer, ref Buffer value)
+        public override void UnpackInto(ReBuffer buffer, ref ReBuffer value)
         {
             Unpack(buffer, out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int SizeOf(ref Buffer value)
+        public override int SizeOf(ref ReBuffer value)
         {
             return value.Length() + sizeof(ulong) + sizeof(int) * 2;
         }
