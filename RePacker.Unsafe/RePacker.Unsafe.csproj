@@ -1,8 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
     <Authors>Ole-Gustav Røed</Authors>
+    <Title>RePacker.Unsafe - Packing utilities</Title>
+    <Description>Utility library to pack/unpack data to/from a byte array</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Binary;Packer;Low-Level</PackageTags>
+    <RepositoryUrl>https://github.com/Refsa/RePacker</RepositoryUrl>
+    <Copyright>Copyright © Ole-Gustav Røed 2021</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>
