@@ -9,19 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet: [ '3.0.x', '3.1.x' ]
-    name: Dotnet ${{ matrix.dotnet }} Test
+    name: Tests
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ matrix.dotnet }}
-    - name: Restore dependencies
-      run: dotnet restore RePacker.Tests/RePacker.Tests.csproj
-    - name: Build
-      run: dotnet build RePacker.Tests/RePacker.Tests.csproj --no-restore
+        dotnet-version: 3.1.x
     - name: Test
-      run: dotnet test RePacker.Tests/RePacker.Tests.csproj --no-build --verbosity normal
+      run: dotnet test --framework netcoreapp3.1 RePacker.Tests/RePacker.Tests.csproj --verbosity normal
