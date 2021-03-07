@@ -107,11 +107,6 @@ namespace RePacker.Builder
 
             var genDict = fieldInfo.FieldType;
 
-            /* ilGen.Emit(OpCodes.Ldarg_1);
-            ilGen.Emit(OpCodes.Ldfld, fieldInfo);
-            ilGen.Emit(OpCodes.Castclass, typeof(IEnumerable<>).MakeGenericType(typeof(KeyValuePair<,>).MakeGenericType(kvTypes)));
-            ilGen.Emit(OpCodes.Pop); */
-
             var getKeys = genDict.GetProperty("Keys").GetMethod;
             var getValues = genDict.GetProperty("Values").GetMethod;
 

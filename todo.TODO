@@ -1,5 +1,4 @@
 Version 2.0.0:
-    - change dictionary generator to pack as KeyValuePair collection instead of two separate lists, as done in DictionaryPacker
     - test cases for SizeOf with Classes as base type
     - ValueTuple with TRest value (8th generic argument)
     
@@ -8,7 +7,6 @@ Version 2.0.0:
 - clean up benchmarks
 - make ILogger support object and formatting
 - prepend/append to allow for circular buffer functionality
-- clean up generators for collecitons
 - fix some of the exception stuff that is handled internally, mostly related to library development pains
 
 - implement more tests according to results from dotCover report
@@ -24,6 +22,8 @@ Ideas:
         The cost of inserting a header is fairly low though, so might be worth it
 
 Archive:
+  ✔ clean up generators for collecitons @done(21-03-07 11:10) @project(Version 2.0.0)
+  ✔ change dictionary generator to pack as KeyValuePair collection instead of two separate lists, as done in DictionaryPacker @done(21-03-07 11:02) @project(Version 2.0.0)
   ✔ SizeOfColleciton typo @done(21-03-07 10:52) @project(Version 2.0.0)
   ✔ Rename Buffer to ReBuffer to avoid collision with System.Buffer @done(21-03-07 10:51) @project(Version 2.0.0)
   ✔ make Buffer be packable @done(21-03-07 10:45) @project(Version 2.0.0)

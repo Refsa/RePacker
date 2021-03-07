@@ -14,10 +14,8 @@ namespace RePacker.Builder
         public Type ForType => typeof(Stack<>);
 
         MethodInfo deserializeStackMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackStack));
-        // MethodInfo deserializeStackBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.UnpackStackBlittable));
 
         MethodInfo serializeStackMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackStack));
-        // MethodInfo serializeStackBlittableMethod = typeof(PackerCollectionsExt).GetMethod(nameof(PackerCollectionsExt.PackStackBlittable));
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
@@ -33,11 +31,6 @@ namespace RePacker.Builder
                 var enumerableDeserializer = deserializeStackMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, enumerableDeserializer);
             }
-            // else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-            // {
-            //     var enumerableDeserializer = deserializeStackBlittableMethod.MakeGenericMethod(elementType);
-            //     ilGen.Emit(OpCodes.Call, enumerableDeserializer);
-            // }
             else
             {
                 ilGen.Emit(OpCodes.Pop);
@@ -60,11 +53,6 @@ namespace RePacker.Builder
                 var enumerableSerializer = serializeStackMethod.MakeGenericMethod(elementType);
                 ilGen.Emit(OpCodes.Call, enumerableSerializer);
             }
-            // else if (elementType.IsValueType || (elementType.IsStruct() && elementType.IsUnmanagedStruct()))
-            // {
-            //     var enumerableSerializer = serializeStackBlittableMethod.MakeGenericMethod(elementType);
-            //     ilGen.Emit(OpCodes.Call, enumerableSerializer);
-            // }
             else
             {
                 ilGen.Emit(OpCodes.Pop);
