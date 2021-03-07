@@ -140,6 +140,7 @@ namespace RePacker.Tests
             Assert.Equal(8 + 8 * 25 + 7 * 20 + 3 * 5, RePacking.SizeOf(ref obj));
         }
 
+#if LOCAL_TEST
         [Fact]
         public void get_size_large_string()
         {
@@ -148,6 +149,7 @@ namespace RePacker.Tests
             int size = RePacking.SizeOf(ref largeString);
             Assert.Equal(309081 + 8, size);
         }
+#endif
 
         [Fact]
         public void get_size_has_string()

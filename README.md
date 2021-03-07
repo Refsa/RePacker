@@ -1,5 +1,7 @@
 # RePacker - Flexible and Fast C# Non-Persistent Binary Packer
 
+[![.NET](https://github.com/Refsa/RePacker/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Refsa/RePacker/actions/workflows/dotnet.yml)
+
 ![Nuget](https://img.shields.io/nuget/v/RePacker?label=nuget%3A%20RePacker)
 ![Nuget](https://img.shields.io/nuget/v/RePacker.Unsafe?label=nuget%3A%20RePacker.Unsafe)
 

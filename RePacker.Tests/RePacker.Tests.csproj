@@ -8,6 +8,14 @@
     <DefineConstants>NO_BOOTSTRAP</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Local|AnyCPU' ">
+    <TargetFrameworks>net4.6.1;net4.7.1;net4.8;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+
+    <IsPackable>false</IsPackable>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>NO_BOOTSTRAP;LOCAL_TEST</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="CSharpHtml.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

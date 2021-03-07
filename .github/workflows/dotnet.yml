@@ -16,5 +16,12 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
+    - name: Test-Build:
+      run: dotnet build --framework netcoreapp3.1 -c Debug RePacker.Tests/RePacker.Tests.csproj
+    - name Unsafe-Test-Build:
+      run: dotnet build --framework netcoreapp3.1 -c Debug RePacker.Unsafe.Tests/RePacker.Unsafe.Tests.csproj
+
     - name: Test
-      run: dotnet test --framework netcoreapp3.1 RePacker.Tests/RePacker.Tests.csproj --verbosity normal
+      run: dotnet test --framework netcoreapp3.1 RePacker.Tests/RePacker.Tests.csproj --no-build --verbosity normal
+    - name: Unsafe-Test
+      run: dotnet test --framework netcoreapp3.1 RePacker.Unsafe.Tests/RePacker.Unsafe.Tests.csproj --no-build --verbosity normal
