@@ -11,22 +11,22 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(ReBuffer buffer, ref Dictionary<TKey, TValue> value)
         {
-            // buffer.PackIEnumerable(value.Keys);
-            // buffer.PackIEnumerable(value.Values);
+            buffer.PackIEnumerable(value.Keys);
+            buffer.PackIEnumerable(value.Values);
 
-            var kvs = value.AsEnumerable();
-            buffer.PackIEnumerable(kvs);
+            // var kvs = value.AsEnumerable();
+            // buffer.PackIEnumerable(kvs);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Unpack(ReBuffer buffer, out Dictionary<TKey, TValue> value)
         {
-            // buffer.UnpackIEnumerable<TKey>(out var keys);
-            // buffer.UnpackIEnumerable<TValue>(out var values);
-            // value = keys.Zip(values, (k, v) => new KeyValuePair<TKey, TValue>(k, v)).ToDictionary(x => x.Key, x => x.Value);
+            buffer.UnpackIEnumerable<TKey>(out var keys);
+            buffer.UnpackIEnumerable<TValue>(out var values);
+            value = keys.Zip(values, (k, v) => new KeyValuePair<TKey, TValue>(k, v)).ToDictionary(x => x.Key, x => x.Value);
 
-            buffer.UnpackIEnumerable(out IEnumerable<KeyValuePair<TKey, TValue>> kvCollection);
-            value = kvCollection.ToDictionary(x => x.Key, x => x.Value);
+            // buffer.UnpackIEnumerable(out IEnumerable<KeyValuePair<TKey, TValue>> kvCollection);
+            // value = kvCollection.ToDictionary(x => x.Key, x => x.Value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
