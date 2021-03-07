@@ -131,12 +131,22 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetReadCursor(int pos)
         {
+            if (pos > array.Length)
+            {
+                throw new IndexOutOfRangeException("Trying to move read cursor outside of buffer range");
+            }
+
             readCursor = pos;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetWriteCursor(int pos)
         {
+            if (pos > array.Length)
+            {
+                throw new IndexOutOfRangeException("Trying to move write cursor outside of buffer range");
+            }
+
             writeCursor = pos;
         }
 
@@ -206,7 +216,7 @@ namespace RePacker.Buffers
         #region Size
         unsafe void Expand<T>(int count = 1) where T : unmanaged
         {
-            byte[] newBuffer = new byte[writeCursor + sizeof(T)];
+            byte[] newBuffer = new byte[writeCursor + sizeof(T) * count];
 
             if (writeCursor > 0)
             {

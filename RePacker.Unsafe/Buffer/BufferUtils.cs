@@ -90,13 +90,12 @@ namespace RePacker.Buffers
         {
             buffer.Unpack(out ulong len);
 
-            T[] destArray = new T[(int)len];
-
             if (len == 0 || !buffer.CanRead<T>((int)len))
             {
-                return destArray;
+                return new T[0];
             }
 
+            T[] destArray = new T[(int)len];
             int size = UnsafeUtils.SizeOf<T>();
 
             fixed (void* src = &buffer.Array[buffer.ReadCursor()], dest = destArray)
@@ -120,7 +119,7 @@ namespace RePacker.Buffers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReBuffer UnpackBuffer(ReBuffer buffer)
+        public static ReBuffer UnpackBuffer(this ReBuffer buffer)
         {
             buffer.Unpack(out int readCursor);
             buffer.Unpack(out int writeCursor);

@@ -29,7 +29,7 @@ namespace RePacker.Tests
             var fromBuf = RePacking.Unpack<int[]>(buffer);
 
             Assert.NotNull(fromBuf);
-            Assert.Equal(0, fromBuf.Length);
+            Assert.Empty(fromBuf);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace RePacker.Tests
             var fromBuf = RePacking.Unpack<SomeManagedObject[]>(buffer);
 
             Assert.NotNull(fromBuf);
-            Assert.Equal(0, fromBuf.Length);
+            Assert.Empty(fromBuf);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace RePacker.Tests
             Assert.Equal(data.Long, fromBuf.Long);
 
             Assert.NotNull(fromBuf.Floats);
-            Assert.Equal(0, fromBuf.Floats.Length);
+            Assert.Empty(fromBuf.Floats);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace RePacker.Tests
             Assert.Equal(data.Long, fromBuf.Long);
 
             Assert.NotNull(fromBuf.ArrayOfClass);
-            Assert.Equal(0, fromBuf.ArrayOfClass.Length);
+            Assert.Empty(fromBuf.ArrayOfClass);
         }
 
         [Fact]
@@ -1214,6 +1214,8 @@ namespace RePacker.Tests
         }
 
 #if NETCOREAPP3_0 || NETCOREAPP3_1
+#nullable enable
+
         [Fact]
         public void struct_with_nullable_list_with_value()
         {
@@ -1230,12 +1232,17 @@ namespace RePacker.Tests
 
             Assert.Equal(hasNullableList.Float, fromBuf.Float);
 
-            for (int i = 0; i < hasNullableList.Floats.Count; i++)
+            Assert.NotNull(fromBuf.Floats);
+
+            if (hasNullableList.Floats != null && fromBuf.Floats != null)
             {
-                Assert.Equal(
-                    hasNullableList.Floats[i],
-                    fromBuf.Floats[i]
-                );
+                for (int i = 0; i < hasNullableList.Floats.Count; i++)
+                {
+                    Assert.Equal(
+                        hasNullableList.Floats[i],
+                        fromBuf.Floats[i]
+                    );
+                }
             }
         }
         
@@ -1249,9 +1256,14 @@ namespace RePacker.Tests
             RePacking.Pack(buffer, ref test);
             List<int>? fromBuf = RePacking.Unpack<List<int>>(buffer);
 
-            for (int i = 0; i < test.Count; i++)
+            Assert.NotNull(fromBuf);
+
+            if (fromBuf != null)
             {
-                Assert.Equal(test[i], fromBuf[i]);
+                for (int i = 0; i < test.Count; i++)
+                {
+                    Assert.Equal(test[i], fromBuf[i]);
+                }
             }
         }
 #endif
