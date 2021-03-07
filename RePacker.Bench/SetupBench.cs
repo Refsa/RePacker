@@ -7,11 +7,11 @@ namespace RePacker.Benchmarks
     [MemoryDiagnoser]
     public class SetupBench
     {
-        Buffer intBuffer;
+        ReBuffer intBuffer;
         public SetupBench()
         {
             int val = 123456789;
-            intBuffer = new Buffer(1024);
+            intBuffer = new ReBuffer(1024);
             RePacking.Pack<int>(intBuffer, ref val);
         }
 

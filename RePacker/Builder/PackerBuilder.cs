@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using RePacker.Buffers;
 using RePacker.Utils;
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Builder
 {
@@ -12,7 +12,7 @@ namespace RePacker.Builder
     {
         public static MethodInfo CreateUnpacker(TypeCache.Info info)
         {
-            Type[] typeParams = new Type[] { typeof(Buffer) };
+            Type[] typeParams = new Type[] { typeof(ReBuffer) };
 
             var deserBuilder = new DynamicMethod(
                 $"{info.Type.FullName}_Deserialize",
@@ -131,7 +131,7 @@ namespace RePacker.Builder
 
         public static MethodInfo CreatePacker(TypeCache.Info info)
         {
-            Type[] typeParams = new Type[2] { typeof(Buffer), info.Type };
+            Type[] typeParams = new Type[2] { typeof(ReBuffer), info.Type };
 
             var serBuilder = new DynamicMethod(
                 $"{info.Type.FullName}_Serialize",

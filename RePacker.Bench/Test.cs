@@ -4,7 +4,7 @@ using RePacker;
 using RePacker.Buffers;
 using RePacker.Builder;
 
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 public class TestClass
 {
@@ -21,7 +21,7 @@ public class TestClass
 
     public TestClass()
     {
-        var buffer = new Buffer(1024);
+        var buffer = new ReBuffer(1024);
 
         var p = new Person
         {
@@ -87,7 +87,7 @@ struct BaseStruct<A, B, C>
 
 class BaseStructPacker<A, B, C> : RePackerWrapper<BaseStruct<A, B, C>>
 {
-    public override void Pack(Buffer buffer, ref BaseStruct<A, B, C> value)
+    public override void Pack(ReBuffer buffer, ref BaseStruct<A, B, C> value)
     {
         RePacker.RePacking.Pack(buffer, ref value.AValue);
         RePacker.RePacking.Pack(buffer, ref value.BValue);

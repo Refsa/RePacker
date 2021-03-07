@@ -3,7 +3,6 @@
 ## Version 2.0.0
 
 ### Features
-- Copy one buffer into another, as long as the destination can fit it
 - Peek an unmanaged value on the buffer
 - Added CanRead and CanReadBytes methods to Buffer
 - Added "expand" parameter to Buffer constructor, allowing it to grow in size to fit data.  
@@ -11,9 +10,11 @@
 - Added runtime SizeOf calculation for tagged and unmanaged objects  
     used with `RePacking.SizeOf<T>(ref T value)`
     any custom wrappers needs to override `RePackerWrapper.SizeOf` unless they're unmanaged/directly copyable
+- Copy one buffer into another, as long as the destination can fit it
+- Support for ValueTuple<T1> and ValueTuple with TRest
 
 ### Changes
-- Buffer is now a class, replacing BoxedBuffer entirely
+- Buffer is now a class and renamed to ReBuffer, replacing BoxedBuffer entirely
 - Moved packing/unpacking utils from Buffer into extension class
 - renamed Buffer::CanFit to CanWrite
 - renamed Buffer::CanFitBytes to CanWriteBytes

@@ -10,7 +10,7 @@ using RePacker.Buffers;
 using RePacker.Generator;
 using RePacker.Utils;
 
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Builder
 {
@@ -488,7 +488,7 @@ namespace RePacker.Builder
             return false;
         }
 
-        public static void Pack<T>(Buffer buffer, ref T value)
+        public static void Pack<T>(ReBuffer buffer, ref T value)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
@@ -513,7 +513,7 @@ namespace RePacker.Builder
             }
         }
 
-        static T UnpackInternal<T>(Buffer buffer)
+        static T UnpackInternal<T>(ReBuffer buffer)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {
@@ -541,18 +541,18 @@ namespace RePacker.Builder
             return default(T);
         }
 
-        public static T Unpack<T>(Buffer buffer)
+        public static T Unpack<T>(ReBuffer buffer)
         {
             return UnpackInternal<T>(buffer);
         }
 
-        public static bool UnpackOut<T>(Buffer buffer, out T value)
+        public static bool UnpackOut<T>(ReBuffer buffer, out T value)
         {
             value = UnpackInternal<T>(buffer);
             return value != null;
         }
 
-        public static void UnpackInto<T>(Buffer buffer, ref T target)
+        public static void UnpackInto<T>(ReBuffer buffer, ref T target)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
             {

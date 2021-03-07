@@ -7,17 +7,17 @@ namespace RePacker.Builder
         static TPacker defaultPacker = default(TPacker);
         public static TPacker Packer { get => defaultPacker; set => defaultPacker = value; }
 
-        public void Pack(Buffer buffer, ref T value)
+        public void Pack(ReBuffer buffer, ref T value)
         {
             defaultPacker.Pack(buffer, ref value);
         }
 
-        public void Unpack(Buffer buffer, out T value)
+        public void Unpack(ReBuffer buffer, out T value)
         {
             defaultPacker.Unpack(buffer, out value);
         }
 
-        public void UnpackInto(Buffer buffer, ref T value)
+        public void UnpackInto(ReBuffer buffer, ref T value)
         {
             defaultPacker.UnpackInto(buffer, ref value);
         }

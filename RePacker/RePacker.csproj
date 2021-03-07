@@ -1,8 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.0.0-beta</Version>
+    <Version>2.0.0</Version>
     <Authors>Ole-Gustav Røed</Authors>
+    <Title>RePacker - Binary Serializer</Title>
+    <Description>A fast and flexible binary serialization library</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>Serialization;Binary;Formatter;Packer</PackageTags>
+    <RepositoryUrl>https://github.com/Refsa/RePacker</RepositoryUrl>
+    <Copyright>Copyright © Ole-Gustav Røed 2021</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using RePacker.Buffers;
 using RePacker.Builder;
 
-using Buffer = RePacker.Buffers.Buffer;
+using ReBuffer = RePacker.Buffers.ReBuffer;
 
 namespace RePacker.Benchmarks
 {
@@ -219,20 +219,20 @@ namespace RePacker.Benchmarks
     [RePackerWrapper(typeof(Vector3))]
     public class Vector3Packer : RePackerWrapper<Vector3>
     {
-        public override void Pack(Buffer buffer, ref Vector3 value)
+        public override void Pack(ReBuffer buffer, ref Vector3 value)
         {
             buffer.Pack(ref value.X);
             buffer.Pack(ref value.Y);
             buffer.Pack(ref value.Z);
         }
 
-        public override void Unpack(Buffer buffer, out Vector3 value)
+        public override void Unpack(ReBuffer buffer, out Vector3 value)
         {
             value = new Vector3();
             UnpackInto(buffer, ref value);
         }
 
-        public override void UnpackInto(Buffer buffer, ref Vector3 value)
+        public override void UnpackInto(ReBuffer buffer, ref Vector3 value)
         {
             buffer.Unpack(out value.X);
             buffer.Unpack(out value.Y);
@@ -243,7 +243,7 @@ namespace RePacker.Benchmarks
     [RePackerWrapper(typeof(Transform))]
     public class TransformPacker : RePackerWrapper<Transform>
     {
-        public override void Pack(Buffer buffer, ref Transform value)
+        public override void Pack(ReBuffer buffer, ref Transform value)
         {
             Vector3 pos = value.Position;
             RePacking.Pack<Vector3>(buffer, ref pos);
@@ -255,12 +255,12 @@ namespace RePacker.Benchmarks
             RePacking.Pack<Vector3>(buffer, ref scale);
         }
 
-        public override void Unpack(Buffer buffer, out Transform value)
+        public override void Unpack(ReBuffer buffer, out Transform value)
         {
             throw new NotImplementedException();
         }
 
-        public override void UnpackInto(Buffer buffer, ref Transform value)
+        public override void UnpackInto(ReBuffer buffer, ref Transform value)
         {
             value.Position = RePacking.Unpack<Vector3>(buffer);
             value.Rotation = RePacking.Unpack<Vector3>(buffer);

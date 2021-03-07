@@ -10,6 +10,7 @@ namespace RePacker.Builder
         public override Type ProducerFor => typeof(ValueTuple<,>);
         public override IEnumerable<Type> ProducerForAll => new List<Type>()
         {
+            typeof(ValueTuple<>),
             typeof(ValueTuple<,>),
             typeof(ValueTuple<,,>),
             typeof(ValueTuple<,,,>),
@@ -30,6 +31,9 @@ namespace RePacker.Builder
 
             switch (elementTypes.Length)
             {
+                case 1:
+                    genType = typeof(ValueTuplePacker<>);
+                    break;
                 case 2:
                     genType = typeof(ValueTuplePacker<,>);
                     break;
@@ -55,7 +59,7 @@ namespace RePacker.Builder
 
             if (genType == null)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"ValueTuple of length {elementTypes.Length} is not supported");
             }
 
             var instance = Activator.CreateInstance(genType.MakeGenericType(elementTypes));
