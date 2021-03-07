@@ -108,5 +108,28 @@ namespace RePacker.Buffers
 
             return destArray;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void PackBuffer(this Buffer buffer, Buffer other)
+        {
+            int readCursor = other.ReadCursor();
+            int writeCursor = other.WriteCursor();
+            buffer.Pack(ref readCursor);
+            buffer.Pack(ref writeCursor);
+            buffer.PackArray(other.Array, other.ReadCursor(), other.Length());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Buffer UnpackBuffer(Buffer buffer)
+        {
+            buffer.Unpack(out int readCursor);
+            buffer.Unpack(out int writeCursor);
+
+            var value = new Buffer(buffer.UnpackArray<byte>());
+            value.SetReadCursor(readCursor);
+            value.SetWriteCursor(writeCursor);
+
+            return value;
+        }
     }
 }

@@ -14,15 +14,21 @@ namespace RePacker.Builder
         public GeneratorType GeneratorType => GeneratorType.Object;
         public Type ForType => typeof(Buffer);
 
+        static readonly MethodInfo packBufferMethod = typeof(BufferUtils).GetMethod(nameof(BufferUtils.PackBuffer));
+        static readonly MethodInfo unpackBufferMethod = typeof(BufferUtils).GetMethod(nameof(BufferUtils.UnpackBuffer));
+
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.LoadArgsUnpack(fieldInfo);
 
+            ilGen.Emit(OpCodes.Call, unpackBufferMethod);
         }
 
         public void GenerateSerializer(ILGenerator ilGen, FieldInfo fieldInfo)
         {
             ilGen.LoadArgsPack(fieldInfo);
+
+            ilGen.Emit(OpCodes.Call, packBufferMethod);
         }
 
         public void GenerateGetSizer(ILGenerator ilGen, FieldInfo fieldInfo)

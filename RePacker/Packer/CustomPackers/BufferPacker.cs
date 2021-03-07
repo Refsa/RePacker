@@ -8,26 +8,36 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Pack(Buffer buffer, ref Buffer value)
         {
-            buffer.Copy(value);
+            int readCursor = value.ReadCursor();
+            int writeCursor = value.WriteCursor();
+            buffer.Pack(ref readCursor);
+            buffer.Pack(ref writeCursor);
+            buffer.PackArray(value.Array, value.ReadCursor(), value.Length());
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void Unpack(Buffer buffer, out Buffer value)
         {
-            value = new Buffer(buffer.Length());
-            value.Copy(buffer);
+            buffer.Unpack(out int readCursor);
+            buffer.Unpack(out int writeCursor);
+
+            buffer.UnpackArray<byte>(out var data);
+
+            value = new Buffer(data);
+            value.SetReadCursor(readCursor);
+            value.SetWriteCursor(writeCursor);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void UnpackInto(Buffer buffer, ref Buffer value)
         {
-            value.Copy(buffer);
+            Unpack(buffer, out value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SizeOf(ref Buffer value)
         {
-            return value.Length();
+            return value.Length() + sizeof(ulong) + sizeof(int) * 2;
         }
     }
 }
