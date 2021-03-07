@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RePacker.Buffers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -270,6 +271,42 @@ namespace RePacker.Tests
             for (int i = 0; i < 10; i++) data.Add(i, (float)i);
 
             Assert.Equal(8 + 40 * 2, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_buffer()
+        {
+            var testBuffer = new Buffer(1024);
+            for (int i = 0; i < 10; i++)
+            {
+                testBuffer.Pack(ref i);
+            }
+
+            Assert.Equal(8 + 8 + 4 * 10, RePacking.SizeOf(ref testBuffer));
+        }
+
+        [Fact]
+        public void get_size_struct_has_buffer()
+        {
+            var testBuffer = new StructHasBuffer { Buffer = new Buffer(1024) };
+            for (int i = 0; i < 10; i++)
+            {
+                testBuffer.Buffer.Pack(ref i);
+            }
+
+            Assert.Equal(8 + 8 + 4 * 10, RePacking.SizeOf(ref testBuffer));
+        }
+
+        [Fact]
+        public void get_size_class_has_buffer()
+        {
+            var testBuffer = new ClassHasBuffer { Buffer = new Buffer(1024) };
+            for (int i = 0; i < 10; i++)
+            {
+                testBuffer.Buffer.Pack(ref i);
+            }
+
+            Assert.Equal(8 + 8 + 4 * 10, RePacking.SizeOf(ref testBuffer));
         }
 
         [Fact]

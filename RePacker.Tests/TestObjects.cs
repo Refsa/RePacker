@@ -490,6 +490,18 @@ namespace RePacker.Tests
         public float Float;
     }
 
+    [RePacker]
+    public struct StructHasBuffer
+    {
+        public RePacker.Buffers.Buffer Buffer;
+    }
+
+    [RePacker]
+    public class ClassHasBuffer
+    {
+        public RePacker.Buffers.Buffer Buffer;
+    }
+
 #if NETCOREAPP3_0 || NETCOREAPP3_1
 #nullable enable
 

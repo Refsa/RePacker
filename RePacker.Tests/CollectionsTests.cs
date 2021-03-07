@@ -1165,6 +1165,54 @@ namespace RePacker.Tests
             }
         }
 
+        [Fact]
+        public void buffer_direct_pack()
+        {
+            buffer.Reset();
+
+            var innerBuffer = new Buffer(1024);
+            for (int i = 0; i < 10; i++) innerBuffer.Pack(ref i);
+
+            RePacking.Pack(buffer, ref innerBuffer);
+            var fromBuf = RePacking.Unpack<Buffer>(buffer);
+
+            Assert.Equal(innerBuffer.Length(), fromBuf.Length());
+            Assert.Equal(innerBuffer.WriteCursor(), fromBuf.WriteCursor());
+            Assert.Equal(innerBuffer.ReadCursor(), fromBuf.ReadCursor());
+        }
+
+        [Fact]
+        public void struct_has_buffer_pack()
+        {
+            buffer.Reset();
+
+            var obj = new StructHasBuffer { Buffer = new Buffer(1024) };
+            for (int i = 0; i < 10; i++) obj.Buffer.Pack(ref i);
+
+            RePacking.Pack(buffer, ref obj);
+            var fromBuf = RePacking.Unpack<StructHasBuffer>(buffer);
+
+            Assert.Equal(obj.Buffer.Length(), fromBuf.Buffer.Length());
+            Assert.Equal(obj.Buffer.WriteCursor(), fromBuf.Buffer.WriteCursor());
+            Assert.Equal(obj.Buffer.ReadCursor(), fromBuf.Buffer.ReadCursor());
+        }
+
+        [Fact]
+        public void class_has_buffer_pack()
+        {
+            buffer.Reset();
+
+            var obj = new ClassHasBuffer { Buffer = new Buffer(1024) };
+            for (int i = 0; i < 10; i++) obj.Buffer.Pack(ref i);
+
+            RePacking.Pack(buffer, ref obj);
+            var fromBuf = RePacking.Unpack<ClassHasBuffer>(buffer);
+
+            Assert.Equal(obj.Buffer.Length(), fromBuf.Buffer.Length());
+            Assert.Equal(obj.Buffer.WriteCursor(), fromBuf.Buffer.WriteCursor());
+            Assert.Equal(obj.Buffer.ReadCursor(), fromBuf.Buffer.ReadCursor());
+        }
+
 #if NETCOREAPP3_0 || NETCOREAPP3_1
         [Fact]
         public void struct_with_nullable_list_with_value()
