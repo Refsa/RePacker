@@ -18,23 +18,28 @@ namespace RePacker.Builder
         public Type ForType => typeof(ITuple);
 #endif
 
-        static readonly MethodInfo sizeOfMethod = typeof(RePacking).GetMethod(nameof(RePacking.SizeOf));
+        static readonly MethodInfo sizeOfMethod;
+        static readonly Dictionary<Type, FieldInfo[]> itemGetterLookup;
 
-        static readonly Dictionary<Type, MethodInfo[]> itemGetterLookup = new Dictionary<Type, MethodInfo[]>()
+        static ValueTupleGenerator()
         {
-            {typeof(ValueTuple<>), new MethodInfo[] {GetItemMethod("Item1")}},
-            {typeof(ValueTuple<,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2")}},
-            {typeof(ValueTuple<,,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2"), GetItemMethod("Item3")}},
-            {typeof(ValueTuple<,,,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2"), GetItemMethod("Item3"), GetItemMethod("Item4")}},
-            {typeof(ValueTuple<,,,,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2"), GetItemMethod("Item3"), GetItemMethod("Item4"), GetItemMethod("Item5")}},
-            {typeof(ValueTuple<,,,,,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2"), GetItemMethod("Item3"), GetItemMethod("Item4"), GetItemMethod("Item5"), GetItemMethod("Item6")}},
-            {typeof(ValueTuple<,,,,,,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2"), GetItemMethod("Item3"), GetItemMethod("Item4"), GetItemMethod("Item5"), GetItemMethod("Item6"), GetItemMethod("Item7")}},
-            {typeof(ValueTuple<,,,,,,,>), new MethodInfo[] {GetItemMethod("Item1"), GetItemMethod("Item2"), GetItemMethod("Item3"), GetItemMethod("Item4"), GetItemMethod("Item5"), GetItemMethod("Item6"), GetItemMethod("Item7"), GetItemMethod("Rest")}},
-        };
+            sizeOfMethod = typeof(RePacking).GetMethod(nameof(RePacking.SizeOf));
+            itemGetterLookup = new Dictionary<Type, FieldInfo[]>()
+                {
+                    {typeof(ValueTuple<>), new FieldInfo[] {GetItemField(typeof(ValueTuple<>), "Item1")}},
+                    {typeof(ValueTuple<,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,>), "Item1"), GetItemField(typeof(ValueTuple<,>), "Item2")}},
+                    {typeof(ValueTuple<,,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,,>), "Item1"), GetItemField(typeof(ValueTuple<,,>), "Item2"), GetItemField(typeof(ValueTuple<,,>), "Item3")}},
+                    {typeof(ValueTuple<,,,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,,,>), "Item1"), GetItemField(typeof(ValueTuple<,,,>), "Item2"), GetItemField(typeof(ValueTuple<,,,>), "Item3"), GetItemField(typeof(ValueTuple<,,,>), "Item4")}},
+                    {typeof(ValueTuple<,,,,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,,,,>), "Item1"), GetItemField(typeof(ValueTuple<,,,,>), "Item2"), GetItemField(typeof(ValueTuple<,,,,>), "Item3"), GetItemField(typeof(ValueTuple<,,,,>), "Item4"), GetItemField(typeof(ValueTuple<,,,,>), "Item5")}},
+                    {typeof(ValueTuple<,,,,,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,,,,,>), "Item1"), GetItemField(typeof(ValueTuple<,,,,,>), "Item2"), GetItemField(typeof(ValueTuple<,,,,,>), "Item3"), GetItemField(typeof(ValueTuple<,,,,,>), "Item4"), GetItemField(typeof(ValueTuple<,,,,,>), "Item5"), GetItemField(typeof(ValueTuple<,,,,,>), "Item6")}},
+                    {typeof(ValueTuple<,,,,,,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,,,,,,>), "Item1"), GetItemField(typeof(ValueTuple<,,,,,,>), "Item2"), GetItemField(typeof(ValueTuple<,,,,,,>), "Item3"), GetItemField(typeof(ValueTuple<,,,,,,>), "Item4"), GetItemField(typeof(ValueTuple<,,,,,,>), "Item5"), GetItemField(typeof(ValueTuple<,,,,,,>), "Item6"), GetItemField(typeof(ValueTuple<,,,,,,>), "Item7")}},
+                    {typeof(ValueTuple<,,,,,,,>), new FieldInfo[] {GetItemField(typeof(ValueTuple<,,,,,,,>), "Item1"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Item2"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Item3"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Item4"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Item5"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Item6"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Item7"), GetItemField(typeof(ValueTuple<,,,,,,,>), "Rest")}},
+                };
+        }
 
-        static MethodInfo GetItemMethod(string propName)
+        static FieldInfo GetItemField(Type valueTupleType, string propName)
         {
-            return typeof(ValueTuple<>).GetProperty(propName).GetMethod;
+            return valueTupleType.GetField(propName);
         }
 
         public void GenerateDeserializer(ILGenerator ilGen, FieldInfo fieldInfo)
@@ -75,10 +80,12 @@ namespace RePacker.Builder
         {
             ilGen.Emit(OpCodes.Ldc_I4, 0);
 
-            if (itemGetterLookup.TryGetValue(fieldInfo.FieldType.GetGenericTypeDefinition(), out var getters))
+            if (itemGetterLookup.TryGetValue(fieldInfo.FieldType.GetGenericTypeDefinition(), out var itemFields))
             {
-                foreach (var getter in getters)
+                foreach (var itemField in itemFields)
                 {
+                    var genSizeOf = sizeOfMethod.MakeGenericMethod(itemField.FieldType);
+
                     if (fieldInfo.FieldType.IsValueType)
                     {
                         ilGen.Emit(OpCodes.Ldarga_S, 0);
@@ -88,8 +95,10 @@ namespace RePacker.Builder
                         ilGen.Emit(OpCodes.Ldarg_S, 0);
                     }
                     ilGen.Emit(OpCodes.Ldfld, fieldInfo);
+                    ilGen.Emit(OpCodes.Ldfld, itemField);
 
-                    ilGen.Emit(OpCodes.Call, getter);
+                    ilGen.Emit(OpCodes.Call, genSizeOf);
+
                     ilGen.Emit(OpCodes.Add);
                 }
             }
