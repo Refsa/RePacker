@@ -803,7 +803,7 @@ namespace RePacker.Buffers.Tests
 
             buffer.MoveWriteCursor(9);
 
-            Assert.Equal(buffer.WriteCursor(), 9);
+            Assert.Equal(9, buffer.WriteCursor());
         }
 
         [Fact]
@@ -821,7 +821,7 @@ namespace RePacker.Buffers.Tests
 
             buffer.MoveReadCursor(9);
 
-            Assert.Equal(buffer.ReadCursor(), 9);
+            Assert.Equal(9, buffer.ReadCursor());
         }
 
         [Fact]
