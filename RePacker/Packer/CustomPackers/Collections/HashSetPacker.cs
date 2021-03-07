@@ -27,7 +27,7 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SizeOf(ref HashSet<TElement> value)
         {
-            return PackerCollectionsExt.SizeOfColleciton<TElement>(value.GetEnumerator());
+            return PackerCollectionsExt.SizeOfCollection<TElement>(value.GetEnumerator());
         }
     }
 }

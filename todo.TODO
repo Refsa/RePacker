@@ -1,8 +1,6 @@
 Version 2.0.0:
     - change dictionary generator to pack as KeyValuePair collection instead of two separate lists, as done in DictionaryPacker
     - test cases for SizeOf with Classes as base type
-    - SizeOfColleciton typo
-    - Rename Buffer to ReBuffer to avoid collision with System.Buffer
     - ValueTuple with TRest value (8th generic argument)
     
 - clean up the csproj files
@@ -26,6 +24,8 @@ Ideas:
         The cost of inserting a header is fairly low though, so might be worth it
 
 Archive:
+  ✔ SizeOfColleciton typo @done(21-03-07 10:52) @project(Version 2.0.0)
+  ✔ Rename Buffer to ReBuffer to avoid collision with System.Buffer @done(21-03-07 10:51) @project(Version 2.0.0)
   ✔ make Buffer be packable @done(21-03-07 10:45) @project(Version 2.0.0)
   ✔ update with new changes to Buffer (removal of BoxedBuffer) @done(21-03-07 07:00) @project(Readme)
   ✔ info on SizeOf @done(21-03-07 07:00) @project(Readme)

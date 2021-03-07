@@ -22,7 +22,7 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SizeOf(ref List<TElement> value)
         {
-            return PackerCollectionsExt.SizeOfColleciton<TElement>(value.GetEnumerator());
+            return PackerCollectionsExt.SizeOfCollection<TElement>(value.GetEnumerator());
         }
     }
 }

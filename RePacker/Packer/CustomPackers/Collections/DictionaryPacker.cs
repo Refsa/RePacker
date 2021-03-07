@@ -32,7 +32,7 @@ namespace RePacker.Builder
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int SizeOf(ref Dictionary<TKey, TValue> value)
         {
-            return PackerCollectionsExt.SizeOfColleciton<KeyValuePair<TKey, TValue>>(value.GetEnumerator());
+            return PackerCollectionsExt.SizeOfCollection<KeyValuePair<TKey, TValue>>(value.GetEnumerator());
         }
     }
 }

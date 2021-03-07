@@ -476,7 +476,7 @@ namespace RePacker.Builder
             self.Add(item);
         }
 
-        public static int SizeOfColleciton<T>(this IEnumerator data)
+        public static int SizeOfCollection<T>(this IEnumerator data)
         {
             int size = sizeof(ulong);
             if (data == null) return size;
