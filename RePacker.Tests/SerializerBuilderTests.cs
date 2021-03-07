@@ -594,6 +594,34 @@ namespace RePacker.Tests
         }
 
         [Fact]
+        public void serialize_marked_private_fields()
+        {
+            var swmpf = new StructWithMarkedPrivateField(1.234f, 43452435, 10);
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref swmpf);
+            var fromBuf = RePacking.Unpack<StructWithMarkedPrivateField>(buffer);
+
+            Assert.Equal(swmpf, fromBuf);
+        }
+
+        [Fact]
+        public void dont_serialize_unmarked_private_fields()
+        {
+            var swmpf = new StructWithPrivateField(1.234f, 43452435, 10);
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref swmpf);
+            var fromBuf = RePacking.Unpack<StructWithPrivateField>(buffer);
+
+            Assert.NotEqual(swmpf, fromBuf);
+            Assert.Equal(swmpf.Float, fromBuf.Float);
+            Assert.Equal(swmpf.Long, fromBuf.Long);
+        }
+
+        [Fact]
         public void serialize_internal_type()
         {
             var t = new IHavePrivateType.IAmPrivate

@@ -397,6 +397,46 @@ namespace RePacker.Tests
         public float Long { get; set; }
     }
 
+    [RePacker]
+    public struct StructWithMarkedPrivateField : IEquatable<StructWithMarkedPrivateField>
+    {
+        public float Float;
+        [RePack] int _int;
+        public long Long;
+
+        public StructWithMarkedPrivateField(float f, int i, long l)
+        {
+            Float = f;
+            _int = i;
+            Long = l;
+        }
+
+        public bool Equals(StructWithMarkedPrivateField other)
+        {
+            return Float == other.Float && _int == other._int && Long == other.Long;
+        }
+    }
+
+    [RePacker]
+    public struct StructWithPrivateField
+    {
+        public float Float;
+        int _int;
+        public long Long;
+
+        public StructWithPrivateField(float f, int i, long l)
+        {
+            Float = f;
+            _int = i;
+            Long = l;
+        }
+
+        public bool Equals(StructWithPrivateField other)
+        {
+            return Float == other.Float && _int == other._int && Long == other.Long;
+        }
+    }
+
     internal class IHavePrivateType
     {
         [RePacker]
