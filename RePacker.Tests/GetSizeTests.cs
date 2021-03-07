@@ -41,13 +41,29 @@ namespace RePacker.Tests
             Assert.Equal(sizeof(decimal), RePacking.SizeOf(ref var12));
         }
 
-        // [Fact]
-        // public void get_size_untagged_unmanaged_struct()
-        // {
-        // var ums = new UnmanagedStruct();
-        // 
-        // Assert.Equal(16, RePacking.SizeOf(ref ums));
-        // }
+        [Fact]
+        public void get_size_struct_with_blittable_fields()
+        {
+            TestStruct ts2 = new TestStruct();
+
+            Assert.Equal(59, RePacking.SizeOf(ref ts2));
+        }
+
+        [Fact]
+        public void get_size_class_with_blittable_fields()
+        {
+            TestClass ts2 = new TestClass();
+
+            Assert.Equal(59, RePacking.SizeOf(ref ts2));
+        }
+
+        [Fact]
+        public void get_size_untagged_unmanaged_struct()
+        {
+            var ums = new UnmanagedStruct();
+
+            Assert.Equal(12, RePacking.SizeOf(ref ums));
+        }
 
         [Fact]
         public void has_untagged_unmanaged_struct()
@@ -71,6 +87,30 @@ namespace RePacker.Tests
             var parent = new ParentWithNestedStruct();
 
             Assert.Equal(17, RePacking.SizeOf(ref parent));
+        }
+
+        [Fact]
+        public void get_size_unmarked_properties()
+        {
+            var obj = new StructWithUnmarkedProperties();
+
+            Assert.Equal(0, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_marked_properties()
+        {
+            var obj = new StructWithMarkedProperties();
+
+            Assert.Equal(8, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_only_marked()
+        {
+            var obj = new OnlyPackSelectedFields();
+
+            Assert.Equal(12, RePacking.SizeOf(ref obj));
         }
 
         [Fact]
@@ -132,9 +172,27 @@ namespace RePacker.Tests
         }
 
         [Fact]
-        public void get_size_has_enum()
+        public void get_size_enum()
+        {
+            var byteEnum = ByteEnum.Ten;
+            var longEnum = LongEnum.High;
+
+            Assert.Equal(1, RePacking.SizeOf(ref byteEnum));
+            Assert.Equal(8, RePacking.SizeOf(ref longEnum));
+        }
+
+        [Fact]
+        public void get_size_struct_has_enum()
         {
             var obj = new StructWithEnum();
+
+            Assert.Equal(17, RePacking.SizeOf(ref obj));
+        }
+
+        [Fact]
+        public void get_size_class_has_enum()
+        {
+            var obj = new ClassWithEnum();
 
             Assert.Equal(17, RePacking.SizeOf(ref obj));
         }
@@ -228,6 +286,22 @@ namespace RePacker.Tests
 
             data = null;
             Assert.Equal(1, RePacking.SizeOf(ref data));
+        }
+
+        [Fact]
+        public void get_size_has_nullable()
+        {
+            var obj = new HasNullable();
+            Assert.Equal(3, RePacking.SizeOf(ref obj));
+
+            obj = new HasNullable
+            {
+                Float = 10f,
+                Int = 10,
+                Bool = true,
+            };
+
+            Assert.Equal(12, RePacking.SizeOf(ref obj));
         }
 
         [Fact]

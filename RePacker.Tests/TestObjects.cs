@@ -358,6 +358,18 @@ namespace RePacker.Tests
     }
 
     [RePacker]
+    public struct HasTimespan : IEquatable<HasTimespan>
+    {
+        public float Float;
+        public TimeSpan TimeSpan;
+
+        public bool Equals(HasTimespan other)
+        {
+            return Float == other.Float && TimeSpan == other.TimeSpan;
+        }
+    }
+
+    [RePacker]
     public struct HasString
     {
         public float Float;
@@ -389,10 +401,8 @@ namespace RePacker.Tests
     [RePacker]
     public struct StructWithMarkedProperties
     {
-        [RePack]
-        public float Float { get; set; }
-        [RePack]
-        public int Int { get; set; }
+        [RePack] public float Float { get; set; }
+        [RePack] public int Int { get; set; }
 
         public float Long { get; set; }
     }

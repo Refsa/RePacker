@@ -375,7 +375,7 @@ namespace RePacker.Tests
             buffer.PackDateTime(ref dt);
             buffer.UnpackDateTime(out System.DateTime fromBuf);
 
-            Assert.Equal(dt.Ticks, fromBuf.Ticks);
+            Assert.Equal(dt, fromBuf);
         }
 
         [Fact]
@@ -402,7 +402,50 @@ namespace RePacker.Tests
             RePacking.Pack<System.DateTime>(buffer, ref dt);
             System.DateTime fromBuf = RePacking.Unpack<System.DateTime>(buffer);
 
-            Assert.Equal(dt.Ticks, fromBuf.Ticks);
+            Assert.Equal(dt, fromBuf);
+        }
+
+        [Fact]
+        public void time_span_buffer_packing()
+        {
+            buffer.Reset();
+
+            System.TimeSpan ts = new System.TimeSpan(512);
+
+            buffer.PackTimeSpan(ref ts);
+            buffer.UnpackTimeSpan(out var fromBuf);
+
+            Assert.Equal(ts, fromBuf);
+        }
+
+        [Fact]
+        public void has_time_span()
+        {
+            buffer.Reset();
+
+            var hts = new HasTimespan
+            {
+                Float = 1.234f,
+                TimeSpan = new System.TimeSpan(512)
+            };
+
+            RePacking.Pack(buffer, ref hts);
+            var fromBuf = RePacking.Unpack<HasTimespan>(buffer);
+
+            Assert.Equal(hts, fromBuf);
+        }
+
+        [Fact]
+        public void standalone_time_span_repacker()
+        {
+            buffer.Reset();
+
+            System.TimeSpan ts = new System.TimeSpan(512);
+
+            RePacking.Pack(buffer, ref ts);
+            var fromBuf = RePacking.Unpack<System.TimeSpan>(buffer);
+
+            Assert.Equal(ts, fromBuf);
         }
         #endregion
 

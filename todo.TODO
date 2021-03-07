@@ -1,37 +1,36 @@
+Version 2.0.0:
+    - make Buffer be packable
+    - change dictionary generator to pack as KeyValuePair collection instead of two separate lists, as done in DictionaryPacker
+    - test cases for SizeOf with Classes as base type
+    - SizeOfColleciton typo
+    - Rename Buffer to ReBuffer to avoid collision with System.Buffer
+    - ValueTuple with TRest value (8th generic argument)
+    
 - clean up the csproj files
 - clean up test cases
 - clean up benchmarks
 - make ILogger support object and formatting
 - prepend/append to allow for circular buffer functionality
-- make Buffer be packable
 - clean up generators for collecitons
 - fix some of the exception stuff that is handled internally, mostly related to library development pains
-- change dictionary generator to pack as KeyValuePair collection instead of two separate lists, as done in DictionaryPacker
-- test cases for SizeOf with Classes as base type
-- SizeOfColleciton typo
-- Rename Buffer to ReBuffer to avoid collision with System.Buffer
+
+- implement more tests according to results from dotCover report
 
 - make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
 
-Readme:
-    - update with new changes to Buffer (removal of BoxedBuffer)
-    - info on SizeOf
-    - info on auto-expand for Buffer
-    - add info about StructLayout on untagged and blittable structs
-
 Base Serializer:
     - ISet<T>
-    - ValueTuple with TRest value (8th generic argument)
 
 Ideas:
     - Meta data? insert version, type name, etc.
         Should move this to user settings so they can be toggled on/off for better performance
         The cost of inserting a header is fairly low though, so might be worth it
 
-CR:
-    - RePacker::AddTypePackerProvider<T> has no use atm?
-
 Archive:
+  ✔ update with new changes to Buffer (removal of BoxedBuffer) @done(21-03-07 07:00) @project(Readme)
+  ✔ info on SizeOf @done(21-03-07 07:00) @project(Readme)
+  ✔ info on auto-expand for Buffer @done(21-03-07 07:00) @project(Readme)
+  ✔ add info about StructLayout on untagged and blittable structs @done(21-03-07 07:00) @project(Readme)
   ✔ ability to check if a managed object fits the buffer @done(21-03-05 12:26)
   ✔ alternative mode where the buffer grows/shrinks to fit the data @done(21-03-05 12:25)
   ✔ rename MemoryCopyFromUnsafe/MemoryCopyToUnsafe to something more sensible @done(21-03-04 12:16)
