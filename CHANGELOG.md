@@ -11,6 +11,7 @@
     used with `RePacking.SizeOf<T>(ref T value)`
     any custom wrappers needs to override `RePackerWrapper.SizeOf` unless they're unmanaged/directly copyable
 - Copy one buffer into another, as long as the destination can fit it
+- Support for ValueTuple<T1> and ValueTuple with TRest
 
 ### Changes
 - Buffer is now a class and renamed to ReBuffer, replacing BoxedBuffer entirely

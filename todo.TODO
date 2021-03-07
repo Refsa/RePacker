@@ -1,5 +1,5 @@
 Version 2.0.0:
-    - test cases for SizeOf with Classes as base type
+    - x
     
 - clean up the csproj files
 - clean up test cases
@@ -21,6 +21,7 @@ Ideas:
         The cost of inserting a header is fairly low though, so might be worth it
 
 Archive:
+  ✔ test cases for SizeOf with Classes as base type @done(21-03-07 11:47) @project(Version 2.0.0)
   ✔ ValueTuple with TRest value (8th generic argument) @done(21-03-07 11:46) @project(Version 2.0.0)
   ✔ clean up generators for collecitons @done(21-03-07 11:10) @project(Version 2.0.0)
   ✔ change dictionary generator to pack as KeyValuePair collection instead of two separate lists, as done in DictionaryPacker @done(21-03-07 11:02) @project(Version 2.0.0)
