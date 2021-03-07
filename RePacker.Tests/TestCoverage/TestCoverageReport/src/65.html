@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\CustomPackers\StringPacker.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Runtime.CompilerServices;
+using RePacker.Buffers;
+using RePacker.Unsafe;
+
+namespace RePacker.Builder
+{
+    internal class StringPacker : RePackerWrapper&lt;string&gt;
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Pack(Buffer buffer, ref string value)
+        {
+            buffer.PackString(ref value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Unpack(Buffer buffer, out string value)
+        {
+            buffer.UnpackString(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void UnpackInto(Buffer buffer, ref string value)
+        {
+            buffer.UnpackString(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref string value)
+        {
+            return StringHelper.SizeOf(value) + sizeof(ulong);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,42,1],[12,13,12,42,1],[12,13,12,42,1],[12,13,12,42,1],[12,13,12,42,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[18,13,18,44,1],[18,13,18,44,1],[18,13,18,44,1],[18,13,18,44,1],[18,13,18,44,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[24,13,24,44,0],[24,13,24,44,0],[24,13,24,44,0],[24,13,24,44,0],[24,13,24,44,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[30,13,30,63,1],[30,13,30,63,1],[30,13,30,63,1],[30,13,30,63,1],[30,13,30,63,1],[31,9,31,10,1],[31,9,31,10,1],[31,9,31,10,1],[31,9,31,10,1],[31,9,31,10,1]]);
+    </script>
+  </body>
+</html>

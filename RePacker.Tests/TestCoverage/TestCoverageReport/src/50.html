@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\CustomPackers\KeyValuePairPacker.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using RePacker.Buffers;
+
+namespace RePacker.Builder
+{
+    internal class KeyValuePairPacker&lt;T1, T2&gt; : RePackerWrapper&lt;KeyValuePair&lt;T1, T2&gt;&gt;
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Pack(Buffer buffer, ref KeyValuePair&lt;T1, T2&gt; value)
+        {
+            buffer.PackKeyValuePair(ref value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Unpack(Buffer buffer, out KeyValuePair&lt;T1, T2&gt; value)
+        {
+            buffer.UnpackKeyValuePair&lt;T1, T2&gt;(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void UnpackInto(Buffer buffer, ref KeyValuePair&lt;T1, T2&gt; value)
+        {
+            buffer.UnpackKeyValuePair&lt;T1, T2&gt;(out value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref KeyValuePair&lt;T1, T2&gt; value)
+        {
+            var refableKey = value.Key;
+            var refableValue = value.Value;
+            return RePacking.SizeOf(ref refableKey) + RePacking.SizeOf(ref refableValue);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,48,1],[12,13,12,48,1],[12,13,12,48,1],[12,13,12,48,1],[12,13,12,48,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[18,13,18,58,1],[18,13,18,58,1],[18,13,18,58,1],[18,13,18,58,1],[18,13,18,58,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[19,9,19,10,1],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[23,9,23,10,0],[24,13,24,58,0],[24,13,24,58,0],[24,13,24,58,0],[24,13,24,58,0],[24,13,24,58,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[25,9,25,10,0],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[29,9,29,10,1],[30,13,30,40,1],[30,13,30,40,1],[30,13,30,40,1],[30,13,30,40,1],[30,13,30,40,1],[31,13,31,44,1],[31,13,31,44,1],[31,13,31,44,1],[31,13,31,44,1],[31,13,31,44,1],[32,13,32,90,1],[32,13,32,90,1],[32,13,32,90,1],[32,13,32,90,1],[32,13,32,90,1],[33,9,33,10,1],[33,9,33,10,1],[33,9,33,10,1],[33,9,33,10,1],[33,9,33,10,1]]);
+    </script>
+  </body>
+</html>

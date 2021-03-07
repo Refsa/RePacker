@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\Producers\GenericProducer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+
+namespace RePacker.Builder
+{
+    public abstract class GenericProducer
+    {
+        public virtual IEnumerable&lt;Type&gt; ProducerForAll { get; }
+        public abstract Type ProducerFor { get; }
+        public abstract ITypePacker GetProducer(Type type);
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,59,8,63,1],[8,59,8,63,1],[8,59,8,63,1],[8,59,8,63,1],[8,59,8,63,1]]);
+    </script>
+  </body>
+</html>

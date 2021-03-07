@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\Producers\KeyValuePairProducer.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Collections.Generic;
+
+namespace RePacker.Builder
+{
+    internal class KeyValuePairProducer : GenericProducer
+    {
+        public override Type ProducerFor =&gt; typeof(KeyValuePair&lt;,&gt;);
+
+        public override ITypePacker GetProducer(Type type)
+        {
+            var elementTypes = type.GetGenericArguments();
+            var instance = Activator.CreateInstance(typeof(KeyValuePairPacker&lt;,&gt;).MakeGenericType(elementTypes));
+            return (ITypePacker)instance;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[8,45,8,68,1],[8,45,8,68,1],[8,45,8,68,1],[8,45,8,68,1],[8,45,8,68,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,59,1],[12,13,12,59,1],[12,13,12,59,1],[12,13,12,59,1],[12,13,12,59,1],[13,13,13,114,1],[13,13,13,114,1],[13,13,13,114,1],[13,13,13,114,1],[13,13,13,114,1],[14,13,14,42,1],[14,13,14,42,1],[14,13,14,42,1],[14,13,14,42,1],[14,13,14,42,1],[15,9,15,10,1],[15,9,15,10,1],[15,9,15,10,1],[15,9,15,10,1],[15,9,15,10,1]]);
+    </script>
+  </body>
+</html>

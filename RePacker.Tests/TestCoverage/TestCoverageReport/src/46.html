@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker\Packer\CustomPackers\Collections\ListPacker.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using RePacker.Buffers;
+
+namespace RePacker.Builder
+{
+    internal class ListPacker&lt;TElement&gt; : RePackerWrapper&lt;List&lt;TElement&gt;&gt;
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Pack(Buffer buffer, ref List&lt;TElement&gt; value)
+        {
+            buffer.PackIList(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override void Unpack(Buffer buffer, out List&lt;TElement&gt; value)
+        {
+            buffer.UnpackIList&lt;TElement&gt;(out var ilist);
+            value = (List&lt;TElement&gt;)ilist;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int SizeOf(ref List&lt;TElement&gt; value)
+        {
+            return PackerCollectionsExt.SizeOfColleciton&lt;TElement&gt;(value.GetEnumerator());
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[11,9,11,10,1],[12,13,12,37,1],[12,13,12,37,1],[12,13,12,37,1],[12,13,12,37,1],[12,13,12,37,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[13,9,13,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[17,9,17,10,1],[18,13,18,57,1],[18,13,18,57,1],[18,13,18,57,1],[18,13,18,57,1],[18,13,18,57,1],[19,13,19,43,1],[19,13,19,43,1],[19,13,19,43,1],[19,13,19,43,1],[19,13,19,43,1],[20,9,20,10,1],[20,9,20,10,1],[20,9,20,10,1],[20,9,20,10,1],[20,9,20,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[24,9,24,10,1],[25,13,25,91,1],[25,13,25,91,1],[25,13,25,91,1],[25,13,25,91,1],[25,13,25,91,1],[26,9,26,10,1],[26,9,26,10,1],[26,9,26,10,1],[26,9,26,10,1],[26,9,26,10,1]]);
+    </script>
+  </body>
+</html>

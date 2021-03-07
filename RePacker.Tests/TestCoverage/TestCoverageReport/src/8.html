@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker.Tests\TestLogger.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using RePacker.Utils;
+using Xunit.Abstractions;
+
+namespace RePacker.Tests
+{
+    public class TestLogger : ILogger
+    {
+        public bool Enabled { get; set; }
+
+        ITestOutputHelper logger;
+
+        public TestLogger(ITestOutputHelper logger)
+        {
+            this.logger = logger;
+        }
+
+        public void Error(string message)
+        {
+            logger.WriteLine(&quot;Error: &quot; + message);
+        }
+
+        public void Exception(Exception e)
+        {
+            logger.WriteLine(&quot;Exception: &quot; + e.Message + &quot;\n&quot; + e.StackTrace);
+        }
+
+        public void Log(string message)
+        {
+            logger.WriteLine(message);
+        }
+
+        public void Warn(string message)
+        {
+            logger.WriteLine(&quot;Warn: &quot; + message);
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[9,31,9,35,0],[9,31,9,35,0],[9,31,9,35,0],[9,31,9,35,0],[9,31,9,35,0],[9,36,9,40,1],[9,36,9,40,1],[9,36,9,40,1],[9,36,9,40,1],[9,36,9,40,1],[13,9,13,52,1],[13,9,13,52,1],[13,9,13,52,1],[13,9,13,52,1],[13,9,13,52,1],[14,9,14,10,1],[14,9,14,10,1],[14,9,14,10,1],[14,9,14,10,1],[14,9,14,10,1],[15,13,15,34,1],[15,13,15,34,1],[15,13,15,34,1],[15,13,15,34,1],[15,13,15,34,1],[16,9,16,10,1],[16,9,16,10,1],[16,9,16,10,1],[16,9,16,10,1],[16,9,16,10,1],[19,9,19,10,0],[19,9,19,10,0],[19,9,19,10,0],[19,9,19,10,0],[19,9,19,10,0],[20,13,20,51,0],[20,13,20,51,0],[20,13,20,51,0],[20,13,20,51,0],[20,13,20,51,0],[21,9,21,10,0],[21,9,21,10,0],[21,9,21,10,0],[21,9,21,10,0],[21,9,21,10,0],[24,9,24,10,0],[24,9,24,10,0],[24,9,24,10,0],[24,9,24,10,0],[24,9,24,10,0],[25,13,25,79,0],[25,13,25,79,0],[25,13,25,79,0],[25,13,25,79,0],[25,13,25,79,0],[26,9,26,10,0],[26,9,26,10,0],[26,9,26,10,0],[26,9,26,10,0],[26,9,26,10,0],[29,9,29,10,0],[29,9,29,10,0],[29,9,29,10,0],[29,9,29,10,0],[29,9,29,10,0],[30,13,30,39,0],[30,13,30,39,0],[30,13,30,39,0],[30,13,30,39,0],[30,13,30,39,0],[31,9,31,10,0],[31,9,31,10,0],[31,9,31,10,0],[31,9,31,10,0],[31,9,31,10,0],[34,9,34,10,0],[34,9,34,10,0],[34,9,34,10,0],[34,9,34,10,0],[34,9,34,10,0],[35,13,35,50,0],[35,13,35,50,0],[35,13,35,50,0],[35,13,35,50,0],[35,13,35,50,0],[36,9,36,10,0],[36,9,36,10,0],[36,9,36,10,0],[36,9,36,10,0],[36,9,36,10,0]]);
+    </script>
+  </body>
+</html>

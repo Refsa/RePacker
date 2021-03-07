@@ -11,6 +11,8 @@
 - SizeOfColleciton typo
 - Rename Buffer to ReBuffer to avoid collision with System.Buffer
 
+- make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
+
 Readme:
     - update with new changes to Buffer (removal of BoxedBuffer)
     - info on SizeOf

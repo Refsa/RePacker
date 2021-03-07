@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>C:\Users\Refsa\Documents\repackage\csharp\RePacker.Unsafe\EnumHelper.cs</title>
+    <script type="text/javascript" src="../js/dotcover.sourceview.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dotcover.report.css" />
+  </head>
+  <body>
+    <pre id="content" class="source-code">
+using System;
+using System.Linq.Expressions;
+
+namespace RePacker.Unsafe
+{
+    public static class EnumHelper
+    {
+        public static unsafe TDest ToUnderlyingType&lt;TEnum, TDest&gt;(this TEnum self)
+            where TEnum : unmanaged, Enum
+            where TDest : unmanaged
+        {
+            return (TDest)(object)self;
+        }
+
+        public static unsafe TEnum ToEnum&lt;TVal, TEnum&gt;(ref TVal val)
+            where TVal : unmanaged
+            where TEnum : unmanaged, Enum
+        {
+            return (TEnum)(object)val;
+        }
+    }
+}
+    </pre>
+    <script type="text/javascript">
+      highlightRanges([[11,9,11,10,0],[11,9,11,10,0],[11,9,11,10,0],[11,9,11,10,0],[11,9,11,10,0],[12,13,12,40,0],[12,13,12,40,0],[12,13,12,40,0],[12,13,12,40,0],[12,13,12,40,0],[13,9,13,10,0],[13,9,13,10,0],[13,9,13,10,0],[13,9,13,10,0],[13,9,13,10,0],[18,9,18,10,0],[18,9,18,10,0],[18,9,18,10,0],[18,9,18,10,0],[18,9,18,10,0],[19,13,19,39,0],[19,13,19,39,0],[19,13,19,39,0],[19,13,19,39,0],[19,13,19,39,0],[20,9,20,10,0],[20,9,20,10,0],[20,9,20,10,0],[20,9,20,10,0],[20,9,20,10,0]]);
+    </script>
+  </body>
+</html>

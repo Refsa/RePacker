@@ -54,8 +54,9 @@ By default it generates for all public fields:
 public struct SupportMe
 {
     public float Float; // Packed
-    public int Int; // Packed
+    [RePack] float _float; // Packed
     long _long; // Not Packed
+    public short Short {get; set;} // Not Packed
 }
 ```
 
@@ -65,8 +66,9 @@ You can also specify the fields to pack:
 [RePacker(false)]
 public struct SupportMe
 {
-    [RePack] public float Float; // Serialized
-    public int Int; // Not serialized
+    [RePack] public float Float; // Packed
+    public int Int; // Not Packed
+    public short Short {get; set;} // Not Packed
 }
 ```
 
@@ -76,9 +78,9 @@ Any properties needs to be explicitly marked for serialization.
 [RePacker]
 public struct SupportMe
 {
-    [RePack] public float Float { get; set; } // Serialized
-    public short Short { get; set; } // Not serialized
-    public int Int; // Serialized
+    [RePack] public float Float { get; set; } // Packed
+    [RePack] double Double { get; set; } // Packed
+    public int Int; // Packed
 }
 ```
 
@@ -94,7 +96,7 @@ public struct ImUnmanaged
 
 Another benefit is that any struct where all fields are serialized can be directly copied. This means that an array of "ImUnmanaged" structs will be copied with MemoryCopy and as such provide no overhead.
 
-You should add a `[StructLayout(LayoutKind.Sequential, Pack = 1)]` over your untagged and unmanaged struct to control the packing of those structs. Directly copying these by memory means that any data type inside is expanded to fit the largest one. i.e. a struct with a long and a short will give a size of 16 if you dont have the attribute on it.
+You should add a `[StructLayout(LayoutKind.Sequential, Pack = 1)]` over your untagged and unmanaged struct to control the packing of those structs. Directly copying these by memory means that any data type inside is expanded to fit the largest one. i.e. a struct with a long and a short will give a size of 16 instead of 10 if you dont have the attribute on it. `Pack = 1` is what this library packs with internally too, so it's good to keep it consistent that way.
 
 ### Pack and Unpack:
 As long as the NO_BOOTSTRAP flag is set you need to initialize the library with `RePacker.RePacker.Init();` before any of the packing will work.
