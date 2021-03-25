@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Unity|AnyCPU' ">
     <!-- <OutputPath>bin2\$(Configuration)\</OutputPath> -->
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <TargetFramework>net4.7.1</TargetFramework>
+    <TargetFramework>net4.6.1</TargetFramework>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Optimize>true</Optimize>

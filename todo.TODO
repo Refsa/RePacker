@@ -14,6 +14,8 @@ Version 2.0.0:
 
 - make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
 
+- ReBuffer::Copy uses wrong Length, see ReBuffer::CopyFixed
+
 Base Serializer:
     - ISet<T>
 
