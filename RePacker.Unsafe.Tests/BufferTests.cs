@@ -148,6 +148,7 @@ namespace RePacker.Buffers.Tests
             Assert.Equal(0, buffer.Length());
         }
 
+        // TODO: This test does nothing
         [Fact]
         public void get_array_gives_used_length()
         {
@@ -1141,6 +1142,131 @@ namespace RePacker.Buffers.Tests
             Assert.Equal(0, buffer.ReadCursor());
             Assert.Equal(0, buffer.WriteCursor());
             Assert.Equal(0, buffer.Array.Sum(e => e));
+        }
+
+        [Fact]
+        public void read_cursor_plus_length_is_write_cursor()
+        {
+            var buffer = new ReBuffer(64);
+            int data = 10;
+            buffer.Pack(ref data);
+
+            int readPlusLength = buffer.ReadCursor() + buffer.Length();
+            Assert.Equal(readPlusLength, buffer.WriteCursor());
+        }
+
+        [Fact]
+        public void copy_copies_used_data_from_source()
+        {
+            var buffer = new ReBuffer(16);
+            for (int i = 0; i < 4; i++)
+            {
+                buffer.Pack(ref i);
+            }
+
+            buffer.Unpack<int>(out int _);
+            buffer.Unpack<int>(out int _);
+
+            var targetBuffer = new ReBuffer(16);
+            targetBuffer.Copy(buffer);
+
+            Assert.Equal(buffer.Length(), targetBuffer.Length());
+
+            Assert.Equal(buffer.Peek<int>(0), targetBuffer.Peek<int>(0));
+            Assert.Equal(buffer.Peek<int>(4), targetBuffer.Peek<int>(4));
+        }
+
+        [Fact]
+        public void copy_copies_to_back_of_destination()
+        {
+            var sourceBuffer = new ReBuffer(16);
+            var targetBuffer = new ReBuffer(32);
+
+            for (int i = 0; i < 4; i++)
+            {
+                sourceBuffer.Pack(ref i);
+                targetBuffer.Pack(ref i);
+            }
+
+            targetBuffer.Copy(sourceBuffer);
+
+            Assert.Equal(32, targetBuffer.WriteCursor());
+
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.Equal(sourceBuffer.Peek<int>(i * 4), targetBuffer.Peek<int>((i + 4) * 4));
+            }
+        }
+
+        [Fact]
+        public void copy_copes_to_back_of_destination_multiple()
+        {
+            var sourceBuffer = new ReBuffer(16);
+            var targetBuffer = new ReBuffer(64);
+
+            for (int i = 0; i < 4; i++)
+            {
+                sourceBuffer.Pack(ref i);
+                targetBuffer.Pack(ref i);
+            }
+
+            targetBuffer.Copy(sourceBuffer);
+            targetBuffer.Copy(sourceBuffer);
+            targetBuffer.Copy(sourceBuffer);
+
+            Assert.Equal(64, targetBuffer.WriteCursor());
+
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.Equal(sourceBuffer.Peek<int>(i * 4), targetBuffer.Peek<int>((i + 4) * 4));
+                Assert.Equal(sourceBuffer.Peek<int>(i * 4), targetBuffer.Peek<int>((i + 8) * 4));
+                Assert.Equal(sourceBuffer.Peek<int>(i * 4), targetBuffer.Peek<int>((i + 12) * 4));
+            }
+        }
+
+        [Fact]
+        public void copy_expands_auto_buffer()
+        {
+            var sourceBuffer = new ReBuffer(16);
+            var targetBuffer = new ReBuffer(4, true);
+
+            for (int i = 0; i < 4; i++)
+            {
+                sourceBuffer.Pack(ref i);
+            }
+
+            targetBuffer.Copy(sourceBuffer);
+
+            Assert.Equal(16, targetBuffer.Length());
+
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.Equal(sourceBuffer.Peek<int>(i * 4), targetBuffer.Peek<int>(i * 4));
+            }
+        }
+
+        [Fact]
+        public void copy_expands_auto_buffer_multiple()
+        {
+            var sourceBuffer = new ReBuffer(16);
+            var targetBuffer = new ReBuffer(4, true);
+
+            for (int i = 0; i < 4; i++)
+            {
+                sourceBuffer.Pack(ref i);
+            }
+
+            targetBuffer.Copy(sourceBuffer);
+            targetBuffer.Copy(sourceBuffer);
+            targetBuffer.Copy(sourceBuffer);
+            targetBuffer.Copy(sourceBuffer);
+
+            Assert.Equal(64, targetBuffer.Length());
+
+            for (int i = 0; i < 4; i++)
+            {
+                Assert.Equal(sourceBuffer.Peek<int>(i * 4), targetBuffer.Peek<int>(i * 4));
+            }
         }
 
         [Fact]
