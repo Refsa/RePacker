@@ -253,6 +253,7 @@ namespace RePacker.Builder
                 return;
             }
 
+            // FIXME: Not supported on NET4.6.1
             Dictionary<Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)> packers =
                 new Dictionary<Type, (MethodInfo packer, MethodInfo unpacker, MethodInfo getSizer)>();
 
@@ -310,6 +311,7 @@ namespace RePacker.Builder
                     RePacking.Settings.Log.Exception(e);
                 }
 
+                // FIXME: Not supported in NET4.6
                 packers.Add(type, (packer, unpacker, getSizer));
             }
 

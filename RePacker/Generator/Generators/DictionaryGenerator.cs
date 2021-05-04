@@ -26,6 +26,7 @@ namespace RePacker.Builder
         {
             // [Key Key Key Value Value Value]
             Type[] kvTypes = fieldInfo.FieldType.GenericTypeArguments;
+            // FIXME: Not directly supported in NET46
             (Type keyType, Type valueType) = (kvTypes[0], kvTypes[1]);
 
             var keyConst = typeof(List<>).MakeGenericType(keyType).GetConstructor(Type.EmptyTypes);
