@@ -7,12 +7,18 @@ Version 2.0.0:
 - make ILogger support object and formatting
 - prepend/append to allow for circular buffer functionality
 - fix some of the exception stuff that is handled internally, mostly related to library development pains
+    High priority
+- fix some of the Tuple constructors that doesnt exist pre 4.7
+    In general Tuples are not supported in 4.6 without an external package, so they should
+    probably be removed for this target
+- move some of the unsafe usage of MemoryCopy and the unsafe calls in StringHelper, they mostly provide no benefit over the safe ones
 
 - setting/moving write cursor before read cursor should move the read cursor
-
-- implement more tests according to results from dotCover report
-
 - make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
+- RePackerWrapper<T> should probably override the [RePacker] attribute
+- change some of the generic T parms to something more descriptive
+- StringHelper is not working as intended in some cases, getting wrong size
+    Probably the SizeOf method on StringHelper, it's calling the wrong string size method
 
 Base Serializer:
     - ISet<T>
@@ -23,6 +29,7 @@ Ideas:
         The cost of inserting a header is fairly low though, so might be worth it
 
 Archive:
+  ✔ ReBuffer::Copy uses wrong Length, see ReBuffer::CopyFixed @done(21-05-04 12:20)
   ✔ test cases for SizeOf with Classes as base type @done(21-03-07 11:47) @project(Version 2.0.0)
   ✔ ValueTuple with TRest value (8th generic argument) @done(21-03-07 11:46) @project(Version 2.0.0)
   ✔ clean up generators for collecitons @done(21-03-07 11:10) @project(Version 2.0.0)

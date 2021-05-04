@@ -58,13 +58,15 @@ namespace RePacker.Buffers
 
         public unsafe void Copy(ReBuffer source)
         {
-            int length = source.writeCursor;
+            int length = source.Length();
             if (!CanWriteBytes(length))
             {
                 throw new IndexOutOfRangeException("Cant copy Buffer, destination too small");
             }
 
-            fixed (void* src = &source.array[readCursor], dest = &array[writeCursor])
+            //System.Buffer.BlockCopy(source.array, source.readCursor, array, writeCursor, length);
+
+            fixed (void* src = &source.array[source.readCursor], dest = &array[writeCursor])
             {
                 System.Buffer.MemoryCopy(src, dest, length, length);
             }
@@ -74,7 +76,7 @@ namespace RePacker.Buffers
 
         public unsafe ReBuffer Clone()
         {
-            var buffer = new ReBuffer(writeCursor);
+            var buffer = new ReBuffer(Length());
 
             fixed (void* src = &array[readCursor], dest = buffer.array)
             {
@@ -131,9 +133,9 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetReadCursor(int pos)
         {
-            if (pos > array.Length)
+            if (pos > array.Length || pos < 0)
             {
-                throw new IndexOutOfRangeException("Trying to move read cursor outside of buffer range");
+                throw new IndexOutOfRangeException("Trying to set read cursor outside of buffer range");
             }
 
             readCursor = pos;
@@ -142,9 +144,9 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetWriteCursor(int pos)
         {
-            if (pos > array.Length)
+            if (pos > array.Length || pos < 0)
             {
-                throw new IndexOutOfRangeException("Trying to move write cursor outside of buffer range");
+                throw new IndexOutOfRangeException("Trying to set write cursor outside of buffer range");
             }
 
             writeCursor = pos;
@@ -153,25 +155,23 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveWriteCursor(int amount)
         {
-            writeCursor += amount;
-
-            if (writeCursor > array.Length || writeCursor < 0)
+            if (writeCursor + amount > array.Length || writeCursor < 0)
             {
-                writeCursor -= amount;
                 throw new IndexOutOfRangeException("Trying to move write cursor outside of buffer range");
             }
+
+            writeCursor += amount;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveReadCursor(int amount)
         {
-            readCursor += amount;
-
-            if (readCursor > array.Length || readCursor < 0)
+            if (readCursor + amount > array.Length || readCursor < 0)
             {
-                readCursor -= amount;
                 throw new IndexOutOfRangeException("Trying to move read cursor outside of buffer range");
             }
+
+            readCursor += amount;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -48,6 +48,7 @@ namespace RePacker.Generator
                 {
                     var field = info.SerializedFields[i];
 
+                    // FIXME: Not supported in NET46
                     (GeneratorType gt, Type t) = (GeneratorType.None, null);
 
                     switch (Type.GetTypeCode(field.FieldType))

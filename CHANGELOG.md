@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.1.0
+### Features
+
+### Changes
+
+### Fixes
+- fixed ReBuffer::Copy using WriteCursor instead of Length
+- fixed ReBuffer::SetWriteCursor/SetReadCursor not checking for lower bounds
+- fixed ReBuffer::CanWriteBytes not checking correct bounds
+- fixed ReBuffer::Clone using write cursor instead of Length for new buffers size
+- more test cases for ReBuffer
+- clarified offset parameter on ReBuffer::Peek as byteOffset
+
 ## Version 2.0.0
 
 ### Features
