@@ -7,14 +7,15 @@ Version 2.0.0:
 - make ILogger support object and formatting
 - prepend/append to allow for circular buffer functionality
 - fix some of the exception stuff that is handled internally, mostly related to library development pains
+    High priority
 
 - setting/moving write cursor before read cursor should move the read cursor
-
-- implement more tests according to results from dotCover report
-
 - make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
-
 - ReBuffer::Copy uses wrong Length, see ReBuffer::CopyFixed
+- RePackerWrapper<T> should probably override the [RePacker] attribute
+- change some of the generic T parms to something more descriptive
+- StringHelper is not working as intended in some cases, getting wrong size
+    Probably the SizeOf method on StringHelper, it's calling the wrong string size method
 
 Base Serializer:
     - ISet<T>

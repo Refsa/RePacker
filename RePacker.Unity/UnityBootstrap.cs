@@ -16,7 +16,7 @@ namespace RePacker.Unity
             RePacking.Init(unitySettings);
         }
 
-        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        [UnityEngine.RuntimeInitializeOnLoadMethod(UnityEngine.RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void SetupRePacker() { }
     }
 #endif
