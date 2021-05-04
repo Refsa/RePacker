@@ -25,6 +25,13 @@ namespace RePacker.Buffers
             int count = 0;
             if (buffer.Array != null)
             {
+                int str_len = StringHelper.SizeOf(str);
+
+                if (!buffer.CanWriteBytes(str_len + sizeof(ulong)))
+                {
+                    throw new IndexOutOfRangeException($"Cant fit string of size {str_len} into buffer");
+                }
+
                 count = StringHelper.CopyString(str, buffer.Array, buffer.WriteCursor() + sizeof(ulong));
 
                 ulong c = (ulong)count;
@@ -48,6 +55,11 @@ namespace RePacker.Buffers
 
             if (buffer.Array != null)
             {
+                if (!buffer.CanReadBytes((int)length))
+                {
+                    throw new IndexOutOfRangeException($"Cant read string of size {length} from buffer");
+                }
+
                 string s = StringHelper.GetString(buffer.Array, start, (int)length);
                 buffer.MoveReadCursor((int)length);
                 return s;
