@@ -17,8 +17,6 @@ Version 2.0.0:
 - make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
 - RePackerWrapper<T> should probably override the [RePacker] attribute
 - change some of the generic T parms to something more descriptive
-- StringHelper is not working as intended in some cases, getting wrong size
-    Probably the SizeOf method on StringHelper, it's calling the wrong string size method
 
 Base Serializer:
     - ISet<T>
@@ -29,6 +27,8 @@ Ideas:
         The cost of inserting a header is fairly low though, so might be worth it
 
 Archive:
+  ✔ StringHelper is not working as intended in some cases, getting wrong size @done(21-05-04 13:02)
+    Probably the SizeOf method on StringHelper, it's calling the wrong string size method
   ✔ ReBuffer::Copy uses wrong Length, see ReBuffer::CopyFixed @done(21-05-04 12:20)
   ✔ test cases for SizeOf with Classes as base type @done(21-03-07 11:47) @project(Version 2.0.0)
   ✔ ValueTuple with TRest value (8th generic argument) @done(21-03-07 11:46) @project(Version 2.0.0)
