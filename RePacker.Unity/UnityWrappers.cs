@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using RePacker.Buffers;
-using RePacker.Buffers.Extra;
 using RePacker.Builder;
 using static RePacker.RePacking;
 
@@ -372,15 +371,17 @@ namespace RePacker.Unity
 
         public override void Unpack(ReBuffer buffer, out Rect value)
         {
-            buffer.Unpack<Vector2Int>(out var pos);
-            buffer.Unpack<Vector2Int>(out var size);
-
-            value = new Rect(pos, size);
+            value = new Rect();
+            UnpackInto(buffer, ref value);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Rect value)
         {
-            Unpack(buffer, out value);
+            buffer.Unpack<Vector2>(out var pos);
+            buffer.Unpack<Vector2>(out var size);
+
+            value.position = pos;
+            value.size = size;
         }
 
         public override int SizeOf(ref Rect value)
