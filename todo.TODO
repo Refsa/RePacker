@@ -26,6 +26,8 @@ Version 2.1.0:
     It takes a byteOffset, but it could seem as though the offset would be T * byteOffset
     Having it be T * byteOffset would make it less flexible though, so maybe a util method to 
     calculate byte offset from T would be nice to have.
+- @low ReBuffer::PackBuffer/ReBuffer::UnpackBuffer has some UB
+    It currently does not care if it found any valid buffer while unpacking which wont notify the user of an error
 
 Archive:
   ✔ @low Add a UnpackRef<T> method that returns a reference to the value, instead of a copy @done(21-05-21 12:45)

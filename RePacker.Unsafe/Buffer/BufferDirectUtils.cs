@@ -7,6 +7,12 @@ namespace RePacker.Buffers.Extra
     public static class BufferUtils
     {
         #region DirectPacking
+
+        /// <summary>
+        /// Packs a Bool into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackBool(this ReBuffer buffer, ref bool value)
         {
@@ -14,6 +20,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(1);
         }
 
+        /// <summary>
+        /// Unpacks Bool bool from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackBool(this ReBuffer buffer, out bool value)
         {
@@ -22,6 +33,11 @@ namespace RePacker.Buffers.Extra
             value = val == 0 ? false : true;
         }
 
+        /// <summary>
+        /// Packs a Short into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackShort(this ReBuffer buffer, ref short value)
         {
@@ -37,6 +53,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(2);
         }
 
+        /// <summary>
+        /// Unpacks a Short from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackShort(this ReBuffer buffer, out short value)
         {
@@ -52,6 +73,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(2);
         }
 
+        /// <summary>
+        /// Packs a UShort into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackUShort(this ReBuffer buffer, ref ushort value)
         {
@@ -67,6 +93,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(2);
         }
 
+        /// <summary>
+        /// Unpacks a UShort from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackUShort(this ReBuffer buffer, out ushort value)
         {
@@ -82,6 +113,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(2);
         }
 
+        /// <summary>
+        /// Packs a Int into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackInt(this ReBuffer buffer, ref int value)
         {
@@ -97,6 +133,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(4);
         }
 
+        /// <summary>
+        /// Unpacks a Int from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackInt(this ReBuffer buffer, out int value)
         {
@@ -112,6 +153,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(4);
         }
 
+        /// <summary>
+        /// Packs a UInt into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackUInt(this ReBuffer buffer, ref uint value)
         {
@@ -127,6 +173,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(4);
         }
 
+        /// <summary>
+        /// Unpacks a UInt from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackUInt(this ReBuffer buffer, out uint value)
         {
@@ -142,6 +193,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(4);
         }
 
+        /// <summary>
+        /// Packs a Long into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackLong(this ReBuffer buffer, ref long value)
         {
@@ -157,6 +213,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(8);
         }
 
+        /// <summary>
+        /// Unpacks a Long from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackLong(this ReBuffer buffer, out long value)
         {
@@ -172,6 +233,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(8);
         }
 
+        /// <summary>
+        /// Packs a ULong into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackULong(this ReBuffer buffer, ref ulong value)
         {
@@ -187,6 +253,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(8);
         }
 
+        /// <summary>
+        /// Unpacks a ULong from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackULong(this ReBuffer buffer, out ulong value)
         {
@@ -202,6 +273,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(8);
         }
 
+        /// <summary>
+        /// Packs a Char into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackChar(this ReBuffer buffer, ref char value)
         {
@@ -217,6 +293,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(2);
         }
 
+        /// <summary>
+        /// Unpacks a Char from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackChar(this ReBuffer buffer, out char value)
         {
@@ -232,6 +313,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(2);
         }
 
+        /// <summary>
+        /// Packs a is into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackByte(this ReBuffer buffer, ref byte value)
         {
@@ -239,6 +325,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(1);
         }
 
+        /// <summary>
+        /// Unpacks Byte bool from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackByte(this ReBuffer buffer, out byte value)
         {
@@ -246,6 +337,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(1);
         }
 
+        /// <summary>
+        /// Packs a his into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackSByte(this ReBuffer buffer, ref sbyte value)
         {
@@ -253,6 +349,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(1);
         }
 
+        /// <summary>
+        /// Unpacks SByte bool from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackSByte(this ReBuffer buffer, out sbyte value)
         {
@@ -261,6 +362,11 @@ namespace RePacker.Buffers.Extra
         }
 
 
+        /// <summary>
+        /// Packs a Float into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackFloat(this ReBuffer buffer, ref float value)
         {
@@ -300,6 +406,11 @@ namespace RePacker.Buffers.Extra
             buffer.Span[writeCursor++] = (byte)(mantissa); */
         }
 
+        /// <summary>
+        /// Unpacks a Float from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackFloat(this ReBuffer buffer, out float value)
         {
@@ -318,6 +429,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(4);
         }
 
+        /// <summary>
+        /// Packs a Double into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackDouble(this ReBuffer buffer, ref double value)
         {
@@ -333,6 +449,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(8);
         }
 
+        /// <summary>
+        /// Unpacks a Double from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackDouble(this ReBuffer buffer, out double value)
         {
@@ -351,6 +472,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(8);
         }
 
+        /// <summary>
+        /// Packs a Decimal into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void PackDecimal(this ReBuffer buffer, ref decimal value)
         {
@@ -366,6 +492,11 @@ namespace RePacker.Buffers.Extra
             buffer.MoveWriteCursor(24);
         }
 
+        /// <summary>
+        /// Unpacks a Decimal from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void UnpackDecimal(this ReBuffer buffer, out decimal value)
         {
