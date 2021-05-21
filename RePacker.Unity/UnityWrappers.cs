@@ -312,4 +312,66 @@ namespace RePacker.Unity
         }
     }
 
+
+    [RePackerWrapper(typeof(UnityEngine.RectInt))]
+    public class RectIntPacker : RePackerWrapper<UnityEngine.RectInt>
+    {
+        public override void Pack(ReBuffer buffer, ref RectInt value)
+        {
+            var pos = value.position;
+            var size = value.size;
+
+            buffer.Pack(ref pos);
+            buffer.Pack(ref size);
+        }
+
+        public override void Unpack(ReBuffer buffer, out RectInt value)
+        {
+            buffer.Unpack<Vector2Int>(out var pos);
+            buffer.Unpack<Vector2Int>(out var size);
+
+            value = new RectInt(pos, size);
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref RectInt value)
+        {
+            Unpack(buffer, out value);
+        }
+
+        public override int SizeOf(ref RectInt value)
+        {
+            return 4 * 4;
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.Rect))]
+    public class RectPacker : RePackerWrapper<UnityEngine.Rect>
+    {
+        public override void Pack(ReBuffer buffer, ref Rect value)
+        {
+            var pos = value.position;
+            var size = value.size;
+
+            buffer.Pack(ref pos);
+            buffer.Pack(ref size);
+        }
+
+        public override void Unpack(ReBuffer buffer, out Rect value)
+        {
+            buffer.Unpack<Vector2Int>(out var pos);
+            buffer.Unpack<Vector2Int>(out var size);
+
+            value = new Rect(pos, size);
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref Rect value)
+        {
+            Unpack(buffer, out value);
+        }
+
+        public override int SizeOf(ref Rect value)
+        {
+            return 4 * 4;
+        }
+    }
 }
