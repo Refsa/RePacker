@@ -40,6 +40,35 @@ namespace RePacker.Buffers
             buffer.MoveReadCursor(sizeof(T));
         }
 
+        /// <summary>
+        /// Returns a references to an unmanaged value type in the buffer at given byte offset
+        /// 
+        /// To use the references, the caller needs to call it like this:
+        /// ref T thing = ref buffer.GetRef<T>(...)
+        /// 
+        /// You can then modify "thing" to change it's value in the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="byteOffset">Offset in bytes to read value reference from</param>
+        /// <typeparam name="T">unmanaged value type</typeparam>
+        /// <returns>A reference to the wanted value type T</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        unsafe public static ref T GetRef<T>(this ReBuffer buffer, int byteOffset = 0)
+            where T : unmanaged
+        {
+            if (buffer.ReadCursor() + byteOffset + sizeof(T) > buffer.Array.Length)
+            {
+                throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
+            }
+
+            fixed(byte* data = &buffer.Array[buffer.ReadCursor() + byteOffset])
+            {
+                T* t = (T*)data;
+
+                return ref *t;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe T Peek<T>(this ReBuffer buffer, int byteOffset = 0)
             where T : unmanaged

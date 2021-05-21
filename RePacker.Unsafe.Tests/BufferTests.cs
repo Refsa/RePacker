@@ -1418,5 +1418,104 @@ namespace RePacker.Buffers.Tests
             Assert.Equal(internalBuffer.ReadCursor(), fromBuf.ReadCursor());
             Assert.Equal(internalBuffer.WriteCursor(), fromBuf.WriteCursor());
         }
+
+        [Fact]
+        public void get_reference_to_primitive()
+        {
+            var buffer = new ReBuffer(16);
+
+            int value = 10;
+            buffer.Pack(ref value);
+
+            ref int valueRef = ref buffer.GetRef<int>();
+            valueRef *= 10;
+
+            buffer.Unpack<int>(out int fromBuf);
+
+            Assert.Equal(100, fromBuf);
+        }
+
+        [Fact]
+        public void get_reference_to_unmanaged_struct()
+        {
+            var buffer = new ReBuffer(32);
+
+            var value = new TestBlittableStruct
+            {
+                Float = 1.234f,
+                Int = 3452,
+            };
+            buffer.Pack(ref value);
+
+            ref TestBlittableStruct valueRef = ref buffer.GetRef<TestBlittableStruct>();
+            valueRef.Float *= 10;
+            valueRef.Int *= 100;
+
+            buffer.Unpack<TestBlittableStruct>(out TestBlittableStruct fromBuf);
+
+            Assert.Equal(12.34f, fromBuf.Float);
+            Assert.Equal(345200, fromBuf.Int);
+        }
+
+        [Fact]
+        public void get_reference_to_primitive_with_offset()
+        {
+            var buffer = new ReBuffer(16);
+
+            int value = 10;
+            buffer.Pack(ref value);
+            buffer.Pack(ref value);
+            buffer.Pack(ref value);
+
+            ref int valueRef = ref buffer.GetRef<int>(sizeof(int) * 2);
+            valueRef *= 10;
+
+            buffer.Unpack<int>(out int fromBuf);
+            Assert.Equal(10, fromBuf);
+            buffer.Unpack<int>(out fromBuf);
+            Assert.Equal(10, fromBuf);
+            buffer.Unpack<int>(out fromBuf);
+            Assert.Equal(100, fromBuf);
+        }
+
+        [Fact]
+        public void get_reference_to_unmanaged_struct_with_offset()
+        {
+            var buffer = new ReBuffer(32);
+
+            var value = new TestBlittableStruct
+            {
+                Float = 1.234f,
+                Int = 3452,
+            };
+            buffer.Pack(ref value);
+            buffer.Pack(ref value);
+            buffer.Pack(ref value);
+
+            ref TestBlittableStruct valueRef = ref buffer.GetRef<TestBlittableStruct>(16);
+            valueRef.Float *= 10;
+            valueRef.Int *= 100;
+
+            buffer.Unpack<TestBlittableStruct>(out TestBlittableStruct fromBuf);
+            Assert.Equal(1.234f, fromBuf.Float);
+            Assert.Equal(3452, fromBuf.Int);
+            buffer.Unpack<TestBlittableStruct>(out fromBuf);
+            Assert.Equal(1.234f, fromBuf.Float);
+            Assert.Equal(3452, fromBuf.Int);
+            buffer.Unpack<TestBlittableStruct>(out fromBuf);
+            Assert.Equal(12.34f, fromBuf.Float);
+            Assert.Equal(345200, fromBuf.Int);
+        }
+
+        [Fact]
+        public void get_reference_throws_on_out_of_bounds()
+        {
+            var buffer = new ReBuffer(8);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() =>
+            {
+                ref var _ = ref buffer.GetRef<int>(8);
+            });
+        }
     }
 }

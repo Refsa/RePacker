@@ -11,7 +11,6 @@ Version 2.1.0:
     In general Tuples are not supported in 4.6 without an external package, so they should
     probably be removed for this target
 - @low move some of the unsafe usage of MemoryCopy and the unsafe calls in StringHelper, they mostly provide no benefit over the safe ones
-
 - @high setting/moving write cursor before read cursor should move the read cursor
 - @low make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
 - @low RePackerWrapper<T> should probably override the [RePacker] attribute
@@ -27,9 +26,9 @@ Version 2.1.0:
     It takes a byteOffset, but it could seem as though the offset would be T * byteOffset
     Having it be T * byteOffset would make it less flexible though, so maybe a util method to 
     calculate byte offset from T would be nice to have.
-- @low Add a UnpackRef<T> method that returns a reference to the value, instead of a copy
 
 Archive:
+  ✔ @low Add a UnpackRef<T> method that returns a reference to the value, instead of a copy @done(21-05-21 12:45)
   ✔ StringHelper is not working as intended in some cases, getting wrong size @done(21-05-04 13:02)
     Probably the SizeOf method on StringHelper, it's calling the wrong string size method
   ✔ ReBuffer::Copy uses wrong Length, see ReBuffer::CopyFixed @done(21-05-04 12:20)
