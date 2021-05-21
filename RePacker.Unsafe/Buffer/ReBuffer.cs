@@ -16,6 +16,11 @@ namespace RePacker.Buffers
 
         bool expand;
 
+        /// <summary>
+        /// Create a new ReBuffer
+        /// </summary>
+        /// <param name="size">initial capacity of buffer</param>
+        /// <param name="expand">enable auto-expansion of buffer to fit elements</param>
         public ReBuffer(int size, bool expand = false)
         {
             this.array = new byte[size];
@@ -24,6 +29,12 @@ namespace RePacker.Buffers
             this.expand = expand;
         }
 
+        /// <summary>
+        /// Create a ReBuffer from the given byte array
+        /// </summary>
+        /// <param name="buffer">array to wrap</param>
+        /// <param name="offset">initial position of write cursor</param>
+        /// <param name="expand">enable auto-expansion of buffer to fit elements</param>
         public ReBuffer(byte[] buffer, int offset = 0, bool expand = false)
         {
             this.writeCursor = offset;
@@ -116,6 +127,9 @@ namespace RePacker.Buffers
         }
 
         #region General
+        /// <summary>
+        /// Clears read/write cursor and zeroes out internal byte array
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flush()
         {
@@ -126,6 +140,9 @@ namespace RePacker.Buffers
             Reset();
         }
 
+        /// <summary>
+        /// Clears read/write cursor
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Reset()
         {
@@ -133,30 +150,55 @@ namespace RePacker.Buffers
             writeCursor = 0;
         }
 
+        /// <summary>
+        /// Gives the current position of write cursor
+        /// </summary>
+        /// <returns>current position of write cursor</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int WriteCursor()
         {
             return writeCursor;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Length()
-        {
-            return writeCursor - readCursor;
-        }
-
+        /// <summary>
+        /// Gives the current position of read cursor
+        /// </summary>
+        /// <returns>current position of read cursor</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ReadCursor()
         {
             return readCursor;
         }
 
+        /// <summary>
+        /// Gives the actively used length of the buffer<para />
+        /// 
+        /// Equal to (writeCursor - readCursor)
+        /// </summary>
+        /// <returns>actively used length of buffer</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Length()
+        {
+            return writeCursor - readCursor;
+        }
+        
+        /// <summary>
+        /// Gives the amount of space left in buffer<para />
+        /// 
+        /// Equal to (internalArray.Length - writeCursor)
+        /// </summary>
+        /// <returns>amount of space left in buffer</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int FreeSpace()
         {
             return array.Length - writeCursor;
         }
 
+        /// <summary>
+        /// Directly sets the position of the read cursor
+        /// </summary>
+        /// <param name="pos">wanted position for the read cursor</param>
+        /// <exception cref="System.IndexOutOfRangeException" />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetReadCursor(int pos)
         {
@@ -168,6 +210,11 @@ namespace RePacker.Buffers
             readCursor = pos;
         }
 
+        /// <summary>
+        /// Directly sets the position of the write cursor
+        /// </summary>
+        /// <param name="pos">wanted position for the write cursor</param>
+        /// <exception cref="System.IndexOutOfRangeException" />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetWriteCursor(int pos)
         {
@@ -179,6 +226,11 @@ namespace RePacker.Buffers
             writeCursor = pos;
         }
 
+        /// <summary>
+        /// Moves write cursor by given amount
+        /// </summary>
+        /// <param name="amount">amount in bytes to move write cursor</param>
+        /// <exception cref="System.IndexOutOfRangeException" />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveWriteCursor(int amount)
         {
@@ -190,6 +242,11 @@ namespace RePacker.Buffers
             writeCursor += amount;
         }
 
+        /// <summary>
+        /// Moves read cursor by given amount
+        /// </summary>
+        /// <param name="amount">amount in bytes to move read cursor</param>
+        /// <exception cref="System.IndexOutOfRangeException" />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveReadCursor(int amount)
         {
@@ -201,25 +258,45 @@ namespace RePacker.Buffers
             readCursor += amount;
         }
 
+        /// <summary>
+        /// Checks if buffer can fit given amount of bytes<para />
+        /// 
+        /// Will expand buffer if auto-size is enabled
+        /// </summary>
+        /// <param name="byteCount">bytes to move write cursor by</param>
+        /// <returns>true if it's possible to write N bytes</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool CanWriteBytes(int count)
+        public bool CanWriteBytes(int byteCount)
         {
-            if (writeCursor + count > array.Length)
+            if (writeCursor + byteCount > array.Length)
             {
                 if (!expand) return false;
 
-                Expand<byte>(count);
+                Expand<byte>(byteCount);
             }
 
             return true;
         }
 
+         /// <summary>
+        /// Checks if you can read given amount of bytes from buffer<para />
+        /// </summary>
+        /// <param name="byteCount">bytes to move read cursor by</param>
+        /// <returns>true if it's possible to read N bytes</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool CanReadBytes(int count)
+        public bool CanReadBytes(int byteCount)
         {
-            return readCursor + count <= array.Length;
+            return readCursor + byteCount <= array.Length;
         }
 
+        /// <summary>
+        /// Checks if buffer can fit given amount of value type T<para />
+        /// 
+        /// Will expand buffer if auto-size is enabled
+        /// </summary>
+        /// <param name="count">number of elements of T to check for</param>
+        /// <typeparam name="T">unmanaged value type</typeparam>
+        /// <returns>true if it can fit N elements of T</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool CanWrite<T>(int count = 1) where T : unmanaged
         {
@@ -233,6 +310,12 @@ namespace RePacker.Buffers
             return true;
         }
 
+        /// <summary>
+        /// Checks if you can read N elements of unmanaged value type T
+        /// </summary>
+        /// <param name="count">number of elements</param>
+        /// <typeparam name="T">unmanaged value type</typeparam>
+        /// <returns>true if it's possible to read N elements of T</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool CanRead<T>(int count = 1) where T : unmanaged
         {
