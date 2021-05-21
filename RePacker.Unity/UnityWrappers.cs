@@ -291,28 +291,6 @@ namespace RePacker.Unity
     }
     #endregion
 
-    [RePackerWrapper(typeof(UnityEngine.Transform))]
-    public class TransformPacker : RePackerWrapper<UnityEngine.Transform>
-    {
-        public override void Pack(ReBuffer buffer, ref UnityEngine.Transform value)
-        {
-            var pos = value.localPosition;
-            Pack<Vector3>(buffer, ref pos);
-            var rot = value.localRotation;
-            Pack<Quaternion>(buffer, ref rot);
-            var scale = value.localScale;
-            Pack<Vector3>(buffer, ref scale);
-        }
-
-        public override void UnpackInto(ReBuffer buffer, ref Transform value)
-        {
-            value.localPosition = Unpack<Vector3>(buffer);
-            value.localRotation = Unpack<Quaternion>(buffer);
-            value.localScale = Unpack<Vector3>(buffer);
-        }
-    }
-
-
     [RePackerWrapper(typeof(UnityEngine.RectInt))]
     public class RectIntPacker : RePackerWrapper<UnityEngine.RectInt>
     {
@@ -372,6 +350,83 @@ namespace RePacker.Unity
         public override int SizeOf(ref Rect value)
         {
             return 4 * 4;
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.Bounds))]
+    public class BoundsPacker : RePackerWrapper<UnityEngine.Bounds>
+    {
+        public override void Pack(ReBuffer buffer, ref Bounds value)
+        {
+            var center = value.center;
+            var extents = value.extents;
+
+            buffer.Pack<Vector3>(ref center);
+            buffer.Pack<Vector3>(ref extents);
+        }
+
+        public override void Unpack(ReBuffer buffer, out Bounds value)
+        {
+            value = new Bounds();
+            UnpackInto(buffer, ref value);
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref Bounds value)
+        {
+            buffer.Unpack<Vector3>(out var center);
+            buffer.Unpack<Vector3>(out var extents);
+
+            value.center = center;
+            value.extents = extents;
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.BoundsInt))]
+    public class BoundsIntPacker : RePackerWrapper<UnityEngine.BoundsInt>
+    {
+        public override void Pack(ReBuffer buffer, ref BoundsInt value)
+        {
+            var position = value.position;
+            var extents = value.size;
+
+            buffer.Pack<Vector3Int>(ref position);
+            buffer.Pack<Vector3Int>(ref extents);
+        }
+
+        public override void Unpack(ReBuffer buffer, out BoundsInt value)
+        {
+            value = new BoundsInt();
+            UnpackInto(buffer, ref value);
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref BoundsInt value)
+        {
+            buffer.Unpack<Vector3Int>(out var position);
+            buffer.Unpack<Vector3Int>(out var size);
+
+            value.position = position;
+            value.size = size;
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.Transform))]
+    public class TransformPacker : RePackerWrapper<UnityEngine.Transform>
+    {
+        public override void Pack(ReBuffer buffer, ref UnityEngine.Transform value)
+        {
+            var pos = value.localPosition;
+            Pack<Vector3>(buffer, ref pos);
+            var rot = value.localRotation;
+            Pack<Quaternion>(buffer, ref rot);
+            var scale = value.localScale;
+            Pack<Vector3>(buffer, ref scale);
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref Transform value)
+        {
+            value.localPosition = Unpack<Vector3>(buffer);
+            value.localRotation = Unpack<Quaternion>(buffer);
+            value.localScale = Unpack<Vector3>(buffer);
         }
     }
 }
