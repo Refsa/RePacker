@@ -39,10 +39,14 @@ jobs:
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: set-unsafe
+        run: echo "ACTIONS_ALLOW_UNSECURE_COMMANDS=true" >> $GITHUB_ENV
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1.0.2
       - name: nuget restore
         run: nuget restore "./RePacker.Unity/RePacker.Unity.csproj"
+        
       - name: Build RePacker
         run: msbuild "./RePacker.Unity/RePacker.Unity.csproj" /p:configuration=Unity
       - name: Move RePacker DLLs
