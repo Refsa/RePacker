@@ -21,13 +21,13 @@ jobs:
         uses: MirrorNG/unity-runner@3.1.0
         id: editModeTests
         with:
-          args: -runTests -projectPath . -testPlatform EditMode -testResults results.xml
+          args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform EditMode -testResults results.xml
 
       - name: Expose as artifact
         uses: actions/upload-artifact@v2
         with:
             name: EditMode Test Results
-            path: ${{ steps.editModeTests.outputs.filePath }}
+            path: results.xml
 
   testRunnerInPlayMode:
     name: PlayMode Tests
@@ -47,7 +47,7 @@ jobs:
         uses: MirrorNG/unity-runner@3.1.0
         id: playModeTests
         with:
-          args: -runTests -projectPath . -testPlatform PlayMode -testResults results.xml
+          args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform PlayMode -testResults results.xml
 
       - name: Expose as artifact
         uses: actions/upload-artifact@v2
