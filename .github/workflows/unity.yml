@@ -1,0 +1,44 @@
+name: Unity-Tests
+
+
+jobs:
+  testRunnerInEditMode:
+    name: EditMode Tests
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
+    steps:
+      # Checkout repository (required to test local actions)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Activate license
+        uses: MirrorNG/unity-runner@3.1.0
+        with:
+          entrypoint: /activate.sh
+
+      - name: Run tests
+        uses: MirrorNG/unity-runner@3.1.0
+        with:
+          args: -runTests -projectPath . -testPlatform EditMode
+
+jobs:
+  testRunnerInPlayMode:
+    name: PlayMode Tests
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
+    steps:
+      # Checkout repository (required to test local actions)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Activate license
+        uses: MirrorNG/unity-runner@3.1.0
+        with:
+          entrypoint: /activate.sh
+
+      - name: Run tests
+        uses: MirrorNG/unity-runner@3.1.0
+        with:
+          args: -runTests -projectPath . -testPlatform PlayMode

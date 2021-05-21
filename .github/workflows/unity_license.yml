@@ -1,4 +1,4 @@
-name: Test project
+name: Generate-Unity-License-File
 on: [push]
 jobs:
   requestActivationFile:
