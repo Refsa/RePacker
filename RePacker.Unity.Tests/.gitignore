@@ -11,6 +11,8 @@
 /[Mm]emoryCaptures/
 /[Bb]in/
 
+/[Aa]ssets/RePacker/
+
 # Never ignore Asset meta data
 !/[Aa]ssets/**/*.meta
 

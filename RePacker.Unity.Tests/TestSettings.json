@@ -1,0 +1,9 @@
+{
+    "scriptingBackend":"WinRTDotNET",
+    "Architecture":null,
+    "apiProfile":"net4.6",
+    "testResults":"/TestResults/results.xml",
+    "projectPath":".",
+    "testPlatform":"PlayMode"
+  }
+  
