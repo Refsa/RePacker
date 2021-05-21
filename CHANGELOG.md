@@ -4,6 +4,8 @@
 ### Features
 - Added ReBuffer::ShrinkFit to resize internal array to fit used space of buffer
 - Added Unity packer for Matrix4x4, Bounds, BoundsInt, Rect, RectInt, Rigidbody and Rigidbody2D
+- Added ReBuffer::GetRef to get a reference to an unmanaged value type  
+    this reference can then be change to modify the value in the buffer
 
 ### Changes
 - ReBuffer::Copy using WriteCursor instead of Length
