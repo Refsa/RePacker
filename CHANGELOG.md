@@ -3,6 +3,7 @@
 ## Version 2.1.0
 ### Features
 - Added ReBuffer::ShrinkFit to resize internal array to fit used space of buffer
+- Added Unity packer for Matrix4x4, Bounds, BoundsInt, Rect, RectInt, Rigidbody and Rigidbody2D
 
 ### Changes
 - ReBuffer::Copy using WriteCursor instead of Length
@@ -13,6 +14,7 @@
 - ReBuffer::CanWriteBytes not checking correct bounds
 - more test cases for ReBuffer
 - clarified offset parameter on ReBuffer::Peek as byteOffset
+- Fixed wrapper for UnityEngine::Rect
 
 ## Version 2.0.0
 

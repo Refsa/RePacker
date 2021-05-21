@@ -15,6 +15,7 @@ Version 2.1.0:
 - @high setting/moving write cursor before read cursor should move the read cursor
 - @low make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
 - @low RePackerWrapper<T> should probably override the [RePacker] attribute
+    another way to override other wrappers would also be nice to have
 - @low change some of the generic T parms to something more descriptive
 - @high UnpackInto requires more proper testing
 - @high Reorganize and clean up TypeCache, naming of TypeCache also doesnt make sense anymore

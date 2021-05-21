@@ -428,3 +428,16 @@ ILGen_Auto_SmallObjectArraySerialize10K | 1,385,727.33 us
 
 ZeroFormatter benchmark results can be found [here](RePacker.Bench/ExternalBenchResults/ZeroFormatterBench.md) (NET 4.6.1).  
 StructPacker benchmark results can be found [here](RePacker.Bench/ExternalBenchResults/StructPacker.md) (Net Core 3.1).  
+
+## Building and Testing Unity
+
+### Building
+Building the Unity project requires the UnityEngine.dll. This is not included with this project and as such you need to provide that yourself.  
+
+The DLL should be placed under "RePacker.Unity/UnityDlls/" and can be found in "[unity install directory]\Editor\Data\Managed\".
+
+### Testing
+A Unity project exists under RePacker.Unity.Tests to run tests within the Unity environment.
+
+Tests can be ran with the `run.sh` bash script in that folder, it will default to `C:\Program Files\Unity\Hub\Editor\2019.4.22f1\Editor\Unity.exe` as the Unity version to use.  
+To run with another version/location you can use the `-c` flag when running the script, supplying the full `Unity.exe` path.
