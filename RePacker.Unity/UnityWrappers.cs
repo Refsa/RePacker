@@ -11,23 +11,59 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref Quaternion value)
         {
-            buffer.PackFloat(ref value.x);
-            buffer.PackFloat(ref value.y);
-            buffer.PackFloat(ref value.z);
-            buffer.PackFloat(ref value.w);
+            buffer.Pack(ref value.x);
+            buffer.Pack(ref value.y);
+            buffer.Pack(ref value.z);
+            buffer.Pack(ref value.w);
         }
 
         public override void Unpack(ReBuffer buffer, out Quaternion value)
         {
-            buffer.UnpackFloat(out value.x);
-            buffer.UnpackFloat(out value.y);
-            buffer.UnpackFloat(out value.z);
-            buffer.UnpackFloat(out value.w);
+            buffer.Unpack(out value.x);
+            buffer.Unpack(out value.y);
+            buffer.Unpack(out value.z);
+            buffer.Unpack(out value.w);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Quaternion value)
         {
             Unpack(buffer, out value);
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.Matrix4x4))]
+    public class Matrix4x4Packer : RePackerWrapper<UnityEngine.Matrix4x4>
+    {
+        public override void Pack(ReBuffer buffer, ref Matrix4x4 value)
+        {
+            var row0 = value.GetRow(0);
+            var row1 = value.GetRow(1);
+            var row2 = value.GetRow(2);
+            var row3 = value.GetRow(3);
+
+            buffer.Pack<Vector4>(ref row0);
+            buffer.Pack<Vector4>(ref row1);
+            buffer.Pack<Vector4>(ref row2);
+            buffer.Pack<Vector4>(ref row3);
+        }
+
+        public override void Unpack(ReBuffer buffer, out Matrix4x4 value)
+        {
+            value = new Matrix4x4();
+            UnpackInto(buffer, ref value);
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref Matrix4x4 value)
+        {
+            buffer.Unpack<Vector4>(out var row0);
+            buffer.Unpack<Vector4>(out var row1);
+            buffer.Unpack<Vector4>(out var row2);
+            buffer.Unpack<Vector4>(out var row3);
+
+            value.SetRow(0, row0);
+            value.SetRow(1, row1);
+            value.SetRow(2, row2);
+            value.SetRow(3, row3);
         }
     }
 
@@ -45,12 +81,12 @@ namespace RePacker.Unity
             var outWeight = value.outWeight;
             var weightedMode = value.weightedMode;
 
-            buffer.PackFloat(ref time);
-            buffer.PackFloat(ref val);
-            buffer.PackFloat(ref inTangent);
-            buffer.PackFloat(ref outTangent);
-            buffer.PackFloat(ref inWeight);
-            buffer.PackFloat(ref outWeight);
+            buffer.Pack(ref time);
+            buffer.Pack(ref val);
+            buffer.Pack(ref inTangent);
+            buffer.Pack(ref outTangent);
+            buffer.Pack(ref inWeight);
+            buffer.Pack(ref outWeight);
             buffer.PackEnum(ref weightedMode);
         }
 
@@ -65,12 +101,12 @@ namespace RePacker.Unity
             var inWeight = 0f;
             var outWeight = 0f;
 
-            buffer.UnpackFloat(out time);
-            buffer.UnpackFloat(out val);
-            buffer.UnpackFloat(out inTangent);
-            buffer.UnpackFloat(out outTangent);
-            buffer.UnpackFloat(out inWeight);
-            buffer.UnpackFloat(out outWeight);
+            buffer.Unpack(out time);
+            buffer.Unpack(out val);
+            buffer.Unpack(out inTangent);
+            buffer.Unpack(out outTangent);
+            buffer.Unpack(out inWeight);
+            buffer.Unpack(out outWeight);
             value.weightedMode = buffer.UnpackEnum<WeightedMode>();
         }
 
@@ -89,15 +125,15 @@ namespace RePacker.Unity
             var postMode = value.postWrapMode;
             var keys = value.keys;
 
-            buffer.PackEnum(ref preMode);
-            buffer.PackEnum(ref postMode);
+            buffer.Pack(ref preMode);
+            buffer.Pack(ref postMode);
             RePacking.Pack(buffer, ref keys);
         }
 
         public override void Unpack(ReBuffer buffer, out AnimationCurve value)
         {
-            var preMode = buffer.UnpackEnum<WrapMode>();
-            var postMode = buffer.UnpackEnum<WrapMode>();
+            buffer.Unpack<WrapMode>(out var preMode);
+            buffer.Unpack<WrapMode>(out var postMode);
             var keys = RePacking.Unpack<Keyframe[]>(buffer);
 
             value = new AnimationCurve(keys);
@@ -118,18 +154,18 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref Vector4 value)
         {
-            buffer.PackFloat(ref value.x);
-            buffer.PackFloat(ref value.y);
-            buffer.PackFloat(ref value.z);
-            buffer.PackFloat(ref value.w);
+            buffer.Pack(ref value.x);
+            buffer.Pack(ref value.y);
+            buffer.Pack(ref value.z);
+            buffer.Pack(ref value.w);
         }
 
         public override void Unpack(ReBuffer buffer, out Vector4 value)
         {
-            buffer.UnpackFloat(out value.x);
-            buffer.UnpackFloat(out value.y);
-            buffer.UnpackFloat(out value.z);
-            buffer.UnpackFloat(out value.w);
+            buffer.Unpack(out value.x);
+            buffer.Unpack(out value.y);
+            buffer.Unpack(out value.z);
+            buffer.Unpack(out value.w);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Vector4 value)
@@ -143,16 +179,16 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref Vector3 value)
         {
-            buffer.PackFloat(ref value.x);
-            buffer.PackFloat(ref value.y);
-            buffer.PackFloat(ref value.z);
+            buffer.Pack(ref value.x);
+            buffer.Pack(ref value.y);
+            buffer.Pack(ref value.z);
         }
 
         public override void Unpack(ReBuffer buffer, out Vector3 value)
         {
-            buffer.UnpackFloat(out value.x);
-            buffer.UnpackFloat(out value.y);
-            buffer.UnpackFloat(out value.z);
+            buffer.Unpack(out value.x);
+            buffer.Unpack(out value.y);
+            buffer.Unpack(out value.z);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Vector3 value)
@@ -166,14 +202,14 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref Vector2 value)
         {
-            buffer.PackFloat(ref value.x);
-            buffer.PackFloat(ref value.y);
+            buffer.Pack(ref value.x);
+            buffer.Pack(ref value.y);
         }
 
         public override void Unpack(ReBuffer buffer, out Vector2 value)
         {
-            buffer.UnpackFloat(out value.x);
-            buffer.UnpackFloat(out value.y);
+            buffer.Unpack(out value.x);
+            buffer.Unpack(out value.y);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Vector2 value)
@@ -192,16 +228,16 @@ namespace RePacker.Unity
             int vx = value.x;
             int vy = value.y;
             int vz = value.z;
-            buffer.PackInt(ref vx);
-            buffer.PackInt(ref vy);
-            buffer.PackInt(ref vz);
+            buffer.Pack(ref vx);
+            buffer.Pack(ref vy);
+            buffer.Pack(ref vz);
         }
 
         public override void Unpack(ReBuffer buffer, out Vector3Int value)
         {
-            buffer.UnpackInt(out int vx);
-            buffer.UnpackInt(out int vy);
-            buffer.UnpackInt(out int vz);
+            buffer.Unpack(out int vx);
+            buffer.Unpack(out int vy);
+            buffer.Unpack(out int vz);
 
             value = new Vector3Int(vx, vy, vz);
         }
@@ -219,14 +255,14 @@ namespace RePacker.Unity
         {
             int vx = value.x;
             int vy = value.y;
-            buffer.PackInt(ref vx);
-            buffer.PackInt(ref vy);
+            buffer.Pack(ref vx);
+            buffer.Pack(ref vy);
         }
 
         public override void Unpack(ReBuffer buffer, out Vector2Int value)
         {
-            buffer.UnpackInt(out int vx);
-            buffer.UnpackInt(out int vy);
+            buffer.Unpack(out int vx);
+            buffer.Unpack(out int vy);
 
             value = new Vector2Int(vx, vy);
         }
@@ -244,18 +280,18 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref Color value)
         {
-            buffer.PackFloat(ref value.r);
-            buffer.PackFloat(ref value.g);
-            buffer.PackFloat(ref value.b);
-            buffer.PackFloat(ref value.a);
+            buffer.Pack(ref value.r);
+            buffer.Pack(ref value.g);
+            buffer.Pack(ref value.b);
+            buffer.Pack(ref value.a);
         }
 
         public override void Unpack(ReBuffer buffer, out Color value)
         {
-            buffer.UnpackFloat(out value.r);
-            buffer.UnpackFloat(out value.g);
-            buffer.UnpackFloat(out value.b);
-            buffer.UnpackFloat(out value.a);
+            buffer.Unpack(out value.r);
+            buffer.Unpack(out value.g);
+            buffer.Unpack(out value.b);
+            buffer.Unpack(out value.a);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Color value)
@@ -269,19 +305,19 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref Color32 value)
         {
-            buffer.PackByte(ref value.r);
-            buffer.PackByte(ref value.g);
-            buffer.PackByte(ref value.b);
-            buffer.PackByte(ref value.a);
+            buffer.Pack(ref value.r);
+            buffer.Pack(ref value.g);
+            buffer.Pack(ref value.b);
+            buffer.Pack(ref value.a);
         }
 
         public override void Unpack(ReBuffer buffer, out Color32 value)
         {
             value = new Color32();
-            buffer.UnpackByte(out value.r);
-            buffer.UnpackByte(out value.g);
-            buffer.UnpackByte(out value.b);
-            buffer.UnpackByte(out value.a);
+            buffer.Unpack(out value.r);
+            buffer.Unpack(out value.g);
+            buffer.Unpack(out value.b);
+            buffer.Unpack(out value.a);
         }
 
         public override void UnpackInto(ReBuffer buffer, ref Color32 value)
@@ -409,6 +445,7 @@ namespace RePacker.Unity
         }
     }
 
+    #region Components
     [RePackerWrapper(typeof(UnityEngine.Transform))]
     public class TransformPacker : RePackerWrapper<UnityEngine.Transform>
     {
@@ -504,4 +541,5 @@ namespace RePacker.Unity
             value.angularVelocity = angularVelocity;
         }
     }
+    #endregion
 }
