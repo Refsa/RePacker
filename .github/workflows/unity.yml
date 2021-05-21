@@ -21,7 +21,7 @@ jobs:
       - name: Run tests
         uses: MirrorNG/unity-runner@3.1.0
         with:
-          args: -runTests -projectPath . -testPlatform EditMode
+          args: -runTests -projectPath . -testPlatform EditMode -testResults ${{ steps.testRunnerInEditMode.outputs.filePath }}
 
   testRunnerInPlayMode:
     name: PlayMode Tests
@@ -41,4 +41,4 @@ jobs:
       - name: Run tests
         uses: MirrorNG/unity-runner@3.1.0
         with:
-          args: -runTests -projectPath . -testPlatform PlayMode
+          args: -runTests -projectPath . -testPlatform PlayMode -testResults ${{ steps.testRunnerInPlayMode.outputs.filePath }}

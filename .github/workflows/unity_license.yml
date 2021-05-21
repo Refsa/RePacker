@@ -1,10 +1,10 @@
 name: Generate-Unity-License-File
 
 on: [push]
-if: false()
 
 jobs:
   requestActivationFile:
+    if: false()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
