@@ -13,6 +13,11 @@ namespace RePacker.Buffers
         static uint ZERO_UINT = 0;
         static ulong ZERO_ULONG = 0;
 
+        /// <summary>
+        /// Packs String into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackString(this ReBuffer buffer, ref string str)
         {
@@ -41,6 +46,11 @@ namespace RePacker.Buffers
             }
         }
 
+        /// <summary>
+        /// Unpacks a String from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string UnpackString(this ReBuffer buffer)
         {
@@ -68,12 +78,22 @@ namespace RePacker.Buffers
             return "";
         }
 
+        /// <summary>
+        /// Unpacks a String from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackString(this ReBuffer buffer, out string value)
         {
             value = UnpackString(buffer);
         }
 
+        /// <summary>
+        /// Packs DateTime into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackDateTime(this ReBuffer buffer, ref DateTime value)
         {
@@ -81,6 +101,11 @@ namespace RePacker.Buffers
             buffer.Pack(ref ticks);
         }
 
+        /// <summary>
+        /// Unpacks a DateTime from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackDateTime(this ReBuffer buffer, out DateTime value)
         {
@@ -88,6 +113,11 @@ namespace RePacker.Buffers
             value = new DateTime(ticks);
         }
 
+        /// <summary>
+        /// Packs TimeSpan into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackTimeSpan(this ReBuffer buffer, ref TimeSpan value)
         {
@@ -95,6 +125,11 @@ namespace RePacker.Buffers
             buffer.Pack(ref ticks);
         }
 
+        /// <summary>
+        /// Unpacks a TimeSpan from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackTimeSpan(this ReBuffer buffer, out TimeSpan value)
         {
@@ -102,12 +137,22 @@ namespace RePacker.Buffers
             value = new TimeSpan(ticks);
         }
 
+        /// <summary>
+        /// Packs Enum into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackEnum<TEnum>(this ReBuffer buffer, ref TEnum target) where TEnum : unmanaged, Enum
         {
             buffer.Pack(ref target);
         }
 
+        /// <summary>
+        /// Unpacks a Enum from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TEnum UnpackEnum<TEnum>(this ReBuffer buffer) where TEnum : unmanaged, Enum
         {
@@ -115,23 +160,44 @@ namespace RePacker.Buffers
             return value;
         }
 
+        /// <summary>
+        /// Packs BlittableArray into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackBlittableArray<T>(this ReBuffer buffer, T[] data) where T : unmanaged
         {
             buffer.PackArray(data);
         }
 
+        /// <summary>
+        /// Unpacks a BlittableArray from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] UnpackBlittableArray<T>(this ReBuffer buffer) where T : unmanaged
         {
             return buffer.UnpackArray<T>();
         }
 
+        /// <summary>
+        /// Unpacks a UnmanagedArrayOut from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void UnpackUnmanagedArrayOut<T>(this ReBuffer buffer, out T[] data) where T : unmanaged
         {
             data = buffer.UnpackArray<T>();
         }
+
+        /// <summary>
+        /// Packs KeyValuePair into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
 
         public static void PackKeyValuePair<T1, T2>(this ReBuffer buffer, ref KeyValuePair<T1, T2> value)
         {
@@ -142,6 +208,12 @@ namespace RePacker.Buffers
             RePacking.Pack<T2>(buffer, ref v);
         }
 
+        /// <summary>
+        /// Unpacks a KeyValuePair from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
+
         public static void UnpackKeyValuePair<T1, T2>(this ReBuffer buffer, out KeyValuePair<T1, T2> value)
         {
             value = new KeyValuePair<T1, T2>(
@@ -149,6 +221,12 @@ namespace RePacker.Buffers
                 RePacking.Unpack<T2>(buffer)
             );
         }
+
+        /// <summary>
+        /// Packs Nullable into buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="str"></param>
 
         public static void PackNullable<TValue>(this ReBuffer buffer, ref Nullable<TValue> value) where TValue : unmanaged
         {
@@ -161,6 +239,12 @@ namespace RePacker.Buffers
                 RePacking.Pack(buffer, ref v);
             }
         }
+
+        /// <summary>
+        /// Unpacks a Nullable from buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
 
         public static void UnpackNullable<TValue>(this ReBuffer buffer, out Nullable<TValue> value) where TValue : unmanaged
         {
