@@ -422,11 +422,86 @@ namespace RePacker.Unity
             Pack<Vector3>(buffer, ref scale);
         }
 
+        public override void Unpack(ReBuffer buffer, out Transform value)
+        {
+            throw new System.NotSupportedException("UnityEngine MonoBehaviours cant be constructed, use UnpackInto");
+        }
+
         public override void UnpackInto(ReBuffer buffer, ref Transform value)
         {
             value.localPosition = Unpack<Vector3>(buffer);
             value.localRotation = Unpack<Quaternion>(buffer);
             value.localScale = Unpack<Vector3>(buffer);
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.Rigidbody))]
+    public class RigidbodyPacker : RePackerWrapper<UnityEngine.Rigidbody>
+    {
+        public override void Pack(ReBuffer buffer, ref Rigidbody value)
+        {
+            var position = value.position;
+            var rotation = value.rotation;
+            var velocity = value.velocity;
+            var angularVelocity = value.angularVelocity;
+
+            buffer.Pack<Vector3>(ref position);
+            buffer.Pack<Quaternion>(ref rotation);
+            buffer.Pack<Vector3>(ref velocity);
+            buffer.Pack<Vector3>(ref angularVelocity);
+        }
+
+        public override void Unpack(ReBuffer buffer, out Rigidbody value)
+        {
+            throw new System.NotSupportedException("UnityEngine MonoBehaviours cant be constructed, use UnpackInto");
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref Rigidbody value)
+        {
+            buffer.Unpack<Vector3>(out var position);
+            buffer.Unpack<Quaternion>(out var rotation);
+            buffer.Unpack<Vector3>(out var velocity);
+            buffer.Unpack<Vector3>(out var angularVelocity);
+
+            value.position = position;
+            value.rotation = rotation;
+            value.velocity = velocity;
+            value.angularVelocity = angularVelocity;
+        }
+    }
+
+    [RePackerWrapper(typeof(UnityEngine.Rigidbody2D))]
+    public class Rigidbody2DPacker : RePackerWrapper<UnityEngine.Rigidbody2D>
+    {
+        public override void Pack(ReBuffer buffer, ref Rigidbody2D value)
+        {
+            var position = value.position;
+            var rotation = value.rotation;
+            var velocity = value.velocity;
+            var angularVelocity = value.angularVelocity;
+
+            buffer.Pack<Vector2>(ref position);
+            buffer.Pack<float>(ref rotation);
+            buffer.Pack<Vector2>(ref velocity);
+            buffer.Pack<float>(ref angularVelocity);
+        }
+
+        public override void Unpack(ReBuffer buffer, out Rigidbody2D value)
+        {
+            throw new System.NotSupportedException("UnityEngine MonoBehaviours cant be constructed, use UnpackInto");
+        }
+
+        public override void UnpackInto(ReBuffer buffer, ref Rigidbody2D value)
+        {
+            buffer.Unpack<Vector2>(out var position);
+            buffer.Unpack<float>(out var rotation);
+            buffer.Unpack<Vector2>(out var velocity);
+            buffer.Unpack<float>(out var angularVelocity);
+
+            value.position = position;
+            value.rotation = rotation;
+            value.velocity = velocity;
+            value.angularVelocity = angularVelocity;
         }
     }
 }
