@@ -3,35 +3,34 @@ name: Unity-Tests
 on: [push]
 
 jobs:
-  testRunnerInEditMode:
-    name: EditMode Tests
-    runs-on: ubuntu-latest
-    env:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Activate license
-        uses: MirrorNG/unity-runner@3.1.0
-        with:
-          entrypoint: /activate.sh
-
-      - name: Run tests
-        uses: MirrorNG/unity-runner@3.1.0
-        id: editModeTests
-        with:
-          args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform EditMode -testResults results.xml
-
-      - name: Expose as artifact
-        uses: actions/upload-artifact@v2
-        with:
-            name: EditMode Test Results
-            path: results.xml
-
+#  testRunnerInEditMode:
+#    name: EditMode Tests
+#    runs-on: ubuntu-latest
+#    env:
+#      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v2
+#
+#      - name: Activate license
+#        uses: MirrorNG/unity-runner@3.1.0
+#        with:
+#          entrypoint: /activate.sh
+#
+#      - name: Run tests
+#        uses: MirrorNG/unity-runner@3.1.0
+#        id: editModeTests
+#        with:
+#          args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform EditMode -testResults results.xml
+#
+#      - name: Expose as artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#            name: EditMode Test Results
+#            path: results.xml
   testRunnerInPlayMode:
     name: PlayMode Tests
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
     steps:
