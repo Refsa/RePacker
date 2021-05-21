@@ -9,7 +9,6 @@ jobs:
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
     steps:
-      # Checkout repository (required to test local actions)
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -20,8 +19,15 @@ jobs:
 
       - name: Run tests
         uses: MirrorNG/unity-runner@3.1.0
+        id: editModeTests
         with:
-          args: -runTests -projectPath . -testPlatform EditMode -testResults ${{ steps.testRunnerInEditMode.outputs.filePath }}
+          args: -runTests -projectPath . -testPlatform EditMode -testResults results.xml
+
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v2
+        with:
+            name: EditMode Test Results
+            path: ${{ steps.editModeTests.outputs.filePath }}
 
   testRunnerInPlayMode:
     name: PlayMode Tests
@@ -29,7 +35,6 @@ jobs:
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
     steps:
-      # Checkout repository (required to test local actions)
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -40,5 +45,12 @@ jobs:
 
       - name: Run tests
         uses: MirrorNG/unity-runner@3.1.0
+        id: playModeTests
         with:
-          args: -runTests -projectPath . -testPlatform PlayMode -testResults ${{ steps.testRunnerInPlayMode.outputs.filePath }}
+          args: -runTests -projectPath . -testPlatform PlayMode -testResults results.xml
+
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v2
+        with:
+            name: PlayMode Test Results
+            path: results.xml
