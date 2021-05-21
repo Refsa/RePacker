@@ -1,34 +1,36 @@
-Version 2.0.0:
+Version 2.1.0:
     - x
     
-- clean up the csproj files
-- clean up test cases
-- clean up benchmarks
-- make ILogger support object and formatting
-- prepend/append to allow for circular buffer functionality
-- fix some of the exception stuff that is handled internally, mostly related to library development pains
-    High priority
-- fix some of the Tuple constructors that doesnt exist pre 4.7
+- @low clean up the csproj files
+- @low clean up test cases
+- @low clean up benchmarks
+- @low make ILogger support object and formatting
+- @low prepend/append to allow for circular buffer functionality
+- @critical fix some of the exception stuff that is handled internally, mostly related to library development pains
+- @high fix some of the Tuple constructors that doesnt exist pre 4.7
     In general Tuples are not supported in 4.6 without an external package, so they should
     probably be removed for this target
-- move some of the unsafe usage of MemoryCopy and the unsafe calls in StringHelper, they mostly provide no benefit over the safe ones
+- @low move some of the unsafe usage of MemoryCopy and the unsafe calls in StringHelper, they mostly provide no benefit over the safe ones
 
-- setting/moving write cursor before read cursor should move the read cursor
-- make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
-- RePackerWrapper<T> should probably override the [RePacker] attribute
-- change some of the generic T parms to something more descriptive
-- StringHelper is not working as intended in some cases, getting wrong size
-    Probably the SizeOf method on StringHelper, it's calling the wrong string size method
-
-Base Serializer:
-    - ISet<T>
-
-Ideas:
-    - Meta data? insert version, type name, etc.
-        Should move this to user settings so they can be toggled on/off for better performance
-        The cost of inserting a header is fairly low though, so might be worth it
+- @high setting/moving write cursor before read cursor should move the read cursor
+- @low make a parameter for [RePacker] attribute as a toggle between either skipping or including fields/properties marked with [RePack]
+- @low RePackerWrapper<T> should probably override the [RePacker] attribute
+- @low change some of the generic T parms to something more descriptive
+- @high UnpackInto requires more proper testing
+- @high Reorganize and clean up TypeCache, naming of TypeCache also doesnt make sense anymore
+- @low "ref" should probably be replaced with "in" for most entry points to the code, as ref doesnt support properties
+    One issue with this is that pre NET4.7 doesnt support in keyword, only ref
+- @low SizeOf on managed arrays is extremely slow, should probably look into other ways to handle it
+- @high A lot of comments on public facing API is missing
+- @low ReBuffer::Peek is a bit ambiguous in how it works, although the inner workings makes the most sense
+    It takes a byteOffset, but it could seem as though the offset would be T * byteOffset
+    Having it be T * byteOffset would make it less flexible though, so maybe a util method to 
+    calculate byte offset from T would be nice to have.
+- @low Add a UnpackRef<T> method that returns a reference to the value, instead of a copy
 
 Archive:
+  ✔ StringHelper is not working as intended in some cases, getting wrong size @done(21-05-04 13:02)
+    Probably the SizeOf method on StringHelper, it's calling the wrong string size method
   ✔ ReBuffer::Copy uses wrong Length, see ReBuffer::CopyFixed @done(21-05-04 12:20)
   ✔ test cases for SizeOf with Classes as base type @done(21-03-07 11:47) @project(Version 2.0.0)
   ✔ ValueTuple with TRest value (8th generic argument) @done(21-03-07 11:46) @project(Version 2.0.0)

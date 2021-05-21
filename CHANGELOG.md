@@ -2,14 +2,15 @@
 
 ## Version 2.1.0
 ### Features
+- Added ReBuffer::ShrinkFit to resize internal array to fit used space of buffer
 
 ### Changes
+- ReBuffer::Copy using WriteCursor instead of Length
+- ReBuffer::Clone using write cursor instead of Length for new buffers size
 
 ### Fixes
-- fixed ReBuffer::Copy using WriteCursor instead of Length
-- fixed ReBuffer::SetWriteCursor/SetReadCursor not checking for lower bounds
-- fixed ReBuffer::CanWriteBytes not checking correct bounds
-- fixed ReBuffer::Clone using write cursor instead of Length for new buffers size
+- ReBuffer::SetWriteCursor/SetReadCursor not checking for lower bounds
+- ReBuffer::CanWriteBytes not checking correct bounds
 - more test cases for ReBuffer
 - clarified offset parameter on ReBuffer::Peek as byteOffset
 

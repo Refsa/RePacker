@@ -38,6 +38,10 @@ namespace RePacker.Buffers
             }
         }
 
+        /// <summary>
+        /// Shallow copy of given buffer
+        /// </summary>
+        /// <param name="buffer">Buffer to get a shallow copy of</param>
         public ReBuffer(ReBuffer buffer)
         {
             if (buffer == null)
@@ -56,6 +60,12 @@ namespace RePacker.Buffers
             }
         }
 
+        /// <summary>
+        /// Copies the given buffer, appending it to the end of this one
+        /// 
+        /// Requires that this buffer has enough space available
+        /// </summary>
+        /// <param name="source">Buffer to copy from</param>
         public unsafe void Copy(ReBuffer source)
         {
             int length = source.Length();
@@ -74,6 +84,10 @@ namespace RePacker.Buffers
             MoveWriteCursor(length);
         }
 
+        /// <summary>
+        /// Clones buffer into a new buffer, only copying the used space
+        /// </summary>
+        /// <returns>A new buffer with the used space of this buffer</returns>
         public unsafe ReBuffer Clone()
         {
             var buffer = new ReBuffer(Length());
@@ -86,6 +100,19 @@ namespace RePacker.Buffers
             buffer.writeCursor = writeCursor;
 
             return buffer;
+        }
+
+        /// <summary>
+        /// Shrinks internal array to only contain contents between read and write cursor
+        /// </summary>
+        public void ShrinkFit()
+        {
+            var newArray = new byte[Length()];
+            System.Buffer.BlockCopy(array, readCursor, newArray, 0, Length());
+            array = newArray;
+
+            writeCursor -= readCursor;
+            readCursor = 0;
         }
 
         #region General

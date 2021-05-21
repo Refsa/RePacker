@@ -31,14 +31,16 @@ namespace RePacker.Unsafe
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe int SizeOf(string value)
+        public static int SizeOf(string value)
         {
             if (value == null) return 0;
 
-            fixed (char* asC = value)
+            return stringEncoder.GetByteCount(value);
+
+            /* fixed (char* asC = value)
             {
                 return stringEncoder.GetByteCount(asC, value.Length);
-            }
+            } */
         }
     }
 }

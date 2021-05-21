@@ -45,6 +45,27 @@ namespace RePacker.Tests
             }
         }
 
+        [Fact]
+        public void string_expands_auto_buffer()
+        {
+            string value = "aowejoianfaiwenuivaweifvnawiuefv";
+
+            var buffer = new ReBuffer(0, true);
+            buffer.PackString(ref value);
+
+            Assert.Equal(buffer.Array.Length, 40);
+        }
+
+        [Fact]
+        public void reading_string_of_wrong_size_throws()
+        {
+            var buffer = new ReBuffer(32);
+            ulong size = 32;
+            buffer.Pack(ref size);
+
+            Assert.Throws<System.IndexOutOfRangeException>(() => buffer.UnpackString());
+        }
+
         public enum TestByteEnum : byte
         {
             Zero = 0,

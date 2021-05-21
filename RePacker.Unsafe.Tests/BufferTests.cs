@@ -916,6 +916,35 @@ namespace RePacker.Buffers.Tests
             }
         }
 
+        [Fact]
+        public void shrink_fit_resizes_to_used_space()
+        {
+            var buffer = new ReBuffer(32);
+
+            for (int i = 0; i < 4; i++) buffer.Pack(ref i);
+
+            {
+                buffer.ShrinkFit();
+                Assert.Equal(16, buffer.Array.Length);
+            }
+
+            {
+                buffer.Unpack<int>(out var val);
+                Assert.Equal(0, val);
+            }
+
+            {
+                buffer.ShrinkFit();
+                Assert.Equal(12, buffer.Array.Length);
+            }
+
+            for (int i = 1; i < 4; i++)
+            {
+                buffer.Unpack<int>(out var val);
+                Assert.Equal(i, val);
+            }
+        }
+
         struct Ints
         {
             public int Int1;
