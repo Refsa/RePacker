@@ -10,6 +10,12 @@ namespace RePacker.Builder
     public static class PackerCollectionsExt
     {
         #region Array
+        /// <summary>
+        /// Packs a managed Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackArray<T>(this ReBuffer buffer, T[] data)
         {
             if (data == null || data.Length == 0)
@@ -35,6 +41,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Unpacks a managed Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackArray<T>(this ReBuffer buffer, out T[] data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
@@ -53,6 +65,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs a managed 2D Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackArray2D<T>(this ReBuffer buffer, ref T[,] data)
         {
             if (data == null)
@@ -83,6 +101,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Unpacks a managed 2D Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackArray2D<T>(this ReBuffer buffer, out T[,] data)
         {
             buffer.Unpack<int>(out int width);
@@ -104,6 +128,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs a managed 3D Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackArray3D<T>(this ReBuffer buffer, ref T[,,] data)
         {
             if (data == null)
@@ -136,6 +166,12 @@ namespace RePacker.Builder
                     }
         }
 
+        /// <summary>
+        /// Unpacks a managed 3D Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackArray3D<T>(this ReBuffer buffer, out T[,,] data)
         {
             buffer.Unpack<ulong>(out ulong width);
@@ -157,6 +193,12 @@ namespace RePacker.Builder
                     }
         }
 
+        /// <summary>
+        /// Packs a managed 4D Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackArray4D<T>(this ReBuffer buffer, ref T[,,,] data)
         {
             if (data == null)
@@ -193,6 +235,12 @@ namespace RePacker.Builder
                         }
         }
 
+        /// <summary>
+        /// Unpacks a managed 4D Array
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackArray4D<T>(this ReBuffer buffer, out T[,,,] data)
         {
             buffer.Unpack<ulong>(out ulong width);
@@ -218,6 +266,12 @@ namespace RePacker.Builder
         #endregion
 
         #region IList
+        /// <summary>
+        /// Packs a managed IList
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackIList<T>(this ReBuffer buffer, IList<T> data)
         {
             if (data == null)
@@ -244,6 +298,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Unpacks a managed IList
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackIList<T>(this ReBuffer buffer, out IList<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
@@ -263,11 +323,23 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs an unmanaged IList
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackIListBlittable<T>(this ReBuffer buffer, IList<T> data) where T : unmanaged
         {
             buffer.PackArray((T[])data);
         }
 
+        /// <summary>
+        /// Unpacks an unmanaged IListBlittable
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackIListBlittable<T>(this ReBuffer buffer, out IList<T> data) where T : unmanaged
         {
             data = buffer.UnpackArray<T>();
@@ -275,6 +347,12 @@ namespace RePacker.Builder
         #endregion
 
         #region IEnumerable
+        /// <summary>
+        /// Packs a managed IEnumerable
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackIEnumerable<T>(this ReBuffer buffer, IEnumerable<T> data)
         {
             if (data == null || data.Count() == 0)
@@ -301,6 +379,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Unpacks a managed IEnumerable
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackIEnumerable<T>(this ReBuffer buffer, out IEnumerable<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
@@ -320,11 +404,23 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs an unmanaged IEnumerable
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackIEnumerableBlittable<T>(this ReBuffer buffer, IEnumerable<T> data) where T : unmanaged
         {
             buffer.PackArray((T[])data);
         }
 
+        /// <summary>
+        /// Unpacks an unmanaged IEnumerableBlittable
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackIEnumerableBlittable<T>(this ReBuffer buffer, out IEnumerable<T> data) where T : unmanaged
         {
             T[] temp = buffer.UnpackArray<T>();
@@ -333,6 +429,12 @@ namespace RePacker.Builder
         #endregion
 
         #region ICollection
+        /// <summary>
+        /// Packs a managed ICollection
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackICollection<T>(this ReBuffer buffer, ICollection<T> data)
         {
             if (data == null)
@@ -359,6 +461,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Unpacks a managed ICollection
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackICollection<T>(this ReBuffer buffer, out ICollection<T> data)
         {
             if (TypeCache.TryGetTypePacker<T>(out var packer))
@@ -378,11 +486,23 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs an unmanaged ICollection
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackICollectionBlittable<T>(this ReBuffer buffer, ICollection<T> data) where T : unmanaged
         {
             buffer.PackArray((T[])data);
         }
 
+        /// <summary>
+        /// Unpacks an unmanaged ICollectionBlittable
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackICollectionBlittable<T>(this ReBuffer buffer, out ICollection<T> data) where T : unmanaged
         {
             data = buffer.UnpackArray<T>();
@@ -399,11 +519,23 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs a managed Queue
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackQueue<T>(this ReBuffer buffer, Queue<T> data)
         {
             PackIEnumerable<T>(buffer, data);
         }
 
+        /// <summary>
+        /// Packs a managed Stack
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackStack<T>(this ReBuffer buffer, Stack<T> data)
         {
             if (data == null)
@@ -430,6 +562,12 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Packs a managed HashSet
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void PackHashSet<T>(this ReBuffer buffer, HashSet<T> data)
         {
             PackIEnumerable<T>(buffer, data);
@@ -453,18 +591,36 @@ namespace RePacker.Builder
             }
         }
 
+        /// <summary>
+        /// Unpacks a managed Queue
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackQueue<T>(this ReBuffer buffer, out Queue<T> data)
         {
             data = new Queue<T>();
             UnpackCollectionInternal<T>(buffer, data.Enqueue);
         }
 
+        /// <summary>
+        /// Unpacks a managed Stack
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackStack<T>(this ReBuffer buffer, out Stack<T> data)
         {
             data = new Stack<T>();
             UnpackCollectionInternal<T>(buffer, data.Push);
         }
 
+        /// <summary>
+        /// Unpacks a managed HashSet
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
         public static void UnpackHashSet<T>(this ReBuffer buffer, out HashSet<T> data)
         {
             data = new HashSet<T>();
@@ -476,6 +632,12 @@ namespace RePacker.Builder
             self.Add(item);
         }
 
+        /// <summary>
+        /// Gives the size of an unmanaged collection of T
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>size of collection in bytes (N * sizeof(T))</returns>
         public static int SizeOfCollection<T>(this IEnumerator data)
         {
             int size = sizeof(ulong);
