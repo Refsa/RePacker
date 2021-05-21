@@ -46,7 +46,7 @@ jobs:
         run: nuget restore "./RePacker.Unity/RePacker.Unity.csproj"
         
       - name: Build RePacker
-        run: msbuild "./RePacker.Unity/RePacker.Unity.csproj" /p:configuration=Unity
+        run: msbuild "./RePacker.Unity/RePacker.Unity.csproj" /p:configuration=Unity;TargetFrameworkVersion=net4.6.1
       - name: Move RePacker DLLs
         run: |
           mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.dll
