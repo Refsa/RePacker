@@ -1,5 +1,8 @@
 name: Generate-Unity-License-File
+
 on: [push]
+if: false()
+
 jobs:
   requestActivationFile:
     runs-on: ubuntu-latest

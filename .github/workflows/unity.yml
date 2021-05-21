@@ -1,5 +1,6 @@
 name: Unity-Tests
 
+on: [push]
 
 jobs:
   testRunnerInEditMode:
