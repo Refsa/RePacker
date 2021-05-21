@@ -30,28 +30,28 @@ jobs:
 #            path: results.xml
   testRunnerInPlayMode:
     name: PlayMode Tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
-      - name: nuget restore
-        run: nuget restore "./RePacker.Unity/RePacker.Unity.csproj"
-        
-      - name: Build RePacker
-        run: msbuild "./RePacker.Unity/RePacker.Unity.csproj" "/p:configuration=Unity;TargetFrameworkVersion=net4.6.1"
-      - name: Move RePacker DLLs
-        run: |
-          mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.dll
-          mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.Unsafe.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.Unsafe.dll
-          mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.Unity.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.Unity.dll
+#      - name: Add msbuild to PATH
+#        uses: microsoft/setup-msbuild@v1.0.2
+#
+#      - name: Setup NuGet
+#        uses: NuGet/setup-nuget@v1.0.5
+#      - name: nuget restore
+#        run: nuget restore "./RePacker.Unity/RePacker.Unity.csproj"
+#        
+#      - name: Build RePacker
+#        run: msbuild "./RePacker.Unity/RePacker.Unity.csproj" /p:TargetFrameworkVersion=v4.6.1;configuration=Unity
+#      - name: Move RePacker DLLs
+#        run: |
+#          mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.dll
+#          mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.Unsafe.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.Unsafe.dll
+#          mv ./RePacker.Unity/bin/Unity/net4.6.1/RePacker.Unity.dll ./RePacker.Unity.Tests/Assets/RePacker/RePacker.Unity.dll
 
       - name: Activate license
         uses: MirrorNG/unity-runner@3.1.0
