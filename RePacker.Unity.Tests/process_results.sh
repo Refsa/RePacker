@@ -1,6 +1,9 @@
 normal=$'\e[0m'
 red="$bold$(tput setaf 1)"
 green="$bold$(tput setaf 2)"
+class_color="$bold$(tput setaf 4)"
+method_color="$bold$(tput setaf 6)"
+method_failed_color=$bold$'\e[0;38;2;191;063;000m'
 
 echoerr() { cat <<< "$@" 1>&2; }
 
@@ -19,9 +22,9 @@ parse_xml () {
         eval local $ATTRIBUTES 2> /dev/null
 
         if [[ $result = "Failed" ]]; then
-            echo "Test Case $classname::$methodname -> ${red}Failed${normal}" > /dev/stderr
+            echo "${red}Failed${normal}: ${class_color}$classname::${red}$methodname${normal}" > /dev/stderr
         else
-            echo "Test Case $classname::$methodname -> ${green}Passed${normal}"
+            echo "${green}Passed${normal}: ${class_color}$classname::${method_color}$methodname${normal}"
         fi
     fi
 }
