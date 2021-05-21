@@ -23,7 +23,6 @@ jobs:
         with:
           args: -runTests -projectPath . -testPlatform EditMode
 
-jobs:
   testRunnerInPlayMode:
     name: PlayMode Tests
     runs-on: ubuntu-latest
