@@ -2,6 +2,9 @@ using System;
 
 namespace RePacker
 {
+    /// <summary>
+    /// Marks a struct/class to generate a packer for it
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public sealed class RePackerAttribute : System.Attribute
     {
@@ -12,7 +15,10 @@ namespace RePacker
             this.UseOnAllPublicFields = useOnAllPublicFields;
         }
     }
-
+    
+    /// <summary>
+    /// Marks a field or property to be packed
+    /// </summary>
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public sealed class RePackAttribute : System.Attribute
     {
