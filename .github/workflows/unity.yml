@@ -59,13 +59,13 @@ jobs:
           entrypoint: /activate.sh
 
       - name: Run tests
-        uses: MirrorNG/unity-runner@3.1.0
         id: playModeTests
+        uses: MirrorNG/unity-runner@3.1.0
         with:
-          args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform PlayMode -testResults ./results.xml
+          args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform PlayMode -testResults results.xml
 
       - name: Expose as artifact
         uses: actions/upload-artifact@v2
         with:
             name: PlayMode Test Results
-            path: ./results.xml
+            path: ./RePacker.Unity.Tests/results.xml
