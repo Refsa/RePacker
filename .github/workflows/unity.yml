@@ -1,6 +1,7 @@
 name: Unity-Tests
 
 on: [push]
+# on:
   # push:
   #   branches: [ main ]
   #   paths:
@@ -49,36 +50,3 @@ jobs:
         with:
           name: Test results for ${{ matrix.testMode }}
           path: ${{ steps.tests.outputs.artifactsPath }}
-
-# jobs:
-#   testRunnerInPlayMode:
-#     name: PlayMode Tests
-#     runs-on: ubuntu-latest
-#     env:
-#       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}   
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
-
-#       - name: Activate license
-#         uses: MirrorNG/unity-runner@3.1.0
-#         with:
-#           entrypoint: /activate.sh
-
-#       - name: Run tests
-#         id: playModeTests
-#         uses: MirrorNG/unity-runner@3.1.0
-#         with:
-#           args: -runTests -projectPath ./RePacker.Unity.Tests/ -testPlatform PlayMode -testResults results.xml
-
-#       - name: Process Results
-#         shell: bash
-#         run: |
-#           ./RePacker.Unity.Tests/process_results.sh -i ./RePacker.Unity.Tests/TestResults/results.xml > results.txt
-#           cat results.txt
-
-#       - name: Expose as artifact
-#         uses: actions/upload-artifact@v2
-#         with:
-#             name: PlayMode Test Results
-#             path: results.txt

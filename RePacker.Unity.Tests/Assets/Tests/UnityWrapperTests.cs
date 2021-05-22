@@ -14,6 +14,12 @@ namespace Tests
         ReBuffer buffer = new ReBuffer(1024);
 
         [Test]
+        public void ThisWillFail()
+        {
+            Assert.True(false);
+        }
+
+        [Test]
         public void wrapper_quaternion_packing()
         {
             buffer.Reset();
