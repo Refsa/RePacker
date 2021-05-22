@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
     <Authors>Ole-Gustav Røed</Authors>
     <Title>RePacker.Unsafe - Packing utilities</Title>
     <Description>Utility library to pack/unpack data to/from a byte array</Description>
