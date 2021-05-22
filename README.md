@@ -236,6 +236,20 @@ SupportMe packMe = new SupportMe{Float = 1.337f, Int = 1337};
 int size = RePacking.SizeOf(ref packMe);
 ```
 
+### Modifying a value in the buffer
+To modify a value that exists in the buffer a method exists to get a reference to it. `ReBuffer::GetRef<T>()` will return a reference value that you can then modify, without having to repack the value into the buffer. Do note that this is only possible for unmanage value types such as primitives and structs of primitives.  
+
+Additionally you need to use the specific syntax below in order to interface with the reference value.
+
+```cs
+ref int value = ref buffer.GetRef<int>();
+value *= 10;
+// Value in buffer is now X*10
+
+// You can also give an offset in bytes
+ref int value = ref buffer.GetRef<int>(8);
+```
+
 ## Supported Types
 
 ### C# Types
