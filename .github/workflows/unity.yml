@@ -1,17 +1,16 @@
 name: Unity-Tests
 
-on: [push]
-# on:
-  # push:
-  #   branches: [ main ]
-  #   paths:
-  #     - RePacker.Unity.Tests/**
-  #     - RePacker.Unity/**
-  # pull_request:
-  #   branches: [ main ]
-  #   paths:
-  #     - RePacker.Unity.Tests/**
-  #     - RePacker.Unity/**
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - RePacker.Unity.Tests/**
+      - RePacker.Unity/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - RePacker.Unity.Tests/**
+      - RePacker.Unity/**
 
 jobs:
   testAllModes:
