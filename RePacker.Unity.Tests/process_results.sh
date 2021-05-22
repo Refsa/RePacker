@@ -7,6 +7,18 @@ method_failed_color=$bold$'\e[0;38;2;191;063;000m'
 
 echoerr() { cat <<< "$@" 1>&2; }
 
+while getopts i: flag
+do
+    case "${flag}" in
+        i) results_path=${OPTARG};;
+    esac
+done
+
+if [ -z "$results_path" ] 
+    then
+        results_path="./TestResults/results.xml"
+fi
+
 read_xml () {
     local IFS=\>
     read -d \< ENTITY CONTENT
@@ -31,6 +43,6 @@ parse_xml () {
 
 while read_xml; do
     parse_xml
-done < ./TestResults/results.xml
+done < $results_path
 
 #grep 'test-case.' ./TestResults/results.xml
