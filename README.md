@@ -293,7 +293,13 @@ Additionally:
 RePacker.Unity projects contains support needed for Unity types.
 
 ```
-Transform, Color, Color32, Vector2, Vector3, Vector4, Quaternion, Vector3Int, Vector2Int
+// Components - these needs to be used with UnpackInto to work
+Transform, Rigidbody, Rigidbody2D   
+
+// These can be directly packed into the buffer, but using RePacking.Pack/Unpack is more stable
+Vector2, Vector3, Vector4, Vector3Int, Vector2Int, Quaternion, Matrix4x4
+RectInt, Rect, BoundsInt, Bounds
+Color, Color32
 ```
 
 ## ReBuffer
