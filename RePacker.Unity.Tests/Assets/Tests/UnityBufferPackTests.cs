@@ -18,7 +18,7 @@ namespace Tests
         {
             buffer.Reset();
 
-            Quaternion quat = Quaternion.AngleAxis(45f, Vector3.right);
+            Quaternion quat = Quaternion.Euler(1.23f, 4.56f, 7.89f);
             buffer.Pack(ref quat);
 
             buffer.Unpack(out Quaternion from);
