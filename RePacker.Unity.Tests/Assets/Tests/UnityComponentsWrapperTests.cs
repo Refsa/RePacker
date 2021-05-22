@@ -30,7 +30,7 @@ namespace Tests
             buffer.Reset();
 
             var go = new GameObject("Pack Transform");
-            go.transform.position = Vector3.one * 1234f;
+            go.transform.position = Vector3.one * 1234.44f;
             go.transform.rotation = Quaternion.Euler(45f, 45f, 45f);
             yield return null;
 
@@ -44,7 +44,7 @@ namespace Tests
             RePacking.UnpackInto(buffer, ref transform);
             yield return null;
 
-            Assert.AreEqual(Vector3.one * 1234f, transform.position);
+            Assert.AreEqual(Vector3.one * 1234.44f, transform.position);
             Assert.AreEqual(Quaternion.Euler(45f, 45f, 45f), transform.rotation);
         }
 
@@ -54,8 +54,8 @@ namespace Tests
             buffer.Reset();
 
             var go = new GameObject("Pack Transform");
-            go.transform.position = Vector3.one * 1234f;
-            go.transform.rotation = Quaternion.Euler(45f, 45f, 45f);
+            go.transform.position = Vector3.one * 1234.1235f;
+            go.transform.rotation = Quaternion.Euler(45.456f, 45.456f, 45.456f);
             yield return null;
 
             var transform = go.transform;
@@ -90,7 +90,6 @@ namespace Tests
             yield return null;
 
             RePacking.UnpackInto(buffer, ref rb);
-            yield return null;
 
             Assert.AreEqual(Vector3.one * 234.234f, rb.position);
             Assert.AreEqual(Quaternion.Euler(45f, 45f, 45f), rb.rotation);
@@ -149,7 +148,6 @@ namespace Tests
             yield return null;
 
             RePacking.UnpackInto(buffer, ref rb2d);
-            yield return null;
 
             Assert.AreEqual(Vector2.one * 234.456f, rb2d.position);
             Assert.AreEqual(34.346f, rb2d.rotation);

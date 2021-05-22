@@ -452,12 +452,12 @@ namespace RePacker.Unity
     {
         public override void Pack(ReBuffer buffer, ref UnityEngine.Transform value)
         {
-            var pos = value.localPosition;
-            Pack<Vector3>(buffer, ref pos);
-            var rot = value.localRotation;
-            Pack<Quaternion>(buffer, ref rot);
+            var pos = value.position;
+            buffer.Pack<Vector3>(ref pos);
+            var rot = value.rotation;
+            buffer.Pack<Quaternion>(ref rot);
             var scale = value.localScale;
-            Pack<Vector3>(buffer, ref scale);
+            buffer.Pack<Vector3>(ref scale);
         }
 
         public override void Unpack(ReBuffer buffer, out Transform value)
@@ -467,9 +467,13 @@ namespace RePacker.Unity
 
         public override void UnpackInto(ReBuffer buffer, ref Transform value)
         {
-            value.localPosition = Unpack<Vector3>(buffer);
-            value.localRotation = Unpack<Quaternion>(buffer);
-            value.localScale = Unpack<Vector3>(buffer);
+            buffer.Unpack<Vector3>(out var pos);
+            buffer.Unpack<Quaternion>(out var rot);
+            buffer.Unpack<Vector3>(out var scale);
+
+            value.position = pos;
+            value.rotation = rot;
+            value.localScale = scale;
         }
     }
 
