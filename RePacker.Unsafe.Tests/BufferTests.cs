@@ -1517,5 +1517,69 @@ namespace RePacker.Buffers.Tests
                 ref var _ = ref buffer.GetRef<int>(8);
             });
         }
+
+        [Fact]
+        public void unpack_short_with_endianness()
+        {
+            // Pack with Little-Endian, see if it reflects as the Big-Endian variant
+
+            var buffer = new ReBuffer(4);
+            buffer.SetEndianness(Endianness.LittleEndian);
+            short val = 8192;
+            buffer.Pack(ref val);
+
+            buffer.SetEndianness(Endianness.BigEndian);
+            buffer.Unpack(out val);
+
+            Assert.Equal(32, val);
+        }
+
+        [Fact]
+        public void unpack_int_with_endianness()
+        {
+            // Pack with Little-Endian, see if it reflects as the Big-Endian variant
+
+            var buffer = new ReBuffer(4);
+            buffer.SetEndianness(Endianness.LittleEndian);
+            int val = 536870912;
+            buffer.Pack(ref val);
+
+            buffer.SetEndianness(Endianness.BigEndian);
+            buffer.Unpack(out val);
+
+            Assert.Equal(32, val);
+        }
+
+        [Fact]
+        public void unpack_long_with_endianness()
+        {
+            // Pack with Little-Endian, see if it reflects as the Big-Endian variant
+
+            var buffer = new ReBuffer(8);
+            buffer.SetEndianness(Endianness.LittleEndian);
+            long val = 1697783392239648;
+            buffer.Pack(ref val);
+            
+            buffer.SetEndianness(Endianness.BigEndian);
+            buffer.Unpack(out val);
+
+            Assert.Equal(2305843009751090688, val);
+        }
+
+        [Fact]
+        public void unpack_float_with_endianness()
+        {
+            // Pack with Little-Endian, see if it reflects as the Big-Endian variant
+
+            var buffer = new ReBuffer(8);
+            buffer.SetEndianness(Endianness.LittleEndian);
+            float val = 2.20224633e-38f;
+            buffer.Pack(ref val);
+
+            buffer.SetEndianness(Endianness.BigEndian);
+            buffer.Unpack(out val);
+
+            Assert.Equal(-1.46324619e-12f, val);
+        }
     }
 }
