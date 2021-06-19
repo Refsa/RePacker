@@ -26,8 +26,16 @@ namespace RePacker.Buffers
 
             fixed (byte* data = &buffer.Array[buffer.WriteCursor()])
             {
-                *((T*)data) = value;
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((T*)data) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((T*)data) = value;
+                }
             }
+
 
             buffer.MoveWriteCursor(sizeof(T));
         }
@@ -53,6 +61,11 @@ namespace RePacker.Buffers
             fixed (byte* data = &buffer.Array[buffer.ReadCursor()])
             {
                 value = *(T*)data;
+            }
+
+            if (buffer.Endianness == Endianness.BigEndian)
+            {
+                value = UnsafeUtils.ToBigEndian(value);
             }
 
             buffer.MoveReadCursor(sizeof(T));
@@ -82,7 +95,7 @@ namespace RePacker.Buffers
                 throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
             }
 
-            fixed(byte* data = &buffer.Array[buffer.ReadCursor() + byteOffset])
+            fixed (byte* data = &buffer.Array[buffer.ReadCursor() + byteOffset])
             {
                 T* t = (T*)data;
 
