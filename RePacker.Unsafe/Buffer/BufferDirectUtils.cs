@@ -21,7 +21,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Unpacks Bool bool from the buffer
+        /// Unpacks Bool from the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -34,7 +34,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Packs a is into the buffer
+        /// Packs a Byte into the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -46,7 +46,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Unpacks Byte bool from the buffer
+        /// Unpacks a Byte from the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -58,7 +58,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Packs a his into the buffer
+        /// Packs a SByte into the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -470,30 +470,6 @@ namespace RePacker.Buffers.Extra
                 }
             }
             buffer.MoveWriteCursor(4);
-
-            // IEEE-like impl
-            /* float source = value;
-
-            bool isNegative = value < 0f;
-            if (isNegative) value = -value;
-
-            int exp = 0;
-            if (value == 0f)
-            {
-                exp = 0;
-            }
-            else
-            {
-                source = MathExt.LDExp(MathExt.FRExp(source, out exp), 24);
-                source += 126;
-            }
-
-            int mantissa = (int)source;
-
-            buffer.Span[writeCursor++] = (byte)((isNegative ? 0x80 : 0x00) | (exp >> 1));
-            buffer.Span[writeCursor++] = (byte)(((exp << 7) & 0x80) | ((mantissa >> 16) & 0x7F));
-            buffer.Span[writeCursor++] = (byte)(mantissa >> 7);
-            buffer.Span[writeCursor++] = (byte)(mantissa); */
         }
 
         /// <summary>
