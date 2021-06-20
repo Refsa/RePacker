@@ -50,6 +50,11 @@ namespace RePacker
             settings = settings_;
         }
 
+        public static void SetDefaultEndianness(Endianness endianness)
+        {
+            settings.Endianness = endianness;
+        }
+
         /// <summary>
         /// Pack value into buffer
         /// 
@@ -72,6 +77,7 @@ namespace RePacker
         public static ReBuffer Pack<T>(ref T value)
         {
             var buffer = new ReBuffer(SizeOf(ref value), true);
+            buffer.SetEndianness(settings.Endianness);
             Pack(buffer, ref value);
             return buffer;
         }
