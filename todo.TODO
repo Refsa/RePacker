@@ -19,6 +19,8 @@ Version 2.1.0:
 - @low "ref" should probably be replaced with "in" for most entry points to the code, as ref doesnt support properties
     One issue with this is that pre NET4.7 doesnt support in keyword, only ref
 - @low SizeOf on managed arrays is extremely slow, should probably look into other ways to handle it
+- @low SizeOf for strings is a bit slow, might be better to use a different SizeOf for Packing and Unpacking them
+    especially for auto-buffer, where we can refit the array afterwards. More hits to Gen.0, but might be worth it
 - @low ReBuffer::Peek is a bit ambiguous in how it works, although the inner workings makes the most sense
     It takes a byteOffset, but it could seem as though the offset would be T * byteOffset
     Having it be T * byteOffset would make it less flexible though, so maybe a util method to 
@@ -29,6 +31,7 @@ Version 2.1.0:
     ☐ ILUtils
 
 Archive:
+  ✔ @high support for seleting between big/little endianess @done(21-06-20 02:35)
   ✘ @low make ILogger support object and formatting @cancelled(21-05-21 13:59)
   ✔ @low clean up the csproj files @done(21-05-21 13:59)
   ✔ @high A lot of comments on public facing API is missing @done(21-05-21 13:59)
