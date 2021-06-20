@@ -1398,9 +1398,10 @@ namespace RePacker.Buffers.Tests
             var buffer = new ReBuffer(64);
             buffer.PackBuffer(internalBuffer);
 
-            Assert.Equal(32 + 16, buffer.Length());
+            // 32 for data, 16 for read/write cursor, 1 for endianness
+            Assert.Equal(32 + 16 + 1, buffer.Length());
             Assert.Equal(internalBuffer.ReadCursor(), buffer.ReadCursor());
-            Assert.Equal(internalBuffer.WriteCursor() + 16, buffer.WriteCursor());
+            Assert.Equal(internalBuffer.WriteCursor() + 17, buffer.WriteCursor());
         }
 
         [Fact]
