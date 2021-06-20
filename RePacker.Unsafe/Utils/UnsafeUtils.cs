@@ -28,10 +28,12 @@ namespace RePacker.Unsafe
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe T ToBigEndian<T>(T value) where T : unmanaged
         {
-            byte* asP = (byte*)&value;
-
             int size = sizeof(T);
             int halfSize = size / 2;
+
+            if (size == 1) return value;
+
+            byte* asP = (byte*)&value;
 
             for (int i = 0; i < halfSize; i++)
             {

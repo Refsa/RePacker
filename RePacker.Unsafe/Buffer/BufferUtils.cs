@@ -9,7 +9,9 @@ namespace RePacker.Buffers
         /// <summary>
         /// Packs an unmanaged value type T<para />
         /// 
-        /// Moves the write cursor for sizeof(T) bytes
+        /// Moves the write cursor for sizeof(T) bytes<para />
+        /// 
+        /// changes endianness
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value">value to apack</param>
@@ -43,7 +45,9 @@ namespace RePacker.Buffers
         /// <summary>
         /// Unpack an unmanaged value of type T<para />
         /// 
-        /// Moves the read cursor for sizeof(T) bytes
+        /// Moves the read cursor for sizeof(T) bytes<para />
+        /// 
+        /// changes endianness
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value">out variable to hold the value T</param>
@@ -79,7 +83,9 @@ namespace RePacker.Buffers
         /// 
         /// You can then modify "thing" to change it's value in the buffer without repacking it<para />
         /// 
-        /// Does not move the read/write cursor
+        /// Does not move the read/write cursor<para />
+        /// 
+        /// Does not change endianness
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="byteOffset">Offset in bytes to read value reference from</param>
@@ -106,7 +112,9 @@ namespace RePacker.Buffers
         /// <summary>
         /// Peeks an unmanaged value type T from the buffer<para />
         /// 
-        /// Does not move the read/write cursor
+        /// Does not move the read/write cursor<para />
+        /// 
+        /// Changes endianness
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="byteOffset">offset in bytes to peek T from</param>
@@ -124,14 +132,23 @@ namespace RePacker.Buffers
 
             fixed (byte* data = &buffer.Array[buffer.ReadCursor() + byteOffset])
             {
-                return *(T*)data;
+                T value = *(T*)data;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+
+                return value;
             }
         }
 
         /// <summary>
         /// Directly copies an array of unmanaged value types T into buffer<para />
         /// 
-        /// Moves write cursor for (sizeof(T) * N) bytes
+        /// Moves write cursor for (sizeof(T) * N) bytes<para />
+        /// 
+        /// does not change endianness
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="array">Array of elements to copy</param>
@@ -174,7 +191,9 @@ namespace RePacker.Buffers
         /// 
         /// Will return an empty array of T if no array was recognized on the buffer<para />
         /// 
-        /// Moves read cursor equal to (sizeof(T) * N) bytes
+        /// Moves read cursor equal to (sizeof(T) * N) bytes<para />
+        /// 
+        /// Does not change endianness
         /// </summary>
         /// <param name="buffer"></param>
         /// <typeparam name="T">unmanaged value type</typeparam>
@@ -215,8 +234,11 @@ namespace RePacker.Buffers
         {
             int readCursor = other.ReadCursor();
             int writeCursor = other.WriteCursor();
+            var endianness = other.Endianness;
+
             buffer.Pack(ref readCursor);
             buffer.Pack(ref writeCursor);
+            buffer.Pack(ref endianness);
             buffer.PackArray(other.Array, other.ReadCursor(), other.Length());
         }
 
@@ -234,10 +256,12 @@ namespace RePacker.Buffers
         {
             buffer.Unpack(out int readCursor);
             buffer.Unpack(out int writeCursor);
+            buffer.Unpack(out Endianness endianness);
 
             var value = new ReBuffer(buffer.UnpackArray<byte>());
             value.SetReadCursor(readCursor);
             value.SetWriteCursor(writeCursor);
+            value.SetEndianness(endianness);
 
             return value;
         }
