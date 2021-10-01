@@ -24,5 +24,25 @@ namespace RePacker.Unsafe
 
             // return Marshal.SizeOf<T>();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T ToBigEndian<T>(T value) where T : unmanaged
+        {
+            int size = sizeof(T);
+            int halfSize = size / 2;
+
+            if (size == 1) return value;
+
+            byte* asP = (byte*)&value;
+
+            for (int i = 0; i < halfSize; i++)
+            {
+                byte temp = *(asP + size - i - 1);
+                *(asP + size - i - 1) = *(asP + i);
+                *(asP + i) = temp;
+            }
+
+            return value;
+        }
     }
 }

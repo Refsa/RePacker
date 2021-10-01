@@ -21,7 +21,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Unpacks Bool bool from the buffer
+        /// Unpacks Bool from the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -34,287 +34,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Packs a Short into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackShort(this ReBuffer buffer, ref short value)
-        {
-            if (!buffer.CanWrite<short>())
-            {
-                throw new IndexOutOfRangeException("Trying to write short outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((short*)val) = value;
-            }
-            buffer.MoveWriteCursor(2);
-        }
-
-        /// <summary>
-        /// Unpacks a Short from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackShort(this ReBuffer buffer, out short value)
-        {
-            if (!buffer.CanRead<short>())
-            {
-                throw new IndexOutOfRangeException("Trying to read short outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(short*)val;
-            }
-            buffer.MoveReadCursor(2);
-        }
-
-        /// <summary>
-        /// Packs a UShort into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackUShort(this ReBuffer buffer, ref ushort value)
-        {
-            if (!buffer.CanWrite<ushort>())
-            {
-                throw new IndexOutOfRangeException("Trying to write ushort outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((ushort*)val) = value;
-            }
-            buffer.MoveWriteCursor(2);
-        }
-
-        /// <summary>
-        /// Unpacks a UShort from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackUShort(this ReBuffer buffer, out ushort value)
-        {
-            if (!buffer.CanRead<ushort>())
-            {
-                throw new IndexOutOfRangeException("Trying to read ushort outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(ushort*)val;
-            }
-            buffer.MoveReadCursor(2);
-        }
-
-        /// <summary>
-        /// Packs a Int into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackInt(this ReBuffer buffer, ref int value)
-        {
-            if (!buffer.CanWrite<int>())
-            {
-                throw new IndexOutOfRangeException("Trying to write int outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((int*)val) = value;
-            }
-            buffer.MoveWriteCursor(4);
-        }
-
-        /// <summary>
-        /// Unpacks a Int from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackInt(this ReBuffer buffer, out int value)
-        {
-            if (!buffer.CanRead<int>())
-            {
-                throw new IndexOutOfRangeException("Trying to read int outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(int*)val;
-            }
-            buffer.MoveReadCursor(4);
-        }
-
-        /// <summary>
-        /// Packs a UInt into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackUInt(this ReBuffer buffer, ref uint value)
-        {
-            if (!buffer.CanWrite<uint>())
-            {
-                throw new IndexOutOfRangeException("Trying to write uint outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((uint*)val) = value;
-            }
-            buffer.MoveWriteCursor(4);
-        }
-
-        /// <summary>
-        /// Unpacks a UInt from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackUInt(this ReBuffer buffer, out uint value)
-        {
-            if (!buffer.CanRead<uint>())
-            {
-                throw new IndexOutOfRangeException("Trying to read uint outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(uint*)val;
-            }
-            buffer.MoveReadCursor(4);
-        }
-
-        /// <summary>
-        /// Packs a Long into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackLong(this ReBuffer buffer, ref long value)
-        {
-            if (!buffer.CanWrite<long>())
-            {
-                throw new IndexOutOfRangeException("Trying to write long outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((long*)val) = value;
-            }
-            buffer.MoveWriteCursor(8);
-        }
-
-        /// <summary>
-        /// Unpacks a Long from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackLong(this ReBuffer buffer, out long value)
-        {
-            if (!buffer.CanRead<long>())
-            {
-                throw new IndexOutOfRangeException("Trying to read long outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(long*)val;
-            }
-            buffer.MoveReadCursor(8);
-        }
-
-        /// <summary>
-        /// Packs a ULong into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackULong(this ReBuffer buffer, ref ulong value)
-        {
-            if (!buffer.CanWrite<ulong>())
-            {
-                throw new IndexOutOfRangeException("Trying to write ulong outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((ulong*)val) = value;
-            }
-            buffer.MoveWriteCursor(8);
-        }
-
-        /// <summary>
-        /// Unpacks a ULong from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackULong(this ReBuffer buffer, out ulong value)
-        {
-            if (!buffer.CanRead<ulong>())
-            {
-                throw new IndexOutOfRangeException("Trying to read ulong outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(ulong*)val;
-            }
-            buffer.MoveReadCursor(8);
-        }
-
-        /// <summary>
-        /// Packs a Char into the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void PackChar(this ReBuffer buffer, ref char value)
-        {
-            if (!buffer.CanWrite<char>())
-            {
-                throw new IndexOutOfRangeException("Trying to write char outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
-            {
-                *((char*)val) = value;
-            }
-            buffer.MoveWriteCursor(2);
-        }
-
-        /// <summary>
-        /// Unpacks a Char from the buffer
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="value"></param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void UnpackChar(this ReBuffer buffer, out char value)
-        {
-            if (!buffer.CanRead<char>())
-            {
-                throw new IndexOutOfRangeException("Trying to read char outside of buffer range");
-            }
-
-            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(char*)val;
-            }
-            buffer.MoveReadCursor(2);
-        }
-
-        /// <summary>
-        /// Packs a is into the buffer
+        /// Packs a Byte into the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -326,7 +46,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Unpacks Byte bool from the buffer
+        /// Unpacks a Byte from the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -338,7 +58,7 @@ namespace RePacker.Buffers.Extra
         }
 
         /// <summary>
-        /// Packs a his into the buffer
+        /// Packs a SByte into the buffer
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="value"></param>
@@ -361,6 +81,369 @@ namespace RePacker.Buffers.Extra
             buffer.MoveReadCursor(1);
         }
 
+        /// <summary>
+        /// Packs a Short into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackShort(this ReBuffer buffer, ref short value)
+        {
+            if (!buffer.CanWrite<short>())
+            {
+                throw new IndexOutOfRangeException("Trying to write short outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((short*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((short*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(2);
+        }
+
+        /// <summary>
+        /// Unpacks a Short from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackShort(this ReBuffer buffer, out short value)
+        {
+            if (!buffer.CanRead<short>())
+            {
+                throw new IndexOutOfRangeException("Trying to read short outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(short*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(2);
+        }
+
+        /// <summary>
+        /// Packs a UShort into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackUShort(this ReBuffer buffer, ref ushort value)
+        {
+            if (!buffer.CanWrite<ushort>())
+            {
+                throw new IndexOutOfRangeException("Trying to write ushort outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((ushort*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((ushort*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(2);
+        }
+
+        /// <summary>
+        /// Unpacks a UShort from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackUShort(this ReBuffer buffer, out ushort value)
+        {
+            if (!buffer.CanRead<ushort>())
+            {
+                throw new IndexOutOfRangeException("Trying to read ushort outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(ushort*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(2);
+        }
+
+        /// <summary>
+        /// Packs a Int into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackInt(this ReBuffer buffer, ref int value)
+        {
+            if (!buffer.CanWrite<int>())
+            {
+                throw new IndexOutOfRangeException("Trying to write int outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((int*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((int*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(4);
+        }
+
+        /// <summary>
+        /// Unpacks a Int from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackInt(this ReBuffer buffer, out int value)
+        {
+            if (!buffer.CanRead<int>())
+            {
+                throw new IndexOutOfRangeException("Trying to read int outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(int*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(4);
+        }
+
+        /// <summary>
+        /// Packs a UInt into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackUInt(this ReBuffer buffer, ref uint value)
+        {
+            if (!buffer.CanWrite<uint>())
+            {
+                throw new IndexOutOfRangeException("Trying to write uint outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((uint*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((uint*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(4);
+        }
+
+        /// <summary>
+        /// Unpacks a UInt from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackUInt(this ReBuffer buffer, out uint value)
+        {
+            if (!buffer.CanRead<uint>())
+            {
+                throw new IndexOutOfRangeException("Trying to read uint outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(uint*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(4);
+        }
+
+        /// <summary>
+        /// Packs a Long into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackLong(this ReBuffer buffer, ref long value)
+        {
+            if (!buffer.CanWrite<long>())
+            {
+                throw new IndexOutOfRangeException("Trying to write long outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((long*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((long*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(8);
+        }
+
+        /// <summary>
+        /// Unpacks a Long from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackLong(this ReBuffer buffer, out long value)
+        {
+            if (!buffer.CanRead<long>())
+            {
+                throw new IndexOutOfRangeException("Trying to read long outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(long*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(8);
+        }
+
+        /// <summary>
+        /// Packs a ULong into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackULong(this ReBuffer buffer, ref ulong value)
+        {
+            if (!buffer.CanWrite<ulong>())
+            {
+                throw new IndexOutOfRangeException("Trying to write ulong outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((ulong*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((ulong*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(8);
+        }
+
+        /// <summary>
+        /// Unpacks a ULong from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackULong(this ReBuffer buffer, out ulong value)
+        {
+            if (!buffer.CanRead<ulong>())
+            {
+                throw new IndexOutOfRangeException("Trying to read ulong outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(ulong*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(8);
+        }
+
+        /// <summary>
+        /// Packs a Char into the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void PackChar(this ReBuffer buffer, ref char value)
+        {
+            if (!buffer.CanWrite<char>())
+            {
+                throw new IndexOutOfRangeException("Trying to write char outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.WriteCursor()])
+            {
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *((char*)val) = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *((char*)val) = value;
+                }
+            }
+            buffer.MoveWriteCursor(2);
+        }
+
+        /// <summary>
+        /// Unpacks a Char from the buffer
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="value"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void UnpackChar(this ReBuffer buffer, out char value)
+        {
+            if (!buffer.CanRead<char>())
+            {
+                throw new IndexOutOfRangeException("Trying to read char outside of buffer range");
+            }
+
+            fixed (byte* val = &buffer.Array[buffer.ReadCursor()])
+            {
+                value = *(char*)val;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
+            }
+            buffer.MoveReadCursor(2);
+        }
 
         /// <summary>
         /// Packs a Float into the buffer
@@ -377,33 +460,16 @@ namespace RePacker.Buffers.Extra
 
             fixed (byte* buf = &buffer.Array[buffer.WriteCursor()])
             {
-                *(float*)buf = value;
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *(float*)buf = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *(float*)buf = value;
+                }
             }
             buffer.MoveWriteCursor(4);
-
-            // IEEE-like impl
-            /* float source = value;
-
-            bool isNegative = value < 0f;
-            if (isNegative) value = -value;
-
-            int exp = 0;
-            if (value == 0f)
-            {
-                exp = 0;
-            }
-            else
-            {
-                source = MathExt.LDExp(MathExt.FRExp(source, out exp), 24);
-                source += 126;
-            }
-
-            int mantissa = (int)source;
-
-            buffer.Span[writeCursor++] = (byte)((isNegative ? 0x80 : 0x00) | (exp >> 1));
-            buffer.Span[writeCursor++] = (byte)(((exp << 7) & 0x80) | ((mantissa >> 16) & 0x7F));
-            buffer.Span[writeCursor++] = (byte)(mantissa >> 7);
-            buffer.Span[writeCursor++] = (byte)(mantissa); */
         }
 
         /// <summary>
@@ -419,11 +485,14 @@ namespace RePacker.Buffers.Extra
                 throw new IndexOutOfRangeException("Trying to read float outside of buffer range");
             }
 
-            value = 0;
-
             fixed (byte* buf = &buffer.Array[buffer.ReadCursor()])
             {
                 value = *(float*)buf;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
             }
 
             buffer.MoveReadCursor(4);
@@ -444,7 +513,14 @@ namespace RePacker.Buffers.Extra
 
             fixed (byte* buf = &buffer.Array[buffer.WriteCursor()])
             {
-                *(double*)buf = value;
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *(double*)buf = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *(double*)buf = value;
+                }
             }
             buffer.MoveWriteCursor(8);
         }
@@ -462,11 +538,14 @@ namespace RePacker.Buffers.Extra
                 throw new IndexOutOfRangeException("Trying to read double outside of buffer range");
             }
 
-            value = 0;
-
             fixed (byte* buf = &buffer.Array[buffer.ReadCursor()])
             {
                 value = *(double*)buf;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
             }
 
             buffer.MoveReadCursor(8);
@@ -487,7 +566,14 @@ namespace RePacker.Buffers.Extra
 
             fixed (byte* buf = &buffer.Array[buffer.WriteCursor()])
             {
-                *(decimal*)buf = value;
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    *(decimal*)buf = UnsafeUtils.ToBigEndian(value);
+                }
+                else
+                {
+                    *(decimal*)buf = value;
+                }
             }
             buffer.MoveWriteCursor(24);
         }
@@ -505,11 +591,14 @@ namespace RePacker.Buffers.Extra
                 throw new IndexOutOfRangeException("Trying to read decimal outside of buffer range");
             }
 
-            value = 0;
-
             fixed (byte* buf = &buffer.Array[buffer.ReadCursor()])
             {
                 value = *(decimal*)buf;
+
+                if (buffer.Endianness == Endianness.BigEndian)
+                {
+                    value = UnsafeUtils.ToBigEndian(value);
+                }
             }
 
             buffer.MoveReadCursor(24);

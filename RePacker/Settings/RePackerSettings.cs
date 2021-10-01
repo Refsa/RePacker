@@ -1,4 +1,4 @@
-
+using RePacker.Buffers;
 using RePacker.Utils;
 
 namespace RePacker
@@ -22,22 +22,39 @@ namespace RePacker
         bool generateIL = true;
         public bool GenerateIL => generateIL;
 
+        Endianness endianness;
+        public Endianness Endianness { get => endianness; set => endianness = value; }
+
         public RePackerSettings()
         {
             log = new ConsoleLogger();
             log.Enabled = loggingEnabled;
+            endianness = System.BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
         }
 
         public RePackerSettings(ILogger logger)
         {
             log = logger;
             log.Enabled = loggingEnabled;
+            endianness = System.BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
         }
-        
+
         public RePackerSettings(bool enableLogging)
         {
             log = new ConsoleLogger();
             log.Enabled = enableLogging;
+            endianness = System.BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
+        }
+
+        public RePackerSettings(ILogger logger = null, bool enableLogging = false, Endianness endianness = Endianness.LittleEndian)
+        {
+            if (logger == null)
+            {
+                log = new ConsoleLogger();
+                log.Enabled = enableLogging;
+            }
+
+            this.endianness = endianness;
         }
     }
 }

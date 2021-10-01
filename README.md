@@ -27,7 +27,7 @@ Long Term Goals:
 - Control over stride/padding and endianess
 
 ## How
-Using IL generated at runtime and a healthy does of unsafe code we can achieve fast and stable serialization speeds. This is done by sacrificing control over stride and endianess and directly copying what the .NET runtime itself creates. 
+Using IL generated at runtime and a healthy does of unsafe code we can achieve fast and stable serialization speeds.
 
 From the benchmarks I've done this package provides the fastest way to serialize to a binary format across all supported .NET versions. Even if it is the fastest there are still many packages that provides more features for versioning and smaller binary size if that is a requirement.
 
@@ -43,6 +43,9 @@ You can also directly build the project under "RePackage" with `dotnet build -c 
 ## General Use
 
 Currently both bootstrapping is enabled by default, but can be toggled with the NO_BOOTSTRAP compiler defines. In .NET the bootstrap is initialized statically, but for Unity this happens with the use of `RuntimeInitializeOnLoad`.
+
+### Endianness
+Endianness is supported, but will default to the CLR endianness from BitConverter.IsLittleEndian. You can specify endianness on the buffer itself with `ReBuffer::SetEndianness` using the `Endianness` enum. You can also specify a default with RePackerSettings if you run your own bootstrap, or by calling `RePacking::SetDefaultEndianness`.
 
 ### ReBuffer
 This library primarily works on the ReBuffer class that is a wrapper around a byte array with some additonal utility for reading/writing data. By default the buffer doesnt grow in size to accomodate data, but there is support for this as well. Internally no pooling is done so this is something that has to be handled externally for now.
@@ -236,6 +239,20 @@ SupportMe packMe = new SupportMe{Float = 1.337f, Int = 1337};
 int size = RePacking.SizeOf(ref packMe);
 ```
 
+### Modifying a value in the buffer
+To modify a value that exists in the buffer a method exists to get a reference to it. `ReBuffer::GetRef<T>()` will return a reference value that you can then modify, without having to repack the value into the buffer. Do note that this is only possible for unmanage value types such as primitives and structs of primitives.  
+
+Additionally you need to use the specific syntax below in order to interface with the reference value.
+
+```cs
+ref int value = ref buffer.GetRef<int>();
+value *= 10;
+// Value in buffer is now X*10
+
+// You can also give an offset in bytes
+ref int value = ref buffer.GetRef<int>(8);
+```
+
 ## Supported Types
 
 ### C# Types
@@ -279,7 +296,13 @@ Additionally:
 RePacker.Unity projects contains support needed for Unity types.
 
 ```
-Transform, Color, Color32, Vector2, Vector3, Vector4, Quaternion, Vector3Int, Vector2Int
+// Components - these needs to be used with UnpackInto to work
+Transform, Rigidbody, Rigidbody2D   
+
+// These can be directly packed into the buffer, but using RePacking.Pack/Unpack is more stable
+Vector2, Vector3, Vector4, Vector3Int, Vector2Int, Quaternion, Matrix4x4
+RectInt, Rect, BoundsInt, Bounds
+Color, Color32
 ```
 
 ## ReBuffer
@@ -367,34 +390,34 @@ PackDictionary/UnpackDictionary
 Benchmarks are performed on an i5-4670k@4.3GHz with Windows 10. All benchmark code can be found under the RePacker.Bench project.
 
 ```cs
-// Benches found in ZeroFormatterBench.cs
+// Benches found in ZeroFormatterBench.cs + some additional tests
 
 /* netcoreapp3.1
                                  Method |            Mean
 --------------------------------------- |----------------
-          ILGen_SmallObjectSerialize10K |       469.52 us
-        ILGen_SmallObjectDeserialize10K |       894.33 us
-     ILGen_Auto_SmallObjectSerialize10K |     1,059.54 us
-               ILGen_VectorSerialize10K |       145.73 us
-             ILGen_VectorDeserialize10K |       189.76 us
-          ILGen_Auto_VectorSerialize10K |       349.87 us
-                  ILGen_IntSerialize10K |        68.20 us
-                ILGen_IntDeserialize10K |        60.84 us
-             ILGen_Auto_IntSerialize10K |       182.11 us
-                    PackIntSerialize10K |        37.97 us
-                  PackIntDeserialize10K |        30.38 us
-     ILGen_SmallObjectArraySerialize10K |   427,456.17 us
-   ILGen_SmallObjectArrayDeserialize10K |   877,289.80 us
-ILGen_Auto_SmallObjectArraySerialize10K |   974,992.79 us
-          ILGen_VectorArraySerialize10K |       417.39 us
-        ILGen_VectorArrayDeserialize10K |       966.85 us
-     ILGen_Auto_VectorArraySerialize10K |     1,123.19 us
-             ILGen_IntArraySerialize10K |       833.65 us
-           ILGen_IntArrayDeserialize10K |       433.98 us
-        ILGen_Auto_IntArraySerialize10K |     2,874.74 us
-             ILGen_LargeStringSerialize |   344,236.84 us
-           ILGen_LargeStringDeserialize | 2,351,884.98 us
-        ILGen_Auto_LargeStringSerialize | 1,673,592.76 us
+          ILGen_SmallObjectSerialize10K |       712.57 us
+        ILGen_SmallObjectDeserialize10K |       892.95 us
+     ILGen_Auto_SmallObjectSerialize10K |     1,175.49 us
+               ILGen_VectorSerialize10K |       164.57 us
+             ILGen_VectorDeserialize10K |       159.60 us
+          ILGen_Auto_VectorSerialize10K |       301.68 us
+                  ILGen_IntSerialize10K |        69.69 us
+                ILGen_IntDeserialize10K |        62.62 us
+             ILGen_Auto_IntSerialize10K |       178.50 us
+                    PackIntSerialize10K |        49.13 us
+                  PackIntDeserialize10K |        35.61 us
+     ILGen_SmallObjectArraySerialize10K |   652,137.50 us
+   ILGen_SmallObjectArrayDeserialize10K |   856,358.45 us
+ILGen_Auto_SmallObjectArraySerialize10K | 1,075,709.22 us
+          ILGen_VectorArraySerialize10K |       597.87 us
+        ILGen_VectorArrayDeserialize10K |     1,037.95 us
+     ILGen_Auto_VectorArraySerialize10K |     1,169.85 us
+             ILGen_IntArraySerialize10K |       963.48 us
+           ILGen_IntArrayDeserialize10K |       452.13 us
+        ILGen_Auto_IntArraySerialize10K |     2,907.45 us
+             ILGen_LargeStringSerialize |   771,316.78 us
+           ILGen_LargeStringDeserialize | 2,728,520.45 us
+        ILGen_Auto_LargeStringSerialize | 2,290,445.83 us
 */
 
 /* net4.6.1
@@ -423,6 +446,32 @@ ILGen_Auto_SmallObjectArraySerialize10K | 1,385,727.33 us
              ILGen_LargeStringSerialize | 1,518,598.64 us
            ILGen_LargeStringDeserialize | 3,454,324.89 us
         ILGen_Auto_LargeStringSerialize | 3,887,686.05 us
+
+                                 Method |            Mean
+--------------------------------------- |----------------
+          ILGen_SmallObjectSerialize10K |       892.65 us
+        ILGen_SmallObjectDeserialize10K |     1,008.63 us
+     ILGen_Auto_SmallObjectSerialize10K |     1,433.67 us
+               ILGen_VectorSerialize10K |       161.80 us
+             ILGen_VectorDeserialize10K |       171.16 us
+          ILGen_Auto_VectorSerialize10K |       294.30 us
+                  ILGen_IntSerialize10K |        63.43 us
+                ILGen_IntDeserialize10K |        60.31 us
+             ILGen_Auto_IntSerialize10K |       167.86 us
+                    PackIntSerialize10K |        38.17 us
+                  PackIntDeserialize10K |        34.75 us
+     ILGen_SmallObjectArraySerialize10K |   827,117.35 us
+   ILGen_SmallObjectArrayDeserialize10K |   973,007.00 us
+ILGen_Auto_SmallObjectArraySerialize10K | 1,368,944.08 us
+          ILGen_VectorArraySerialize10K |       392.66 us
+        ILGen_VectorArrayDeserialize10K |       984.11 us
+     ILGen_Auto_VectorArraySerialize10K |     1,193.45 us
+             ILGen_IntArraySerialize10K |       772.44 us
+           ILGen_IntArrayDeserialize10K |       483.35 us
+        ILGen_Auto_IntArraySerialize10K |     2,904.86 us
+             ILGen_LargeStringSerialize | 3,049,761.95 us
+           ILGen_LargeStringDeserialize | 3,644,474.06 us
+        ILGen_Auto_LargeStringSerialize | 5,427,890.90 us
 */
 ```
 

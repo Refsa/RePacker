@@ -6,15 +6,27 @@ using RePacker.Unsafe;
 
 namespace RePacker.Buffers
 {
+    public enum Endianness : byte
+    {
+        BigEndian = 0,
+        LittleEndian,
+    }
+
     public class ReBuffer
     {
+        static Endianness DefaultEndianness = BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
+
         byte[] array;
         public byte[] Array => array;
 
         int writeCursor;
         int readCursor;
+        Endianness endianness;
 
         bool expand;
+
+        public Endianness Endianness => endianness;
+        public void SetEndianness(Endianness endianness) => this.endianness = endianness;
 
         /// <summary>
         /// Create a new ReBuffer
@@ -27,6 +39,8 @@ namespace RePacker.Buffers
             this.writeCursor = 0;
             this.readCursor = 0;
             this.expand = expand;
+
+            this.endianness = DefaultEndianness;
         }
 
         /// <summary>
@@ -42,6 +56,8 @@ namespace RePacker.Buffers
 
             this.array = buffer;
             this.expand = expand;
+
+            this.endianness = DefaultEndianness;
 
             if (this.array == null)
             {
@@ -64,6 +80,7 @@ namespace RePacker.Buffers
             this.readCursor = buffer.readCursor;
 
             this.array = buffer.array;
+            this.endianness = buffer.endianness;
 
             if (this.array == null)
             {

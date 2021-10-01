@@ -1,5 +1,11 @@
 # Changelog
 
+
+## Version 2.2.0
+### Features
+- Support for Little and Big Endianness, this can be configured on ReBuffer::SetEndianness and will default to the endianness set in BitConverter::IsLittleEndian.
+    this change shouldn't affect current API
+
 ## Version 2.1.0
 ### Features
 - Added ReBuffer::ShrinkFit to resize internal array to fit used space of buffer
