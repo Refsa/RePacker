@@ -1,4 +1,4 @@
-
+using RePacker.Buffers;
 using RePacker.Utils;
 
 namespace RePacker
@@ -23,7 +23,7 @@ namespace RePacker
         public bool GenerateIL => generateIL;
 
         Endianness endianness;
-        public Endianness Endianness { get => endianness; private set => endianness = value; }
+        public Endianness Endianness { get => endianness; set => endianness = value; }
 
         public RePackerSettings()
         {
@@ -46,7 +46,7 @@ namespace RePacker
             endianness = System.BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
         }
 
-        public RePackerSettings(ILogger logger = null, bool enableLogging = false, Endiannness endianness = Endianness.LittleEndian)
+        public RePackerSettings(ILogger logger = null, bool enableLogging = false, Endianness endianness = Endianness.LittleEndian)
         {
             if (logger == null)
             {
