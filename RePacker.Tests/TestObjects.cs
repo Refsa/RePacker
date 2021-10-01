@@ -502,6 +502,20 @@ namespace RePacker.Tests
         public RePacker.Buffers.ReBuffer Buffer;
     }
 
+    public interface ITestInterface { }
+    [RePacker]
+    public class ClassHasInterface : ITestInterface
+    {
+        public int Int;
+        public float Float;
+    }
+
+    [RePacker]
+    public class ClassWithInterface
+    {
+        public ITestInterface Interface;
+    }
+
     [RePacker]
     public struct HasValueTuple1
     {

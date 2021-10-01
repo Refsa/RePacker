@@ -819,5 +819,19 @@ namespace RePacker.Tests
 
             Assert.Equal(34, buffer.WriteCursor());
         }
+
+        [Fact]
+        public void serialize_class_that_has_interface()
+        {
+            var obj = new ClassHasInterface();
+            var asInterface = (ITestInterface)obj;
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref asInterface);
+            var fromBuf = RePacking.Unpack<ClassHasInterface>(buffer);
+
+            Assert.Equal(obj.Int, fromBuf.Int);
+            Assert.Equal(obj.Float, fromBuf.Float);
+        }
     }
 }
