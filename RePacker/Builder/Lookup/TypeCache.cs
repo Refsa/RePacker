@@ -195,13 +195,13 @@ namespace RePacker.Builder
 
                 if (wrapperFor == null)
                 {
-                    // RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
+                    RePacking.Settings.Log.Warn($"Could not get {type} from RePackerWrapper<>");
                     continue;
                 }
 
                 if (typeCache.TryGetValue(type, out var _))
                 {
-                    // RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
+                    RePacking.Settings.Log.Warn($"Packer already exists for type {wrapperFor}");
                     continue;
                 }
 
@@ -509,6 +509,14 @@ namespace RePacker.Builder
             {
                 Pack<T>(buffer, ref value);
             }
+            else if (typeof(T).IsInterface)
+            {
+                if (AttemptToCreatePacker(value.GetType()))
+                {
+                    var m = typeof(TypeCache).GetMethod(nameof(Pack), BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(value.GetType());
+                    m.Invoke(null, new object[] { buffer, value });
+                }
+            }
             else
             {
                 throw new NotSupportedException($"Packer for {typeof(T)} not found");
@@ -534,6 +542,10 @@ namespace RePacker.Builder
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 return UnpackInternal<T>(buffer);
+            }
+            else if (typeof(T).IsInterface)
+            {
+                throw new NotSupportedException($"Can't unpack into an interface");
             }
             else
             {
@@ -573,6 +585,10 @@ namespace RePacker.Builder
             {
                 UnpackInto<T>(buffer, ref target);
             }
+            else if (target.GetType().IsInterface)
+            {
+                throw new NotSupportedException($"Can't unpack into an interface");
+            }
             else
             {
                 throw new NotSupportedException($"Unpacker for {typeof(T)} not found");
@@ -589,6 +605,10 @@ namespace RePacker.Builder
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 return GetSize(ref value);
+            }
+            else if (value.GetType().IsInterface)
+            {
+                throw new NotSupportedException($"Can't get size of an interface");
             }
             else
             {
