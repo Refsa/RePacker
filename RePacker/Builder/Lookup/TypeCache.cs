@@ -118,6 +118,7 @@ namespace RePacker.Builder
         static void BuildTypeCache()
         {
             typeCache = new ConcurrentDictionary<Type, Info>();
+            List<FieldInfo> serializedFields = new List<FieldInfo>();
 
             foreach (Type type in allTypes
                 .WithAttribute(typeof(RePackerAttribute)))
@@ -138,7 +139,7 @@ namespace RePacker.Builder
                     IsDirectlyCopyable = false,
                 };
 
-                List<FieldInfo> serializedFields = new List<FieldInfo>();
+                serializedFields.Clear();
 
                 // fields
                 {
@@ -266,7 +267,7 @@ namespace RePacker.Builder
 
                 if (info.SerializedFields == null)
                 {
-                    // RePacking.Logger.Error($"No serialized fields found on {type}");
+                    RePacking.Logger.Error($"No serialized fields found on {type}");
                     continue;
                 }
 
@@ -390,8 +391,9 @@ namespace RePacker.Builder
 
         internal static bool AttemptToCreatePacker(Type type)
         {
-            Type targetType = null;
+            if (type.IsInterface) return false;
 
+            Type targetType = null;
             foreach (var iface in type.GetInterfaces())
             {
                 if (runtimePackerProducers.TryGetValue(iface, out var producer))
@@ -606,9 +608,17 @@ namespace RePacker.Builder
             {
                 return GetSize(ref value);
             }
-            else if (value.GetType().IsInterface)
+            else if (typeof(T).IsInterface)
             {
-                throw new NotSupportedException($"Can't get size of an interface");
+                if (AttemptToCreatePacker(value.GetType()))
+                {
+                    var m = typeof(TypeCache).GetMethod(nameof(GetSize), BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(value.GetType());
+                    return (int)m.Invoke(null, new object[] { value });
+                }
+                else
+                {
+                    throw new NotSupportedException($"Can't get size of an anonymous interface");
+                }
             }
             else
             {
