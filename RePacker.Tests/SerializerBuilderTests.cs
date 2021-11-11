@@ -823,15 +823,41 @@ namespace RePacker.Tests
         [Fact]
         public void serialize_class_that_has_interface()
         {
-            var obj = new ClassHasInterface();
-            var asInterface = (ITestInterface)obj;
+            StructHasInterface obj = new StructHasInterface(1234, 1.234f);
+            ITestInterface asInterface = (ITestInterface)obj;
             buffer.Reset();
 
             RePacking.Pack(buffer, ref asInterface);
-            var fromBuf = RePacking.Unpack<ClassHasInterface>(buffer);
+            string msg = buffer.Array.Take(buffer.WriteCursor()).Aggregate("", (m, b) => m + b.ToString() + " ");
+            TestBootstrap.GlobalData.Logger.Log("Buffer: " + msg);
+
+            var fromBuf = RePacking.Unpack<StructHasInterface>(buffer);
 
             Assert.Equal(obj.Int, fromBuf.Int);
             Assert.Equal(obj.Float, fromBuf.Float);
+        }
+
+        [Fact]
+        public void serialize_class_that_has_two_of_same_interface()
+        {
+            StructHasInterface t1 = new StructHasInterface(1234, 1.234f);
+            ClassHasInterface t2 = new ClassHasInterface(892345890.23458902345, 9023458902345890);
+
+            ITestInterface asInterface1 = (ITestInterface)t1;
+            ITestInterface asInterface2 = (ITestInterface)t2;
+
+            buffer.Reset();
+
+            RePacking.Pack(buffer, ref asInterface1);
+            RePacking.Pack(buffer, ref asInterface2);
+
+            StructHasInterface t1FromBuf = RePacking.Unpack<StructHasInterface>(buffer);
+            Assert.Equal(t1.Int, t1FromBuf.Int);
+            Assert.Equal(t1.Float, t1FromBuf.Float);
+
+            ClassHasInterface t2FromBuf = RePacking.Unpack<ClassHasInterface>(buffer);
+            Assert.Equal(t2.Double, t2FromBuf.Double);
+            Assert.Equal(t2.Long, t2FromBuf.Long);
         }
     }
 }

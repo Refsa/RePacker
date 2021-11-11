@@ -383,6 +383,7 @@ namespace RePacker.Tests
         public KeyValuePair<int, int> KeyValuePair;
     }
 
+#region Marked Fields
     [RePacker(false)]
     public struct OnlyPackSelectedFields
     {
@@ -426,7 +427,9 @@ namespace RePacker.Tests
             return Float == other.Float && _int == other._int && Long == other.Long;
         }
     }
+#endregion
 
+#region Access Controlled
     [RePacker]
     public struct StructWithPrivateField
     {
@@ -458,14 +461,6 @@ namespace RePacker.Tests
     }
 
     [RePacker]
-    public struct HasNullable
-    {
-        public float? Float;
-        public int? Int;
-        public bool? Bool;
-    }
-
-    [RePacker]
     public sealed class SealedClass
     {
         public int Int;
@@ -489,7 +484,9 @@ namespace RePacker.Tests
         public long Long;
         public float Float;
     }
+#endregion
 
+#region ReBuffer packing
     [RePacker]
     public struct StructHasBuffer
     {
@@ -501,13 +498,34 @@ namespace RePacker.Tests
     {
         public RePacker.Buffers.ReBuffer Buffer;
     }
+#endregion
 
+#region Interfaces
     public interface ITestInterface { }
     [RePacker]
-    public class ClassHasInterface : ITestInterface
+    public struct StructHasInterface : ITestInterface
     {
         public int Int;
         public float Float;
+
+        public StructHasInterface(int @int, float @float)
+        {
+            Int = @int;
+            Float = @float;
+        }
+    }
+
+    [RePacker]
+    public class ClassHasInterface : ITestInterface
+    {
+        public double Double;
+        public long Long;
+
+        public ClassHasInterface(double @double, long @long)
+        {
+            Double = @double;
+            Long = @long;
+        }
     }
 
     [RePacker]
@@ -515,7 +533,9 @@ namespace RePacker.Tests
     {
         public ITestInterface Interface;
     }
+#endregion
 
+#region Tuples
     [RePacker]
     public struct HasValueTuple1
     {
@@ -563,6 +583,16 @@ namespace RePacker.Tests
     {
         public ValueTuple<int, int, int, int, int, int, int, ValueTuple<int>> VT;
     }
+#endregion
+
+#region Nullable
+    [RePacker]
+    public struct HasNullable
+    {
+        public float? Float;
+        public int? Int;
+        public bool? Bool;
+    }
 
 #if NETCOREAPP3_0 || NETCOREAPP3_1
 #nullable enable
@@ -576,4 +606,5 @@ namespace RePacker.Tests
         public List<float>? Floats {get; set;}
     }
 #endif
+#endregion
 }
