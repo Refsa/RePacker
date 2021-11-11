@@ -383,7 +383,7 @@ namespace RePacker.Tests
         public KeyValuePair<int, int> KeyValuePair;
     }
 
-#region Marked Fields
+    #region Marked Fields
     [RePacker(false)]
     public struct OnlyPackSelectedFields
     {
@@ -427,9 +427,9 @@ namespace RePacker.Tests
             return Float == other.Float && _int == other._int && Long == other.Long;
         }
     }
-#endregion
+    #endregion
 
-#region Access Controlled
+    #region Access Controlled
     [RePacker]
     public struct StructWithPrivateField
     {
@@ -484,9 +484,9 @@ namespace RePacker.Tests
         public long Long;
         public float Float;
     }
-#endregion
+    #endregion
 
-#region ReBuffer packing
+    #region ReBuffer packing
     [RePacker]
     public struct StructHasBuffer
     {
@@ -498,9 +498,9 @@ namespace RePacker.Tests
     {
         public RePacker.Buffers.ReBuffer Buffer;
     }
-#endregion
+    #endregion
 
-#region Interfaces
+    #region Interfaces
     public interface ITestInterface { }
     [RePacker]
     public struct StructHasInterface : ITestInterface
@@ -521,6 +521,8 @@ namespace RePacker.Tests
         public double Double;
         public long Long;
 
+        public ClassHasInterface() { }
+
         public ClassHasInterface(double @double, long @long)
         {
             Double = @double;
@@ -533,9 +535,9 @@ namespace RePacker.Tests
     {
         public ITestInterface Interface;
     }
-#endregion
+    #endregion
 
-#region Tuples
+    #region Tuples
     [RePacker]
     public struct HasValueTuple1
     {
@@ -583,9 +585,9 @@ namespace RePacker.Tests
     {
         public ValueTuple<int, int, int, int, int, int, int, ValueTuple<int>> VT;
     }
-#endregion
+    #endregion
 
-#region Nullable
+    #region Nullable
     [RePacker]
     public struct HasNullable
     {
@@ -606,5 +608,5 @@ namespace RePacker.Tests
         public List<float>? Floats {get; set;}
     }
 #endif
-#endregion
+    #endregion
 }
