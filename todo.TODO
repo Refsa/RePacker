@@ -29,6 +29,9 @@ Version 2.1.0:
     It currently does not care if it found any valid buffer while unpacking which wont notify the user of an error
 - @low hide some classes/methods that should be internal
     ☐ ILUtils
+- @high classes without empty constructor cant be auto-generated
+- @critical runtime generation of auto-class packers
+- @high should lazily generate packers instead of making all of them upfront
 
 Archive:
   ✔ @high support for seleting between big/little endianess @done(21-06-20 02:35)

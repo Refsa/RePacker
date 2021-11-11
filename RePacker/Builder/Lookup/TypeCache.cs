@@ -393,6 +393,11 @@ namespace RePacker.Builder
         {
             if (type.IsInterface) return false;
 
+            if (packerLookup.ContainsKey(type))
+            {
+                return true;
+            }
+
             Type targetType = null;
             foreach (var iface in type.GetInterfaces())
             {
@@ -511,13 +516,10 @@ namespace RePacker.Builder
             {
                 Pack<T>(buffer, ref value);
             }
-            else if (typeof(T).IsInterface)
+            else if (typeof(T).IsInterface && AttemptToCreatePacker(value.GetType()))
             {
-                if (AttemptToCreatePacker(value.GetType()))
-                {
-                    var m = typeof(TypeCache).GetMethod(nameof(Pack), BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(value.GetType());
-                    m.Invoke(null, new object[] { buffer, value });
-                }
+                var m = typeof(TypeCache).GetMethod(nameof(Pack), BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(value.GetType());
+                m.Invoke(null, new object[] { buffer, value });
             }
             else
             {
