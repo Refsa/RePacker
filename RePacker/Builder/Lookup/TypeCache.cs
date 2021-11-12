@@ -391,8 +391,6 @@ namespace RePacker.Builder
 
         internal static bool AttemptToCreatePacker(Type type)
         {
-            if (type.IsInterface) return false;
-
             if (packerLookup.ContainsKey(type))
             {
                 return true;
@@ -497,6 +495,10 @@ namespace RePacker.Builder
             return false;
         }
 
+        delegate void PackDelegate<T>(ReBuffer buffer, ref T value);
+        static readonly MethodInfo packMethodInfo = typeof(TypeCache).GetMethod(nameof(Pack), BindingFlags.Static | BindingFlags.Public);
+        static Dictionary<Type, Delegate> packMethodLookup = new Dictionary<Type, Delegate>();
+
         public static void Pack<T>(ReBuffer buffer, ref T value)
         {
             if (TypeResolver<IPacker<T>, T>.Packer is IPacker<T> packer)
@@ -516,10 +518,18 @@ namespace RePacker.Builder
             {
                 Pack<T>(buffer, ref value);
             }
-            else if (typeof(T).IsInterface && AttemptToCreatePacker(value.GetType()))
+            else if (typeof(T).IsInterface)
             {
-                var m = typeof(TypeCache).GetMethod(nameof(Pack), BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(value.GetType());
-                m.Invoke(null, new object[] { buffer, value });
+                var baseType = value.GetType();
+                if (packMethodLookup.TryGetValue(baseType, out var del)) { }
+                else if (AttemptToCreatePacker(baseType))
+                {
+                    del = packMethodInfo.MakeGenericMethod(baseType).CreateDelegate(typeof(PackDelegate<>).MakeGenericType(baseType));
+                    packMethodLookup.Add(baseType, del);
+                }
+
+                // TODO: Get rid of this DynamicInvoke
+                del.DynamicInvoke(buffer, value);
             }
             else
             {
@@ -546,10 +556,6 @@ namespace RePacker.Builder
             else if (AttemptToCreatePacker(typeof(T)))
             {
                 return UnpackInternal<T>(buffer);
-            }
-            else if (typeof(T).IsInterface)
-            {
-                throw new NotSupportedException($"Can't unpack into an interface");
             }
             else
             {
@@ -589,15 +595,15 @@ namespace RePacker.Builder
             {
                 UnpackInto<T>(buffer, ref target);
             }
-            else if (target.GetType().IsInterface)
-            {
-                throw new NotSupportedException($"Can't unpack into an interface");
-            }
             else
             {
                 throw new NotSupportedException($"Unpacker for {typeof(T)} not found");
             }
         }
+
+        delegate int GetSizeDelegate<T>(ref T value);
+        static readonly MethodInfo getSizeMethodInfo = typeof(TypeCache).GetMethod(nameof(GetSize), BindingFlags.Static | BindingFlags.Public);
+        static Dictionary<Type, Delegate> getSizeLookup = new Dictionary<Type, Delegate>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetSize<T>(ref T value)
@@ -612,15 +618,16 @@ namespace RePacker.Builder
             }
             else if (typeof(T).IsInterface)
             {
-                if (AttemptToCreatePacker(value.GetType()))
+                var baseType = value.GetType();
+                if (getSizeLookup.TryGetValue(baseType, out var del)) { }
+                else if (AttemptToCreatePacker(baseType))
                 {
-                    var m = typeof(TypeCache).GetMethod(nameof(GetSize), BindingFlags.Static | BindingFlags.Public).MakeGenericMethod(value.GetType());
-                    return (int)m.Invoke(null, new object[] { value });
+                    var m = getSizeMethodInfo.MakeGenericMethod(baseType);
+                    del = m.CreateDelegate(typeof(GetSizeDelegate<>).MakeGenericType(baseType));
+                    getSizeLookup.Add(baseType, del);
                 }
-                else
-                {
-                    throw new NotSupportedException($"Can't get size of an anonymous interface");
-                }
+
+                return (int)del.DynamicInvoke(value);
             }
             else
             {

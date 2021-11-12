@@ -486,5 +486,13 @@ namespace RePacker.Tests
 
             Assert.Equal(28 + 4, RePacking.SizeOf(ref data));
         }
+
+        [Fact]
+        public void get_size_from_interface_cast()
+        {
+            var data = new ClassHasInterface(1234, 1234);
+            var asInterface = (ITestInterface)data;
+            Assert.Equal(16, RePacking.SizeOf(ref asInterface));
+        }
     }
 }
