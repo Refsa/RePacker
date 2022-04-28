@@ -7,7 +7,6 @@ namespace RePacker
     {
         IntPtr ptr;
         byte* data;
-
         int capacity;
 
         public int Capacity => capacity;
@@ -26,47 +25,113 @@ namespace RePacker
             return blob;
         }
 
-        public void Write<T>(int index, in T value)
+        public void Write<T>(int byteOffset, in T value)
             where T : unmanaged
         {
-            *(T*)(data + index) = value;
+            if (byteOffset >= capacity) throw new IndexOutOfRangeException();
+
+            *(T*)(data + byteOffset) = value;
         }
 
-        public T Read<T>(int index)
+        public T Read<T>(int byteOffset)
             where T : unmanaged
         {
-            return *(T*)(data + index);
+            if (byteOffset >= capacity) throw new IndexOutOfRangeException();
+
+            return *(T*)(data + byteOffset);
+        }
+
+        public ref T GetRef<T>(int byteOffset)
+            where T : unmanaged
+        {
+            if (byteOffset >= capacity) throw new IndexOutOfRangeException();
+
+            return ref *(T*)(data + byteOffset);
         }
 
         public void EnsureCapacity(int capacity)
         {
-            if (this.capacity >= capacity) return;
+            if (this.capacity > capacity) return;
 
-            Marshal.ReAllocHGlobal(ptr, (IntPtr)capacity);
-
-            this.data = (byte*)ptr.ToPointer();
+            this.ptr = Marshal.ReAllocHGlobal(this.ptr, (IntPtr)capacity);
+            this.data = (byte*)this.ptr.ToPointer();
             this.capacity = capacity;
         }
 
-        public void Shrink(int length)
+        public void ShrinkFit(int startOffset, int bytes)
         {
-            if (length >= capacity) return;
+            if ((startOffset + bytes) > capacity) return;
+            this.capacity = bytes;
 
-            Marshal.ReAllocHGlobal(ptr, (IntPtr)length);
+            if (startOffset == 0)
+            {
+                this.ptr = Marshal.ReAllocHGlobal(this.ptr, (IntPtr)bytes);
+                this.data = (byte*)this.ptr.ToPointer();
+            }
+            else
+            {
+                var newPtr = Marshal.AllocHGlobal(bytes);
+                var newData = (byte*)newPtr.ToPointer();
+
+                var src = this.data + startOffset;
+
+                Buffer.MemoryCopy(src, newData, bytes, bytes);
+                Marshal.FreeHGlobal(this.ptr);
+
+                this.ptr = newPtr;
+                this.data = newData;
+            }
         }
 
         public byte[] ToArray(int length)
         {
             var array = new byte[length];
-
             Marshal.Copy(ptr, array, 0, length);
-
             return array;
         }
 
-        public void CopyTo(ref NativeBlob other, int length)
+        public void CopyTo(ref NativeBlob dst, int length, int srcOffset = 0, int dstOffset = 0)
         {
-            Buffer.MemoryCopy(data, other.data, length, length);
+            if ((srcOffset + length) > capacity)
+                throw new IndexOutOfRangeException("Source offset is outside of source capacity");
+            if ((dstOffset + length) > dst.capacity)
+                throw new IndexOutOfRangeException("Dest offset is outside of dest capacity");
+
+            var srcPtr = data + srcOffset;
+            var dstPtr = dst.data + dstOffset;
+            Buffer.MemoryCopy(srcPtr, dstPtr, dst.capacity, length);
+        }
+
+        public void CopyTo<T>(T[] dst, int srcOffset, int elements)
+            where T : unmanaged
+        {
+            if ((srcOffset + elements) > capacity) throw new IndexOutOfRangeException();
+
+            var src = data + srcOffset;
+            var len = sizeof(T) * elements;
+
+            fixed (void* dstPtr = &dst[0])
+            {
+                Buffer.MemoryCopy(src, dstPtr, len, len);
+            }
+        }
+
+        public void Append<T>(T[] src, int srcOffset, int dstOffset, int elements)
+            where T : unmanaged
+        {
+            if ((dstOffset + elements) > capacity)
+                throw new IndexOutOfRangeException("Dest offset is outside of capacity");
+            if ((srcOffset + elements) > src.Length)
+                throw new IndexOutOfRangeException("Src offset is outside of src Length");
+
+            int stride = sizeof(T);
+            int len = elements * stride;
+            var dst = data + dstOffset;
+
+            fixed (void* srcPtr = &src[srcOffset])
+            {
+                Buffer.MemoryCopy(srcPtr, dst, len, len);
+            }
         }
 
         public void Dispose()
