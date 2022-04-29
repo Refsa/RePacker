@@ -26,19 +26,8 @@ namespace RePacker.Buffers
                 throw new IndexOutOfRangeException($"Trying to write type {typeof(T)} outside of range of buffer");
             }
 
-            fixed (byte* data = &buffer.Array[buffer.WriteCursor()])
-            {
-                if (buffer.Endianness == Endianness.BigEndian)
-                {
-                    *((T*)data) = UnsafeUtils.ToBigEndian(value);
-                }
-                else
-                {
-                    *((T*)data) = value;
-                }
-            }
-
-
+            buffer.EnsureEndianness(ref value);
+            buffer.Blob.Write(buffer.WriteCursor(), value);
             buffer.MoveWriteCursor(sizeof(T));
         }
 
@@ -62,16 +51,8 @@ namespace RePacker.Buffers
                 throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
             }
 
-            fixed (byte* data = &buffer.Array[buffer.ReadCursor()])
-            {
-                value = *(T*)data;
-            }
-
-            if (buffer.Endianness == Endianness.BigEndian)
-            {
-                value = UnsafeUtils.ToBigEndian(value);
-            }
-
+            value = buffer.Blob.Read<T>(buffer.ReadCursor());
+            buffer.EnsureEndianness(ref value);
             buffer.MoveReadCursor(sizeof(T));
         }
 
@@ -96,17 +77,12 @@ namespace RePacker.Buffers
         public unsafe static ref T GetRef<T>(this ReBuffer buffer, int byteOffset = 0)
             where T : unmanaged
         {
-            if (buffer.ReadCursor() + byteOffset + sizeof(T) > buffer.Array.Length)
+            if (buffer.ReadCursor() + byteOffset + sizeof(T) > buffer.Blob.Capacity)
             {
                 throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
             }
 
-            fixed (byte* data = &buffer.Array[buffer.ReadCursor() + byteOffset])
-            {
-                T* t = (T*)data;
-
-                return ref *t;
-            }
+            return ref buffer.Blob.GetRef<T>(buffer.ReadCursor() + byteOffset);
         }
 
         /// <summary>
@@ -125,22 +101,14 @@ namespace RePacker.Buffers
         public static unsafe T Peek<T>(this ReBuffer buffer, int byteOffset = 0)
             where T : unmanaged
         {
-            if (buffer.ReadCursor() + byteOffset + sizeof(T) > buffer.Array.Length)
+            if (buffer.ReadCursor() + byteOffset + sizeof(T) > buffer.Blob.Capacity)
             {
                 throw new IndexOutOfRangeException($"Trying to read type {typeof(T)} outside of range of buffer");
             }
 
-            fixed (byte* data = &buffer.Array[buffer.ReadCursor() + byteOffset])
-            {
-                T value = *(T*)data;
-
-                if (buffer.Endianness == Endianness.BigEndian)
-                {
-                    value = UnsafeUtils.ToBigEndian(value);
-                }
-
-                return value;
-            }
+            var value = buffer.Blob.Read<T>(buffer.ReadCursor() + byteOffset);
+            buffer.EnsureEndianness(ref value);
+            return value;
         }
 
         /// <summary>
@@ -176,14 +144,8 @@ namespace RePacker.Buffers
             buffer.Pack(ref len);
 
             int pos = buffer.WriteCursor();
-            int size = UnsafeUtils.SizeOf<T>();
-
-            fixed (void* src = &array[offset], dest = &buffer.Array[pos])
-            {
-                System.Buffer.MemoryCopy(src, dest, length * size, length * size);
-            }
-
-            buffer.MoveWriteCursor(length * size);
+            buffer.Blob.Append(array, offset, pos, length);
+            buffer.MoveWriteCursor(length * sizeof(T));
         }
 
         /// <summary>
@@ -209,14 +171,8 @@ namespace RePacker.Buffers
             }
 
             T[] destArray = new T[(int)len];
-            int size = UnsafeUtils.SizeOf<T>();
-
-            fixed (void* src = &buffer.Array[buffer.ReadCursor()], dest = destArray)
-            {
-                System.Buffer.MemoryCopy(src, dest, len * (ulong)size, len * (ulong)size);
-            }
-
-            buffer.MoveReadCursor(size * (int)len);
+            buffer.Blob.CopyTo(destArray, buffer.ReadCursor(), (int)len);
+            buffer.MoveReadCursor((int)len * sizeof(T));
 
             return destArray;
         }
@@ -232,14 +188,19 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PackBuffer(this ReBuffer buffer, ReBuffer other)
         {
-            int readCursor = other.ReadCursor();
-            int writeCursor = other.WriteCursor();
+            var readCursor = other.ReadCursor();
+            var writeCursor = other.WriteCursor();
             var endianness = other.Endianness;
 
             buffer.Pack(ref readCursor);
             buffer.Pack(ref writeCursor);
             buffer.Pack(ref endianness);
-            buffer.PackArray(other.Array, other.ReadCursor(), other.Length());
+
+            var length = (ulong)other.Length();
+            buffer.Pack(ref length);
+
+            other.Blob.CopyTo(ref buffer.Blob, other.Length(), other.ReadCursor(), buffer.WriteCursor());
+            buffer.MoveWriteCursor(other.Length());
         }
 
         /// <summary>
@@ -258,12 +219,16 @@ namespace RePacker.Buffers
             buffer.Unpack(out int writeCursor);
             buffer.Unpack(out Endianness endianness);
 
-            var value = new ReBuffer(buffer.UnpackArray<byte>());
-            value.SetReadCursor(readCursor);
-            value.SetWriteCursor(writeCursor);
-            value.SetEndianness(endianness);
+            buffer.Unpack(out ulong length);
+            var dest = new ReBuffer((int)length);
 
-            return value;
+            buffer.Blob.CopyTo(ref dest.Blob, (int)length, buffer.ReadCursor(), 0);
+
+            dest.SetReadCursor(readCursor);
+            dest.SetWriteCursor(writeCursor);
+            dest.SetEndianness(endianness);
+
+            return dest;
         }
     }
 }

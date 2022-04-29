@@ -1,3 +1,4 @@
+using System.Linq;
 using Xunit;
 
 namespace RePacker.Unsafe.Tests
@@ -127,6 +128,8 @@ namespace RePacker.Unsafe.Tests
             {
                 Assert.Equal(i + 1, blob.Read<int>(i * stride));
             }
+
+            blob.Dispose();
         }
 
         [Fact]
@@ -143,6 +146,8 @@ namespace RePacker.Unsafe.Tests
             {
                 Assert.Equal(i + 1 + 5, blob.Read<int>(i * stride));
             }
+
+            blob.Dispose();
         }
 
         [Fact]
@@ -159,14 +164,169 @@ namespace RePacker.Unsafe.Tests
             {
                 Assert.Equal(blob.Read<byte>(i), array[i]);
             }
+
+            blob.Dispose();
         }
 
         [Fact]
-        public void NativeBlob_CopyTo_Blob_to_Blob()
+        public void NativeBlob_CopyTo_Blob_to_Blob_no_offsets()
         {
             int stride = sizeof(int);
             var src = new NativeBlob(10 * stride);
             var dst = new NativeBlob(10 * stride);
+
+            for (int i = 0; i < 10; i++) src.Write(i * stride, i + 1);
+
+            src.CopyTo(ref dst, src.Capacity);
+
+            for (int i = 0; i < 10; i++)
+            {
+                Assert.Equal(src.Read<int>(i * stride), dst.Read<int>(i * stride));
+            }
+
+            src.Dispose();
+            dst.Dispose();
+        }
+
+        [Fact]
+        public void NativeBlob_CopyTo_Blob_to_Blob_with_src_offsets()
+        {
+            int stride = sizeof(int);
+            var src = new NativeBlob(10 * stride);
+            var dst = new NativeBlob(5 * stride);
+
+            for (int i = 0; i < 10; i++) src.Write(i * stride, i + 1);
+
+            src.CopyTo(ref dst, 5 * stride, 5 * stride);
+
+            for (int i = 0; i < 5; i++)
+            {
+                Assert.Equal(src.Read<int>((i + 5) * stride), dst.Read<int>(i * stride));
+            }
+
+            src.Dispose();
+            dst.Dispose();
+        }
+
+        [Fact]
+        public void NativeBlob_CopyTo_Blob_to_Blob_with_dst_offsets()
+        {
+            int stride = sizeof(int);
+            var src = new NativeBlob(5 * stride);
+            var dst = new NativeBlob(10 * stride);
+
+            for (int i = 0; i < 5; i++) src.Write(i * stride, i + 1);
+
+            src.CopyTo(ref dst, 5 * stride, dstOffset: 5 * stride);
+
+            for (int i = 0; i < 5; i++)
+            {
+                Assert.Equal(src.Read<int>(i * stride), dst.Read<int>((i + 5) * stride));
+            }
+
+            src.Dispose();
+            dst.Dispose();
+        }
+
+        [Fact]
+        public void NativeBlob_CopyTo_Blob_src_offset_throws_index_out_of_range()
+        {
+            Assert.Throws<System.IndexOutOfRangeException>(() =>
+            {
+                var src = new NativeBlob(10);
+                var dst = new NativeBlob(10);
+
+                try
+                {
+                    src.CopyTo(ref dst, 5, 6);
+                }
+                catch
+                {
+                    src.Dispose();
+                    dst.Dispose();
+                    throw;
+                }
+            });
+        }
+
+        [Fact]
+        public void NativeBlob_CopyTo_Blob_dst_offset_throws_index_out_of_range()
+        {
+            Assert.Throws<System.IndexOutOfRangeException>(() =>
+            {
+                var src = new NativeBlob(10);
+                var dst = new NativeBlob(10);
+
+                try
+                {
+                    src.CopyTo(ref dst, 5, dstOffset: 6);
+                }
+                catch
+                {
+                    src.Dispose();
+                    dst.Dispose();
+                    throw;
+                }
+            });
+        }
+
+        [Fact]
+        public void NativeBlob_Append()
+        {
+            int stride = sizeof(int);
+            int[] src = Enumerable.Range(0, 10).ToArray();
+            var dst = new NativeBlob(src.Length * stride);
+
+            dst.Append(src, 0, 0, src.Length);
+
+            for (int i = 0; i < src.Length; i++)
+            {
+                Assert.Equal(src[i], dst.Read<int>(i * stride));
+            }
+
+            dst.Dispose();
+        }
+
+        [Fact]
+        public void NativeBlob_Append_srcOffset_throws()
+        {
+            int stride = sizeof(int);
+            int[] src = new int[] { 1, 2, 3, 4 };
+
+            Assert.Throws<System.IndexOutOfRangeException>(() =>
+            {
+                var dst = new NativeBlob(src.Length * stride);
+                try
+                {
+                    dst.Append(src, 5, 0, 5);
+                }
+                catch
+                {
+                    dst.Dispose();
+                    throw;
+                }
+            });
+        }
+
+        [Fact]
+        public void NativeBlob_Append_dstOffset_throws()
+        {
+            int stride = sizeof(int);
+            int[] src = new int[] { 1, 2, 3, 4 };
+
+            Assert.Throws<System.IndexOutOfRangeException>(() =>
+            {
+                var dst = new NativeBlob(src.Length * stride);
+                try
+                {
+                    dst.Append(src, 0, 5 * stride, 5);
+                }
+                catch
+                {
+                    dst.Dispose();
+                    throw;
+                }
+            });
         }
     }
 }

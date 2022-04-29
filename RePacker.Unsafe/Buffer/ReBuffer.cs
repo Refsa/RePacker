@@ -12,12 +12,11 @@ namespace RePacker.Buffers
         LittleEndian,
     }
 
-    public class ReBuffer
+    public class ReBuffer : IDisposable
     {
-        static Endianness DefaultEndianness = BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
+        static readonly Endianness DefaultEndianness = BitConverter.IsLittleEndian ? Endianness.LittleEndian : Endianness.BigEndian;
 
-        byte[] array;
-        public byte[] Array => array;
+        NativeBlob blob;
 
         int writeCursor;
         int readCursor;
@@ -25,6 +24,9 @@ namespace RePacker.Buffers
 
         bool expand;
 
+        public ref NativeBlob Blob => ref blob;
+
+        public int Capacity => blob.Capacity;
         public Endianness Endianness => endianness;
         public void SetEndianness(Endianness endianness) => this.endianness = endianness;
 
@@ -35,7 +37,7 @@ namespace RePacker.Buffers
         /// <param name="expand">enable auto-expansion of buffer to fit elements</param>
         public ReBuffer(int size, bool expand = false)
         {
-            this.array = new byte[size];
+            this.blob = new NativeBlob(size);
             this.writeCursor = 0;
             this.readCursor = 0;
             this.expand = expand;
@@ -51,18 +53,18 @@ namespace RePacker.Buffers
         /// <param name="expand">enable auto-expansion of buffer to fit elements</param>
         public ReBuffer(byte[] buffer, int offset = 0, bool expand = false)
         {
+            if (buffer == null)
+            {
+                throw new ArgumentNullException("given buffer array is null");
+            }
+
             this.writeCursor = offset;
             this.readCursor = 0;
 
-            this.array = buffer;
+            this.blob = NativeBlob.From(buffer);
             this.expand = expand;
 
             this.endianness = DefaultEndianness;
-
-            if (this.array == null)
-            {
-                throw new ArgumentNullException("Array on Buffer is null");
-            }
         }
 
         /// <summary>
@@ -79,13 +81,19 @@ namespace RePacker.Buffers
             this.writeCursor = buffer.writeCursor;
             this.readCursor = buffer.readCursor;
 
-            this.array = buffer.array;
+            this.blob = buffer.blob;
             this.endianness = buffer.endianness;
+        }
 
-            if (this.array == null)
-            {
-                throw new ArgumentNullException("Array on Buffer is null");
-            }
+        ~ReBuffer()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            blob.Dispose();
         }
 
         /// <summary>
@@ -102,13 +110,7 @@ namespace RePacker.Buffers
                 throw new IndexOutOfRangeException("Cant copy Buffer, destination too small");
             }
 
-            //System.Buffer.BlockCopy(source.array, source.readCursor, array, writeCursor, length);
-
-            fixed (void* src = &source.array[source.readCursor], dest = &array[writeCursor])
-            {
-                System.Buffer.MemoryCopy(src, dest, length, length);
-            }
-
+            source.blob.CopyTo(ref blob, length, source.readCursor, writeCursor);
             MoveWriteCursor(length);
         }
 
@@ -119,15 +121,15 @@ namespace RePacker.Buffers
         public unsafe ReBuffer Clone()
         {
             var buffer = new ReBuffer(Length());
-
-            fixed (void* src = &array[readCursor], dest = buffer.array)
-            {
-                System.Buffer.MemoryCopy(src, dest, writeCursor, writeCursor);
-            }
-
+            blob.CopyTo(ref buffer.blob, Length());
             buffer.writeCursor = writeCursor;
 
             return buffer;
+        }
+
+        public byte[] ToArray()
+        {
+            return blob.ToArray(Length());
         }
 
         /// <summary>
@@ -135,9 +137,7 @@ namespace RePacker.Buffers
         /// </summary>
         public void ShrinkFit()
         {
-            var newArray = new byte[Length()];
-            System.Buffer.BlockCopy(array, readCursor, newArray, 0, Length());
-            array = newArray;
+            blob.ShrinkFit(ReadCursor(), Length());
 
             writeCursor -= readCursor;
             readCursor = 0;
@@ -152,7 +152,7 @@ namespace RePacker.Buffers
         {
             for (int i = 0; i < writeCursor; i++)
             {
-                array[i] = 0;
+                blob.Write<byte>(i, 0);
             }
             Reset();
         }
@@ -208,7 +208,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int FreeSpace()
         {
-            return array.Length - writeCursor;
+            return blob.Capacity - writeCursor;
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetReadCursor(int pos)
         {
-            if (pos > array.Length || pos < 0)
+            if (pos > blob.Capacity || pos < 0)
             {
                 throw new IndexOutOfRangeException("Trying to set read cursor outside of buffer range");
             }
@@ -235,7 +235,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetWriteCursor(int pos)
         {
-            if (pos > array.Length || pos < 0)
+            if (pos > blob.Capacity || pos < 0)
             {
                 throw new IndexOutOfRangeException("Trying to set write cursor outside of buffer range");
             }
@@ -251,7 +251,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveWriteCursor(int amount)
         {
-            if (writeCursor + amount > array.Length || writeCursor < 0)
+            if (writeCursor + amount > blob.Capacity || writeCursor < 0)
             {
                 throw new IndexOutOfRangeException("Trying to move write cursor outside of buffer range");
             }
@@ -267,7 +267,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void MoveReadCursor(int amount)
         {
-            if (readCursor + amount > array.Length || readCursor < 0)
+            if (readCursor + amount > blob.Capacity || readCursor < 0)
             {
                 throw new IndexOutOfRangeException("Trying to move read cursor outside of buffer range");
             }
@@ -285,11 +285,11 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanWriteBytes(int byteCount)
         {
-            if (writeCursor + byteCount > array.Length)
+            if (writeCursor + byteCount > blob.Capacity)
             {
                 if (!expand) return false;
 
-                Expand<byte>(byteCount);
+                Expand(byteCount);
             }
 
             return true;
@@ -303,7 +303,7 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanReadBytes(int byteCount)
         {
-            return readCursor + byteCount <= array.Length;
+            return readCursor + byteCount <= blob.Capacity;
         }
 
         /// <summary>
@@ -317,11 +317,13 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool CanWrite<T>(int count = 1) where T : unmanaged
         {
-            if ((writeCursor + (count * sizeof(T))) > array.Length)
+            int size = count * sizeof(T);
+
+            if ((writeCursor + size) > blob.Capacity)
             {
                 if (!expand) return false;
 
-                Expand<T>();
+                Expand(size);
             }
 
             return true;
@@ -336,25 +338,24 @@ namespace RePacker.Buffers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe bool CanRead<T>(int count = 1) where T : unmanaged
         {
-            return (readCursor + (count * sizeof(T))) <= array.Length;
+            return (readCursor + (count * sizeof(T))) <= blob.Capacity;
         }
         #endregion
 
         #region Size
-        unsafe void Expand<T>(int count = 1) where T : unmanaged
+        void Expand(int bytes = 1)
         {
-            byte[] newBuffer = new byte[writeCursor + sizeof(T) * count];
-
-            if (writeCursor > 0)
-            {
-                fixed (void* src = array, dest = newBuffer)
-                {
-                    System.Buffer.MemoryCopy(src, dest, writeCursor, writeCursor);
-                }
-            }
-
-            array = newBuffer;
+            blob.EnsureCapacity(writeCursor + bytes);
         }
         #endregion
+
+        public void EnsureEndianness<T>(ref T value)
+            where T : unmanaged
+        {
+            if (endianness == Endianness.BigEndian)
+            {
+                value = UnsafeUtils.ToBigEndian(value);
+            }
+        }
     }
 }

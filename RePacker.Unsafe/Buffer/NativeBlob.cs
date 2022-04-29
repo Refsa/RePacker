@@ -10,6 +10,7 @@ namespace RePacker
         int capacity;
 
         public int Capacity => capacity;
+        public byte* Data => data;
 
         public NativeBlob(int capacity)
         {

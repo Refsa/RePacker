@@ -27,23 +27,19 @@ namespace RePacker.Buffers
                 return;
             }
 
-            int count = 0;
-            if (buffer.Array != null)
+            int str_len = StringHelper.SizeOf(str);
+
+            if (!buffer.CanWriteBytes(str_len + sizeof(ulong)))
             {
-                int str_len = StringHelper.SizeOf(str);
-
-                if (!buffer.CanWriteBytes(str_len + sizeof(ulong)))
-                {
-                    throw new IndexOutOfRangeException($"Cant fit string of size {str_len} into buffer");
-                }
-
-                count = StringHelper.CopyString(str, buffer.Array, buffer.WriteCursor() + sizeof(ulong));
-
-                ulong c = (ulong)count;
-                buffer.Pack(ref c);
-
-                buffer.MoveWriteCursor(count);
+                throw new IndexOutOfRangeException($"Cant fit string of size {str_len} into buffer");
             }
+
+            int count = StringHelper.CopyString(str, ref buffer.Blob, buffer.WriteCursor() + sizeof(ulong));
+
+            ulong c = (ulong)count;
+            buffer.Pack(ref c);
+
+            buffer.MoveWriteCursor(count);
         }
 
         /// <summary>
@@ -63,19 +59,15 @@ namespace RePacker.Buffers
 
             int start = buffer.ReadCursor();
 
-            if (buffer.Array != null)
+            if (!buffer.CanReadBytes((int)length))
             {
-                if (!buffer.CanReadBytes((int)length))
-                {
-                    throw new IndexOutOfRangeException($"Cant read string of size {length} from buffer");
-                }
-
-                string s = StringHelper.GetString(buffer.Array, start, (int)length);
-                buffer.MoveReadCursor((int)length);
-                return s;
+                throw new IndexOutOfRangeException($"Cant read string of size {length} from buffer");
             }
 
-            return "";
+            string s = StringHelper.GetString(ref buffer.Blob, start, (int)length);
+            buffer.MoveReadCursor((int)length);
+
+            return s;
         }
 
         /// <summary>

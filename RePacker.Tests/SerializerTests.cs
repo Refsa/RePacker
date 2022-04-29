@@ -53,7 +53,7 @@ namespace RePacker.Tests
             var buffer = new ReBuffer(0, true);
             buffer.PackString(ref value);
 
-            Assert.Equal(buffer.Array.Length, 40);
+            Assert.Equal(40, buffer.Capacity);
         }
 
         [Fact]

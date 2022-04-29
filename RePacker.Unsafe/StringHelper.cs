@@ -25,9 +25,28 @@ namespace RePacker.Unsafe
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe string GetString(ref NativeBlob blob, int offset, int length)
+        {
+            return stringEncoder.GetString(blob.Data + offset, length);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int CopyString(string value, byte[] data, int offset)
         {
             return stringEncoder.GetBytes(value, 0, value.Length, data, offset);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int CopyString(string value, ref NativeBlob dst, int offset)
+        {
+            int bytes = SizeOf(value);
+            var dstPtr = dst.Data + offset;
+            fixed(char* chars = value)
+            {
+                stringEncoder.GetBytes(chars, value.Length, dstPtr, bytes);
+            }
+
+            return bytes;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
